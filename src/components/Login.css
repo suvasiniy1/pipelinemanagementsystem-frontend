@@ -1,0 +1,98 @@
+.login-container {
+  max-width: 400px; /* Adjust this width to match the screenshot */
+  margin: 50px auto; /* This centers the form on the page */
+  padding: 20px; /* Adjust padding if necessary */
+  border: 1px solid #ccc; /* This adds a border around the form */
+  border-radius: 4px; /* This rounds the corners of the form */
+  background: #fff; /* This sets the background color of the form */
+}
+
+.login-form h2 {
+  text-align: center; /* Centers the header text */
+}
+
+.form-group {
+  margin-bottom: 20px; /* Space between form groups */
+}
+
+/* Ensures that the input and button elements fill their containers */
+.form-group input,
+.login-button {
+  width: 100%; /* Makes the element fill the width of its parent */
+  padding: 10px; /* Adds padding inside the elements */
+  border: 1px solid #ddd; /* Adds a border to the elements */
+  border-radius: 4px; /* Rounds the corners of the elements */
+  box-sizing: border-box; /* Ensures padding does not affect the width */
+}
+
+.form-options {
+  display: flex; /* Use flexbox to layout children */
+  justify-content: space-between; /* Space out children to each end */
+  align-items: center; /* Align items vertically in the center */
+  margin-top: 10px; /* Add margin on top if needed */
+}
+
+.remember-me {
+  display: flex; /* Use flexbox to align checkbox and label text */
+  align-items: center; /* Align items vertically in the center */
+}
+
+.forgot-password {
+  display: block; /* Make sure this is a block element */
+  text-align: right; /* Align text to the right */
+  margin-left: auto; /* Push the link to the right */
+}
+
+.login-button {
+  padding: 10px 15px; /* Adjust button padding if needed */
+  background-color: #007bff; /* Sets the button color */
+  border: none; /* Removes the border */
+  border-radius: 4px; /* Rounds the corners of the button */
+  color: white; /* Sets the text color */
+  font-size: 1em; /* Sets the font size */
+  cursor: pointer; /* Changes the cursor to indicate it's clickable */
+  transition: background-color 0.3s ease; /* Adds a transition effect */
+}
+
+.login-button:hover {
+  background-color: #0056b3; /* Changes color on hover */
+}
+
+/* If there are any more styles related to other elements not shown here,
+   they should also be included. */
+   .input-icon {
+    position: relative;
+  }
+  
+  .input-icon input {
+    padding-left: 35px; /* Adjust padding to make space for the icon */
+  }
+  
+  .input-icon .icon-email
+ {
+    position: absolute;
+    left: 10px; /* Adjust based on the size of your icons */
+    top: 50%;
+    transform: translateY(-50%);
+    /* Set your icon images here */
+    /* Example: */
+    background-image: url('../images/mail-142.svg');
+    background-repeat: no-repeat;
+    background-size: contain;
+    width: 20px; /* Adjust based on the size of your icons */
+    height: 20px; /* Adjust based on the size of your icons */
+  }
+  
+  .input-icon .icon-password {
+    position: absolute;
+    left: 10px; /* Adjust based on the size of your icons */
+    top: 50%;
+    transform: translateY(-50%);
+    /* If you're using a different icon for the password field */
+    background-image: url('../images/password-117.svg');
+    /* Other styles remain the same */
+    background-repeat: no-repeat;
+    background-size: contain;
+    width: 20px; /* Adjust based on the size of your icons */
+    height: 20px; /* Adjust based on the size of your icons */
+  }

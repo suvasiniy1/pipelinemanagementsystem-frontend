@@ -1,7 +1,3 @@
-.App {
-  text-align: center;
-}
-
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -12,6 +8,27 @@
     animation: App-logo-spin infinite 20s linear;
   }
 }
+.App {
+  padding-top: 50px; /* Add space at the top */
+  padding-bottom: 50px; /* Add space at the bottom */
+  padding-left: 10%; /* Add percentage-based padding to the left to push content slightly to the right */
+  padding-right: 5%; /* Add the same percentage-based padding to the right for symmetry */
+  background-color: #f8f8f8; /* Light grey background, adjust as needed */
+  min-height: 100vh; /* Ensures the .App fills the full height of the screen */
+  box-sizing: border-box; /* Ensures padding doesn't affect the overall dimensions */
+}
+
+.App h1 {
+  color: #07511c; /* This is a dark slate color; adjust the hex value to match the Pipedrive color */
+  margin: 0 0 20px 0; /* 20px bottom margin, no margin on top */
+  padding: 0; /* No padding inside the h1 */
+  font-size: 2.5rem; /* Increase the size of the font */
+  font-weight: 700; /* Makes the font bold */
+  /* Add other font properties as needed */
+}
+
+  /* Any other styling here to match the Pipedrive logo */
+
 
 .App-header {
   background-color: #282c34;
