@@ -2,13 +2,27 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { isUserLoggedIn } from './others/authUtil';
+import { HashRouter as Router, Route } from "react-router-dom";
+import Login from './components/login';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
+
+const app = () => {
+ return <Router>
+    {
+      isUserLoggedIn() === true ? (
+        <App />
+      ) : <Login />
+    }
+  </Router>
+}
+
 root.render(
   <React.StrictMode>
-    <App />
+    <App/>
   </React.StrictMode>
 );
 
