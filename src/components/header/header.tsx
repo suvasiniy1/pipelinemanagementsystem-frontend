@@ -2,10 +2,11 @@ import React from "react";
 import "./header.css";
 import { LetterAvatar } from "../other/avatar";
 
-export const Header = () => {
+export const HeaderComponent = () => {
     return (
-        <div className="header">
+        <div >
             <LetterAvatar/>
+            <hr/>
         </div>
     );
 }

@@ -1,23 +1,15 @@
 import {
     Route,
-    BrowserRouter as Router,
     Routes
 } from "react-router-dom";
-import App from "../App";
-import { Home } from "../components/home";
 import Login from "../components/login";
-import { Dashboard } from "../components/dashboard";
+import { Dashboard } from "../components/pipeline/dashboard";
 
 export const AppRouter = () => {
     return (
-        <Router>
             <Routes>
                 <Route
-                    path="/"
-                    element={<Home />}
-                />
-                <Route
-                    path="dashboard"
+                    path="/dashboard"
                     element={<Dashboard />}
                 />
                 <Route
@@ -25,6 +17,5 @@ export const AppRouter = () => {
                     element={<Login />}
                 />
             </Routes>
-        </Router>
     )
 }

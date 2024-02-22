@@ -23,7 +23,7 @@ export const LetterAvatar = () => {
         setAnchorEl(null);
     };
 
-    const doLogout=()=>{
+    const doLogout = () => {
         localStorage.removeItem("isUserLoggedIn");
         navigate("/login");
     }
@@ -89,7 +89,7 @@ export const LetterAvatar = () => {
                         </MenuItem>
                         <Divider />
 
-                        <MenuItem id="logOut" title="Logout" onClick={(e) => {doLogout() }}>
+                        <MenuItem id="logOut" title="Logout" onClick={(e) => { doLogout() }}>
                             <ListItemIcon>
                                 <ExitToAppIcon fontSize="small" />
                             </ListItemIcon>

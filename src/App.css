@@ -53,6 +53,12 @@
   }
 }
 
-@import "rsuite/dist/rsuite.css";
+.sidebar{
+  color: 1px solid red;
+}
+.main {
+  /* margin-left: 5%; */
+  margin-top: 2%;
+}
 
 #root{ padding: 10px; }

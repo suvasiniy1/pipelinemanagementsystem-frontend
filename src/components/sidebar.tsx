@@ -1,57 +1,84 @@
-import React from 'react';
-import DashboardIcon from '@rsuite/icons/legacy/Dashboard';
-import GearCircleIcon from '@rsuite/icons/legacy/GearCircle';
-import GroupIcon from '@rsuite/icons/legacy/Group';
-import MagicIcon from '@rsuite/icons/legacy/Magic';
-import { Nav, Sidenav, Toggle } from 'rsuite';
+import React, { useState } from 'react';
+import { Sidenav, Nav, Icon, Container, Header, Content } from 'rsuite';
+import 'rsuite/dist/styles/rsuite-default.css';
+import { AppRouter } from '../others/appRouter';
 import { useNavigate } from 'react-router-dom';
+import { HeaderComponent } from './header/header';
 
 export const SideBar = () => {
-    const [expanded, setExpanded] = React.useState(true);
-    const [activeKey, setActiveKey] = React.useState('1');
+    const [activeKey, setActiveKey] = useState('1');
+    const [expanded, setExpanded] = useState(false);
     const navigate = useNavigate();
-    return (
-        <div style={{ width: 240 }}>
-            <Toggle
-                onChange={setExpanded}
-                checked={expanded}
-                checkedChildren="Expand"
-                unCheckedChildren="Collapse"
-            />
-            <hr style={{width:1330}}/>
-            <Sidenav expanded={expanded} defaultOpenKeys={['3', '4']}>
-                <Sidenav.Body>
-                    <Nav activeKey={activeKey} onSelect={setActiveKey}>
-                        <Nav.Item eventKey="1" icon={<DashboardIcon />} onClick={(e)=>navigate("dashboard")}>
-                            Dashboard
-                        </Nav.Item>
-                        <Nav.Item eventKey="2" icon={<GroupIcon />}>
-                            Test
-                        </Nav.Item>
-                        <Nav.Menu placement="rightStart" eventKey="3" title="Advanced" icon={<MagicIcon />}>
-                            <Nav.Item eventKey="3-1">Test</Nav.Item>
-                            <Nav.Item eventKey="3-2">Test</Nav.Item>
-                            <Nav.Item eventKey="3-3">Test</Nav.Item>
-                            <Nav.Item eventKey="3-4">Test</Nav.Item>
-                        </Nav.Menu>
-                        <Nav.Menu
-                            placement="rightStart"
-                            eventKey="4"
-                            title="Settings"
-                            icon={<GearCircleIcon />}
-                        >
-                            <Nav.Item eventKey="4-1">Test</Nav.Item>
-                            <Nav.Item eventKey="4-2">Test</Nav.Item>
-                            <Nav.Item eventKey="4-3">Test</Nav.Item>
-                            <Nav.Menu eventKey="4-5" title="Custom Action">
-                                <Nav.Item eventKey="4-5-1">Test</Nav.Item>
-                                <Nav.Item eventKey="4-5-2">Test</Nav.Item>
-                            </Nav.Menu>
-                        </Nav.Menu>
-                    </Nav>
-                </Sidenav.Body>
-                <Sidenav.Toggle expanded={expanded} onToggle={expanded => setExpanded(expanded)} />
-            </Sidenav>
-        </div>
-    );
+
+    const handleSelect = (eventKey: any) => {
+        setActiveKey(eventKey);
+    };
+
+    const handleToggle = () => {
+        setExpanded(!expanded);
+    };
+
+    const Drawer = () => {
+        return (
+            <Container style={{ display: 'flex', flexDirection: 'row' }}>
+                <Sidenav
+                    expanded={expanded}
+                    // onMouseEnter={handleToggle}
+                    // onMouseLeave={handleToggle}
+                    style={{ width: expanded ? 250 : 56 }}
+                >
+                    <Sidenav.Header>
+                        <i className="fa-solid fa-chevron-right"></i>
+                    </Sidenav.Header>
+                    <Sidenav.Body>
+                        <Nav>
+                            <Nav.Item eventKey="1" icon={<Icon icon="dashboard" />} onSelect={(e) => navigate("/dashboard")}>
+                                Pipeline
+                            </Nav.Item>
+                            <Nav.Item eventKey="2" icon={<Icon icon="calendar" />}>
+                                Leads
+                            </Nav.Item>
+                            <Nav.Item eventKey="3" icon={<Icon icon="explore" />}>
+                                Deals
+                            </Nav.Item>
+                            <Nav.Item eventKey="4" icon={<Icon icon="user" />}>
+                                Projects
+                            </Nav.Item>
+                            <Nav.Item eventKey="5" icon={<Icon icon="calendar-o" />}>
+                                Campaigns
+                            </Nav.Item>
+                            <Nav.Item eventKey="6" icon={<Icon icon="briefcase" />}>
+                                Sales Inbox
+                            </Nav.Item>
+                            <Nav.Item eventKey="7" icon={<Icon icon="info" />}>
+                                Activi
+                            </Nav.Item>
+                        </Nav>
+                    </Sidenav.Body>
+                </Sidenav>
+
+                <Container>
+                    <Header>
+                    <HeaderComponent />
+                    <br/>
+                    </Header>
+                    <Content>
+                        <AppRouter />
+                    </Content>
+                </Container>
+            </Container>
+        );
+    };
+
+    return <Drawer />;
+}
+
+const headerStyles = {
+    padding: 18,
+    fontSize: 16,
+    height: 56,
+    background: '#34c3ff',
+    color: ' #fff',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
 };
