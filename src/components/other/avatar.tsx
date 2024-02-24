@@ -29,7 +29,7 @@ export const LetterAvatar = () => {
     }
 
     return (
-        <div style={{ position: "absolute", right: 0 }}>
+        <div style={{ position: "absolute", right: 0, paddingBottom: 500 }}>
             <React.Fragment>
                 <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
                     <IconButton

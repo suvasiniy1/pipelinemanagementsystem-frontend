@@ -2,7 +2,7 @@ import styled from '@xstyled/styled-components';
 import { grid } from './constants';
 
 // $ExpectError - not sure why
-export default styled.h4`
+export default styled.h4Box`
   padding: ${grid}px;
   transition: background-color ease 0.2s;
   flex-grow: 1;

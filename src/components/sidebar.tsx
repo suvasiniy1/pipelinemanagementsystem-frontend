@@ -32,7 +32,7 @@ export const SideBar = () => {
                     </Sidenav.Header>
                     <Sidenav.Body>
                         <Nav>
-                            <Nav.Item eventKey="1" icon={<Icon icon="dashboard" />} onSelect={(e) => navigate("/dashboard")}>
+                            <Nav.Item eventKey="1" icon={<Icon icon="dashboard" />} onSelect={(e) => navigate("/pipeline")}>
                                 Pipeline
                             </Nav.Item>
                             <Nav.Item eventKey="2" icon={<Icon icon="calendar" />}>
@@ -58,10 +58,8 @@ export const SideBar = () => {
                 </Sidenav>
 
                 <Container>
-                    <Header>
                     <HeaderComponent />
-                    <br/>
-                    </Header>
+                    <hr/>
                     <Content>
                         <AppRouter />
                     </Content>

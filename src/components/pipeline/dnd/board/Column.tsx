@@ -1,36 +1,48 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "@xstyled/styled-components";
 import { colors } from "@atlaskit/theme";
 import { grid, borderRadius } from "../styles/constants";
 import { Draggable } from "react-beautiful-dnd";
-import QuoteList from "../styles/list";
+import { QuoteList } from "../styles/list";
 import Title from "../styles/title";
 
-const Container = styled.div`
+type params = {
+  title: any;
+  quotes: any;
+  index: any;
+  isScrollable: boolean;
+  isCombineEnabled: boolean;
+  useClone: boolean;
+}
+
+const Column = (props: params) => {
+  const { title, quotes, index, isScrollable, isCombineEnabled, useClone, ...others } = props;
+
+
+  const Container = styled.divBox`
   margin: ${grid}px;
   display: flex;
   flex-direction: column;
 `;
 
-const Header = styled.div`
+  const Header = styled.divBox`
   display: flex;
   align-items: center;
   justify-content: center;
   border-top-left-radius: ${borderRadius}px;
   border-top-right-radius: ${borderRadius}px;
-  background-color: ${({ isDragging }) =>
-    isDragging ? colors.G50 : colors.N30};
+  background-color: ${(isDragging: any) =>
+      isDragging ? colors.G50 : colors.N30};
   transition: background-color 0.2s ease;
   &:hover {
     background-color: ${colors.G50};
   }
 `;
 
-const Column = (props) => {
-  const title = props.title;
-  const quotes = props.quotes;
-  const index = props.index;
+
+
   return (
+    <div>
     <Draggable draggableId={title} index={index}>
       {(provided, snapshot) => (
         <Container ref={provided.innerRef} {...provided.draggableProps}>
@@ -50,13 +62,14 @@ const Column = (props) => {
               backgroundColor: snapshot.isDragging ? colors.G50 : null
             }}
             quotes={quotes}
-            internalScroll={props.isScrollable}
-            isCombineEnabled={Boolean(props.isCombineEnabled)}
-            useClone={Boolean(props.useClone)}
+            internalScroll={isScrollable}
+            isCombineEnabled={isCombineEnabled}
+            useClone={useClone}
           />
         </Container>
       )}
     </Draggable>
+    </div>
   );
 };
 

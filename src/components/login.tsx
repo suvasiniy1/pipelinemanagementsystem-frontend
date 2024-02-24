@@ -50,7 +50,7 @@ const Login = () => {
     else{
       setLoading(false);
       localStorage.setItem("isUserLoggedIn", "true");
-      navigate("/dashboard");
+      navigate("/pipeline");
     }
   
   };

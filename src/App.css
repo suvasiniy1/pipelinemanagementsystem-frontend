@@ -39,26 +39,63 @@
 }
 
 @keyframes showSignInForm {
+
   0%,
   30% {
     transform: translate(0, -150%);
   }
+
   70%,
   90% {
     transform: translate(0, 1rem);
   }
+
   80%,
   100% {
     transform: translate(0, 0);
   }
 }
 
-.sidebar{
+.sidebar {
   color: 1px solid red;
 }
+
 .main {
   /* margin-left: 5%; */
   margin-top: 2%;
 }
 
-#root{ padding: 10px; }
+#root {
+  padding: 10px;
+}
+
+.dMOlvw{
+  height: 100%;
+  overflow: scroll hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 0px 16px 16px;
+}
+.gDOqRI {
+  min-width: 190px;
+  width: 190px;
+  background-color: var(--pd-color-surface-foreground-secondary);
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--pd-radius-l);
+  margin-left: var(--pd-spacing-100);
+  flex-basis: 100%;
+}
+
+.indClW {
+  min-width: 256px;
+  display: flex;
+  flex: 1 1 0%;
+  -webkit-box-pack: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  align-items: center;
+  flex-direction: column;
+  position: relative;
+  margin: 16px;
+}

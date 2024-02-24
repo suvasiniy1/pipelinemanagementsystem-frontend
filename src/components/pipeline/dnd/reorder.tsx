@@ -1,5 +1,5 @@
 // a little function to help us with reordering the result
-const reorder = (list, startIndex, endIndex) => {
+export const reorder = (list: any, startIndex: any, endIndex: any) => {
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
   result.splice(endIndex, 0, removed);
@@ -9,7 +9,7 @@ const reorder = (list, startIndex, endIndex) => {
 
 export default reorder;
 
-export const reorderQuoteMap = ({ quoteMap, source, destination }) => {
+export const reorderQuoteMap = (quoteMap: any, source: any, destination: any) => {
   const current = [...quoteMap[source.droppableId]];
   const next = [...quoteMap[destination.droppableId]];
   const target = current[source.index];
@@ -44,7 +44,7 @@ export const reorderQuoteMap = ({ quoteMap, source, destination }) => {
   };
 };
 
-export function moveBetween({ list1, list2, source, destination }) {
+export const moveBetween = (list1: any, list2: any, source: any, destination: any) => {
   const newFirst = Array.from(list1.values);
   const newSecond = Array.from(list2.values);
 
