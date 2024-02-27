@@ -1,5 +1,5 @@
 // @flow
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@xstyled/styled-components";
 import { colors } from "@atlaskit/theme";
 import PropTypes from "prop-types";
@@ -7,6 +7,7 @@ import Column from "./Column";
 import reorder, { reorderQuoteMap } from "../reorder";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { Stage } from "../../../../models/stage";
+import { Deal } from "../../../../models/deal";
 
 type params = {
   isCombineEnabled?: any,
@@ -14,17 +15,44 @@ type params = {
   useClone?: any,
   containerHeight?: any,
   withScrollableColumns?: any,
+  rowData:Array<Stage>;
 
 }
 
 export const Board = (props: params) => {
-  const { isCombineEnabled, initial, useClone, containerHeight, withScrollableColumns, ...others } = props;
+  const { isCombineEnabled, initial, useClone, containerHeight, withScrollableColumns, rowData, ...others } = props;
   const [columns, setColumns] = useState(initial);
   
-  const stages: Array<Stage> = JSON.parse(localStorage.getItem("stagesList") as any) ?? [];
+  const [stages, setStages]=useState<Array<Stage>>(rowData ?? []);
   const [ordered, setOrdered] = useState(Object.keys(initial));
 
+  useEffect(() => {
+    
+    let stages: Array<Stage> = JSON.parse(localStorage.getItem("stagesList") as any) ?? [];
+    stages.forEach((s, index) => {
+      s.deals.forEach((d, dIndex) => {
+        d.id = `G${index + dIndex}`;
+      })
+    })
+    setStages(stages);
+  }, [props.rowData])
+
+  const reorderQuoteMap = (quoteMap: Array<Stage>, source: any, destination: any) => {
+    
+    const sourceIndex = quoteMap.findIndex(q=>q.name==source.droppableId);
+    const destinationIndex = quoteMap.findIndex(q=>q.name==destination.droppableId);
+    const orderIndex = destination.index;
+    
+    let item = quoteMap[sourceIndex].deals[source.index];
+    item.pipeLineId = quoteMap[sourceIndex].id;
+    quoteMap[sourceIndex].deals.splice(source.index, 1);
+    quoteMap[destinationIndex].deals.splice(orderIndex, 0, item);
+  
+    return quoteMap;
+  };
+
   const onDragEnd = (result: any) => {
+    
     if (result.combine) {
       if (result.type === "COLUMN") {
         const shallow = [...ordered];
@@ -71,13 +99,15 @@ export const Board = (props: params) => {
       return;
     }
 
+    
     const data = reorderQuoteMap(
-      columns,
+      stages,
       source,
       destination
-    );
+    ) as any;
 
-    setColumns(data.quoteMap);
+    localStorage.setItem("stagesList", JSON.stringify([...data]));
+    setStages([...data]);
   };
 
   const Container = styled.divBox`
@@ -104,7 +134,7 @@ export const Board = (props: params) => {
                   <Column
                     key={index}
                     index={index}
-                    title={item.title}
+                    title={item.name}
                     quotes={item.deals}
                     isScrollable={withScrollableColumns}
                     isCombineEnabled={isCombineEnabled}

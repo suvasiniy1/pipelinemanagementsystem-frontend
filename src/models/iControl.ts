@@ -27,5 +27,6 @@ export enum ElementType {
     "textarea"="textarea",
     "dropdown"="dropdown",
     "slider"="slider",
-    "password"="password"
+    "password"="password",
+    "number"="number"
 }

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import GenerateElements from "../../../common/generateElements"
-import { IControl } from "../../../models/iControl";
+import { ElementType, IControl } from "../../../models/iControl";
 import { Stage } from "../../../models/stage"
 import { yupResolver } from "@hookform/resolvers/yup";
 import { FormProvider, useForm } from "react-hook-form";
@@ -14,12 +14,11 @@ type params = {
     selectedItem: Stage;
 }
 export const StageItem = (props: params) => {
-    
+
     const { selectedItem, ...others } = props;
-    const [opacity, setOpacity] = useState();
     const [controlsList, setControlsList] = useState<Array<IControl>>([
-        { "key": "Name", "value": "name", "isRequired": true, "tabIndex": 1, "isFocus": true, "placeHolder": "User Name", "isControlInNewLine": true, "elementSize": 12 },
-        { "key": "Probability", "value": "probability", "isRequired": true, "tabIndex": 2, "placeHolder": "Password", "isControlInNewLine": true, "elementSize": 12 },
+        { "key": "Name", "value": "name", "isRequired": true, "tabIndex": 1, "isFocus": true, "isControlInNewLine": true, "elementSize": 12 },
+        { "key": "Probability", "value": "probability", "type": ElementType.number, "min": 0, "max": 100, "isRequired": true, "tabIndex": 2, "isControlInNewLine": true, "elementSize": 12 },
     ]);
 
     const validationsSchema = Yup.object().shape({
@@ -45,12 +44,10 @@ export const StageItem = (props: params) => {
     return (
         <>
             <FormProvider {...methods}>
-                <div style={{ opacity: opacity }}
-                    onMouseEnter={(e: any) => { if (selectedItem.id > 0) setOpacity('inherit' as any) }}
-                    onMouseLeave={(e: any) => { if (selectedItem.id > 0) setOpacity(0.5 as any) }}>
+                <div>
                     <Wrapper>
-                        <GenerateElements   controlsList={controlsList}
-                                            selectedItem={selectedItem} />
+                        <GenerateElements controlsList={controlsList}
+                            selectedItem={selectedItem} />
                         <br />
                     </Wrapper>
                 </div>

@@ -8,6 +8,10 @@ import reorder, { reorderQuoteMap } from "../dnd/reorder";
 import { StageContainer } from "./stageContainer";
 import { AddNewStage } from "./addNewStage";
 import { useNavigate } from "react-router-dom";
+import { DeleteDialog } from "../../../common/deleteDialog";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Spinner } from "react-bootstrap";
 
 type params = {
     isCombineEnabled?: any,
@@ -20,7 +24,7 @@ type params = {
 }
 
 export const Stages = (props: params) => {
-    
+
     const data = {
         medium: generateQuoteMap(5),
         large: generateQuoteMap(5),
@@ -31,22 +35,26 @@ export const Stages = (props: params) => {
     const [stages, setStages] = useState<Array<Stage>>(props.stages);
     const [originalsStages, setOriginalStages] = useState<Array<Stage>>(props.stages);
     const navigator = useNavigate();
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    const [selectedItemIndex, setSelectedItemIndex] = useState<number>(0);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-            
-            let listFromLocal:Array<Stage> = JSON.parse(localStorage.getItem("stagesList") as any) ?? [];
-            setStages(listFromLocal?.length == 0 ? [createNewStageObject(listFromLocal)] : listFromLocal)
+
+        let listFromLocal: Array<Stage> = JSON.parse(localStorage.getItem("stagesList") as any) ?? [];
+        setStages(listFromLocal?.length == 0 ? [createNewStageObject(listFromLocal)] : listFromLocal)
     }, [])
 
-    const createNewStageObject = (stages:Array<Stage>) => {
+    const createNewStageObject = (stages: Array<Stage>) => {
         let obj = new Stage();
         obj.order = stages?.length + 1;
-        obj.title = "Test" + (stages?.length + 1);
+        obj.name = "Stage" + (stages?.length + 1);
+        obj.id = stages?.length + 1;
         return obj;
     }
 
     const onDragEnd = (result: any) => {
-        
+
         if (result.combine) {
             if (result.type === "COLUMN") {
                 const shallow = [...ordered];
@@ -99,7 +107,7 @@ export const Stages = (props: params) => {
             destination
         );
 
-        setColumns(data.quoteMap);
+        setStages(data as any);
     };
 
     const Container = styled.divBox`
@@ -115,25 +123,52 @@ export const Stages = (props: params) => {
         setStages(stagesList);
     }
 
-    const saveStages=()=>{
+    const saveStages = () => {
         localStorage.setItem("stagesList", JSON.stringify(stages));
+        toast.success("Stages saved successfuly");
+        setIsLoading(true);
+        setTimeout(() => {
+            setIsLoading(false);
+            navigator("/pipeline");
+        }, 1000);
+    }
+
+    const cancelChanges = () => {
         navigator("/pipeline");
     }
 
-    const cancelChanges=()=>{
-        navigator("/pipeline");
+    const deleteStage = () => {
+        let stagesList = [...stages];
+        stagesList.splice(selectedItemIndex, 1);
+        setStages(stagesList);
+        localStorage.setItem("stagesList", JSON.stringify(stagesList));
+        setShowDeleteDialog(false);
+        toast.success("Stage deleted successfuly");
     }
 
     return (
         <>
-            <div>
+            <Spinner hidden={!isLoading} className="spinner" />
+            <div hidden={isLoading}>
                 {
-                    <AddNewStage    onAddClick={addNewStage}
-                                    onSaveClick={saveStages}
-                                    onCancelClick={cancelChanges} />
+                    <>
+                        <AddNewStage onAddClick={addNewStage}
+                            onSaveClick={saveStages}
+                            onCancelClick={cancelChanges} />
+                        {showDeleteDialog &&
+                            <DeleteDialog itemType={"Stage"}
+                                itemName={""}
+                                dialogIsOpen={showDeleteDialog}
+                                closeDialog={(e: any) => setShowDeleteDialog(false)}
+                                onConfirm={(e: any) => deleteStage()}
+                                isPromptOnly={false}
+                                actionType={"Delete"}
+                            />
+                        }
+                    </>
                 }
             </div>
-            <div>
+            <div hidden={isLoading}>
                 <DragDropContext onDragEnd={onDragEnd}>
                     <Droppable
                         droppableId="board1"
@@ -146,8 +181,9 @@ export const Stages = (props: params) => {
                                     <StageContainer
                                         key={index}
                                         index={index}
-                                        title={item.title}
+                                        title={item.name}
                                         selectedItem={item}
+                                        onDeleteClick={(index: number) => { setSelectedItemIndex(index); setShowDeleteDialog(true); }}
                                     />
                                 ))}
                                 {provided.placeholder}
@@ -156,8 +192,7 @@ export const Stages = (props: params) => {
                     </Droppable>
                 </DragDropContext>
             </div>
-
-
+            <ToastContainer />
         </>
     );
 };

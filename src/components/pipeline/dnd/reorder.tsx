@@ -1,3 +1,5 @@
+import { Stage } from "../../../models/stage";
+
 // a little function to help us with reordering the result
 export const reorder = (list: any, startIndex: any, endIndex: any) => {
   const result = Array.from(list);
@@ -9,17 +11,20 @@ export const reorder = (list: any, startIndex: any, endIndex: any) => {
 
 export default reorder;
 
-export const reorderQuoteMap = (quoteMap: any, source: any, destination: any) => {
-  const current = [...quoteMap[source.droppableId]];
-  const next = [...quoteMap[destination.droppableId]];
+export const reorderQuoteMap = (quoteMap: Array<Stage>, source: any, destination: any) => {
+  
+  const sourceIndex = quoteMap.findIndex(q=>q.title==source.droppableId);
+  const destinationIndex = quoteMap.findIndex(q=>q.title==destination.droppableId);
+  const current = [...quoteMap[sourceIndex]?.deals as any];
+  const next = [...quoteMap[destinationIndex]?.deals as any];
   const target = current[source.index];
 
   // moving to same list
-  if (source.droppableId === destination.droppableId) {
-    const reordered = reorder(current, source.index, destination.index);
+  if (sourceIndex === destinationIndex) {
+    const reordered = reorder(current, sourceIndex, destinationIndex);
     const result = {
       ...quoteMap,
-      [source.droppableId]: reordered
+      [sourceIndex]: reordered
     };
     return {
       quoteMap: result
@@ -29,19 +34,17 @@ export const reorderQuoteMap = (quoteMap: any, source: any, destination: any) =>
   // moving to different list
 
   // remove from original
-  current.splice(source.index, 1);
+  current.splice(sourceIndex, 1);
   // insert into next
-  next.splice(destination.index, 0, target);
+  next.splice(destinationIndex, 0, target);
 
   const result = {
     ...quoteMap,
-    [source.droppableId]: current,
-    [destination.droppableId]: next
+    [sourceIndex]: current,
+    [destinationIndex]: next
   };
 
-  return {
-    quoteMap: result
-  };
+  return result;
 };
 
 export const moveBetween = (list1: any, list2: any, source: any, destination: any) => {

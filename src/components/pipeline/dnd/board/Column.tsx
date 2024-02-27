@@ -43,7 +43,7 @@ const Column = (props: params) => {
 
   return (
     <div>
-    <Draggable draggableId={title} index={index}>
+    <Draggable draggableId={""+title} index={index}>
       {(provided, snapshot) => (
         <Container ref={provided.innerRef} {...provided.draggableProps}>
           <Header isDragging={snapshot.isDragging}>

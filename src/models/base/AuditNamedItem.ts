@@ -24,7 +24,7 @@ export interface IAuditableItem {
 
 export abstract class NamedItem extends ItemBase implements INamedItem{
     
-    id: number;
+    id: any;
     name: string;
     desc: string;
     public abstract itemType: string ;

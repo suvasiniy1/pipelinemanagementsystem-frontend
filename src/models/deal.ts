@@ -17,11 +17,11 @@ export class Deal extends AuditNamedItem {
     label!: string;
     productsCount!: number;
     person!: Array<any>;
-    organization!: Array<any>;
-    title:string  = "Sample Deal";
+    organization!: string;
+    title!:string;
 
-    constructor(id: number = 1,
-        name: string = "Sample Deal" as any,
+    constructor(id: any = 1,
+        name: string = null as any,
         desc: string = null as any,
         createdBy: string = null as any,
         createdDate: Date = null as any,

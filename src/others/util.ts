@@ -107,4 +107,11 @@ export default class Util {
         // return <T>Object.create(JSON.parse(JSON.stringify(obj)));
         // return {...obj};
     }
+
+    public static toClassObject(item: any, data: any) {//updates item props with data props
+      Object.keys(item).forEach((key: any) => {
+        if (data[key]!=null){item[key] = data[key] ? data[key] : null};
+      });
+      return item;
+    }
 }

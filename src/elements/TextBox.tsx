@@ -4,6 +4,7 @@ import VisibilityOnIcon from '@material-ui/icons/Visibility';
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import { useState } from "react";
 import Util from "../others/util";
+import { ElementType } from "../models/iControl";
 
 type props={
 item:any;
@@ -26,8 +27,10 @@ const TextBox: React.FC<props> = (props) => {
 
     return (
         <>
-        <input  type={item.type && !revealSecret ? item.type : "text"}
+        <input  type={item.type && !revealSecret ? item.type : item.type ?? "text"}
                 id={item.value}
+                min={item.min}
+                max={item.max}
                 disabled={disable ?? item.disabled}
                 maxLength={item.max}
                 tabIndex={item.tabIndex}
@@ -42,7 +45,7 @@ const TextBox: React.FC<props> = (props) => {
         />
 
         <p className="text-danger" id={`validationMsgfor_${item.value}`}>{(errors as any)?.[item.value]?.message}</p>
-            <div hidden={!item.type ||  (!Util.isNullOrUndefinedOrEmpty(item.showEyeIcon) && !item.showEyeIcon)}>
+            <div hidden={!item.type ||  item.type==ElementType.number || (!Util.isNullOrUndefinedOrEmpty(item.showEyeIcon) && !item.showEyeIcon)}>
             <IconButton className="toggleEye" color="primary" aria-label="upload picture" component="span" hidden={revealSecret} onClick={() => setRevealSecret(!revealSecret)}>
                 <VisibilityOnIcon style={{marginRight:'5px', display:'inline-block'}}/>
             </IconButton>

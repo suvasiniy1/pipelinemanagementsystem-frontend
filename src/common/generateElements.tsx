@@ -13,7 +13,7 @@ type props = {
     disable?: boolean,
 }
 const GenerateElements: React.FC<props> = (props) => {
-
+    
     const { controlsList, selectedItem, onChange, checked, getListofItemsForDropdown, disable, ...others } = props;
 
     const getElement = (item: any) => {

@@ -4,7 +4,7 @@ import { borderRadius, grid } from './constants';
 
 const getBackgroundColor = (isDragging: any, isGroupedOver: any, authorColors: any) => {
   if (isDragging) {
-    return authorColors.soft;
+    return authorColors?.soft;
   }
 
   if (isGroupedOver) {
@@ -15,7 +15,7 @@ const getBackgroundColor = (isDragging: any, isGroupedOver: any, authorColors: a
 };
 
 const getBorderColor = (isDragging: any, authorColors: any) =>
-  isDragging ? authorColors.hard : 'transparent';
+  isDragging ? authorColors?.hard : 'transparent';
 
 const imageSize = 40;
 
@@ -146,6 +146,7 @@ type params = {
   index?: any;
 }
 const QuoteItem = (props: params) => {
+  
   const {quote, isDragging, isGroupedOver, provided, style, isClone, index } = props;
 
   return (
@@ -159,19 +160,15 @@ const QuoteItem = (props: params) => {
         {...provided.dragHandleProps}
         style={getStyle(provided, style)}
         data-is-dragging={isDragging}
-        data-testid={quote.id}
+        data-testid={quote?.id}
         data-index={index}
       >
         {/* <Avatar src={quote.author.avatarUrl} alt={quote.author.name} /> */}
         {isClone ? <CloneBadge>Clone</CloneBadge> : null}
         <Content>
-          <BlockQuote>{quote.title}</BlockQuote>
+          <strong>{quote?.title}</strong>
           <Footer>
-            <Author>{quote.title}</Author>
-            <QuoteId>
-              id:
-              {quote.id}
-            </QuoteId>
+            <Author>{quote?.name}</Author>
           </Footer>
         </Content>
       </Container>

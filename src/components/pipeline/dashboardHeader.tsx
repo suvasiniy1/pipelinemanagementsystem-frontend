@@ -1,14 +1,18 @@
 import SettingsIcon from '@material-ui/icons/Settings';
 import { Stage } from '../../models/stage';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { DealAddEditDialog } from './deal/dealAddEditDialog';
 
 type params = {
     canAddDeal: boolean,
+    onSaveChanges:any,
 }
 export const DashboardHeader = (props: params) => {
 
     const navigate = useNavigate();
-    const { canAddDeal, ...others } = props;
+    const [dialogIsOpen, setDialogIsOpen] = useState(false);
+    const { canAddDeal, onSaveChanges, ...others } = props;
 
     const addorUpdateStage = () => {
         return (
@@ -21,7 +25,7 @@ export const DashboardHeader = (props: params) => {
     const addorUpdateDeal = () => {
         return (
             <>
-                <button type="button" className="btn btn-success" disabled={!canAddDeal}>+ Add Deal</button>
+                <button type="button" className="btn btn-success" onClick={(e: any) => setDialogIsOpen(true)} disabled={!canAddDeal}>+ Add Deal</button>
             </>
         )
     }
@@ -39,6 +43,11 @@ export const DashboardHeader = (props: params) => {
                     {addorUpdateStage()}
                 </div>
             </div>
+            {
+                dialogIsOpen && <DealAddEditDialog  dialogIsOpen={dialogIsOpen}
+                                                    setDialogIsOpen={setDialogIsOpen}
+                                                    onSaveChanges={(e:any)=>props.onSaveChanges()} />
+            }
         </>
     )
 }

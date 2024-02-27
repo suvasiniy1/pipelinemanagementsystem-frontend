@@ -11,7 +11,7 @@ export const SearchBar = () => {
                             //   onChange={props.onChangeHandler}
                             className="form-control"
                             type="text"
-                            placeholder="Search Pipedrive"
+                            placeholder="Search"
                         />
                         <i className="search icon" />
                     </div>

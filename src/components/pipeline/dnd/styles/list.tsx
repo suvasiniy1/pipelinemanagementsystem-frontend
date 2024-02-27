@@ -56,12 +56,13 @@ const Container = styled.divBox``;
 /* stylelint-enable */
 
 const InnerQuoteList = React.memo(function InnerQuoteList(props: any) {
+  
   return props.quotes.map((quote:Stage, index: number) => (
-    <Draggable key={quote.id} draggableId={quote.id as any} index={index}>
+    <Draggable key={quote.id} draggableId={""+quote.id as any} index={index}>
       {(dragProvided, dragSnapshot) => (
         <QuoteItem
           key={quote.id}
-          quote={quote.title}
+          quote={quote}
           isDragging={dragSnapshot.isDragging}
           isGroupedOver={Boolean(dragSnapshot.combineTargetFor)}
           provided={dragProvided}
@@ -81,7 +82,7 @@ function InnerList(props: { title?: any; quotes?: any; dropProvided?: any; showA
     <Container>
       {title}
       <DropZone ref={dropProvided.innerRef}>
-        <InnerQuoteList quotes={quotes} />
+        <InnerQuoteList quotes={quotes ?? []} />
         {dropProvided.placeholder}
         <div id="addNewQuote" style={{ width: 10, height: 10, padding: 100, paddingTop: 10, display: showAddButton ? 'block' : 'none' }}>
         <AddIcon/>
@@ -106,7 +107,6 @@ type params = {
 }
 
 export const QuoteList = (props: params) => {
-
   const {
     ignoreContainerClipping,
     internalScroll,
@@ -135,7 +135,7 @@ export const QuoteList = (props: params) => {
         useClone
           ? (provided, snapshot, descriptor) => (
             <QuoteItem
-              quote={quotes[0]}
+              quote={quotes}
               provided={provided}
               isDragging={snapshot.isDragging}
               isClone
