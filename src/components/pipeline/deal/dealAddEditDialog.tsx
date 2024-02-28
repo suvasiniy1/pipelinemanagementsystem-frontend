@@ -12,13 +12,13 @@ import { Stage } from "../../../models/stage";
 type params = {
     dialogIsOpen: boolean;
     setDialogIsOpen: any;
-    onSaveChanges:any
+    onSaveChanges:any;
+    index?:number;
 }
 export const DealAddEditDialog = (props: params) => {
-    const { dialogIsOpen, setDialogIsOpen, onSaveChanges, ...others } = props;
-    const selectedItem = new Deal();
+    const { dialogIsOpen, setDialogIsOpen, onSaveChanges, index, ...others } = props;
     const stagesList: Array<Stage> = JSON.parse(localStorage.getItem("stagesList") as any) ?? [];
-
+    const selectedItem = { ...new Deal(), pipeLineId: stagesList[index as any]?.id };
     const [controlsList, setControlsList] = useState<Array<IControl>>([
         { "key": "Contact Person", "value": "personId", "isRequired": true, "isControlInNewLine": true },
         { "key": "Organization", "value": "organization", "isRequired": true, "isControlInNewLine": true },

@@ -13,6 +13,7 @@ type params = {
   isScrollable: boolean;
   isCombineEnabled: boolean;
   useClone: boolean;
+  onSaveChanges:any;
 }
 
 const Column = (props: params) => {
@@ -56,6 +57,7 @@ const Column = (props: params) => {
             </Title>
           </Header>
           <QuoteList
+            index={index}
             listId={title}
             listType="QUOTE"
             style={{
@@ -65,6 +67,7 @@ const Column = (props: params) => {
             internalScroll={isScrollable}
             isCombineEnabled={isCombineEnabled}
             useClone={useClone}
+            onSaveChanges={(e:any)=>props.onSaveChanges()}
           />
         </Container>
       )}

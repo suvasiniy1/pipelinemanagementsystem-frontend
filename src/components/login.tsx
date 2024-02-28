@@ -1,15 +1,14 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Form, Button, Alert } from "react-bootstrap";
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useEffect, useState } from "react";
+import { Alert, Button, Form } from "react-bootstrap";
+import { FormProvider, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import * as Yup from 'yup';
+import GenerateElements from "../common/generateElements";
+import { IControl } from "../models/iControl";
+import Util from "../others/util";
 import BackgroundImage from "../resources/images/background.png";
 import Logo from "../resources/images/logo.png";
-import TextBox from "../elements/TextBox";
-import { ElementType, IControl } from "../models/iControl";
-import GenerateElements from "../common/generateElements";
-import Util from "../others/util";
-import { FormProvider, useForm } from "react-hook-form";
-import * as Yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useNavigate } from "react-router-dom";
 
 export class UserCredentails {
   public userName!: string;

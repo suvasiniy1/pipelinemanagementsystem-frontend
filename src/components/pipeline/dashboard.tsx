@@ -23,7 +23,7 @@ export const Dashboard = () => {
   return (
     <>
       <DashboardHeader canAddDeal={rowData.length > 0} onSaveChanges={(e: any) => updateRowData()} />
-      <Board initial={data.medium} rowData={rowData}/>
+      <Board initial={data.medium} rowData={rowData} onSaveChanges={(e: any) => updateRowData()}/>
     </>
   );
 }

@@ -16,6 +16,7 @@ type params = {
   containerHeight?: any,
   withScrollableColumns?: any,
   rowData:Array<Stage>;
+  onSaveChanges:any;
 
 }
 
@@ -139,6 +140,7 @@ export const Board = (props: params) => {
                     isScrollable={withScrollableColumns}
                     isCombineEnabled={isCombineEnabled}
                     useClone={useClone}
+                    onSaveChanges={(e:any)=>props.onSaveChanges()}
                   />
                 ))}
                 {provided.placeholder}

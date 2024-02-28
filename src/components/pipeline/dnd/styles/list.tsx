@@ -9,6 +9,7 @@ import QuoteItem from './item';
 import Title from './title';
 import { Stage } from '../../../../models/stage';
 import { Deal } from '../../../../models/deal';
+import { DealAddEditDialog } from '../../deal/dealAddEditDialog';
 
 export const getBackgroundColor = (isDraggingOver: any, isDraggingFrom: any) => {
   if (isDraggingOver) {
@@ -74,9 +75,10 @@ const InnerQuoteList = React.memo(function InnerQuoteList(props: any) {
 
 
 
-function InnerList(props: { title?: any; quotes?: any; dropProvided?: any; showAddButton:boolean }) {
-  const { quotes, dropProvided, showAddButton } = props;
+function InnerList(props: { title?: any; quotes?: any; dropProvided?: any; showAddButton:boolean, index?:number, onSaveChanges?:any }) {
+  const { quotes, dropProvided, showAddButton, index, ...others } = props;
   const title = props.title ? <Title>{props.title}</Title> : null;
+  const [dialogIsOpen, setDialogIsOpen] = useState(false);
 
   return (
     <Container>
@@ -84,15 +86,22 @@ function InnerList(props: { title?: any; quotes?: any; dropProvided?: any; showA
       <DropZone ref={dropProvided.innerRef}>
         <InnerQuoteList quotes={quotes ?? []} />
         {dropProvided.placeholder}
-        <div id="addNewQuote" style={{ width: 10, height: 10, padding: 100, paddingTop: 10, display: showAddButton ? 'block' : 'none' }}>
-        <AddIcon/>
+        <div id="addNewQuote" onClick={(e:any)=>setDialogIsOpen(true)} style={{ width: 10, height: 10, padding: 100, paddingTop: 10, display: showAddButton ? 'block' : 'none' }}>
+        <AddIcon style={{cursor:"pointer"}}/>
         </div>
       </DropZone>
+      {
+        dialogIsOpen && <DealAddEditDialog  dialogIsOpen={dialogIsOpen}
+                                            setDialogIsOpen={setDialogIsOpen}
+                                            onSaveChanges={(e: any) => props.onSaveChanges()}
+                                            index={index} />
+      }
     </Container>
   );
 }
 
 type params = {
+  index?:number;
   ignoreContainerClipping?: any;
   internalScroll?: any;
   scrollContainerStyle?: any;
@@ -104,10 +113,12 @@ type params = {
   quotes: Array<Deal>;
   title?: any;
   useClone?: any;
+  onSaveChanges:any;
 }
 
 export const QuoteList = (props: params) => {
   const {
+    index,
     ignoreContainerClipping,
     internalScroll,
     scrollContainerStyle,
@@ -118,7 +129,9 @@ export const QuoteList = (props: params) => {
     style,
     quotes,
     title,
-    useClone, ...others
+    useClone, 
+    onSaveChanges,
+    ...others
   } = props;
 
   const [showAddButton, setShowAddButton] = useState(false);
@@ -154,10 +167,20 @@ export const QuoteList = (props: params) => {
         >
           {internalScroll ? (
             <ScrollContainer style={scrollContainerStyle}>
-              <InnerList quotes={quotes} title={title} dropProvided={dropProvided}  showAddButton={showAddButton}/>
+              <InnerList  quotes={quotes} 
+                          index={index}
+                          title={title} 
+                          dropProvided={dropProvided}  
+                          showAddButton={showAddButton}
+                          onSaveChanges={(e:any)=>props.onSaveChanges()}/>
             </ScrollContainer>
           ) : (
-              <InnerList quotes={quotes} title={title} dropProvided={dropProvided} showAddButton={showAddButton}/>
+              <InnerList  quotes={quotes} 
+                          index={index}
+                          title={title} 
+                          dropProvided={dropProvided} 
+                          showAddButton={showAddButton}
+                          onSaveChanges={(e:any)=>props.onSaveChanges()}/>
             )}
         </Wrapper>
       )}
