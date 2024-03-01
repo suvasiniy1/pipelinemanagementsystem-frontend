@@ -32,15 +32,22 @@ export const DashboardHeader = (props: params) => {
 
     return (
         <>
-            <div className="form-group row" style={{ paddingLeft: 10 }}>
-                <div className="col-sm-4">
-                    {addorUpdateDeal()}
-                </div>
-                <div className="col-sm-4">
+            <div className="pipe-toolbar pt-3 pb-3">
+                <div className="container-fluid">
+                    <div className="row">
+                        <div className="col-sm-3 toolbarview-actions">
+                            
+                            {addorUpdateDeal()}
+                        </div>
+                        <div className="col-sm-6 toolbarview-summary">
 
-                </div>
-                <div className="col-sm-4" style={{ paddingLeft: 190 }}>
-                    {addorUpdateStage()}
+                        </div>
+                        <div className="col-sm-3 toolbarview-filters">
+                            <div className='toolbarview-filtersrow'>
+                            {addorUpdateStage()}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             {
