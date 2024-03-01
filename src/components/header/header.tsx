@@ -7,7 +7,7 @@ export const HeaderComponent = () => {
     return (
         <div className="form-group row">
             <div className="col-sm-4">
-                            
+                      <h4>Deals</h4>      
             </div>
             <div className="col-sm-4">
                 <SearchBar />
