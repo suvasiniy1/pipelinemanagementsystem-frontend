@@ -39,7 +39,7 @@ export const DealAddEditDialog = (props: params) => {
 
     const formOptions = { resolver: yupResolver(validationsSchema.concat(validationsSchema2)) };
     const methods = useForm(formOptions);
-    const { handleSubmit, getValues, setValue } = methods;
+    const { handleSubmit} = methods;
 
     const oncloseDialog = () => {
         setDialogIsOpen(false);
@@ -47,7 +47,6 @@ export const DealAddEditDialog = (props: params) => {
 
     const onChange = (value: any, item: any) => {
         if (Util.isListNullOrUndefinedOrEmpty(item.itemType)) return;
-        let obj = { ...selectedItem };
     }
 
     const getStages = () => {

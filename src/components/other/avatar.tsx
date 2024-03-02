@@ -1,14 +1,13 @@
-import * as React from "react";
-import Box from "@mui/material/Box";
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import Avatar from "@mui/material/Avatar";
+import Box from "@mui/material/Box";
+import Divider from '@mui/material/Divider';
+import IconButton from "@mui/material/IconButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import IconButton from "@mui/material/IconButton";
-import ExitToAppIcon from "@material-ui/icons/ExitToApp";
-import { Typography } from "@material-ui/core";
-import Divider from '@mui/material/Divider';
 import Paper from "@mui/material/Paper";
+import * as React from "react";
 import { useNavigate } from "react-router-dom";
 
 export const LetterAvatar = () => {

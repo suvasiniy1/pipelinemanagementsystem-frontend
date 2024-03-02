@@ -1,8 +1,7 @@
-import React, { useState } from "react";
-import styled from "@xstyled/styled-components";
 import { colors } from "@atlaskit/theme";
-import { grid, borderRadius } from "../styles/constants";
+import styled from "@xstyled/styled-components";
 import { Draggable } from "react-beautiful-dnd";
+import { borderRadius, grid } from "../styles/constants";
 import { QuoteList } from "../styles/list";
 import Title from "../styles/title";
 

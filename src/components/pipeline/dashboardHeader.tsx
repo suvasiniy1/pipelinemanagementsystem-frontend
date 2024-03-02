@@ -1,7 +1,6 @@
 import SettingsIcon from '@material-ui/icons/Settings';
-import { Stage } from '../../models/stage';
-import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { DealAddEditDialog } from './deal/dealAddEditDialog';
 
 type params = {
