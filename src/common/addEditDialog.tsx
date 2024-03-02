@@ -45,68 +45,7 @@ export const AddEditDialog: React.FC<Props> = (props) => {
                 </Modal.Header>
                 <Modal.Body className='modalbody'>
                     <form className="DialogForm" id="AddEditForm" onChange={(e) => onFormChange1()}>
-                        <div className='modelformfiledrow row'>
-                            <div className='modelformleft col-6 pt-3 pb-3'>
-                                <div className='modelformbox ps-2 pe-2'>
-                                    {children}
-                                    
-                                    <div className='form-group'>
-                                        <label className=" col-form-label required">Value</label>
-                                        <div className='row'>
-                                            <div className='col-md-6'>
-                                                <input className="form-control" type="text" value="" />
-                                            </div>
-                                            <div className='col-md-6'>
-                                                <select className='form-control'>
-                                                    <option selected>Pound Sterling</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div className="addphone text-end"><a href="#">Add Products</a></div>
-                                    </div>
-                                    <div className='form-group'>
-                                        <label className=" col-form-label required">Pipeline</label>
-                                        <select className='form-control'>
-                                            <option selected>Workington</option>
-                                            <option>Carlisle</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className='modelformright col-6 pt-3 pb-3'>
-                                <div className='modelformbox ps-2 pe-2'>
-                                    <div className='personname'>Person</div>
-                                    <div className='form-group'>
-                                        <label className=" col-form-label required">Phone</label>
-                                        <div className='row'>
-                                            <div className='col-md-6'>
-                                                <input type="text" id="personphone" placeholder="Phone" className="form-control" disabled />
-                                            </div>
-                                            <div className='col-md-6'>
-                                                <select className='form-control' disabled>
-                                                    <option selected>Work Phone</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div className="addphone"><a href="#">+ Add Phone</a></div>
-                                    </div>
-                                    <div className='form-group'>
-                                        <label className=" col-form-label required">Email</label>
-                                        <div className='row'>
-                                            <div className='col-md-6'>
-                                                <input type="text" id="personEmail" placeholder="Email" className="form-control" disabled />
-                                            </div>
-                                            <div className='col-md-6'>
-                                                <select className='form-control' disabled>
-                                                    <option selected>Work Email</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div className="addphone"><a href="#">+ Add Email</a></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>                        
+                        {children}
                     </form>
                 </Modal.Body>
                 <Modal.Footer className='modalfoot'>

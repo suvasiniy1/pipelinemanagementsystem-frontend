@@ -1,7 +1,7 @@
 /// <reference types="react-scripts" />
 declare global {
     interface Window {
-        AppConfig: {
+        config: {
             ServicesBaseURL: string;
         }
     }

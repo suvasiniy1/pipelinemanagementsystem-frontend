@@ -161,7 +161,6 @@ export const QuoteList = (props: params) => {
         <Wrapper
           style={style}
           isDraggingOver={dropSnapshot.isDraggingOver}
-          isDropDisabled={isDropDisabled}
           isDraggingFrom={Boolean(dropSnapshot.draggingFromThisWith)}
           {...dropProvided.droppableProps}
         >

@@ -15,7 +15,7 @@ disable?:boolean;
 }
 const TextBox: React.FC<props> = (props) => {
     console.log("TextBox component rendered with props "+ props);
-
+    
     const { item, selectedItem, value, onChange, disable, ...others } = props;
     const [ revealSecret, setRevealSecret] = useState(false);
     const {register, formState: { errors }} = useFormContext();
@@ -31,7 +31,7 @@ const TextBox: React.FC<props> = (props) => {
                 id={item.value}
                 min={item.min}
                 max={item.max}
-                disabled={disable ?? item.disabled}
+                disabled={disable || item.disabled}
                 maxLength={item.max}
                 tabIndex={item.tabIndex}
                 title={item.title ? item.title : selectedItem.id == 0 ? generatePlaceHolder(item) : selectedItem[item.value]}

@@ -2,7 +2,7 @@ export interface IControl {
     key: string;
     value: string;
     type?: ElementType;
-    itemType?:string;
+    itemType?: string;
     isRequired?: boolean;
     hidden?: boolean | false;
     disabled?: boolean | false;
@@ -16,17 +16,27 @@ export interface IControl {
     errMsg3?: string;
     min?: number | null;
     max?: number | null;
-    isControlInNewLine?:boolean | false;
-    elementSize?:number;
-    isFocus?:boolean;
-    tabIndex?:number
+    isControlInNewLine?: boolean | false;
+    elementSize?: number;
+    isFocus?: boolean;
+    tabIndex?: number;
+    dependentChildren?: string | null;
+    isDependentChildren?: boolean | false;
+    customAction?: CustomActionPosition | 2;
+    actionName?:string;
+    labelSize?:number;
+}
+
+export enum CustomActionPosition {
+    Left,
+    Right
 }
 
 export enum ElementType {
-    "textbox"="textbox",
-    "textarea"="textarea",
-    "dropdown"="dropdown",
-    "slider"="slider",
-    "password"="password",
-    "number"="number"
+    "textbox" = "textbox",
+    "textarea" = "textarea",
+    "dropdown" = "dropdown",
+    "slider" = "slider",
+    "password" = "password",
+    "number" = "number"
 }

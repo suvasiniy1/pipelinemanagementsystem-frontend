@@ -1,4 +1,7 @@
 export default class Constants{
-    public static readonly ACCESS_TOKEN : "Access_Token";
-    public static readonly USER_LOGGED_IN : "UserLoggedIn";
+    public static readonly ACCESS_TOKEN : string =  "Accesstoken";
+    public static readonly USER_LOGGED_IN : string = "Userloggedin";
+    public static readonly TOKEN_EXPIRATION_TIME : string = "Tokenexpirationtime";
+    public static readonly REMEMBER_ME : string = "Rememberme";
+    public static readonly User_Name : string = "Username";
 }

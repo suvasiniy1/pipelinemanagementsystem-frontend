@@ -43,7 +43,7 @@ const Column = (props: params) => {
 
   return (
     <div>
-    <Draggable draggableId={""+title} index={index}>
+    <Draggable draggableId={""+title} index={index} isDragDisabled={true}>
       {(provided, snapshot) => (
         <Container ref={provided.innerRef} {...provided.draggableProps}>
           <Header isDragging={snapshot.isDragging}>
@@ -57,7 +57,7 @@ const Column = (props: params) => {
           </Header>
           <QuoteList
             index={index}
-            listId={title}
+            listId={""+title}
             listType="QUOTE"
             style={{
               backgroundColor: snapshot.isDragging ? colors.G50 : null

@@ -6,7 +6,7 @@ import { APIResult } from "./APIResult";
 
 
 //const baseURLDev="https://localhost:44310/api";
-const baseURL=window.AppConfig.ServicesBaseURL;
+const baseURL=window?.config?.ServicesBaseURL;
 
 export class BaseService <TItem extends AuditNamedItem>{
     urlSuffix: string = "";
