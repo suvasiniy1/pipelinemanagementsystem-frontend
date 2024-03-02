@@ -3,9 +3,9 @@ import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 export const SearchBar = () => {
     return (
         <>
-            <div className="form-group row">
-                <div className="ui search col-sm-8">
-                    <div className="ui icon input">
+            <div className="d-flex headsearchrow align-items-center">
+                <div className="ui headsearch">
+                    <div className="ui icon headinput">
                         <input
                             //   value={props.contactsValue}
                             //   onChange={props.onChangeHandler}
@@ -13,11 +13,11 @@ export const SearchBar = () => {
                             type="text"
                             placeholder="Search"
                         />
-                        <i className="search icon" />
+                        <i className="rs-icon rs-icon-search" />
                     </div>
                     <div className="results" />
                 </div>
-                <div className="col-sm-4 pt-2">
+                <div className="searchicon">
                     <AddCircleOutlineIcon/>
                 </div>
             </div>
