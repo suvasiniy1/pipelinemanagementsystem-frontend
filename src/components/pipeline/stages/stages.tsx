@@ -149,6 +149,7 @@ export const Stages = (props: params) => {
     return (
         <>
             <Spinner hidden={!isLoading} className="spinner" />
+            
             <div hidden={isLoading}>
                 {
                     <>
@@ -167,7 +168,9 @@ export const Stages = (props: params) => {
                         }
                     </>
                 }
+                
             </div>
+
             <div hidden={isLoading}>
                 <DragDropContext onDragEnd={onDragEnd}>
                     <Droppable
@@ -191,8 +194,11 @@ export const Stages = (props: params) => {
                         )}
                     </Droppable>
                 </DragDropContext>
+                
             </div>
             <ToastContainer />
+
+            
         </>
     );
 };

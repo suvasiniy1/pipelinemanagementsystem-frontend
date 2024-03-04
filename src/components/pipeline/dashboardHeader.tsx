@@ -50,11 +50,13 @@ export const DashboardHeader = (props: params) => {
                     </div>
                 </div>
             </div>
+            
             {
                 dialogIsOpen && <DealAddEditDialog  dialogIsOpen={dialogIsOpen}
                                                     setDialogIsOpen={setDialogIsOpen}
                                                     onSaveChanges={(e:any)=>props.onSaveChanges()} />
             }
+            
         </>
     )
 }
