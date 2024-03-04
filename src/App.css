@@ -1,3 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+body, input, button, select, textarea{font-family: "Inter", sans-serif; font-weight: normal; font-size: 16px; line-height: 1.41.42857143; color: #21232c;}
+
 * {
   margin: 0;
   padding: 0;
@@ -92,7 +96,7 @@
 
 /* Add Deal Model Popup */
 .modalpopup .modalhead{background-color: #f5f5f6; border-bottom: 1px solid rgba(33,35,44,.12); padding: 12px 20px 12px 16px; border-radius: 4px 4px 0 0;}
-.modal-header .modal-title{padding-right: 15px; font-size: 16px; font-weight: bold; color: #21232c;}
+.modal-header .modal-title{padding-right: 15px; font-size: 16px; font-weight: bold;}
 .modalpopup .modalfoot{background-color: #f5f5f6; border-bottom: 1px solid rgba(33,35,44,.12); padding: 8px 16px 8px 16px; box-shadow: inset 0 1px 0 0 rgba(33,35,44,.12); border-radius: 0 0 4px 4px;}
 .modalfoot .modalfootbar{display: flex; align-items: center;}
 .modalpopup .modalbody {padding-top: 0; padding-bottom: 0;}
@@ -110,12 +114,12 @@ select.selectfield {border: 1px solid #dee2e6; height: 37px; width: 100%; border
 .pdstage-col{display: flex; flex-direction: column; flex-basis: 100%; background-color: #f5f5f6; padding: 8px; margin-left: 8px;}
 .pdstage-col:first-child{margin-left: 0;}
 .pdstage-header{position: relative;}
-.pdstage-head{font-weight: 600; color: #21232c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+.pdstage-head{font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 .pdstage-summary{margin-top: 8px;}
 .pdstage-price{margin-right: 8px;}
 .pdstage-value{white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 .pdstage-num{position: relative; padding-left: 10px;}
-.pdstage-head{font-weight: 600; color: #21232c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+.pdstage-head{font-weight: 600;white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 .pdstage-num::after{content: ''; position: absolute; left: 0; top: 50%; width: 4px; height: 4px; background-color: #21232c; margin-top: -1px; border-radius: 4px;}
 
 .pdstage-list{padding-top: 4px;}
