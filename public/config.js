@@ -1,4 +1,4 @@
 window.config = {
-    ServicesBaseURL: "",
+    ServicesBaseURL: "http://212.227.199.71/api",
 
 }

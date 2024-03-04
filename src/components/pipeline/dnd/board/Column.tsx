@@ -1,8 +1,7 @@
-import React, { useState } from "react";
-import styled from "@xstyled/styled-components";
 import { colors } from "@atlaskit/theme";
-import { grid, borderRadius } from "../styles/constants";
+import styled from "@xstyled/styled-components";
 import { Draggable } from "react-beautiful-dnd";
+import { borderRadius, grid } from "../styles/constants";
 import { QuoteList } from "../styles/list";
 import Title from "../styles/title";
 
@@ -13,6 +12,7 @@ type params = {
   isScrollable: boolean;
   isCombineEnabled: boolean;
   useClone: boolean;
+  onSaveChanges:any;
 }
 
 const Column = (props: params) => {
@@ -43,7 +43,7 @@ const Column = (props: params) => {
 
   return (
     <div>
-    <Draggable draggableId={""+title} index={index}>
+    <Draggable draggableId={""+title} index={index} isDragDisabled={true}>
       {(provided, snapshot) => (
         <Container ref={provided.innerRef} {...provided.draggableProps}>
           <Header isDragging={snapshot.isDragging}>
@@ -56,7 +56,8 @@ const Column = (props: params) => {
             </Title>
           </Header>
           <QuoteList
-            listId={title}
+            index={index}
+            listId={""+title}
             listType="QUOTE"
             style={{
               backgroundColor: snapshot.isDragging ? colors.G50 : null
@@ -65,6 +66,7 @@ const Column = (props: params) => {
             internalScroll={isScrollable}
             isCombineEnabled={isCombineEnabled}
             useClone={useClone}
+            onSaveChanges={(e:any)=>props.onSaveChanges()}
           />
         </Container>
       )}

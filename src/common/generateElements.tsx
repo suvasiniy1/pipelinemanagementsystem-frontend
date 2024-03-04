@@ -2,6 +2,7 @@ import SelectDropdown from "../elements/SelectDropdown";
 import Slider from "../elements/Slider";
 import TextArea from "../elements/TextArea";
 import TextBox from "../elements/TextBox";
+import { CustomActionPosition, IControl } from "../models/iControl";
 
 
 type props = {
@@ -13,10 +14,11 @@ type props = {
     disable?: boolean,
 }
 const GenerateElements: React.FC<props> = (props) => {
-    
+
     const { controlsList, selectedItem, onChange, checked, getListofItemsForDropdown, disable, ...others } = props;
 
     const getElement = (item: any) => {
+        
         switch (item.type) {
             case "textarea":
                 return <TextArea item={item} selectedItem={selectedItem} disable={disable} />
@@ -29,22 +31,65 @@ const GenerateElements: React.FC<props> = (props) => {
         }
     }
 
+    const customActionElement = (item: IControl) => {
+        return (
+            <>
+                {
+                    item.customAction == CustomActionPosition.Right ?
+                        <div className={item.actionName + ' text-end'}><a href="#">{item.actionName}</a></div>
+                        : item.customAction == CustomActionPosition.Left ? <div className={item.actionName}><a href="#">{item.actionName}</a></div> : null
+                }
+            </>
+        )
+    }
+
     return (
         <>
             {
-                controlsList.map((item: any, index: number) => (
+                controlsList.map((item: IControl, index: number) => (
                     item.isControlInNewLine ?
                         <div key={index}>
-                            <div className="form-group row" hidden={item.hidden}>
-                                <label htmlFor="name" id={`labelFor_${item.value}`} className={`col-sm-${item.labelSize ? item.labelSize : 4} col-form-label ${item.isRequired ? "required" : ""}`}>{item.key}:</label>
-                            </div>
-                            <div className="form-group row" hidden={item.hidden}>
-                                <div className={`col-sm-${item.elementSize ? item.elementSize : 6} errmessage`}>
-                                    {
-                                        getElement(item)
-                                    }
-                                </div>
-                            </div>
+                            {
+                                !item.dependentChildren && !item.isDependentChildren ?
+                                    <div>
+                                        <div className="form-group row" hidden={item.hidden}>
+                                            <label htmlFor="name" id={`labelFor_${item.value}`} className={`col-sm-${item.labelSize ? item.labelSize : 4} col-form-label ${item.isRequired ? "required" : ""}`}>{item.key}:</label>
+                                        </div>
+                                        <div className="form-group row">
+                                            <div className={`col-sm-${item.elementSize ? item.elementSize : 6} errmessage`}>
+                                                {
+                                                    getElement(item)
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                    :
+                                    !item.isDependentChildren ?
+                                        <div className="form-group row">
+                                            <label htmlFor="name" id={`labelFor_${item.value}`} className={`col-sm-${item.labelSize ? item.labelSize : null} col-form-label ${item.isRequired ? "required" : ""}`}>{item.key}:</label>
+                                            <div className='row'>
+                                                <div className='col-md-6'>
+                                                    {
+                                                        getElement(item)
+                                                    }
+                                                    {
+                                                        customActionElement(item)
+                                                    }
+                                                </div>
+                                                <div className='col-md-6'>
+                                                    {
+                                                        getElement(controlsList.find(c => c.key === item.dependentChildren))
+
+                                                    }
+                                                    {
+                                                        customActionElement(controlsList.find(c => c.key === item.dependentChildren))
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div> : null
+                            }
+
+
                         </div> :
                         <div className="form-group row" key={index} hidden={item.hidden}>
                             <label htmlFor="name" id={`labelFor_${item.value}`} className={`col-sm-${item.labelSize ? item.labelSize : 4} col-form-label ${item.isRequired ? "required" : ""}`}>{item.key}:</label>
