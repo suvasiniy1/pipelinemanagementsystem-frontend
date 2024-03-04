@@ -4,6 +4,8 @@ import {
 } from "react-router-dom";
 import Login from "../components/login";
 import { Dashboard } from "../components/pipeline/dashboard";
+import{Leads} from "../components/leads/leads";
+import{Deals} from "../components/pipeline/deal/deals";
 import Stages from "../components/pipeline/stages/stages";
 
 export const AppRouter = () => {
@@ -21,6 +23,14 @@ export const AppRouter = () => {
                     path="/pipeline/edit"
                     element={<Stages stages={[]} />}
                 />
+                <Route
+                    path="/leads"
+                    element={<Leads />}
+                />
+                <Route
+                path="/deals"
+                element={<Deals/>}
+            />
             </Routes>
     )
 }
