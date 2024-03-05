@@ -17,7 +17,7 @@ export const DealHeader = (props: params) => {
     const addorUpdateStage = () => {
         return (
             <>
-                <button type="button" className="btn btn-primary" onClick={(e: any) => navigate("/pipeline/edit")}> <SettingsIcon /> Configure Stages</button>
+                <button type="button" className="btn btn-primary" onClick={(e: any) => navigate("/pipeline/edit")}> <SettingsIcon /> Edit Stages</button>
             </>
         )
     }
@@ -25,7 +25,7 @@ export const DealHeader = (props: params) => {
     const addorUpdateDeal = () => {
         return (
             <>
-                <button type="button" className="btn btn-success" onClick={(e: any) => setDialogIsOpen(true)} disabled={!canAddDeal}>+ Add Deal</button>
+                <button type="button" className="btn btn-success" onClick={(e: any) => setDialogIsOpen(true)} disabled={!canAddDeal}>+ Deal</button>
             </>
         )
     }

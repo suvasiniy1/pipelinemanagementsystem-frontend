@@ -92,6 +92,7 @@ html body, html input, html button, html select, html textarea{font-family: "Int
 .mainlayout{height: 100vh;}
 .maincontentinner{height: calc(100% - 72px);}
 .maincontentinner .gdnJsS, .maincontentinner .dVEiRS{min-width: auto;}
+.maincontentinner > div {height: 100%;}
 
 /* Add Deal Model Popup */
 .modalpopup .modalhead{background-color: #f5f5f6; border-bottom: 1px solid rgba(33,35,44,.12); padding: 12px 20px 12px 16px; border-radius: 4px 4px 0 0;}
@@ -158,7 +159,7 @@ select.selectfield {border: 1px solid #dee2e6; height: 37px; width: 100%; border
 
 
 /* Pipedrive Box Code */
-.pdstage-area {overflow: auto; height: 100%; display: grid; padding: 0 var(--pd-spacing-200) 0 var(--pd-spacing-200);}
+.pdstage-area {overflow: auto; height: calc(100% - 72px); display: grid; padding: 0 var(--pd-spacing-200) 0 var(--pd-spacing-200);}
 .pdstage-area::-webkit-scrollbar {width: 10px;}
 .pdstage-area::-webkit-scrollbar-track {background-color: #e4e4e4; border-radius: 100px;}
 .pdstage-area::-webkit-scrollbar-thumb {border-radius: 100px; background-color:#211c52; box-shadow: inset 2px 2px 5px 0 rgba(#fff, 0.5);}
