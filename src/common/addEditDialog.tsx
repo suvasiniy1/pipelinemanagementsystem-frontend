@@ -46,6 +46,16 @@ export const AddEditDialog: React.FC<Props> = (props) => {
                 <Modal.Body className='modalbody'>
                     <form className="DialogForm" id="AddEditForm" onChange={(e) => onFormChange1()}>
                         {children}
+                        <div className="pipelinestage-selector pipelinestage-active">
+                        <label className="pipelinestage pipelinestage-current" aria-label="New Lead"></label>
+                        <label className="pipelinestage" aria-label="1st Call"></label>
+                        <label className="pipelinestage" aria-label="2nd Call"></label>
+                        <label className="pipelinestage" aria-label="3rd Call"></label>
+                        <label className="pipelinestage" aria-label="4th Call"></label>
+                        <label className="pipelinestage" aria-label="Final Call"></label>
+                        <label className="pipelinestage" aria-label="Appointment Booked"></label>
+                        <label className="pipelinestage" aria-label="CLOSED LEADS"></label>
+                        </div>
                     </form>
                 </Modal.Body>
                 <Modal.Footer className='modalfoot'>

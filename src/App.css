@@ -107,6 +107,56 @@ html body, html input, html button, html select, html textarea{font-family: "Int
 select.selectfield {border: 1px solid #dee2e6; height: 37px; width: 100%; border-radius: 4px; padding: 0 8px;}
 .addphone a{font-weight: bold; color: #21232c;}
 
+.pipelinestage-selector {
+	display: flex;
+    flex-grow: 1;
+    position: relative;
+    flex-flow: row nowrap;
+    height: 24px;
+    min-width: 240px;
+    table-layout: fixed;
+    width: 100%;
+}
+
+.pipelinestage{
+    display: flex;
+    flex-grow: 1;
+    position: relative;
+}
+.pipelinestage{
+    align-items: center;
+    background-color: #2d8647;
+    -webkit-clip-path: polygon(calc(100% - 6px) 0, 100% 50%, calc(100% - 6px) 100%, 2px 100%, 8px 50%, 2px 0);
+    clip-path: polygon(calc(100% - 6px) 0, 100% 50%, calc(100% - 6px) 100%, 2px 100%, 8px 50%, 2px 0);
+    color: #fff;
+    cursor: pointer;
+    flex-basis: 0;
+    font: 450 12px / 18px "Inter",sans-serif;
+    font-stretch: normal;
+    font-style: normal;
+    justify-content: center;
+    letter-spacing: 0;
+    margin-left: -6px;
+    text-align: center;
+}
+.pipelinestage:first-of-type {
+    border-radius: 4px 0 0 4px;
+    -webkit-clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 50%, calc(100% - 6px) 100%, 0 100%);
+    clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 50%, calc(100% - 6px) 100%, 0 100%);
+    margin-left: 0;
+}
+.pipelinestage:last-of-type {
+  border-radius: 0 4px 4px 0;
+  -webkit-clip-path: polygon(100% 0, 100% 100%, 2px 100%, 8px 50%, 2px 0);
+  clip-path: polygon(100% 0, 100% 100%, 2px 100%, 8px 50%, 2px 0);
+}
+.pipelinestage-current~.pipelinestage {
+    background-color: rgba(33,35,44,.12);
+    color: #65686f;
+}
+
+
+
 /* Pipedrive Box Code */
 .pdstage-area {overflow: auto; height: 100%; display: grid; padding: 0 var(--pd-spacing-200) 0 var(--pd-spacing-200);}
 .pdstage-area::-webkit-scrollbar {width: 10px;}
@@ -130,7 +180,7 @@ select.selectfield {border: 1px solid #dee2e6; height: 37px; width: 100%; border
 .pdstage-num::after{content: ''; position: absolute; left: 0; top: 50%; width: 4px; height: 4px; background-color: #21232c; margin-top: -1px; border-radius: 4px;}
 
 .pdstage-list{padding: 0 8px; margin-top: 4px;}
-.pdstage-item{margin-top: 4px;}
+.pdstage-item{margin-top: 8px; padding: 0 8px;}
 .pdstage-box{position: relative; background-color: #fff; padding: 6px 8px; border-radius: 4px; box-shadow: 0 0 1px 1px rgb(0 0 0/5%),0 1px 2px -2px rgb(0 0 0/6%),0 1px 3px 0 rgb(0 0 0/7%);}
 .pdstage-boxlink, .pdstage-boxlink:focus{color: #21232c; text-decoration: none; outline: 0;}
 .pdstage-boxlink:hover{color: #21232c; text-decoration: none;}
