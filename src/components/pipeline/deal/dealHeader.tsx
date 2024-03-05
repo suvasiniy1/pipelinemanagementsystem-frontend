@@ -1,13 +1,14 @@
 import SettingsIcon from '@material-ui/icons/Settings';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { DealAddEditDialog } from './deal/dealAddEditDialog';
+import { DealAddEditDialog } from './dealAddEditDialog';
+
 
 type params = {
     canAddDeal: boolean,
-    onSaveChanges:any,
+    onSaveChanges: any,
 }
-export const DashboardHeader = (props: params) => {
+export const DealHeader = (props: params) => {
 
     const navigate = useNavigate();
     const [dialogIsOpen, setDialogIsOpen] = useState(false);
@@ -35,7 +36,7 @@ export const DashboardHeader = (props: params) => {
                 <div className="container-fluid">
                     <div className="row">
                         <div className="col-sm-3 toolbarview-actions">
-                            
+
                             {addorUpdateDeal()}
                         </div>
                         <div className="col-sm-6 toolbarview-summary">
@@ -43,19 +44,19 @@ export const DashboardHeader = (props: params) => {
                         </div>
                         <div className="col-sm-3 toolbarview-filters">
                             <div className='toolbarview-filtersrow'>
-                            {addorUpdateStage()}
+                                {addorUpdateStage()}
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            
+
             {
-                dialogIsOpen && <DealAddEditDialog  dialogIsOpen={dialogIsOpen}
-                                                    setDialogIsOpen={setDialogIsOpen}
-                                                    onSaveChanges={(e:any)=>props.onSaveChanges()} />
+                dialogIsOpen && <DealAddEditDialog dialogIsOpen={dialogIsOpen}
+                    setDialogIsOpen={setDialogIsOpen}
+                    onSaveChanges={(e: any) => props.onSaveChanges()} />
             }
-            
+
         </>
     )
 }

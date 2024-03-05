@@ -8,7 +8,16 @@ import Util from "../../../others/util";
 import * as Yup from 'yup';
 import styled from "@xstyled/styled-components";
 import { grid } from "../dnd/styles/constants";
-import { getBackgroundColor } from "../dnd/styles/list";
+
+export const getBackgroundColor = (isDraggingOver: any, isDraggingFrom: any) => {
+  if (isDraggingOver) {
+    return '#FFEBE6';
+  }
+  if (isDraggingFrom) {
+    return '#E6FCFF';
+  }
+  return '#EBECF0';
+};
 
 type params = {
     selectedItem: Stage;

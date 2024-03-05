@@ -2,10 +2,9 @@ import {
     Route,
     Routes
 } from "react-router-dom";
+import { Leads } from "../components/leads/leads";
 import Login from "../components/login";
-import { Dashboard } from "../components/pipeline/dashboard";
-import{Leads} from "../components/leads/leads";
-import{Deals} from "../components/pipeline/deal/deals";
+import { Deals } from "../components/pipeline/deal/deals";
 import Stages from "../components/pipeline/stages/stages";
 
 export const AppRouter = () => {
@@ -13,7 +12,7 @@ export const AppRouter = () => {
             <Routes>
                 <Route
                     path="/pipeline"
-                    element={<Dashboard />}
+                    element={<Deals />}
                 />
                 <Route
                     path="/login"
