@@ -29,6 +29,7 @@ const TextArea: React.FC<props> = (props) => {
                     {...register(item.value)}
                     onBlur={onChange}
                     disabled={disable ?? item.disabled}
+                    onChange={(event: any) => {}}
         />
         <p className="text-danger" id={`validationMsgfor_${item.value}`}>{(errors as any)?.[item.value]?.message}</p>
         </>

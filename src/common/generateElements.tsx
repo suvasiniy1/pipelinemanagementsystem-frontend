@@ -53,7 +53,7 @@ const GenerateElements: React.FC<props> = (props) => {
                                 !item.dependentChildren && !item.isDependentChildren ?
                                     <div>
                                         <div className="form-group row" hidden={item.hidden}>
-                                            <label htmlFor="name" id={`labelFor_${item.value}`} className={`col-sm-${item.labelSize ? item.labelSize : 4} col-form-label ${item.isRequired ? "required" : ""}`}>{item.key}:</label>
+                                            <label htmlFor="name" id={`labelFor_${item.value}`} className={`col-sm-${item.labelSize ? item.labelSize : 6} col-form-label ${item.isRequired ? "required" : ""}`}>{item.key}:</label>
                                         </div>
                                         <div className="form-group row">
                                             <div className={`col-sm-${item.elementSize ? item.elementSize : 6} errmessage`}>
@@ -92,7 +92,7 @@ const GenerateElements: React.FC<props> = (props) => {
 
                         </div> :
                         <div className="form-group row" key={index} hidden={item.hidden}>
-                            <label htmlFor="name" id={`labelFor_${item.value}`} className={`col-sm-${item.labelSize ? item.labelSize : 4} col-form-label ${item.isRequired ? "required" : ""}`}>{item.key}:</label>
+                            <label htmlFor="name" id={`labelFor_${item.value}`} className={`col-sm-${item.labelSize ? item.labelSize : 6} col-form-label ${item.isRequired ? "required" : ""}`}>{item.key}:</label>
                             <div className={`col-sm-${item.elementSize ? item.elementSize : 6} errmessage`}>
                                 {
                                     getElement(item)

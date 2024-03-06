@@ -8,22 +8,33 @@ import { DealItem } from "./dealItem";
 import styled from '@xstyled/styled-components';
 import { grid } from "../dnd/styles/constants";
 
-const InnerQuoteList = React.memo(function InnerQuoteList(props: any) {
+type paramsForQuote = {
+    deals: Array<Deal>
+}
 
-    return props.quotes.map((quote: Stage, index: number) => (
-        <Draggable key={quote.id} draggableId={"" + quote.id as any} index={index}>
-            {(dragProvided, dragSnapshot) => (
-                <DealItem
-                    key={quote.id}
-                    quote={quote}
-                    isDragging={dragSnapshot.isDragging}
-                    isGroupedOver={Boolean(dragSnapshot.combineTargetFor)}
-                    provided={dragProvided}
-                />
-            )}
-        </Draggable>
-    ));
-});
+const InnerQuoteList = (props: paramsForQuote) => {
+    const { deals, ...others } = props;
+    return (
+        <>
+            {
+                deals.map((deal, index) => (
+                    <Draggable key={deal.dealID} draggableId={"" + deal.dealID as any} index={index}>
+                        {(dragProvided, dragSnapshot) => (
+                            <DealItem
+                                key={deal.dealID}
+                                deal={deal}
+                                isDragging={dragSnapshot.isDragging}
+                                isGroupedOver={Boolean(dragSnapshot.combineTargetFor)}
+                                provided={dragProvided}
+                            />
+                        )}
+                    </Draggable>
+                ))
+            }
+        </>
+
+    )
+}
 
 const scrollContainerHeight = 250;
 
@@ -37,8 +48,8 @@ const DropZone = styled.divBox`
   padding-bottom: ${grid}px;
 `;
 
-function InnerList(props: { title?: any; quotes?: any; dropProvided?: any; showAddButton: boolean, index?: number, onSaveChanges?: any }) {
-    const { quotes, dropProvided, showAddButton, index, ...others } = props;
+function InnerList(props: { title?: any; deals?: Array<Deal>; dropProvided?: any; showAddButton: boolean, stageID?: number, onSaveChanges?: any }) {
+    const { deals, dropProvided, showAddButton, stageID, ...others } = props;
     const title = props.title ? <Title>{props.title}</Title> : null;
     const [dialogIsOpen, setDialogIsOpen] = useState(false);
 
@@ -46,14 +57,14 @@ function InnerList(props: { title?: any; quotes?: any; dropProvided?: any; showA
         <div>
             {title}
             <DropZone ref={dropProvided.innerRef}>
-                <InnerQuoteList quotes={quotes ?? []} />
+                <InnerQuoteList deals={deals ?? []}/>
                 {dropProvided.placeholder}
             </DropZone>
             {
                 dialogIsOpen && <DealAddEditDialog dialogIsOpen={dialogIsOpen}
                     setDialogIsOpen={setDialogIsOpen}
                     onSaveChanges={(e: any) => props.onSaveChanges()}
-                    index={index} />
+                    index={stageID} />
             }
         </div>
     );
@@ -66,10 +77,10 @@ type params = {
     scrollContainerStyle?: any;
     isDropDisabled?: any;
     isCombineEnabled?: any;
-    listId?: any;
+    stageID?: any;
     listType?: any;
     style?: any;
-    quotes: Array<Deal>;
+    deals: Array<Deal>;
     title?: any;
     useClone?: any;
     onSaveChanges: any;
@@ -83,10 +94,10 @@ export const DealList = (props: params) => {
         scrollContainerStyle,
         isDropDisabled,
         isCombineEnabled,
-        listId = 'LIST',
+        stageID = 'LIST',
         listType,
         style,
-        quotes,
+        deals,
         title,
         useClone,
         onSaveChanges,
@@ -98,14 +109,14 @@ export const DealList = (props: params) => {
     return (
         <div>
             <Droppable
-                droppableId={listId}
+                droppableId={stageID}
                 type={listType}
                 ignoreContainerClipping={ignoreContainerClipping}
                 isDropDisabled={isDropDisabled}
                 isCombineEnabled={isCombineEnabled}>
                 {(dropProvided, dropSnapshot) => (
-                    <InnerList quotes={quotes}
-                        index={index}
+                    <InnerList deals={deals}
+                        stageID={stageID}
                         title={title}
                         dropProvided={dropProvided}
                         showAddButton={showAddButton}

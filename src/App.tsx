@@ -19,12 +19,12 @@ function App() {
   };
 
   useEffect(() => {
-    let isSessionExpired = moment(new Date()).format("DD/MM/YYYY hh:mm:ss a") > (LocalStorageUtil.getItem(Constants.TOKEN_EXPIRATION_TIME) as any);
-    if (isSessionExpired) {
-      window.alert("Session has expired");
-      navigate("/login");
-      return;
-    }
+    // let isSessionExpired = moment(new Date()).format("DD/MM/YYYY hh:mm:ss a") > (LocalStorageUtil.getItem(Constants.TOKEN_EXPIRATION_TIME) as any);
+    // if (isSessionExpired) {
+    //   window.alert("Session has expired");
+    //   navigate("/login");
+    //   return;
+    // }
     if (LocalStorageUtil.getItem(Constants.USER_LOGGED_IN) === "true") {
       navigate("/pipeline")
     }

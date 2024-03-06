@@ -1,6 +1,6 @@
-import { AuditNamedItem } from "./base/AuditNamedItem";
+import { AuditItem } from "./base/AuditNamedItem";
 
-export class User extends AuditNamedItem {
+export class User extends AuditItem {
     itemType!: string;
     userName!: string;
     passwordHash!: string;
@@ -20,7 +20,7 @@ export class User extends AuditNamedItem {
         passwordHash: string = null as any,
         userId: number = null as any,
         email: string = null as any) {
-        super(id, name, description, createdBy, createdDate, updatedBy, updatedDate)
+        super(createdBy, createdDate, updatedBy, updatedDate)
         this.itemType = itemType;
         this.userName = userName;
         this.passwordHash = passwordHash;

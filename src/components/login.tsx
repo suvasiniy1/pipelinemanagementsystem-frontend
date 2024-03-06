@@ -164,7 +164,7 @@ const Login = () => {
               />
             }
             <Form.Group className="mb-2" controlId="checkbox">
-              <Form.Check type="checkbox" checked={rememberMe} defaultChecked={rememberMe} onChange={(e: any) => setRememberMe(!rememberMe)} disabled={Util.isNullOrUndefinedOrEmpty(selectedItem.userName)} tabIndex={3} label="Remember me" />
+              <Form.Check type="checkbox" checked={rememberMe} onChange={(e: any) => setRememberMe(!rememberMe)} disabled={Util.isNullOrUndefinedOrEmpty(selectedItem.userName)} tabIndex={3} label="Remember me" />
             </Form.Group>
             {!loading ? (
               <Button className="w-100" variant="primary" type="submit">

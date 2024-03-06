@@ -1,5 +1,7 @@
+import { Deal } from "../../../models/deal";
+
 type params = {
-    quote?: any;
+    deal?: Deal;
     isDragging?: any;
     isGroupedOver?: any;
     provided?: any;
@@ -10,7 +12,7 @@ type params = {
 
  export const DealItem = (props: params) => {
   
-    const { quote, isDragging, isGroupedOver, provided, style, isClone, index } = props;
+    const { deal, isDragging, isGroupedOver, provided, style, isClone, index } = props;
   
     return (
       <>
@@ -22,22 +24,22 @@ type params = {
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           data-is-dragging={isDragging}
-          data-testid={quote?.id}
+          data-testid={deal?.dealID}
           data-index={index}
         >
           <div className="pdstage-item">
             <div className='pdstage-box'>
               <a className='pdstage-boxlink' href=''>
-                <div className="pdstage-title">Bokani Tshuma</div>
+                <div className="pdstage-title">{deal?.name}</div>
                 <div className="pdstage-description">
-                  <div className="pdstage-descitem">Esteem care, Bokani Tshuma</div>
+                  <div className="pdstage-descitem">{deal?.title}</div>
                 </div>
                 <div className="pdstage-status-row">
                   <div className="pdstage-avatar">
                     <i className="rs-icon rs-icon-user-circle"></i>
                   </div>
                   <div className="pdstage-value">
-                    <span>£0</span>
+                    <span>£{deal?.value}</span>
                   </div>
                 </div>
               </a>

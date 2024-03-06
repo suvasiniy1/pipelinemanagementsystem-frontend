@@ -1,14 +1,14 @@
 import axios, { AxiosResponse, AxiosError, CancelTokenSource} from "axios";
 import { toast } from 'react-toastify';
-import { AuditNamedItem } from "../models/base/AuditNamedItem";
 import { getActiveUserToken } from "../others/authUtil";
 import { APIResult } from "./APIResult";
+import { AuditItem } from "../models/base/AuditNamedItem";
 
 
 //const baseURLDev="https://localhost:44310/api";
 const baseURL=window?.config?.ServicesBaseURL;
 
-export class BaseService <TItem extends AuditNamedItem>{
+export class BaseService <TItem extends AuditItem>{
     urlSuffix: string = "";
     itemName: any;
     errorHandler: any;
@@ -33,7 +33,7 @@ export class BaseService <TItem extends AuditNamedItem>{
                 cancelToken: axiosCancel?.token
             }).then((res: AxiosResponse) => {
                 console.log ("getItems - res: ", res);
-                resolve(res);
+                resolve(res?.data);
             }).catch((err: AxiosError) => {
                 reject(err);
             })
@@ -112,7 +112,7 @@ export class BaseService <TItem extends AuditNamedItem>{
                 console.log("postItem - res: ", res);
                 if (!res.data?.result?.hasOwnProperty("message")) {
                     resolve(res.data?.result); 
-                    if(!ignoreToastr) toast.success(`${this.itemName} ${item.id>0?'updated':'created'} successfully`, { autoClose: 3000 });                    
+                    // if(!ignoreToastr) toast.success(`${this.itemName} ${item.id>0?'updated':'created'} successfully`, { autoClose: 3000 });                    
                 }
                 resolve(res);
             }).catch((err: AxiosError) => {
@@ -159,6 +159,7 @@ export class BaseService <TItem extends AuditNamedItem>{
 
         return item;
     }
+
     postItemBySubURL(item: any, urlSuffix2: string, 
                      suppressToasterMessage: boolean = false,
                      ignoreToastr:boolean=false,
@@ -233,7 +234,7 @@ export class BaseService <TItem extends AuditNamedItem>{
         var promise = new Promise<any>((resolve, reject) => {
             axios({
                 method: 'PUT',
-                url: `${baseURL}/${this.urlSuffix}/${item.id}`,
+                url: `${baseURL}/${this.urlSuffix}`,
                 headers: {
                     'Content-Type': 'application/json; charset=UTF-8',
                     'Media-type': 'application/json',

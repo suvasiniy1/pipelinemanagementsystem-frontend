@@ -2,16 +2,16 @@
 import styled from "@xstyled/styled-components";
 import { useEffect, useState } from "react";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
-import { Stage } from "../../../models/stage";
-import { generateQuoteMap } from "../dnd/mockData";
-import reorder, { reorderQuoteMap } from "../dnd/reorder";
-import { StageContainer } from "./stageContainer";
-import { AddNewStage } from "./addNewStage";
+import { Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { DeleteDialog } from "../../../common/deleteDialog";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Spinner } from "react-bootstrap";
+import { DeleteDialog } from "../../../common/deleteDialog";
+import { Stage } from "../../../models/stage";
+import { generateQuoteMap } from "../dnd/mockData";
+import reorder from "../dnd/reorder";
+import { AddNewStage } from "./addNewStage";
+import { StageContainer } from "./stageContainer";
 
 type params = {
     isCombineEnabled?: any,
@@ -24,7 +24,6 @@ type params = {
 }
 
 export const Stages = (props: params) => {
-
     const data = {
         medium: generateQuoteMap(5),
         large: generateQuoteMap(5),
@@ -47,9 +46,9 @@ export const Stages = (props: params) => {
 
     const createNewStageObject = (stages: Array<Stage>) => {
         let obj = new Stage();
-        obj.order = stages?.length + 1;
-        obj.name = "Stage" + (stages?.length + 1);
-        obj.id = stages?.length + 1;
+        obj.stageOrder = stages?.length + 1;
+        // obj.name = "Stage" + (stages?.length + 1);
+        // obj.id = stages?.length + 1;
         return obj;
     }
 
@@ -101,13 +100,13 @@ export const Stages = (props: params) => {
             return;
         }
 
-        const data = reorderQuoteMap(
-            columns,
-            source,
-            destination
-        );
+        // const data = reorderQuoteMap(
+        //     columns,
+        //     source,
+        //     destination
+        // );
 
-        setStages(data as any);
+        // setStages(data as any);
     };
 
     const Container = styled.divBox`
@@ -172,6 +171,7 @@ export const Stages = (props: params) => {
             </div>
 
             <div hidden={isLoading}>
+                
                 <DragDropContext onDragEnd={onDragEnd}>
                     <Droppable
                         droppableId="board1"
@@ -184,7 +184,7 @@ export const Stages = (props: params) => {
                                     <StageContainer
                                         key={index}
                                         index={index}
-                                        title={item.name}
+                                        title={null}
                                         selectedItem={item}
                                         onDeleteClick={(index: number) => { setSelectedItemIndex(index); setShowDeleteDialog(true); }}
                                     />

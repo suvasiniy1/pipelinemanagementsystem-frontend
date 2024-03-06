@@ -11,41 +11,41 @@ export const reorder = (list: any, startIndex: any, endIndex: any) => {
 
 export default reorder;
 
-export const reorderQuoteMap = (quoteMap: Array<Stage>, source: any, destination: any) => {
+// export const reorderQuoteMap = (quoteMap: Array<Stage>, source: any, destination: any) => {
   
-  const sourceIndex = quoteMap.findIndex(q=>q.title==source.droppableId);
-  const destinationIndex = quoteMap.findIndex(q=>q.title==destination.droppableId);
-  const current = [...quoteMap[sourceIndex]?.deals as any];
-  const next = [...quoteMap[destinationIndex]?.deals as any];
-  const target = current[source.index];
+//   const sourceIndex = quoteMap.findIndex(q=>q.title==source.droppableId);
+//   const destinationIndex = quoteMap.findIndex(q=>q.title==destination.droppableId);
+//   const current = [...quoteMap[sourceIndex]?.deals as any];
+//   const next = [...quoteMap[destinationIndex]?.deals as any];
+//   const target = current[source.index];
 
-  // moving to same list
-  if (sourceIndex === destinationIndex) {
-    const reordered = reorder(current, sourceIndex, destinationIndex);
-    const result = {
-      ...quoteMap,
-      [sourceIndex]: reordered
-    };
-    return {
-      quoteMap: result
-    };
-  }
+//   // moving to same list
+//   if (sourceIndex === destinationIndex) {
+//     const reordered = reorder(current, sourceIndex, destinationIndex);
+//     const result = {
+//       ...quoteMap,
+//       [sourceIndex]: reordered
+//     };
+//     return {
+//       quoteMap: result
+//     };
+//   }
 
-  // moving to different list
+//   // moving to different list
 
-  // remove from original
-  current.splice(sourceIndex, 1);
-  // insert into next
-  next.splice(destinationIndex, 0, target);
+//   // remove from original
+//   current.splice(sourceIndex, 1);
+//   // insert into next
+//   next.splice(destinationIndex, 0, target);
 
-  const result = {
-    ...quoteMap,
-    [sourceIndex]: current,
-    [destinationIndex]: next
-  };
+//   const result = {
+//     ...quoteMap,
+//     [sourceIndex]: current,
+//     [destinationIndex]: next
+//   };
 
-  return result;
-};
+//   return result;
+// };
 
 export const moveBetween = (list1: any, list2: any, source: any, destination: any) => {
   const newFirst = Array.from(list1.values);
