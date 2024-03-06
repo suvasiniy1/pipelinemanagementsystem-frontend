@@ -249,9 +249,8 @@ select.selectfield {border: 1px solid #dee2e6; height: 37px; width: 100%; border
 /* Edit Stage CSS Start */
 .editstage-row{height: 100%; padding: 0 8px; overflow: scroll hidden; display: flex; flex-direction: row;}
 .scrollable-stages-container{}
-.editstage-col{opacity: 0.32; height: 100%; min-width: 256px; width: 256px; background-color:#f5f5f6; display: flex; flex-direction: column; border-radius: 8px; margin-left: 8px; flex-basis: 100%; box-shadow: 0 0 1px 1px rgb(0 0 0/5%),0 1px 2px -2px rgb(0 0 0/6%),0 1px 3px 0 rgb(0 0 0/7%);}
-.editstage-col:first-child{margin-left: 0; opacity: 1;}
-.editstage-col:hover{opacity: 1;}
+.editstage-col{height: 100%; min-width: 256px; width: 256px; background-color:#f5f5f6; display: flex; flex-direction: column; border-radius: 8px; margin-left: 8px; flex-basis: 100%; box-shadow: 0 0 1px 1px rgb(0 0 0/5%),0 1px 2px -2px rgb(0 0 0/6%),0 1px 3px 0 rgb(0 0 0/7%); opacity: 1;}
+.editstage-col:first-child{margin-left: 0;}
 .editstagebox{position: relative;height: 100%;}
 .editstage-head{position: relative; background-color: #f5f5f6; border-radius: 8px;}
 .editstage-headin{padding: 16px; display: flex;}
@@ -298,7 +297,7 @@ select.selectfield {border: 1px solid #dee2e6; height: 37px; width: 100%; border
 .editstage-deletebtn:hover{background-color: rgb(33 35 44/5%);}
 .editstage-deletebtn svg{margin-right: 5px;}
 
-.editstage-newcol{opacity: 1; background-color: #fff; border: none; box-shadow: none; min-width: 256px; display: flex; flex: 1 1 0%; -webkit-box-pack: center; justify-content: center; -webkit-box-align: center; align-items: center; flex-direction: column; position: relative; padding: 16px;}
+.editstage-newcol{background-color: #fff; border: none; box-shadow: none; min-width: 256px; display: flex; flex: 1 1 0%; -webkit-box-pack: center; justify-content: center; -webkit-box-align: center; align-items: center; flex-direction: column; position: relative; padding: 16px;}
 .addnewstagbox{min-width: 256px; display: flex; flex: 1 1 0%; -webkit-box-pack: center; justify-content: center; -webkit-box-align: center; align-items: center; flex-direction: column; position: relative; padding: 16px;}
 .addnewstag-innbox{display: flex; flex-direction: column; -webkit-box-align: center; align-items: center; text-align: center;}
 .addnewstagbox-text{display: flex; flex-direction: column; -webkit-box-align: center; align-items: center; text-align: center;}
@@ -498,4 +497,10 @@ select.selectfield {border: 1px solid #dee2e6; height: 37px; width: 100%; border
     max-width: 800px; } }
 @media (min-width: 1200px) {
   .modal-xl {
-    max-width: 1140px; } }
+    max-width: 1140px;
+    }
+    }
+    
+  select {
+      -webkit-appearance: listbox !important;
+    }
