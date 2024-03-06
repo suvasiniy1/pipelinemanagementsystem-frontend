@@ -32,7 +32,7 @@ export const SideBar = () => {
         </Sidenav.Header>*/}
                     <Sidenav.Body>
                         <Nav className='sidemenu'>
-                            <Nav.Item eventKey="1" icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M20.05 9.61c0 3.93-2.53 6.62-6.15 6.62-1.73 0-3.15-.71-3.68-1.6l.03.91v5.63h-3.7V6.62c0-.2-.05-.25-.28-.25H5v-3.1h3.1c1.41 0 1.77 1.23 1.87 1.76.56-.94 2.02-2.03 4.1-2.03 3.58 0 5.98 2.66 5.98 6.61Zm-3.77.03c0-2.1-1.37-3.55-3.1-3.55-1.41 0-3.01.94-3.01 3.58 0 1.72.96 3.52 2.96 3.52 1.48 0 3.15-1.07 3.15-3.55Z"></path></svg>} onSelect={(e) => navigate("/pipeline")}>
+                            <Nav.Item className='tnavicon' eventKey="1" icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M32 32C14.3 32 0 46.3 0 64S14.3 96 32 96H160V448c0 17.7 14.3 32 32 32s32-14.3 32-32V96H352c17.7 0 32-14.3 32-32s-14.3-32-32-32H192 32z"/></svg>} onSelect={(e) => navigate("/pipeline")}>
                                 Pipeline
                             </Nav.Item>
                             <Nav.Item eventKey="2" icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M12 16c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4Z"></path><path d="M11.25 2.53c-4.65.36-8.36 4.07-8.72 8.72H1c-.41 0-.75.34-.75.75s.34.75.75.75h1.53c.36 4.65 4.07 8.36 8.72 8.72V23c0 .41.34.75.75.75s.75-.34.75-.75v-1.53c4.65-.36 8.36-4.07 8.72-8.72H23c.41 0 .75-.34.75-.75s-.34-.75-.75-.75h-1.53c-.36-4.65-4.07-8.36-8.72-8.72V1c0-.41-.34-.75-.75-.75s-.75.34-.75.75v1.53ZM20 12c0 4.42-3.58 8-8 8s-8-3.58-8-8 3.58-8 8-8 8 3.58 8 8Z"></path></svg>} onSelect={(e) => navigate("/leads")}>

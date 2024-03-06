@@ -78,7 +78,7 @@ html body, html input, html button, html select, html textarea{font-family: "Int
 .sidenavhead {height: 56px; text-align: center; line-height: 56px; font-size: 30px; font-weight: 900; color: #ffffff;}
 .sidenavhead i{font-size: 20px;}
 .rs-sidenav.sidenav{background-color: #211c52;}
-
+.tnavicon a svg {width: 20px;}
 .sidenav ul > li{padding: 2px 0;}
 .sidenav ul > li > a{border-radius: 3px;}
 .rs-sidenav.sidenav ul > li > a .rs-icon{color: #ffffff;}
@@ -245,6 +245,68 @@ select.selectfield {border: 1px solid #dee2e6; height: 37px; width: 100%; border
 .tbltitle-data{}
 .pdlist-table td a{color: #21232c; text-decoration: none;}
 .tblclosedate-data {height: 23px;}
+
+/* Edit Stage CSS Start */
+.editstage-row{height: 100%; padding: 0 8px; overflow: scroll hidden; display: flex; flex-direction: row;}
+.scrollable-stages-container{}
+.editstage-col{height: 100%; min-width: 256px; width: 256px; background-color:#f5f5f6; display: flex; flex-direction: column; border-radius: 8px; margin-left: 8px; flex-basis: 100%; box-shadow: 0 0 1px 1px rgb(0 0 0/5%),0 1px 2px -2px rgb(0 0 0/6%),0 1px 3px 0 rgb(0 0 0/7%); opacity: 1;}
+.editstage-col:first-child{margin-left: 0;}
+.editstagebox{position: relative;height: 100%;}
+.editstage-head{position: relative; background-color: #f5f5f6; border-radius: 8px;}
+.editstage-headin{padding: 16px; display: flex;}
+.editstage-headlead{display: flex; flex: 1 1 0%; flex-direction: column; overflow: hidden;}
+.editstage-leadtitle{font-weight: 600; padding-bottom: 5px;}
+.editstage-leadicons{display: flex;}
+.editstage-leadicon, .editstage-bellicon{font-size: 12px;}
+.editstage-bellicon{margin-left: 10px; position: relative; padding-left: 12px;}
+.editstage-bellicon:after{content: ''; position: absolute; left: 0; top: 50%; width: 4px; height: 4px; background-color: #21232c; margin-top: -1px; border-radius: 4px;}
+
+
+.editstage-dragicon{display: flex; -webkit-box-align: center; align-items: center;}
+.editstage-plusicon {display: none; position: absolute; top: 10px; z-index: 1; width: 24px; height: 24px;border: 1px solid rgba(33, 35, 44, .24); border-radius: 20px; animation: 500ms ease 0s 1 normal none running ikgggy; background-color: #fff; text-align: center; cursor: pointer; box-shadow: 0 0 1px 1px rgb(0 0 0/5%), 0 1px 2px -2px rgb(0 0 0/6%), 0 1px 3px 0 rgb(0 0 0/7%);}
+.plusiconleft{left: -14px;}
+.plusiconright{right: -14px;}
+.editstage-col:hover .editstage-plusicon {display: block;}
+
+.editstage-data{height:calc( 100%  - 78px); padding: 16px; display: flex; flex-direction: column; -webkit-box-pack: justify; justify-content: space-between; border-top: 1px solid rgba(33,35,44,.12);}
+.editstage-innerdata{display: flex; flex-direction: column;}
+.editstage-field{padding: 8px 0;}
+.editstage-fieldname{position: relative; display: flex; margin-bottom: 4px; font-size: 14px; padding-right: 20px;}
+.editstage-infoicon{position: absolute; right: 0; top: 0; z-index: 1; cursor: pointer;}
+.editstage-fieldinput{position: relative;}
+.editstage-inputbox{align-items: center; display: flex; position: relative;}
+.editstage-inputbox .form-control{height: 32px; font-size: 14px;}
+.editstage-fieldcheck{display: flex; flex-direction: column;}
+.editstage-checkbox{position: relative; display: flex; flex: 1 1 0%;}
+.checktogglebox{display: block; position: relative;}
+.checktogglebox input[type="checkbox"]{opacity: 0; position: absolute; z-index: -1;}
+.checktoggle{ flex: 0 0 auto; display: inline-block; background-color: rgba(33,35,44,.24); width: 32px; height:16px; cursor: pointer; border-radius: 16px; margin: 2px 0; position: relative; transition: background-color .1s cubic-bezier(.5,0,.2,1); -webkit-user-select: none; -moz-user-select: none;user-select: none; }
+.checktoggle:after {content: ""; position: absolute; top: 0; left: 0; margin: 2px; width: calc(16px - 4px); height: calc(16px - 4px); background-color: #fff; border-radius: 100%; 
+  transition: left var(--pd-motion-duration-100) var(--pd-motion-ease-transition), right var(--pd-motion-duration-100) var(--pd-motion-ease-transition);}
+.checktoggle, .checktoggle:after {transition-property: color, background-color, fill, border; transition-duration: 0.5s; transition-timing-function: ease;}
+.checktogglebox input[type=checkbox]:checked:not([disabled]):not([readonly])~.checktoggle {background-color: #2d8647;}
+.checktogglebox input[type=checkbox]:checked~.checktoggle:after {left: calc(32px - 16px);}
+.checktogglebox:hover input[type=checkbox]:not(:checked):not([disabled]):not([readonly])~.checktoggle {background-color: rgba(33,35,44,.48);}
+.fieldchecklabel{padding: 0 8px;font-size: 14px;}
+.fieldcheck-infoicon{position: absolute; right: 0; top: 0; z-index: 1;cursor: pointer;}
+
+
+.editstage-delete{min-height: 48px; display: flex; border-top: 1px solid rgba(33,35,44,.12); margin: -16px;}
+.editstage-deleteinn{display: flex; -webkit-box-align: center; align-items: center; margin: 0 8px;}
+.editstage-deletebtn{display: flex; align-items: center; background-color: #f5f5f6; border-radius: 4px; border: none; cursor: pointer; display: inline-flex; font-size: 14px; padding: 8px;}
+.editstage-deletebtn:hover{background-color: rgb(33 35 44/5%);}
+.editstage-deletebtn svg{margin-right: 5px;}
+
+.editstage-newcol{background-color: #fff; border: none; box-shadow: none; min-width: 256px; display: flex; flex: 1 1 0%; -webkit-box-pack: center; justify-content: center; -webkit-box-align: center; align-items: center; flex-direction: column; position: relative; padding: 16px;}
+.addnewstagbox{min-width: 256px; display: flex; flex: 1 1 0%; -webkit-box-pack: center; justify-content: center; -webkit-box-align: center; align-items: center; flex-direction: column; position: relative; padding: 16px;}
+.addnewstag-innbox{display: flex; flex-direction: column; -webkit-box-align: center; align-items: center; text-align: center;}
+.addnewstagbox-text{display: flex; flex-direction: column; -webkit-box-align: center; align-items: center; text-align: center;}
+.addnewstagbox-text h3{font-size: 25px; line-height: 1.1; font-weight: 600; margin-bottom: 20px; padding-bottom: 0;}
+.addnewstagbox-text p{margin: 0 0 16px; font-size: 14px;}
+.addnewstag-btn{background-color: #fff; display: inline-flex; justify-content: center; align-items: center; font-size:14px; font-weight: 600; height: 32px; padding: 8px 10px; border: 1px solid rgba(33,35,44,.24); border-radius: 4px; box-shadow: 0 1px 2px 0 rgb(42 54 71/5%); cursor: pointer; margin: 0; min-width: 32px; position: relative; text-align: center; text-decoration: none; transition: background .1s cubic-bezier(.5,0,.2,1);  -webkit-user-select: none; -moz-user-select: none; user-select: none; vertical-align: top;}
+.addnewstag-btn:hover{background-color: #f5f5f6;}
+.addnewstag-btn i{margin-right: 5px;}
+/* Edit Stage CSS End */
 
 
 
