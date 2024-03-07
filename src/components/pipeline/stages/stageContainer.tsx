@@ -12,16 +12,19 @@ type params = {
     title: any,
     index: any,
     selectedItem: Stage
-    onDeleteClick:any;
+    onDeleteClick: any;
+    onAddClick:any
 }
 export const StageContainer = (props: params) => {
+    
     const { title, index, selectedItem, onDeleteClick, ...others } = props;
     const [opacity, setOpacity] = useState();
 
+    const deleteStage = (index: number) => {
+        props.onDeleteClick(index);
+    }
+
     const Container = styled.divBox`
-    margin: ${grid}px;
-    display: flex;
-    flex-direction: column;
   `;
 
     const Header = styled.divBox`
@@ -30,58 +33,28 @@ export const StageContainer = (props: params) => {
     justify-content: center;
     border-top-left-radius: ${borderRadius}px;
     border-top-right-radius: ${borderRadius}px;
-    background-color: ${colors.N30};
-    transition: background-color 0.2s ease;`;
-
-    const Footer = styled.divBox`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-top-left-radius: ${borderRadius}px;
-    border-top-right-radius: ${borderRadius}px;
-    background-color: ${colors.N30};
-    transition: background-color 0.2s ease;`;
-
-    const deleteStage = (index:number) => {
-        props.onDeleteClick(index);
+    background-color: ${(isDragging: any) =>
+        isDragging ? colors.G50 : colors.N30};
+    transition: background-color 0.2s ease;
+    &:hover {
+      background-color: ${colors.G50};
     }
+  `;
 
     return (
         <>
-            <div>
-                <Draggable draggableId={title} index={index}>
-                    {(provided, snapshot) => (
-                        <Container ref={provided.innerRef} {...provided.draggableProps}>
-                            <div style={{ opacity: opacity }}
-                                onMouseEnter={(e: any) => { setOpacity('inherit' as any) }}
-                                onMouseLeave={(e: any) => { setOpacity(0.5 as any) }}
-                                >
-                                <Header isDragging={snapshot.isDragging}>
-                                    <Title
-                                        isDragging={snapshot.isDragging}
-                                        {...provided.dragHandleProps}
-                                        aria-label={`${title} quote list`}
-                                    >
-                                        {title}
-                                    </Title>
+            <Draggable draggableId={""+index} index={index}>
+                {(provided, snapshot) => (
+                    <div className="editstage-col" ref={provided.innerRef} {...provided.draggableProps}>
 
-                                </Header>
-                                <div style={{ borderTop: "1px solid #D7D6D5"}}>
-                                    <StageItem selectedItem={selectedItem} />
-                                </div>
-                                <div style={{ borderTop: "1px solid #D7D6D5", cursor: "pointer" }}>
-                                    <Footer><span onClick={(e: any) => deleteStage(index)}><DeleteIcon /> Delete Stage</span>
-                                        <br />
-                                        <br />
-                                    </Footer>
-
-                                </div>
-                            </div>
-
-                        </Container>
-                    )}
-                </Draggable>
-            </div>
+                        <StageItem  selectedItem={selectedItem}  
+                                    provided={provided}
+                                    onAddClick={(e:any)=>props.onAddClick(e==="left" ? index-1 : index+1)}
+                                    />
+                        
+                    </div>
+                )}
+            </Draggable>
         </>
     )
 }

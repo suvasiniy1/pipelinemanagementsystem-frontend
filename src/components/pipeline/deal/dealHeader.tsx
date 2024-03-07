@@ -22,7 +22,7 @@ export const DealHeader = (props: params) => {
     const addorUpdateStage = () => {
         return (
             <>
-                <button type="button" className="btn btn-primary" onClick={(e: any) => navigate("/pipeline/edit")}> <SettingsIcon /></button>
+                <button type="button" className="btn btn-primary" onClick={(e: any) => navigate("/pipeline/edit?pipelineID="+selectedItem.pipelineID)}> <SettingsIcon /></button>
             </>
         )
     }

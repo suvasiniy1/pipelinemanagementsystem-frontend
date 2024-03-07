@@ -24,7 +24,7 @@ export const DealStage = (props: params) => {
             <div className="pdstage-innercol">
                 <Draggable draggableId={"" + title} index={stageID} isDragDisabled={true}>
                     {(provided, snapshot) => (
-                        <div ref={provided.innerRef} {...provided.draggableProps}>
+                        <div>
                             <div className="pdstage-header">
                                 <div className="pdstage-head">{title}</div>
                                 <div className="pdstage-summary">
