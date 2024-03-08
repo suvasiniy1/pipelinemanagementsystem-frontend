@@ -95,7 +95,7 @@ html body, html input, html button, html select, html textarea{font-family: "Int
 .maincontentinner .gdnJsS, .maincontentinner .dVEiRS{min-width: auto;}
 .maincontentinner > div {height: 100%;}
 
-
+.toolbarview-row{}
 .toolbutton-grprow{display: flex; align-items: center;}
 .toolbarview-actionsrow{display: flex;}
 .toolbutton-group{display: flex; margin-right: 10px;;}
@@ -105,10 +105,12 @@ html body, html input, html button, html select, html textarea{font-family: "Int
 .toolbutton-group .tooldealbtn{border-left: 0; border-right: 0;}
 .toolbutton-group .toolpipebtn svg.fa-chart-simple{transform: rotate(180deg);}
 .toolbarview-actionsrow .btn-success{height: 32px; padding: 3px 10px;}
-
+.toolbarview-summery{display: flex;align-items: center; justify-content: end;}
+.toolsummary-deals span{margin:0 5px;}
 
 .toolbarview-filtersrow{display: flex;}                                    
 .pipeselectbtngroup{display: flex;}
+.pipeselectbox{position: relative;}
 .pipeselect{position: relative; display: inline-flex; align-items: center; justify-content: center; background-color: #fff; text-align: center; height: 32px; border: 1px solid rgba(33,35,44,.24); border-radius: 4px; box-shadow: 0 1px 2px 0 rgb(42 54 71/5%); cursor: pointer; margin: 0; padding: 6px 30px 6px 10px; text-decoration: none; transition: background .1s cubic-bezier(.5,0,.2,1); -webkit-user-select: none; -moz-user-select: none; user-select: none; vertical-align: top;}
 .pipeselect .fa-caret-down {position: absolute; right: 10px; top: 7px; z-index: 1;}
 .pipeselect .fa-chart-simple, .pipeselect .fa-align-center{margin-right: 10px;}
@@ -119,6 +121,28 @@ html body, html input, html button, html select, html textarea{font-family: "Int
 .updatestagebtn .btn:hover{border: 1px solid rgba(33, 35, 44, .24);}
 .updatestagebtn .btn .fa-pencil {font-size: 14px;}
 .toolbarview-filters select.form-control {height: 32px; margin-right: 10px;}
+
+.pipeselectcontent{background-color: #fff; border-radius: 4px; box-shadow: 0 0 2px 0 rgba(0,0,0,.24),0 8px 10px 1px rgb(0 0 0/5%),0 3px 14px 2px rgb(0 0 0/6%),0 5px 5px -3px rgba(0,0,0,.1);
+max-width: 360px; position: absolute; right: 0; top: 100%; z-index:2;
+-webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text;}
+.pipeselectcontentinner{overflow: auto; white-space: nowrap;}
+.pipeselectpadlr{padding: 8px;}
+.pipeselectlist {margin: 0; padding: 0; list-style-type: none;}
+.pipeselectlist li{position: relative; display: flex; align-items: center; font-size: 14px;}
+.pipeselectlink{width: 100%; display: flex; align-items: center; justify-content: space-between; text-decoration: none; cursor: pointer; color: #21232c; padding:5px 10px; border-radius: 4px; border: none; font-size: 14px; background-color: #fff;}
+.pipeselectlink:hover{text-decoration: none; background-color: #2b74da; color: #fff;}
+.pipeselectlink .fa-check{color: #2b74da;}
+.pipeselectlink:hover .fa-check{color: #fff;}
+.pipeselect-editlink {position: absolute; right: 10px; top: 3px; z-index: 2; border: 1px solid rgba(33, 35, 44, .24); background-color: #fff; padding: 1px 4px; border-radius: 4px;}
+.pipeselectbtm{border-top: 1px solid rgba(33, 35, 44, .24);}
+.pipeselectbtm .pipeselectlink{justify-content: left;}
+.pipeselectlink .fa-grip-lines, .pipeselectlink .fa-eye, .pipeselectlink .fa-pencil{margin-right: 10px;}
+.pipeselect-infolink{text-decoration: none; color: #21232c; margin-left: 10px;}
+.pipeselectlink:hover .pipeselect-infolink{text-decoration: none; color: #fff;}
+.newpipeline{display: flex; align-items: center; text-decoration: none; cursor: pointer; color: #2b74da; padding:5px 10px; border-radius: 4px; border: none; font-size: 14px; background-color: #fff;}
+.newpipeline:hover{text-decoration: none; background-color: #2b74da; color: #fff;}
+.newpipeline .fa-plus{margin-right: 10px;}
+
 
 
 /* Add Deal Model Popup */

@@ -6,7 +6,7 @@ import SelectDropdown from '../../../elements/SelectDropdown';
 import { PipeLine } from '../../../models/pipeline';
 import { width } from '@xstyled/styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCaretDown, faPencil, faChartSimple, faAlignCenter, faBars, faDollarSign} from '@fortawesome/free-solid-svg-icons';
+import { faCaretDown, faPencil, faChartSimple, faAlignCenter, faBars, faDollarSign, faCheck, faAdd, faGripLines, faEye, faCircleInfo} from '@fortawesome/free-solid-svg-icons';
 
 
 
@@ -43,7 +43,7 @@ export const DealHeader = (props: params) => {
         <>
             <div className="pipe-toolbar pt-3 pb-4">
                 <div className="container-fluid">
-                    <div className="row">
+                    <div className="row toolbarview-row">
                         <div className="col-sm-3 toolbarview-actions">
                             <div className='toolbarview-actionsrow'>
                                 <div className="d-flex toolbutton-group">
@@ -55,7 +55,7 @@ export const DealHeader = (props: params) => {
                             </div>
                         </div>
                         <div className="col-sm-5 toolbarview-summery">
-                        
+                            <div className="toolsummary"><div className="toolsummary-deals">£0<span>·</span>6 deals</div></div>
                         </div>
                         <div className="col-sm-4 toolbarview-filters d-flex">
                             <select className="form-control"
@@ -75,6 +75,33 @@ export const DealHeader = (props: params) => {
                                 <div className="pipeselectbtngroup">
                                     <div className='pipeselectbox variantselectbox'>
                                         <button className="pipeselect" type="button"><FontAwesomeIcon icon={faChartSimple} /> Workington <FontAwesomeIcon icon={faCaretDown} /></button>
+                                        <div className='pipeselectcontent'>
+                                            <div className='pipeselectcontentinner'>
+                                                <div className='pipeselectpadlr'>
+                                                    <ul className='pipeselectlist'>
+                                                        <li><button className='pipeselectlink' type='button'>Live chat <FontAwesomeIcon icon={faCheck} /></button><span className='pipeselect-editlink'><FontAwesomeIcon icon={faPencil} /></span></li>
+                                                        <li><button className='pipeselectlink' type='button'>Carlisle <FontAwesomeIcon icon={faCheck} /></button><span className='pipeselect-editlink'><FontAwesomeIcon icon={faPencil} /></span></li>
+                                                        <li><button className='pipeselectlink' type='button'>Dumfries <FontAwesomeIcon icon={faCheck} /></button><span className='pipeselect-editlink'><FontAwesomeIcon icon={faPencil} /></span></li>
+                                                        <li><button className='pipeselectlink' type='button'>Hyde <FontAwesomeIcon icon={faCheck} /></button><span className='pipeselect-editlink'><FontAwesomeIcon icon={faPencil} /></span></li>
+                                                        <li><button className='pipeselectlink' type='button'>Hyde <FontAwesomeIcon icon={faCheck} /></button><span className='pipeselect-editlink'><FontAwesomeIcon icon={faPencil} /></span></li>
+                                                        <li><button className='pipeselectlink' type='button'>Dev Pipeline <FontAwesomeIcon icon={faCheck} /></button><span className='pipeselect-editlink'><FontAwesomeIcon icon={faPencil} /></span></li>
+                                                        <li><button className='pipeselectlink' type='button'>Test Pipeline <FontAwesomeIcon icon={faCheck} /></button><span className='pipeselect-editlink'><FontAwesomeIcon icon={faPencil} /></span></li>
+                                                    </ul>
+                                                </div>
+                                                <div className='pipeselectpadlr pipeselectbtm'>
+                                                    <ul className='pipeselectlist'>
+                                                        <li><button className='pipeselectlink' type='button'><FontAwesomeIcon icon={faGripLines} /> Reorder Pipelines</button></li>
+                                                        <li><button className='pipeselectlink' type='button'><FontAwesomeIcon icon={faEye} /> Pipeline Visibility</button></li>
+                                                        <li><button className='pipeselectlink' type='button'><FontAwesomeIcon icon={faPencil} /> Custumize deal cards <a className='pipeselect-infolink'><FontAwesomeIcon icon={faCircleInfo} /></a></button></li>
+                                                    </ul>
+                                                </div>
+                                                <div className='pipeselectpadlr pipeselectbtm'>
+                                                    <ul className='pipeselectlist'>
+                                                        <li><button className='newpipeline' type='button'><FontAwesomeIcon icon={faAdd} /> New pipeline</button></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div className='updatestagebtn'>{addorUpdateStage()}</div>
                                 </div>
