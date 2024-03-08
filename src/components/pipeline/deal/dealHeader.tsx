@@ -62,7 +62,7 @@ export const DealHeader = (props: params) => {
                                     value={selectedItem?.pipelineID}
                                     key={"region"}
                                     onChange={(e: any) => setSelectedItem(e.target.value)}
-                            >
+                                >
                                 <option value="">Select</option>
                                 {pipeLinesList?.map((item: PipeLine, index: number) => {
                                     return (

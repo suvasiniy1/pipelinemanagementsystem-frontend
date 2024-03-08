@@ -161,25 +161,26 @@ export const Stages = (props: params) => {
             <Spinner hidden={!isLoading} className="spinner" />
             <div className="rs-container maincontent" hidden={isLoading}>
                 <div className="rs-content maincontentinner">
+                    {
+                        <>
+                            <StageActions onAddClick={addNewStage}
+                                onSaveClick={saveStages}
+                                onCancelClick={cancelChanges} />
+                            {showDeleteDialog &&
+                                <DeleteDialog itemType={"Stage"}
+                                    itemName={""}
+                                    dialogIsOpen={showDeleteDialog}
+                                    closeDialog={(e: any) => setShowDeleteDialog(false)}
+                                    onConfirm={(e: any) => deleteStage()}
+                                    isPromptOnly={false}
+                                    actionType={"Delete"}
+                                />
+                            }
+                        </>
+                    }
                     <div className="pdstage-area">
                         <div className="container-fluid">
-                            {
-                                <>
-                                    <StageActions onAddClick={addNewStage}
-                                        onSaveClick={saveStages}
-                                        onCancelClick={cancelChanges} />
-                                    {showDeleteDialog &&
-                                        <DeleteDialog itemType={"Stage"}
-                                            itemName={""}
-                                            dialogIsOpen={showDeleteDialog}
-                                            closeDialog={(e: any) => setShowDeleteDialog(false)}
-                                            onConfirm={(e: any) => deleteStage()}
-                                            isPromptOnly={false}
-                                            actionType={"Delete"}
-                                        />
-                                    }
-                                </>
-                            }
+                            
                             <div className="editstage-row scrollable-stages-container">
                                 <DragDropContext onDragEnd={onDragEnd}>
                                     <Droppable
