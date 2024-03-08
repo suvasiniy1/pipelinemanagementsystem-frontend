@@ -6,5 +6,6 @@ export class PipeLine extends AuditItem {
     pipelineName!: string;
     description!: string;
     stages!:Array<Stage>;
+    canEdit?:boolean;
 
 }

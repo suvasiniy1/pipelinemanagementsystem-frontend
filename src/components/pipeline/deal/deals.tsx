@@ -13,6 +13,7 @@ import { PipeLine } from "../../../models/pipeline";
 import { Deal } from "../../../models/deal";
 import LocalStorageUtil from "../../../others/LocalStorageUtil";
 import Constants from "../../../others/constants";
+import { ToastContainer, toast } from "react-toastify";
 
 type params = {
     isCombineEnabled?: any,
@@ -33,7 +34,6 @@ export const Deals = (props: params) => {
     const dealsSvc = new DealService(ErrorBoundary);
     const [pipeLines, setPipeLines] = useState<Array<PipeLine>>([]);
     const [stages, setStages] = useState<Array<Stage>>([]);
-    const [deals, setDeals] = useState<Array<Deal>>([]);
     const [selectedItem, setSelectedItem] = useState<PipeLine>();
 
     useEffect(() => {
@@ -53,6 +53,8 @@ export const Deals = (props: params) => {
             setPipeLines([...pipelines]);
             LocalStorageUtil.setItem(Constants.PIPE_LINES, JSON.stringify([...pipelines]));
             setSelectedItem(pipelines[0]);
+        }).catch(err=>{
+            toast.error("Unable to retreive the list");
         });
     }, [])
 
@@ -163,6 +165,7 @@ export const Deals = (props: params) => {
 
                 </>
             }
+             <ToastContainer />
         </>
     );
 };

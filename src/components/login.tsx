@@ -4,7 +4,7 @@ import { Button, Form, Spinner } from "react-bootstrap";
 import { ErrorBoundary } from "react-error-boundary";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import * as Yup from 'yup';
 import GenerateElements from "../common/generateElements";
@@ -79,7 +79,7 @@ const Login = () => {
       loginSvc.login(obj).then((res: any) => {
         setLoading(false);
         
-        if (res?.token) {
+        if (res) {
           LocalStorageUtil.setItem(Constants.USER_LOGGED_IN, "true");
           LocalStorageUtil.setItem(Constants.ACCESS_TOKEN, res?.token);
           LocalStorageUtil.setItem(Constants.TOKEN_EXPIRATION_TIME, Util.convertTZ(res?.expiration));
@@ -91,6 +91,7 @@ const Login = () => {
         }
       }).catch(err => {
         setLoading(false);
+        toast.error(err);
       })
     }
     else {
