@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { DealAddEditDialog } from './dealAddEditDialog';
 import SelectDropdown from '../../../elements/SelectDropdown';
 import { PipeLine } from '../../../models/pipeline';
-import { width } from '@xstyled/styled-components';
+import { display, width } from '@xstyled/styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCaretDown, faPencil, faChartSimple, faAlignCenter, faBars, faDollarSign, faCheck, faAdd, faGripLines, faEye, faCircleInfo} from '@fortawesome/free-solid-svg-icons';
 
@@ -26,7 +26,7 @@ export const DealHeader = (props: params) => {
     const addorUpdateStage = () => {
         return (
             <>
-                <button type="button" className="btn btn-primary" onClick={(e: any) => navigate("/pipeline/edit?pipelineID="+selectedItem.pipelineID)}> <SettingsIcon /></button>
+                <button type="button" className="btn" onClick={(e: any) => navigate("/pipeline/edit?pipelineID="+selectedItem.pipelineID)}> <FontAwesomeIcon icon={faPencil} /></button>
             </>
         )
     }
@@ -34,7 +34,7 @@ export const DealHeader = (props: params) => {
     const addorUpdateDeal = () => {
         return (
             <>
-                <button type="button" className="btn btn-success" onClick={(e: any) => setDialogIsOpen(true)} disabled={!canAddDeal}>+ Add Deal</button>
+                <button type="button" className="btn btn-success" onClick={(e: any) => setDialogIsOpen(true)} disabled={!canAddDeal}>+ Deal</button>
             </>
         )
     }
@@ -47,7 +47,7 @@ export const DealHeader = (props: params) => {
                         <div className="col-sm-3 toolbarview-actions">
                             <div className='toolbarview-actionsrow'>
                                 <div className="d-flex toolbutton-group">
-                                    <button className="toolpipebtn" type="button"><FontAwesomeIcon icon={faChartSimple} /></button>
+                                    <button className="toolpipebtn activetoolbtn" type="button"><FontAwesomeIcon icon={faChartSimple} /></button>
                                     <button className="tooldealbtn" type="button"><FontAwesomeIcon icon={faBars} /></button>
                                     <button className="tooltimebtn" type="button"><FontAwesomeIcon icon={faDollarSign} /></button>
                                 </div>
@@ -75,7 +75,7 @@ export const DealHeader = (props: params) => {
                                 <div className="pipeselectbtngroup">
                                     <div className='pipeselectbox variantselectbox'>
                                         <button className="pipeselect" type="button"><FontAwesomeIcon icon={faChartSimple} /> Workington <FontAwesomeIcon icon={faCaretDown} /></button>
-                                        <div className='pipeselectcontent'>
+                                        {/* <div className='pipeselectcontent'>
                                             <div className='pipeselectcontentinner'>
                                                 <div className='pipeselectpadlr'>
                                                     <ul className='pipeselectlist'>
@@ -101,12 +101,12 @@ export const DealHeader = (props: params) => {
                                                     </ul>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div> */}
                                     </div>
                                     <div className='updatestagebtn'>{addorUpdateStage()}</div>
                                 </div>
-                                <div className='col-sm-2 toolbarview-filtersrow'>
-                                    {addorUpdateStage()}
+                                <div className="pipeselectbox selecteveryonebox">
+                                    <button className="pipeselect" type="button"><FontAwesomeIcon icon={faAlignCenter} /> Everyone <FontAwesomeIcon icon={faCaretDown} /></button>
                                 </div>
                             </div>
                         </div>
