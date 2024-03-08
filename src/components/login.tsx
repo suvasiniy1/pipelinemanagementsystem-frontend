@@ -81,8 +81,8 @@ const Login = () => {
         
         if (res?.token) {
           LocalStorageUtil.setItem(Constants.USER_LOGGED_IN, "true");
-          LocalStorageUtil.setItem(Constants.ACCESS_TOKEN, res.token?.token);
-          LocalStorageUtil.setItem(Constants.TOKEN_EXPIRATION_TIME, Util.convertTZ(res.token?.expiration));
+          LocalStorageUtil.setItem(Constants.ACCESS_TOKEN, res?.token);
+          LocalStorageUtil.setItem(Constants.TOKEN_EXPIRATION_TIME, Util.convertTZ(res?.expiration));
           navigate("/pipeline");
 
         }
