@@ -178,10 +178,10 @@ color: #fff; cursor: pointer; flex-basis: 0; font: 450 12px / 18px "Inter",sans-
 
 
 /* Pipedrive Box Code */
-.pdstage-area {overflow: auto; height: calc(100% - 72px); display: grid; padding: 0 var(--pd-spacing-200) 0 var(--pd-spacing-200);}
-.pdstage-area::-webkit-scrollbar {width: 10px;}
+.pdstage-area {overflow: auto; height: calc(100% - 72px); display: grid;}
+/* .pdstage-area::-webkit-scrollbar {width: 10px;}
 .pdstage-area::-webkit-scrollbar-track {background-color: #e4e4e4; border-radius: 100px;}
-.pdstage-area::-webkit-scrollbar-thumb {border-radius: 100px; background-color:#211c52; box-shadow: inset 2px 2px 5px 0 rgba(#fff, 0.5);}
+.pdstage-area::-webkit-scrollbar-thumb {border-radius: 100px; background-color:#211c52; box-shadow: inset 2px 2px 5px 0 rgba(#fff, 0.5);} */
 
 .toolbutton-grprow{display: flex; align-items: center;}
 .toolbutton-group{display: flex; margin-right: 10px;;}
