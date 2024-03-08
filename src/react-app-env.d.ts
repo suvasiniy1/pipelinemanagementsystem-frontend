@@ -3,6 +3,7 @@ declare global {
     interface Window {
         config: {
             ServicesBaseURL: string;
+            DefaultStages:Array<string>;
         }
     }
 }

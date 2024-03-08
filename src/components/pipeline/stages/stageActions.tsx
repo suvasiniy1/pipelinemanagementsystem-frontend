@@ -1,9 +1,13 @@
+import { PipeLine } from "../../../models/pipeline"
+
 type params = {
+    selectedItem:PipeLine;
     onAddClick: any,
     onSaveClick:any,
     onCancelClick:any
 }
 export const StageActions = (props: params) => {
+    const {selectedItem, ...others}=props;
     return (
         <>
             {/* <div>
@@ -15,9 +19,13 @@ export const StageActions = (props: params) => {
             <div className="action-toolbar pt-3 pb-3">
                 <div className="container-fluid">
                     <div className="row">
-                        {/* <div className="col-sm-8 colactionbtnstage">
-                            <button type="button" className="btn btn-light" onClick={(e: any) => props.onAddClick()}>+ New Stage</button>
-                        </div> */}
+                        <div className="col-sm-2 colactionbtnstage">
+                        <div className="form-group row">
+                        <label htmlFor="name">Pipeline Name:</label>
+                        <input type="text" className="form-control" defaultValue={selectedItem?.pipelineName}/>
+                        </div>
+                           
+                        </div>
                         <div className="col-sm-4 colactionbtn">
                             <div className="colactionbtnrow">
                                 <button type="button" className="btn btn-light" onClick={(e: any) => props.onCancelClick()}>Cancel</button>

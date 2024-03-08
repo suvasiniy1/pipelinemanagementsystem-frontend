@@ -151,7 +151,7 @@ export class BaseService <TItem extends AuditItem>{
     }
 
     updateAuditDetails = (item: TItem) => {
-        // let obj = item.audit;
+        // let obj = item;
         // if (obj) {
         //     item.id == 0 ? obj.createdBy = getLoggedInUserName()
         //         : obj.updatedBy = getLoggedInUserName();

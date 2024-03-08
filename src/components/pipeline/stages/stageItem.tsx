@@ -25,6 +25,7 @@ type params = {
     selectedItem?: Stage;
     provided?: any;
     onAddClick:any;
+    onDeleteClick:any;
 }
 export const StageItem = (props: params) => {
     
@@ -117,7 +118,7 @@ export const StageItem = (props: params) => {
                         </div>
                         <div className="editstage-delete">
                             <div className="editstage-deleteinn">
-                                <button className="editstage-deletebtn"><FontAwesomeIcon icon={faTrash} /> <span>Delete Stage</span></button>
+                                <button className="editstage-deletebtn" onClick={(e:any)=>props.onDeleteClick()}><FontAwesomeIcon icon={faTrash} /> <span>Delete Stage</span></button>
                             </div>
                         </div>
                     </div>

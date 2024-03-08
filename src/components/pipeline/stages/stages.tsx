@@ -16,6 +16,9 @@ import LocalStorageUtil from "../../../others/LocalStorageUtil";
 import Constants from "../../../others/constants";
 import { PipeLine } from "../../../models/pipeline";
 import { AddNewStage } from "./addNewStage";
+import { PipeLineService } from "../../../services/pipeLineService";
+import { ErrorBoundary } from "react-error-boundary";
+import { StageService } from "../../../services/stageService";
 
 type params = {
     isCombineEnabled?: any,
@@ -43,11 +46,34 @@ export const Stages = (props: params) => {
     const [isLoading, setIsLoading] = useState(false);
     const [selectedItem, setSelectedItem] = useState<PipeLine>();
     const [pipeLineId, setPipeLineId] = useState(new URLSearchParams(useLocation().search).get("pipelineID") as any);
-
+    const defaultStages = window?.config?.DefaultStages;
+    const pipeLineSvc = new PipeLineService(ErrorBoundary);
+    const stagesSvc = new StageService(ErrorBoundary);
+    
     useEffect(() => {
         setIsLoading(true);
-        let pipeLinesList: Array<PipeLine> = JSON.parse(LocalStorageUtil.getItem(Constants.PIPE_LINES) as any);
-        setSelectedItem(pipeLinesList.find(i => i.pipelineID == +pipeLineId));
+        if(pipeLineId){
+            let pipeLinesList: Array<PipeLine> = JSON.parse(LocalStorageUtil.getItem(Constants.PIPE_LINES) as any);
+            setSelectedItem(pipeLinesList.find(i => i.pipelineID == +pipeLineId));
+        }
+        else{
+            if(defaultStages?.length>0){
+                let newPipeLine = new PipeLine();
+                newPipeLine.createdBy = "Developer";
+                newPipeLine.createdDate = new Date();
+                newPipeLine.pipelineName= newPipeLine.description = "New PipeLine";
+                newPipeLine.stages = [];
+                defaultStages.forEach((item, index)=>{
+                    let obj = new Stage();
+                    obj.stageOrder = index;
+                    obj.stageName = item;
+                    obj.probability = 100;
+                    newPipeLine.stages.push(obj);
+                });
+                setSelectedItem(newPipeLine);
+            }
+        }
+
         setIsLoading(false);
     }, [pipeLineId])
 
@@ -131,13 +157,13 @@ export const Stages = (props: params) => {
     }
 
     const saveStages = () => {
-        localStorage.setItem("stagesList", JSON.stringify(stages));
-        toast.success("Stages saved successfuly");
-        setIsLoading(true);
-        setTimeout(() => {
-            setIsLoading(false);
-            navigator("/pipeline");
-        }, 1000);
+        alert("Operation not implemented yet");
+        // pipeLineSvc.postItemBySubURL(selectedItem as any, 'SavePipelineDetails').then(res=>{
+        //     debugger
+        //     if(res.data){
+
+        //     }
+        // })
     }
 
     const cancelChanges = () => {
@@ -159,13 +185,14 @@ export const Stages = (props: params) => {
     return (
         <>
             <Spinner hidden={!isLoading} className="spinner" />
-            <div className="rs-container maincontent" hidden={isLoading}>
+            <div className="rs-container maincontent" style={{width:"100%"}} hidden={isLoading}>
                 <div className="rs-content maincontentinner">
                     {
                         <>
                             <StageActions onAddClick={addNewStage}
-                                onSaveClick={saveStages}
-                                onCancelClick={cancelChanges} />
+                                            onSaveClick={saveStages}
+                                            onCancelClick={cancelChanges}
+                                            selectedItem={selectedItem as any} />
                             {showDeleteDialog &&
                                 <DeleteDialog itemType={"Stage"}
                                     itemName={""}
@@ -198,7 +225,7 @@ export const Stages = (props: params) => {
                                                         title={item?.stageName}
                                                         selectedItem={item}
                                                         onAddClick={(e:any)=>addNewStage(e)}
-                                                        onDeleteClick={(index: number) => { setSelectedItemIndex(index); setShowDeleteDialog(true); }}
+                                                        onDeleteClick={(index: number) => alert("Delete operation not available")}
                                                     />
                                                 ))}
 

@@ -23,6 +23,10 @@ export const AppRouter = () => {
                     element={<Stages stages={[]} />}
                 />
                 <Route
+                    path="/pipeline/add"
+                    element={<Stages stages={[]} />}
+                />
+                <Route
                     path="/leads"
                     element={<Leads />}
                 />

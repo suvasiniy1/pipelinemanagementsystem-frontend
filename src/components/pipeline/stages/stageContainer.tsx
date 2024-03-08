@@ -45,11 +45,16 @@ export const StageContainer = (props: params) => {
         <>
             <Draggable draggableId={""+index} index={index}>
                 {(provided, snapshot) => (
-                    <div className="editstage-col" ref={provided.innerRef} {...provided.draggableProps}>
+                    <div className="editstage-col"
+                        ref={provided.innerRef} {...provided.draggableProps}
+                        style={{ opacity: opacity }}
+                        onMouseEnter={(e: any) => { setOpacity('inherit' as any) }}
+                        onMouseLeave={(e: any) => { setOpacity(0.5 as any) }}>
 
                         <StageItem  selectedItem={selectedItem}  
                                     provided={provided}
                                     onAddClick={(e:any)=>props.onAddClick(e==="left" ? index-1 : index+1)}
+                                    onDeleteClick={(e:any)=>props.onDeleteClick(index)}
                                     />
                         
                     </div>

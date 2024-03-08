@@ -75,7 +75,7 @@ export const DealHeader = (props: params) => {
                     </div>
                     <div className='pipeselectpadlr pipeselectbtm'>
                         <ul className='pipeselectlist'>
-                            <li><button className='newpipeline' type='button'><FontAwesomeIcon icon={faAdd} /> New pipeline</button></li>
+                            <li onClick={(e:any)=>navigate("/pipeline/add")}><button className='newpipeline' type='button'><FontAwesomeIcon icon={faAdd} /> New pipeline</button></li>
                         </ul>
                     </div>
                 </div>
