@@ -4,7 +4,6 @@ import 'rsuite/dist/styles/rsuite-default.css';
 import { AppRouter } from '../others/appRouter';
 import { useNavigate } from 'react-router-dom';
 import { HeaderComponent } from './header/header';
-import svg from "../../src/resources/images/y1.svg"
 
 export const SideBar = () => {
     const [activeKey, setActiveKey] = useState('1');
@@ -33,7 +32,7 @@ export const SideBar = () => {
         </Sidenav.Header>*/}
                     <Sidenav.Body>
                         <Nav className='sidemenu'>
-                            <Nav.Item className='tnavicon' eventKey="1" icon={<img src={svg} />} onSelect={(e) => navigate("/pipeline")}>
+                            <Nav.Item className='tnavicon' eventKey="1" icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M32 32C14.3 32 0 46.3 0 64S14.3 96 32 96H160V448c0 17.7 14.3 32 32 32s32-14.3 32-32V96H352c17.7 0 32-14.3 32-32s-14.3-32-32-32H192 32z"/></svg>} onSelect={(e) => navigate("/pipeline")}>
                                 Pipeline
                             </Nav.Item>
                             <Nav.Item eventKey="2" icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M12 16c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4Z"></path><path d="M11.25 2.53c-4.65.36-8.36 4.07-8.72 8.72H1c-.41 0-.75.34-.75.75s.34.75.75.75h1.53c.36 4.65 4.07 8.36 8.72 8.72V23c0 .41.34.75.75.75s.75-.34.75-.75v-1.53c4.65-.36 8.36-4.07 8.72-8.72H23c.41 0 .75-.34.75-.75s-.34-.75-.75-.75h-1.53c-.36-4.65-4.07-8.36-8.72-8.72V1c0-.41-.34-.75-.75-.75s-.75.34-.75.75v1.53ZM20 12c0 4.42-3.58 8-8 8s-8-3.58-8-8 3.58-8 8-8 8 3.58 8 8Z"></path></svg>} onSelect={(e) => navigate("/leads")}>

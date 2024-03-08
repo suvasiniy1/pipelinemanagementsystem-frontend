@@ -26,7 +26,7 @@ export const DealHeader = (props: params) => {
     const addorUpdateStage = () => {
         return (
             <>
-                <button type="button" className="btn" onClick={(e: any) => navigate("/pipeline/edit")}> <FontAwesomeIcon icon={faPencil} /></button>
+                <button type="button" className="btn btn-primary" onClick={(e: any) => navigate("/pipeline/edit?pipelineID="+selectedItem.pipelineID)}> <SettingsIcon /></button>
             </>
         )
     }
@@ -34,7 +34,7 @@ export const DealHeader = (props: params) => {
     const addorUpdateDeal = () => {
         return (
             <>
-                <button type="button" className="btn btn-success" onClick={(e: any) => setDialogIsOpen(true)} disabled={!canAddDeal}>+ Deal</button>
+                <button type="button" className="btn btn-success" onClick={(e: any) => setDialogIsOpen(true)} disabled={!canAddDeal}>+ Add Deal</button>
             </>
         )
     }
@@ -105,8 +105,8 @@ export const DealHeader = (props: params) => {
                                     </div>
                                     <div className='updatestagebtn'>{addorUpdateStage()}</div>
                                 </div>
-                                <div className="pipeselectbox selecteveryonebox">
-                                    <button className="pipeselect" type="button"><FontAwesomeIcon icon={faAlignCenter} /> Everyone <FontAwesomeIcon icon={faCaretDown} /></button>
+                                <div className='col-sm-2 toolbarview-filtersrow'>
+                                    {addorUpdateStage()}
                                 </div>
                             </div>
                         </div>

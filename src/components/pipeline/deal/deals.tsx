@@ -11,6 +11,8 @@ import { StageService } from "../../../services/stageService";
 import { DealService } from "../../../services/dealService";
 import { PipeLine } from "../../../models/pipeline";
 import { Deal } from "../../../models/deal";
+import LocalStorageUtil from "../../../others/LocalStorageUtil";
+import Constants from "../../../others/constants";
 
 type params = {
     isCombineEnabled?: any,
@@ -49,6 +51,7 @@ export const Deals = (props: params) => {
             });
 
             setPipeLines([...pipelines]);
+            LocalStorageUtil.setItem(Constants.PIPE_LINES, JSON.stringify([...pipelines]));
             setSelectedItem(pipelines[0]);
         });
     }, [])
@@ -141,7 +144,7 @@ export const Deals = (props: params) => {
                                                         />
                                                     )
                                                     )}
-                                                    {provided.placeholder}
+                                                    {/* {provided.placeholder} */}
                                                 </>
                                             )}
                                         </Droppable>
