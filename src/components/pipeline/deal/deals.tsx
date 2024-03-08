@@ -116,15 +116,16 @@ export const Deals = (props: params) => {
 
             {isLoading ? null :
                 <>
-                    <div>
+                    <div className="pdstage-mainarea">
+                        <DealHeader canAddDeal={stages.length > 0}
+                            onSaveChanges={(e: any) => updateRowData()}
+                            selectedItem={selectedItem as any}
+                            setSelectedItem={(e:any)=>setSelectedItem(pipeLines.find(p=>p.pipelineID==e))}
+                            pipeLinesList={pipeLines}
+                        />
                         <div className="pdstage-area">
                             <div className="container-fluid">
-                                <DealHeader canAddDeal={stages.length > 0}
-                                    onSaveChanges={(e: any) => updateRowData()}
-                                    selectedItem={selectedItem as any}
-                                    setSelectedItem={(e:any)=>setSelectedItem(pipeLines.find(p=>p.pipelineID==e))}
-                                    pipeLinesList={pipeLines}
-                                />
+                                
                                 <div className="pdstage-row" hidden={selectedItem?.stages?.length == 0}>
                                     <DragDropContext onDragEnd={onDragEnd}>
                                         <Droppable
