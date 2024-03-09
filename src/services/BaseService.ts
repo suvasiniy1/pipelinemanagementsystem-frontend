@@ -182,14 +182,16 @@ export class BaseService <TItem extends AuditItem>{
                 cancelToken: axiosCancel?.token
             }).then((res: AxiosResponse) => {                
                 console.log ("postItemBySubURL - res: ", res);  
-                              
-                if (!res.data?.result?.hasOwnProperty("message")) {
-                    resolve(res.data?.result);
+                
+                if (res.data?.success) {
+                    resolve(res.data?.success);
                     if (!suppressToasterMessage) {
                         toast.success(`${this.itemName} ${(isItemasCollection ? item[0].id: item.id)>0?' updated ':'created'} successfully`, { autoClose: 3000 });                    
                     }
                 }
-                resolve(res);
+                else{
+                    resolve(res.data?.message);
+                }
             }).catch((err: AxiosError) => {
                 console.log("Exception Occurred - res: ", err, " | Code: ", err.code, " | err.message", err.message, );
                 reject(err);
@@ -261,7 +263,7 @@ export class BaseService <TItem extends AuditItem>{
         return promise;
     }
 
-    deleteById(id: number, orgId:string="") {
+    delete(id: number, urlSuffix:string="") {
         
         console.log("delete - URL: ", `${baseURL}/${this.urlSuffix}`, " | Item Id: ", id, 
                     " | getActiveUserToken(): ", getActiveUserToken());
@@ -269,7 +271,7 @@ export class BaseService <TItem extends AuditItem>{
         var promise = new Promise<any>((resolve, reject) => {
             axios({
                 method: 'DELETE',
-                url: orgId? `${baseURL}/${this.urlSuffix}/${id}?orgId=${orgId}` : `${baseURL}/${this.urlSuffix}/${id}`,
+                url: `${baseURL}/${this.urlSuffix}/${id}`,
                 headers: {
                     'Content-Type': 'application/json; charset=UTF-8',
                     'Media-type': 'application/json',

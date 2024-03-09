@@ -19,6 +19,7 @@ function App() {
   };
 
   useEffect(() => {
+    
     let currentDateTime = moment(new Date()).format("MM/DD/YYYY hh:mm:ss a");
     let tokenExpirationTime = (LocalStorageUtil.getItem(Constants.TOKEN_EXPIRATION_TIME) as any);
     let isSessionExpired = currentDateTime > tokenExpirationTime;
@@ -28,10 +29,7 @@ function App() {
       navigate("/login");
       return;
     }
-    if (LocalStorageUtil.getItem(Constants.USER_LOGGED_IN) === "true") {
-      navigate("/pipeline")
-    }
-    else {
+    if (LocalStorageUtil.getItem(Constants.USER_LOGGED_IN) != "true") {
       navigate("/login")
     }
   }, [])

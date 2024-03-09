@@ -4,10 +4,11 @@ type params = {
     selectedItem:PipeLine;
     onAddClick: any,
     onSaveClick:any,
-    onCancelClick:any
+    onCancelClick:any,
+    canSave:boolean
 }
 export const StageActions = (props: params) => {
-    const {selectedItem, ...others}=props;
+    const {selectedItem, canSave, ...others}=props;
     return (
         <>
             {/* <div>
@@ -29,7 +30,7 @@ export const StageActions = (props: params) => {
                         <div className="col-sm-4 colactionbtn">
                             <div className="colactionbtnrow">
                                 <button type="button" className="btn btn-light" onClick={(e: any) => props.onCancelClick()}>Cancel</button>
-                                <button type="button" className="btn btn-primary" onClick={(e: any) => props.onSaveClick()}>Save Changes</button>
+                                <button type="button" className="btn btn-primary" disabled={!canSave}  onClick={(e: any) => {if(!canSave) return; props.onSaveClick()}}>Save Changes</button>
                             </div>
                         </div>
                     </div>

@@ -7,24 +7,25 @@ import { DealAddEditDialog } from "./dealAddEditDialog";
 import { DealItem } from "./dealItem";
 import styled from '@xstyled/styled-components';
 import { grid } from "../dnd/styles/constants";
+import Util from "../../../others/util";
 
 type paramsForQuote = {
-    deals: Array<Deal>
+    deals: Array<Deal>;
+    isDragging:boolean
 }
 
 const InnerQuoteList = (props: paramsForQuote) => {
-    const { deals, ...others } = props;
+    const { deals, isDragging, ...others } = props;
     return (
         <>
             {
                 deals.map((deal, index) => (
-                    <Draggable key={deal.dealID} draggableId={"" + deal.dealID as any} index={index}>
+                    <Draggable key={deal.dealID} isDragDisabled={isDragging} draggableId={"" + deal.dealID as any} index={index} disableInteractiveElementBlocking={true}>
                         {(dragProvided, dragSnapshot) => (
                             <DealItem
                                 key={deal.dealID}
                                 deal={deal}
-                                isDragging={dragSnapshot.isDragging}
-                                isGroupedOver={Boolean(dragSnapshot.combineTargetFor)}
+                                isGroupedOver={false}
                                 provided={dragProvided}
                             />
                         )}
@@ -48,8 +49,8 @@ const DropZone = styled.divBox`
   padding-bottom: ${grid}px;
 `;
 
-function InnerList(props: { title?: any; deals?: Array<Deal>; dropProvided?: any; showAddButton: boolean, stageID?: number, onSaveChanges?: any }) {
-    const { deals, dropProvided, showAddButton, stageID, ...others } = props;
+function InnerList(props: { title?: any; deals?: Array<Deal>; dropProvided?: any; showAddButton: boolean, stageID?: number, onSaveChanges?: any, isDragging?:any }) {
+    const { deals, dropProvided, showAddButton, stageID, isDragging, ...others } = props;
     const title = props.title ? <Title>{props.title}</Title> : null;
     const [dialogIsOpen, setDialogIsOpen] = useState(false);
 
@@ -57,7 +58,7 @@ function InnerList(props: { title?: any; deals?: Array<Deal>; dropProvided?: any
         <div>
             {title}
             <DropZone ref={dropProvided.innerRef}>
-                <InnerQuoteList deals={deals ?? []}/>
+                <InnerQuoteList deals={deals ?? []} isDragging={isDragging}/>
                 {dropProvided.placeholder}
             </DropZone>
             {
@@ -84,6 +85,7 @@ type params = {
     title?: any;
     useClone?: any;
     onSaveChanges: any;
+    isDragging:any
 }
 
 export const DealList = (props: params) => {
@@ -101,6 +103,7 @@ export const DealList = (props: params) => {
         title,
         useClone,
         onSaveChanges,
+        isDragging,
         ...others
     } = props;
 
@@ -109,15 +112,16 @@ export const DealList = (props: params) => {
     return (
         <div>
             <Droppable
-                droppableId={stageID}
+                droppableId={""+stageID}
                 type={listType}
-                ignoreContainerClipping={ignoreContainerClipping}
-                isDropDisabled={isDropDisabled}
-                isCombineEnabled={isCombineEnabled}>
+                ignoreContainerClipping={true}
+                isDropDisabled={false}
+                isCombineEnabled={false}>
                 {(dropProvided, dropSnapshot) => (
                     <InnerList deals={deals}
                         stageID={stageID}
                         title={title}
+                        isDragging={isDragging}
                         dropProvided={dropProvided}
                         showAddButton={showAddButton}
                         onSaveChanges={(e: any) => props.onSaveChanges()} />

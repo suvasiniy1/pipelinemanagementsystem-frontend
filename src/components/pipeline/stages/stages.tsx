@@ -1,24 +1,25 @@
 // @flow
-import styled from "@xstyled/styled-components";
+import { AxiosError } from "axios";
 import { useEffect, useState } from "react";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { Spinner } from "react-bootstrap";
+import { ErrorBoundary } from "react-error-boundary";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { DeleteDialog } from "../../../common/deleteDialog";
+import { UnAuthorized } from "../../../common/unauthorized";
+import { PipeLine } from "../../../models/pipeline";
 import { Stage } from "../../../models/stage";
-import { generateQuoteMap } from "../dnd/mockData";
-import reorder from "../dnd/reorder";
-import { StageActions } from "./stageActions";
-import { StageContainer } from "./stageContainer";
 import LocalStorageUtil from "../../../others/LocalStorageUtil";
 import Constants from "../../../others/constants";
-import { PipeLine } from "../../../models/pipeline";
-import { AddNewStage } from "./addNewStage";
 import { PipeLineService } from "../../../services/pipeLineService";
-import { ErrorBoundary } from "react-error-boundary";
 import { StageService } from "../../../services/stageService";
+import { generateQuoteMap } from "../dnd/mockData";
+import reorder from "../dnd/reorder";
+import { AddNewStage } from "./addNewStage";
+import { StageActions } from "./stageActions";
+import { StageContainer } from "./stageContainer";
 
 type params = {
     isCombineEnabled?: any,
@@ -38,9 +39,8 @@ export const Stages = (props: params) => {
     const { isCombineEnabled, initial, useClone, containerHeight, withScrollableColumns, ...others } = props;
     const [columns, setColumns] = useState(data.medium as any);
     const [ordered, setOrdered] = useState(Object.keys(data.medium));
-    const [stages, setStages] = useState<Array<Stage>>(props.stages);
-    const [originalsStages, setOriginalStages] = useState<Array<Stage>>(props.stages);
-    const navigator = useNavigate();
+    const [stages, setStages] = useState<Array<Stage>>([]);
+    const [originalsStages, setOriginalStages] = useState<Array<Stage>>([]);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const [selectedItemIndex, setSelectedItemIndex] = useState<number>(0);
     const [isLoading, setIsLoading] = useState(false);
@@ -49,7 +49,10 @@ export const Stages = (props: params) => {
     const defaultStages = window?.config?.DefaultStages;
     const pipeLineSvc = new PipeLineService(ErrorBoundary);
     const stagesSvc = new StageService(ErrorBoundary);
-    
+    const [error, setError]=useState<AxiosError>();
+    const [canSave, setCanSave]=useState(false);
+    const navigator = useNavigate();
+
     useEffect(() => {
         setIsLoading(true);
         if(pipeLineId){
@@ -79,7 +82,13 @@ export const Stages = (props: params) => {
 
     useEffect(() => {
         setStages(selectedItem?.stages as Array<Stage>);
+        setOriginalStages(selectedItem?.stages as Array<Stage>);
+        setCanSave(selectedItem?.pipelineID==0);
     }, [selectedItem])
+
+    useEffect(()=>{
+        setCanSave(JSON.stringify(originalsStages)!=JSON.stringify(stages))
+    },[stages])
 
     const createNewStageObject = () => {
         let obj = new Stage();
@@ -129,8 +138,6 @@ export const Stages = (props: params) => {
 
         // reordering column
         if (result.type === "COLUMN") {
-            let sourceIndex = stages.findIndex(s=>s.stageOrder==source.index);
-            let destinationIndex = stages.findIndex(s=>s.stageOrder==destination.index);
             const reorderedorder = reorder([...stages], source.index, destination.index);
 
             setStages([...reorderedorder as any]);
@@ -156,14 +163,33 @@ export const Stages = (props: params) => {
         setStages([...stagesList]);
     }
 
-    const saveStages = () => {
-        alert("Operation not implemented yet");
-        // pipeLineSvc.postItemBySubURL(selectedItem as any, 'SavePipelineDetails').then(res=>{
-        //     debugger
-        //     if(res.data){
+    const prepareToSave = () => {
+        let userName = LocalStorageUtil.getItem(Constants.User_Name) as any;
+        stages.forEach((item, index) => {
+            item.stageOrder = index + 1;
+            if (item.stageID > 0) {
+                item.createdBy =  item.createdBy ?? userName;
+                item.modifiedBy = userName;
+            }
+            else{
+                item.createdBy = userName;
+            }
+        })
+    }
 
-        //     }
-        // })
+    const saveStages = () => {
+        prepareToSave();
+        stagesSvc.postItemBySubURL(stages as any, 'SaveStages').then(res=>{
+            
+            if(res){
+                navigator("/pipeline?pipeLineId="+pipeLineId);
+            }
+            else{
+                toast.error(res);
+            }
+        }).catch(error=>{
+            setError(error);
+        })
     }
 
     const cancelChanges = () => {
@@ -171,16 +197,22 @@ export const Stages = (props: params) => {
     }
 
     const deleteStage = () => {
-        let stagesList = [...stages];
-        stagesList.splice(selectedItemIndex, 1);
-        setStages(stagesList);
-        localStorage.setItem("stagesList", JSON.stringify(stagesList));
-        setShowDeleteDialog(false);
-        toast.success("Stage deleted successfuly");
-    }
+        stagesSvc.delete(selectedItemIndex).then(res=>{
+            setShowDeleteDialog(false);
+            if(res){
+                let index = stages.findIndex(i=>i.stageID==selectedItemIndex);
+                stages.splice(index, 1);
+                toast.success("Stage deleted successfully");
+            }
 
-    const Container = styled.divBox`
-  `;
+        }).catch((err:AxiosError)=>{
+            setShowDeleteDialog(false);
+            setError(err);
+            // setTimeout(() => {
+            //     setError(null as any);
+            // }, 3000);
+        })
+    }
 
     return (
         <>
@@ -189,7 +221,8 @@ export const Stages = (props: params) => {
                 <div className="rs-content maincontentinner">
                     {
                         <>
-                            <StageActions onAddClick={addNewStage}
+                            <StageActions   onAddClick={addNewStage}
+                                            canSave={canSave}
                                             onSaveClick={saveStages}
                                             onCancelClick={cancelChanges}
                                             selectedItem={selectedItem as any} />
@@ -225,7 +258,7 @@ export const Stages = (props: params) => {
                                                         title={item?.stageName}
                                                         selectedItem={item}
                                                         onAddClick={(e:any)=>addNewStage(e)}
-                                                        onDeleteClick={(index: number) => alert("Delete operation not available")}
+                                                        onDeleteClick={(index: number) => {setShowDeleteDialog(true); setSelectedItemIndex(index)}}
                                                     />
                                                 ))}
 
@@ -241,6 +274,7 @@ export const Stages = (props: params) => {
                     </div>
                 </div>
             </div>
+            {/* {error && <UnAuthorized error={error as any} />} */}
             <ToastContainer />
         </>
     );

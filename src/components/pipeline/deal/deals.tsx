@@ -14,6 +14,10 @@ import { Deal } from "../../../models/deal";
 import LocalStorageUtil from "../../../others/LocalStorageUtil";
 import Constants from "../../../others/constants";
 import { ToastContainer, toast } from "react-toastify";
+import { AxiosError } from "axios";
+import { useLocation, useNavigate } from "react-router-dom";
+import { UnAuthorized } from "../../../common/unauthorized";
+import Util from "../../../others/util";
 
 type params = {
     isCombineEnabled?: any,
@@ -35,7 +39,11 @@ export const Deals = (props: params) => {
     const [pipeLines, setPipeLines] = useState<Array<PipeLine>>([]);
     const [stages, setStages] = useState<Array<Stage>>([]);
     const [selectedItem, setSelectedItem] = useState<PipeLine>();
-
+    const [isDragging, setIsDragging]=useState(false);
+    const [error, setError]=useState<AxiosError>();
+    const navigate = useNavigate();
+    const [pipeLineId, setPipeLineId] = useState(new URLSearchParams(useLocation().search).get("pipelineID") as any);
+    
     useEffect(() => {
         Promise.all([pipeLineSvc.getPipeLines(), stagesSvc.getStages(), dealsSvc.getDeals()]).then(res => {
             
@@ -44,7 +52,7 @@ export const Deals = (props: params) => {
             let deals = res[2] as Array<Deal>;
 
             pipelines.forEach(p => {
-                p.stages = stages.filter(s => s.pipelineID == p.pipelineID);
+                p.stages = Util.sortList(stages.filter(s => s.pipelineID == p.pipelineID), "stageOrder");
                 p.stages.forEach(s => {
                     s.deals = deals.filter(d => d.stageID == s.stageID && d.pipelineID == s.pipelineID);
                 });
@@ -52,11 +60,16 @@ export const Deals = (props: params) => {
 
             setPipeLines([...pipelines]);
             LocalStorageUtil.setItem(Constants.PIPE_LINES, JSON.stringify([...pipelines]));
-            setSelectedItem(pipelines[0]);
-        }).catch(err=>{
-            toast.error("Unable to retreive the list");
+            setSelectedItem(pipeLineId ?? pipelines[0]);
+        }).catch((err:AxiosError)=>{
+            
+            setError(err);
         });
     }, [])
+
+    useEffect(() => {
+        setStages(selectedItem?.stages as Array<Stage>);
+    }, [selectedItem])
 
     const updateRowData = () => {
 
@@ -81,6 +94,7 @@ export const Deals = (props: params) => {
     const onDragEnd = (result: any) => {
         
         // dropped nowhere
+        setIsDragging(false);
         if (!result.destination) {
             return;
         }
@@ -119,30 +133,32 @@ export const Deals = (props: params) => {
             {isLoading ? null :
                 <>
                     <div className="pdstage-mainarea">
-                        <DealHeader canAddDeal={stages.length > 0}
+                        <DealHeader canAddDeal={stages?.length > 0}
                             onSaveChanges={(e: any) => updateRowData()}
                             selectedItem={selectedItem as any}
-                            setSelectedItem={(e:any)=>setSelectedItem(pipeLines.find(p=>p.pipelineID==e))}
+                            setSelectedItem={(e:any)=>setSelectedItem(e)}
                             pipeLinesList={pipeLines}
                         />
                         <div className="pdstage-area">
                             <div className="container-fluid">
                                 
                                 <div className="pdstage-row" hidden={selectedItem?.stages?.length == 0}>
-                                    <DragDropContext onDragEnd={onDragEnd}>
+                                    <DragDropContext onDragEnd={onDragEnd} onDragStart={(e:any)=>setIsDragging(true)}>
                                         <Droppable
                                             droppableId="board"
                                             type="COLUMN"
                                             direction="horizontal"
                                         >
                                             {(provided) => (
-                                                <>
-                                                    {selectedItem?.stages?.map((item, index) => (
+                                                <> 
+                                                    {stages?.map((item, index) => (
                                                         <DealStage
                                                             key={index}
                                                             stageID={item.stageID}
                                                             title={item.stageName}
                                                             deals={item.deals}
+                                                            providedFromParent={provided}
+                                                            isDragging={isDragging}
                                                             onSaveChanges={(e: any) => props.onSaveChanges()}
                                                         />
                                                     )
@@ -162,6 +178,7 @@ export const Deals = (props: params) => {
                             </div>
                         </div>
                     </div>
+                    {error && <UnAuthorized error={error as any} />}
 
                 </>
             }

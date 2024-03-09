@@ -3,10 +3,8 @@ import styled from "@xstyled/styled-components";
 import { useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import { Stage } from "../../../models/stage";
-import { borderRadius, grid } from "../dnd/styles/constants";
-import Title from "../dnd/styles/title";
+import { borderRadius } from "../dnd/styles/constants";
 import { StageItem } from "./stageItem";
-import DeleteIcon from '@material-ui/icons/Delete';
 
 type params = {
     title: any,
@@ -24,37 +22,19 @@ export const StageContainer = (props: params) => {
         props.onDeleteClick(index);
     }
 
-    const Container = styled.divBox`
-  `;
-
-    const Header = styled.divBox`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-top-left-radius: ${borderRadius}px;
-    border-top-right-radius: ${borderRadius}px;
-    background-color: ${(isDragging: any) =>
-        isDragging ? colors.G50 : colors.N30};
-    transition: background-color 0.2s ease;
-    &:hover {
-      background-color: ${colors.G50};
-    }
-  `;
-
     return (
         <>
             <Draggable draggableId={""+index} index={index}>
                 {(provided, snapshot) => (
                     <div className="editstage-col"
                         ref={provided.innerRef} {...provided.draggableProps}
-                        style={{ opacity: opacity }}
                         onMouseEnter={(e: any) => { setOpacity('inherit' as any) }}
                         onMouseLeave={(e: any) => { setOpacity(0.5 as any) }}>
 
                         <StageItem  selectedItem={selectedItem}  
                                     provided={provided}
                                     onAddClick={(e:any)=>props.onAddClick(e==="left" ? index-1 : index+1)}
-                                    onDeleteClick={(e:any)=>props.onDeleteClick(index)}
+                                    onDeleteClick={(e:any)=>props.onDeleteClick(selectedItem.stageID)}
                                     />
                         
                     </div>

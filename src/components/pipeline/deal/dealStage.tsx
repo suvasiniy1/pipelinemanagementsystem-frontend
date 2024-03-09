@@ -12,19 +12,24 @@ type params = {
     isCombineEnabled?: boolean;
     useClone?: boolean;
     onSaveChanges?: any;
+    providedFromParent?:any;
+    isDragging:any;
 }
 
 export const DealStage = (props: params) => {
-    const { title, deals, stageID, isScrollable, isCombineEnabled, useClone, ...others } = props;
+    const { title, deals, stageID, isScrollable, isCombineEnabled, useClone, providedFromParent, isDragging, ...others } = props;
 
     const [showAddButton, setShowAddButton] = useState(false);
     
     return (
-        <div className="pdstage-col" onMouseEnter={e => { setShowAddButton(true); }} onMouseLeave={e => { setShowAddButton(false) }}>
+        <div className="pdstage-col" 
+        onMouseEnter={e => { setShowAddButton(true); }} 
+        onMouseLeave={e => { setShowAddButton(false) }}
+        {...providedFromParent.droppableProps}>
             <div className="pdstage-innercol">
                 <Draggable draggableId={"" + title} index={stageID} isDragDisabled={true}>
                     {(provided, snapshot) => (
-                        <div>
+                        <div {...provided.dragHandleProps} ref={provided.innerRef}>
                             <div className="pdstage-header">
                                 <div className="pdstage-head">{title}</div>
                                 <div className="pdstage-summary">
@@ -44,6 +49,7 @@ export const DealStage = (props: params) => {
                                 internalScroll={isScrollable}
                                 isCombineEnabled={isCombineEnabled}
                                 useClone={useClone}
+                                isDragging={isDragging}
                                 onSaveChanges={(e: any) => props.onSaveChanges()}
                             />
                         </div>

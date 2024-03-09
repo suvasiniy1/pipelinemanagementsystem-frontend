@@ -1,5 +1,5 @@
 import SettingsIcon from '@material-ui/icons/Settings';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DealAddEditDialog } from './dealAddEditDialog';
 import SelectDropdown from '../../../elements/SelectDropdown';
@@ -24,6 +24,10 @@ export const DealHeader = (props: params) => {
     const [pipeLinesList, setPipeLinesList]=useState(props.pipeLinesList);
     const [showPipeLineDropdown, setShowPipeLineDropdown] = useState(false);
     const [canEdit, setCanEdit]=useState(false);
+
+    useEffect(()=>{
+        setPipeLinesList(props.pipeLinesList);
+    },[props.pipeLinesList])
 
     const addorUpdateStage = () => {
         return (
@@ -62,7 +66,7 @@ export const DealHeader = (props: params) => {
                     <div className='pipeselectpadlr'>
                         <ul className='pipeselectlist' onMouseLeave={(e:any)=>handlePipeLineEdit()}>
                             {pipeLinesList.map((item, index)=>(
-                                <li key={index} onMouseOver={(e:any)=>handlePipeLineEdit(index)}><button className='pipeselectlink' type='button'>{item.pipelineName} <span hidden={selectedItem?.pipelineID!=item.pipelineID || item.canEdit}><FontAwesomeIcon icon={faCheck}/></span></button><span className='pipeselect-editlink' hidden={!item.canEdit}><FontAwesomeIcon icon={faPencil}/></span></li>
+                                <li key={index} onClick={(e:any)=>setSelectedItem(item)} onMouseOver={(e:any)=>handlePipeLineEdit(index)}><button className='pipeselectlink' type='button'>{item.pipelineName} <span hidden={selectedItem?.pipelineID!=item.pipelineID || item.canEdit}><FontAwesomeIcon icon={faCheck}/></span></button><span className='pipeselect-editlink' hidden={!item.canEdit}><FontAwesomeIcon icon={faPencil}/></span></li>
                             ))}
                         </ul>
                     </div>

@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { Deal } from "../../../models/deal";
 
 type params = {
@@ -13,19 +14,19 @@ type params = {
  export const DealItem = (props: params) => {
   
     const { deal, isDragging, isGroupedOver, provided, style, isClone, index } = props;
+    const navigator = useNavigate();
   
     return (
       <>
         <div
-          isDragging={isDragging}
-          isGroupedOver={isGroupedOver}
-          isClone={isClone}
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           data-is-dragging={isDragging}
           data-testid={deal?.dealID}
           data-index={index}
+          key={index}
+          onClick={(e:any)=>navigator("/deal?id="+deal?.dealID)}
         >
           <div className="pdstage-item">
             <div className='pdstage-box'>
