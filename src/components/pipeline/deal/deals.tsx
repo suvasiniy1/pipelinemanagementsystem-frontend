@@ -129,7 +129,6 @@ export const Deals = (props: params) => {
 
     return (
         <>
-
             {isLoading ? null :
                 <>
                     <div className="pdstage-mainarea">

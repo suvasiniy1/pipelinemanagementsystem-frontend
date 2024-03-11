@@ -2,13 +2,14 @@ import { PipeLine } from "../../../models/pipeline"
 
 type params = {
     selectedItem:PipeLine;
+    setSelectedItem:any,
     onAddClick: any,
     onSaveClick:any,
     onCancelClick:any,
     canSave:boolean
 }
 export const StageActions = (props: params) => {
-    const {selectedItem, canSave, ...others}=props;
+    const {selectedItem, setSelectedItem, canSave, ...others}=props;
     return (
         <>
             {/* <div>
@@ -23,7 +24,7 @@ export const StageActions = (props: params) => {
                         <div className="col-sm-2 colactionbtnstage">
                         <div className="form-group row">
                         <label htmlFor="name">Pipeline Name:</label>
-                        <input type="text" className="form-control" defaultValue={selectedItem?.pipelineName}/>
+                        <input type="text" className="form-control" defaultValue={selectedItem?.pipelineName} onChange={(e:any)=>props.setSelectedItem(e.target.value)}/>
                         </div>
                            
                         </div>
