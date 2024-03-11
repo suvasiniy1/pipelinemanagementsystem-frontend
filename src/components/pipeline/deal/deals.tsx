@@ -51,7 +51,6 @@ export const Deals = (props: params) => {
     }, [])
 
     const loadingData = () => {
-        setIsLoading(true);
         Promise.all([pipeLineSvc.getPipeLines(), stagesSvc.getStages(), dealsSvc.getDeals()]).then(res => {
             
             let pipelines = res[0] as Array<PipeLine>;
@@ -69,7 +68,6 @@ export const Deals = (props: params) => {
             setPipeLines([...pipelines]);
             LocalStorageUtil.setItem(Constants.PIPE_LINES, JSON.stringify([...pipelines]));
             setSelectedItem(pipeLineId ? pipelines.find(i => i.pipelineID == pipeLineId) : pipelines[0]);
-            setIsLoading(false);
         }).catch((err: AxiosError) => {
 
             setError(err);
@@ -109,12 +107,22 @@ export const Deals = (props: params) => {
         // did not move anywhere - can bail early
         if (source.droppableId === destination.droppableId) { return; }
         else {
-            let dealItem:Deal = deals.find(d=>d.dealID==+source.index) as any;
-            dealItem.stageID = +destination.droppableId;
-            dealItem.createdBy = LocalStorageUtil.getItem(Constants.User_Name) as any;
-            dealsSvc.postItemBySubURL(dealItem, "SaveDealDetails").then(res => {
-                loadingData();
-            })
+            // let dealItem:Deal = deals.find(d=>d.dealID==+source.index) as any;
+            // dealItem.stageID = +destination.droppableId;
+            // dealItem.createdBy = LocalStorageUtil.getItem(Constants.User_Name) as any;
+            // dealsSvc.postItemBySubURL(dealItem, "SaveDealDetails").then(res => {
+            //     loadingData();
+            // });
+
+            let stagesList = stages;
+            let sourceIdx = stages.findIndex(s=>s.stageID==+source.droppableId);
+            let destinationIdx = stages.findIndex(s=>s.stageID==+destination.droppableId);
+            let dealIndex = stagesList[sourceIdx].deals.findIndex(d=>d.dealID==+source.index);
+            let dealItem = stagesList[sourceIdx].deals.find(d=>d.dealID==+source.index)  as any;
+            stagesList[sourceIdx].deals.splice(dealIndex, 1);
+            stagesList[destinationIdx].deals.push(dealItem);
+            setStages([...stagesList]);
+
         }
 
 

@@ -20,7 +20,7 @@ const InnerQuoteList = (props: paramsForQuote) => {
         <>
             {
                 deals.map((deal, index) => (
-                    <Draggable key={deal.dealID} isDragDisabled={isDragging} draggableId={"" + deal.dealID as any} index={deal.dealID} disableInteractiveElementBlocking={true}>
+                    <Draggable key={deal.dealID}  draggableId={"" + deal.dealID as any} index={deal.dealID} disableInteractiveElementBlocking={true}>
                         {(dragProvided, dragSnapshot) => (
                             <DealItem
                                 key={deal.dealID}
