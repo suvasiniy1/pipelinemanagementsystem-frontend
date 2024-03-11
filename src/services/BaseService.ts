@@ -184,7 +184,7 @@ export class BaseService <TItem extends AuditItem>{
                 console.log ("postItemBySubURL - res: ", res);  
                 
                 if (res.data?.success) {
-                    resolve(res.data?.success);
+                    resolve(res.data?.result);
                     if (!suppressToasterMessage) {
                         toast.success(`${this.itemName} ${(isItemasCollection ? item[0].id: item.id)>0?' updated ':'created'} successfully`, { autoClose: 3000 });                    
                     }

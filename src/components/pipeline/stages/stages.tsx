@@ -20,6 +20,7 @@ import reorder from "../dnd/reorder";
 import { AddNewStage } from "./addNewStage";
 import { StageActions } from "./stageActions";
 import { StageContainer } from "./stageContainer";
+import { UserProfile } from "../../../models/userProfile";
 
 type params = {
     isCombineEnabled?: any,
@@ -50,19 +51,22 @@ export const Stages = (props: params) => {
     const pipeLineSvc = new PipeLineService(ErrorBoundary);
     const stagesSvc = new StageService(ErrorBoundary);
     const [error, setError]=useState<AxiosError>();
+    const userProfile:UserProfile = LocalStorageUtil.getItemObject(Constants.USER_PROFILE) as any;
     const [canSave, setCanSave]=useState(false);
     const navigator = useNavigate();
 
     useEffect(() => {
+        
         setIsLoading(true);
         if(pipeLineId){
             let pipeLinesList: Array<PipeLine> = JSON.parse(LocalStorageUtil.getItem(Constants.PIPE_LINES) as any);
-            setSelectedItem(pipeLinesList.find(i => i.pipelineID == +pipeLineId));
+            setSelectedItem(pipeLinesList.find(i => i.pipelineID == +pipeLineId)  as any);
         }
         else{
             if(defaultStages?.length>0){
                 let newPipeLine = new PipeLine();
-                newPipeLine.createdBy = "Developer";
+                newPipeLine.pipelineID=0;
+                newPipeLine.createdBy = userProfile.user;
                 newPipeLine.createdDate = new Date();
                 newPipeLine.pipelineName= newPipeLine.description = "New PipeLine";
                 newPipeLine.stages = [];
@@ -81,13 +85,13 @@ export const Stages = (props: params) => {
     }, [pipeLineId])
 
     useEffect(() => {
+        
         setStages(selectedItem?.stages as Array<Stage>);
         setOriginalStages(selectedItem?.stages as Array<Stage>);
-        setCanSave(selectedItem?.pipelineID==0);
     }, [selectedItem])
 
     useEffect(()=>{
-        setCanSave(JSON.stringify(originalsStages)!=JSON.stringify(stages))
+        setCanSave(JSON.stringify(originalsStages)!=JSON.stringify(stages) || selectedItem?.pipelineID==0)
     },[stages])
 
     const createNewStageObject = () => {
@@ -163,10 +167,12 @@ export const Stages = (props: params) => {
         setStages([...stagesList]);
     }
 
-    const prepareToSave = () => {
-        let userName = LocalStorageUtil.getItem(Constants.User_Name) as any;
+    const prepareToSave = (pipeLineId:number) => {
+        let userObj:UserProfile = LocalStorageUtil.getItem(Constants.USER_PROFILE) as any;
+        let userName = userObj.user;
         stages.forEach((item, index) => {
             item.stageOrder = index + 1;
+            item.pipelineID=pipeLineId;
             if (item.stageID > 0) {
                 item.createdBy =  item.createdBy ?? userName;
                 item.modifiedBy = userName;
@@ -178,18 +184,24 @@ export const Stages = (props: params) => {
     }
 
     const saveStages = () => {
-        prepareToSave();
-        stagesSvc.postItemBySubURL(stages as any, 'SaveStages').then(res=>{
-            
+        pipeLineSvc.postItemBySubURL(selectedItem, 'SavePipelineDetails').then(res=>{
             if(res){
-                navigator("/pipeline?pipeLineId="+pipeLineId);
+                prepareToSave(res.pipelineID);
+                stagesSvc.postItemBySubURL(stages as any, 'SaveStages').then(res=>{
+                    
+                    if(res){
+                        navigator("/pipeline?pipeLineId="+res.pipelineID);
+                    }
+                    else{
+                        toast.error(res);
+                    }
+                }).catch(error=>{
+                    setError(error);
+                })
             }
-            else{
-                toast.error(res);
-            }
-        }).catch(error=>{
-            setError(error);
+
         })
+
     }
 
     const cancelChanges = () => {
@@ -202,7 +214,6 @@ export const Stages = (props: params) => {
             if(res){
                 let index = stages.findIndex(i=>i.stageID==selectedItemIndex);
                 stages.splice(index, 1);
-                toast.success("Stage deleted successfully");
             }
 
         }).catch((err:AxiosError)=>{
@@ -225,7 +236,8 @@ export const Stages = (props: params) => {
                                             canSave={canSave}
                                             onSaveClick={saveStages}
                                             onCancelClick={cancelChanges}
-                                            selectedItem={selectedItem as any} />
+                                            selectedItem={selectedItem as any}
+                                            setSelectedItem={(e:any)=>setSelectedItem({...selectedItem, "pipelineName":e} as any)} />
                             {showDeleteDialog &&
                                 <DeleteDialog itemType={"Stage"}
                                     itemName={""}

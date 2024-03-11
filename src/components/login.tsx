@@ -15,6 +15,7 @@ import Util from "../others/util";
 import BackgroundImage from "../resources/images/background.png";
 import Logo from "../resources/images/logo.png";
 import { LoginService } from '../services/loginService';
+import { UserProfile } from '../models/userProfile';
 
 export class UserCredentails {
   public userName!: string;
@@ -76,13 +77,14 @@ const Login = () => {
     }
 
     if (obj.userName.toLocaleLowerCase() !== "developer") {
-      loginSvc.login(obj).then((res: any) => {
+      loginSvc.login(obj).then((res: UserProfile) => {
         setLoading(false);
         
         if (res) {
           LocalStorageUtil.setItem(Constants.USER_LOGGED_IN, "true");
           LocalStorageUtil.setItem(Constants.ACCESS_TOKEN, res?.token);
-          LocalStorageUtil.setItem(Constants.TOKEN_EXPIRATION_TIME, Util.convertTZ(res?.expiration));
+          LocalStorageUtil.setItem(Constants.TOKEN_EXPIRATION_TIME, Util.convertTZ(res?.expires));
+          LocalStorageUtil.setItemObject(Constants.USER_PROFILE, res as any);
           navigate("/pipeline");
 
         }
