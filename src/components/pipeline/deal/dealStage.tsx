@@ -31,7 +31,7 @@ export const DealStage = (props: params) => {
                     {(provided, snapshot) => (
                         <div {...provided.dragHandleProps} ref={provided.innerRef}>
                             <div className="pdstage-header">
-                                <div className="pdstage-head">{title}</div>
+                                <div className="pdstage-head">{title} {stageID}</div>
                                 <div className="pdstage-summary">
                                     <div className="pdstage-value">
                                         <span className='pdstage-price'>£0</span><span className='pdstage-num'>{deals.length} deals</span>
