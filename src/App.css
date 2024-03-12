@@ -188,6 +188,17 @@ color: #fff; cursor: pointer; flex-basis: 0; font: 450 12px / 18px "Inter",sans-
 .toolbutton-group{display: flex; margin-right: 10px;;}
 .toolbutton-group a{display: inline-block;}
 
+.stageaction-editrow {display: flex; align-items: center; justify-content: space-between;}
+.actiondealname{display: flex; align-items: center;}
+.actiondealname label {display: flex; white-space: nowrap; margin-right: 10px;}
+.actiondealname .form-control{height: 32px;font-size: 14px;}
+.colactionbtn{display: flex; align-items: center;}
+.stageaction-editrow .btn-primary{margin-left: 10px;}
+.stageaction-editrow .colactionbtnrow{align-items: center; margin-left: 10px;}
+.colactionbtnrow .ellipsis-btn{margin-left: 10px;}
+.dealprobainfo .editstage-checkbox{flex: inherit;}
+.probinfobtn{background-color: inherit;}
+
 .pdstage-row {display: flex; height: 100%;}
 .pdstage-col{min-width: 0; display: flex; flex-direction: column; flex-basis: 100%; background-color: #f5f5f6; padding: 8px 0; margin-left: 8px;}
 .pdstage-col:first-child{margin-left: 0;}

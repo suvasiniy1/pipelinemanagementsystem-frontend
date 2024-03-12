@@ -1,4 +1,7 @@
 import { PipeLine } from "../../../models/pipeline"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleInfo, faCircleUser, faPencil, faSortDown, faEllipsis, faAngleDown, faGear, faPlus, faMoneyBill, faTag, faScaleBalanced, faFlagCheckered, faUser, faBuilding, faBarsStaggered, faFileLines } from '@fortawesome/free-solid-svg-icons';
+
 
 type params = {
     selectedItem:PipeLine;
@@ -20,18 +23,25 @@ export const StageActions = (props: params) => {
             </div> */}
             <div className="action-toolbar pt-3 pb-3">
                 <div className="container-fluid">
-                    <div className="row">
-                        <div className="col-sm-2 colactionbtnstage">
-                        <div className="form-group row">
-                        <label htmlFor="name">Pipeline Name:</label>
-                        <input type="text" className="form-control" defaultValue={selectedItem?.pipelineName} onChange={(e:any)=>props.setSelectedItem(e.target.value)}/>
+                    <div className="stageaction-editrow">
+                        <div className="colactionbtnstage">
+                            <div className="actiondealname">
+                                <label htmlFor="name">Pipeline Name:</label>
+                                <input type="text" className="form-control" defaultValue={selectedItem?.pipelineName} onChange={(e:any)=>props.setSelectedItem(e.target.value)}/>
+                            </div>
                         </div>
-                           
-                        </div>
-                        <div className="col-sm-4 colactionbtn">
+                        <div className="colactionbtn">
+                            <div className="dealprobainfo">
+                                <div className="editstage-checkbox">
+                                    <label className="checktogglebox"><input id="dealprobability" type="checkbox" /><span className="checktoggle"></span></label>
+                                    <div className="fieldchecklabel">Deal probability</div>
+                                </div>
+                                <button className="probinfobtn"><FontAwesomeIcon icon={faCircleInfo} /></button>
+                            </div>
                             <div className="colactionbtnrow">
                                 <button type="button" className="btn btn-light" onClick={(e: any) => props.onCancelClick()}>Cancel</button>
                                 <button type="button" className="btn btn-primary" disabled={!canSave}  onClick={(e: any) => {if(!canSave) return; props.onSaveClick()}}>Save Changes</button>
+                                <button className="ellipsis-btn"><FontAwesomeIcon icon={faEllipsis} /></button>
                             </div>
                         </div>
                     </div>
