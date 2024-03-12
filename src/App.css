@@ -90,7 +90,7 @@ html body, html input, html button, html select, html textarea{font-family: "Int
 
 /* Main Content */
 html, body{overflow: hidden;}
-.pdstage-mainarea {display: flex; flex-direction: column; height: 100%;}
+.pdstage-mainarea {display: flex; flex-direction: column; height: 100%; overflow: hidden;}
 .mainlayout{height: 100vh;}
 .maincontentinner{height: 100%; display: flex; flex-direction: column; overflow: hidden auto;}
 .maincontentinner .gdnJsS, .maincontentinner .dVEiRS{min-width: auto;}
@@ -107,6 +107,7 @@ html, body{overflow: hidden;}
 .toolbutton-group .toolpipebtn svg.fa-chart-simple{transform: rotate(180deg);}
 .toolbarview-actionsrow .btn-success{height: 32px; padding: 3px 10px;}
 .toolbarview-summery{display: flex;align-items: center; justify-content: end;}
+.toolsummary-deals{margin-right: 10px;}
 .toolsummary-deals span{margin:0 5px;}
 
 .toolbarview-filtersrow{display: flex;}                                    
@@ -178,7 +179,7 @@ color: #fff; cursor: pointer; flex-basis: 0; font: 450 12px / 18px "Inter",sans-
 
 
 /* Pipedrive Box Code */
-.pdstage-area {overflow: auto; height: calc(100% - 72px); display: grid;}
+.pdstage-area {overflow: hidden auto; height: calc(100% - 73px); display: grid;}
 /* .pdstage-area::-webkit-scrollbar {width: 10px;}
 .pdstage-area::-webkit-scrollbar-track {background-color: #e4e4e4; border-radius: 100px;}
 .pdstage-area::-webkit-scrollbar-thumb {border-radius: 100px; background-color:#211c52; box-shadow: inset 2px 2px 5px 0 rgba(#fff, 0.5);} */
@@ -191,7 +192,7 @@ color: #fff; cursor: pointer; flex-basis: 0; font: 450 12px / 18px "Inter",sans-
 .pdstage-col{min-width: 0; display: flex; flex-direction: column; flex-basis: 100%; background-color: #f5f5f6; padding: 8px 0; margin-left: 8px;}
 .pdstage-col:first-child{margin-left: 0;}
 .pdstage-header{padding:0 8px; display: flex; align-items: flex-start; -webkit-box-pack: justify; justify-content: space-between; position: sticky; top: -1px; min-width: 45px; z-index: 1; flex-direction: column; background-color: #f5f5f6;}
-.pdstage-head{width: 100%; overflow: hidden;}
+.pdstage-head{width: 100%; overflow: hidden; font-size: 16px; font-weight: 600;}
 .pdstage-headinner{font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 .pdstage-summary{margin-top: 8px;}
 .pdstage-price{margin-right: 8px;}
@@ -266,7 +267,7 @@ color: #fff; cursor: pointer; flex-basis: 0; font: 450 12px / 18px "Inter",sans-
 .tblclosedate-data {height: 23px;}
 
 /* Edit Stage CSS Start */
-.editstage-row{height: 100%; padding: 0 8px; /*overflow: scroll hidden;*/ display: flex; flex-direction: row;}
+.editstage-row{height: 100%; padding: 0 8px; overflow: scroll hidden; display: flex; flex-direction: row; width: 94vw;}
 .editstage-row > div{padding-bottom: 8px;}
 .editstage-col{height: 100%; min-width: 256px; width: 256px; background-color:#f5f5f6; display: flex; flex-direction: column; border-radius: 8px; margin-left: 8px; flex-basis: 100%; box-shadow: 0 0 1px 1px rgb(0 0 0/5%),0 1px 2px -2px rgb(0 0 0/6%),0 1px 3px 0 rgb(0 0 0/7%); opacity: 0.32;}
 .editstage-col:first-child{margin-left: 0; opacity: 1;}
@@ -336,7 +337,7 @@ color: #fff; cursor: pointer; flex-basis: 0; font: 450 12px / 18px "Inter",sans-
 .pdsdetailtop-row{display: flex; justify-content: space-between;}
 .pdsdetail-title{}
 .pdsdetail-title h1{position: relative; font-size: 25px; line-height: 1.3; font-weight: 400; border-radius: 4px; padding: 5px 10px; padding-right: 40px;}
-.titleeditable-btn{display: none; position: absolute; right: 5px; top: 5px; z-index: 1; padding: 5px; border-radius: 4px;}
+.titleeditable-btn{display: none; position: absolute; right: 5px; top: 5px; z-index: 1; padding: 5px; border-radius: 4px; font-size: 16px;}
 .pdsdetail-title h1:hover{background-color: #ececed;}
 .pdsdetail-title h1:hover .titleeditable-btn{display: block;}
 .pdsdetail-topright{display: flex;    align-items: center;}
@@ -402,23 +403,21 @@ button.fields-editbtn{visibility: hidden; line-height: 1.2; background-color: #f
 .appdeal-dtname .fa-circle-user {font-size: 24px; color: #2b74da;}
 
 
-.timelinecontent{height: 100%; width: 100%; max-width: 1200px;}
+.timelinecontent{height: 100%; width: 100%; max-width: 1300px;}
 .timeline-block{width: 100%; padding: 24px 24px 0;}
 .timeline-blockinner{background-color: #fff; width: 100%; border-radius: 4px; box-shadow: 0 0 1px 1px rgb(0 0 0/5%),0 1px 2px -2px rgb(0 0 0/6%),0 1px 3px 0 rgb(0 0 0/7%);}
 .timeline-tabs{display: flex; flex-direction: column; width: 100%;}
 .timeline-tabslist{display: flex; flex-direction: row;  order: 1; position: relative; width: 100%; z-index: 1; border-bottom: 1px solid rgba(33,35,44,.12);}
 .timeline-tabswrap{display: flex; -webkit-box-pack: justify; justify-content: space-between; width: 100%;}
 .timeline-tabslinks{display: flex; flex-wrap: wrap;}
-.tabbtn{align-items: center;
-  box-sizing: border-box;
-  color: #65686f;
-  cursor: pointer;
-  display: flex;
-  padding: 6px 12px;
-  position: relative;
-  text-decoration: none;
-  transition: color 1.s cubic-bezier(.5,0,.2,1);
-  white-space: nowrap;}
+.tabbtn{display: flex; align-items: center; justify-content: center; min-height: 40px; position: relative; border-bottom: 2px solid transparent; padding: 6px 12px; background-color: inherit; color: #65686f; cursor: pointer; text-decoration: none; transition: color 1.s cubic-bezier(.5,0,.2,1); white-space: nowrap;}
+.tabbtn:hover{background-color: #f5f5f6; color: #21232c; border-color:rgba(33,35,44,.24);}
+.tabactive{background-color: #eff6ff; color: #0d68c5; border-color: #2b74da;}
+.tabbtn:first-child{border-radius: 4px 0 0 0;}
+.tabbtn svg{font-size: 16px; margin-right: 8px;}
+.timeline-tabscontent{position: relative; order: 2;}
+.notecomposer-tab{padding: 16px;}
+
 
 
 /* Deal Detail Page CSS End */
@@ -454,6 +453,7 @@ button.fields-editbtn{visibility: hidden; line-height: 1.2; background-color: #f
   position: relative;
   margin: 16px;
 }
+.pdstage-innercol .deEQJz{min-height: auto; }
 
 .spinner {
   position: fixed;

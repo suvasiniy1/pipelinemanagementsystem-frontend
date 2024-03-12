@@ -210,11 +210,20 @@ export const DealDetails=()=>{
                                             <div className='timeline-tabswrap'>
                                                 <div className='timeline-tabslinks'>
                                                     <button className='tabbtn tabactive'><FontAwesomeIcon icon={faFileLines} /> <span>Notes</span></button>
+                                                    <button className='tabbtn'><FontAwesomeIcon icon={faFileLines} /> <span>Activity</span></button>
+                                                    <button className='tabbtn'><FontAwesomeIcon icon={faFileLines} /> <span>Meeting scheduler</span></button>
+                                                    <button className='tabbtn'><FontAwesomeIcon icon={faFileLines} /> <span>Call</span></button>
+                                                    <button className='tabbtn'><FontAwesomeIcon icon={faFileLines} /> <span>Email</span></button>
+                                                    <button className='tabbtn'><FontAwesomeIcon icon={faFileLines} /> <span>Files</span></button>
+                                                    <button className='tabbtn'><FontAwesomeIcon icon={faFileLines} /> <span>Documents</span></button>
+                                                    <button className='tabbtn'><FontAwesomeIcon icon={faFileLines} /> <span>Invoice</span></button>
                                                 </div>
                                             </div>
                                         </div>
                                         <div className='timeline-tabscontent'>
-
+                                            <div className='notecomposer-tab'>
+                                                <br></br><br></br>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
