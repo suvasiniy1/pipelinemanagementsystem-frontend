@@ -1,29 +1,29 @@
 import { AuditItem } from "./base/AuditNamedItem"
 
 export class Deal extends AuditItem {
-    dealID!: number
+    dealID: number = 0
     contactPersonID!: number
     organizationID!: number
     title!: string
-    value!: string
+    value: string = "100";
     pipelineID!: number
     stageID!: number
     labelID!: number
-    probability!: string
+    probability: string = "100";
     expectedCloseDate!: string
     clinicID!: number
     sourceID!: number
     treatmentID!: number
     enquiryID!: number
-    paName!: string
+    paName: string = "test";
     operationDate!: string
-    lostReviewReason!: string
+    lostReviewReason: string = "test";
     pipelineTypeID!: number
     visibilityGroupID!: number
-    phone!: string
-    email!: string
+    phone: string = "test";
+    email: string = "test";
     personName!: string
-    name!: string
+    name: string = "test";
     pipelineName!: string
     stageName!: string
     labelName!: string

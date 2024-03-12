@@ -10,6 +10,7 @@ type props = {
 const SelectDropdown: React.FC<props> = (props) => {
     console.log("Selectdropdown component rendered with props "+ props);
 
+    
     const { item, selectedItem, onItemChange, list, disable, ...others } = props;
 
     const { register, formState: { errors } } = useFormContext();

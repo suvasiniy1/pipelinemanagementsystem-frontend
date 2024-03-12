@@ -1,8 +1,15 @@
 import { IControl } from "../models/iControl";
 import * as Yup from 'yup';
 import moment from "moment";
+import LocalStorageUtil from "./LocalStorageUtil";
+import Constants from "./constants";
+import { UserProfile } from "../models/userProfile";
 
 export default class Util {
+
+  public static UserProfile = () => {
+    return LocalStorageUtil.getItemObject(Constants.USER_PROFILE) as UserProfile;
+  }
 
   public static convertTZ = (dateTime: any) => {
     return moment(new Date(Util.toLocalTimeZone(dateTime))).format("MM/DD/YYYY hh:mm:ss a") as any;

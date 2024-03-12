@@ -1,8 +1,8 @@
 
 export abstract class AuditItem {
-    createdBy: string;
+    createdBy: any;
     createdDate: Date;
-    modifiedBy: string;
+    modifiedBy: any;
     modifiedDate: Date;
 
     constructor(

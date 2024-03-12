@@ -47,30 +47,33 @@ export const Stages = (props: params) => {
     const [isLoading, setIsLoading] = useState(false);
     const [selectedItem, setSelectedItem] = useState<PipeLine>();
     const [pipeLineId, setPipeLineId] = useState(new URLSearchParams(useLocation().search).get("pipelineID") as any);
-    const defaultStages = window?.config?.DefaultStages;
+    const defaultStages = ["Qualified", "Conact Made", "Demo Scheduled", "Proposal Made", "Negotiations Started"];
     const pipeLineSvc = new PipeLineService(ErrorBoundary);
     const stagesSvc = new StageService(ErrorBoundary);
-    const [error, setError]=useState<AxiosError>();
-    const userProfile:UserProfile = LocalStorageUtil.getItemObject(Constants.USER_PROFILE) as any;
-    const [canSave, setCanSave]=useState(false);
+    const [error, setError] = useState<AxiosError>();
+    const userProfile: UserProfile = LocalStorageUtil.getItemObject(Constants.USER_PROFILE) as any;
+    const [canSave, setCanSave] = useState(false);
     const navigator = useNavigate();
 
     useEffect(() => {
         
         setIsLoading(true);
-        if(pipeLineId){
+        if (pipeLineId) {
             let pipeLinesList: Array<PipeLine> = JSON.parse(LocalStorageUtil.getItem(Constants.PIPE_LINES) as any);
-            setSelectedItem(pipeLinesList.find(i => i.pipelineID == +pipeLineId)  as any);
+            let pipeLineItem = pipeLinesList.find(i => i.pipelineID == +pipeLineId) as any;
+            setStages(pipeLineItem?.stages as Array<Stage>);
+            setOriginalStages([...pipeLineItem?.stages as Array<Stage>]);
+            setSelectedItem(pipeLineItem);
         }
-        else{
-            if(defaultStages?.length>0){
+        else {
+            if (defaultStages?.length > 0) {
                 let newPipeLine = new PipeLine();
-                newPipeLine.pipelineID=0;
+                newPipeLine.pipelineID = 0;
                 newPipeLine.createdBy = userProfile.user;
                 newPipeLine.createdDate = new Date();
-                newPipeLine.pipelineName= newPipeLine.description = "New PipeLine";
+                newPipeLine.pipelineName = newPipeLine.description = "New PipeLine";
                 newPipeLine.stages = [];
-                defaultStages.forEach((item, index)=>{
+                defaultStages.forEach((item, index) => {
                     let obj = new Stage();
                     obj.stageOrder = index;
                     obj.stageName = item;
@@ -78,21 +81,18 @@ export const Stages = (props: params) => {
                     newPipeLine.stages.push(obj);
                 });
                 setSelectedItem(newPipeLine);
+                setStages(newPipeLine?.stages as Array<Stage>);
+                setOriginalStages([...newPipeLine?.stages as Array<Stage>]);
             }
         }
 
         setIsLoading(false);
     }, [pipeLineId])
 
-    useEffect(() => {
-        
-        setStages(selectedItem?.stages as Array<Stage>);
-        setOriginalStages(selectedItem?.stages as Array<Stage>);
-    }, [selectedItem])
 
-    useEffect(()=>{
-        setCanSave(JSON.stringify(originalsStages)!=JSON.stringify(stages) || selectedItem?.pipelineID==0)
-    },[stages])
+    useEffect(() => {
+        setCanSave(JSON.stringify(originalsStages) != JSON.stringify(stages) || originalsStages?.length != stages?.length || selectedItem?.pipelineID == 0)
+    }, [stages])
 
     const createNewStageObject = () => {
         let obj = new Stage();
@@ -102,7 +102,7 @@ export const Stages = (props: params) => {
     }
 
     const onDragEnd = (result: any) => {
-        
+
         if (result.combine) {
             if (result.type === "COLUMN") {
                 const shallow = [...ordered];
@@ -158,86 +158,103 @@ export const Stages = (props: params) => {
         // setStages(data as any);
     };
 
-    const addNewStage = (index?:number) => {
-        
+    const addNewStage = (index?: number) => {
+
         let stagesList = stages;
-        if(index) stagesList.splice(index == -1 ? 0 : index, 0, createNewStageObject());
+        if (index) stagesList.splice(index == -1 ? 0 : index, 0, createNewStageObject());
         else stagesList.push(createNewStageObject());
-        
+
         setStages([...stagesList]);
     }
 
-    const prepareToSave = (pipeLineId:number) => {
-        let userObj:UserProfile = LocalStorageUtil.getItem(Constants.USER_PROFILE) as any;
+    const prepareToSave = (pipeLineId: number) => {
+        let userObj: UserProfile = LocalStorageUtil.getItem(Constants.USER_PROFILE) as any;
         let userName = userObj.user;
         stages.forEach((item, index) => {
             item.stageOrder = index + 1;
-            item.pipelineID=pipeLineId;
+            item.pipelineID = pipeLineId;
             if (item.stageID > 0) {
-                item.createdBy =  item.createdBy ?? userName;
+                item.createdBy = item.createdBy ?? userName;
                 item.modifiedBy = userName;
             }
-            else{
+            else {
                 item.createdBy = userName;
             }
         })
     }
 
     const saveStages = () => {
-        pipeLineSvc.postItemBySubURL(selectedItem, 'SavePipelineDetails').then(res=>{
-            if(res){
-                prepareToSave(res.pipelineID);
-                stagesSvc.postItemBySubURL(stages as any, 'SaveStages').then(res=>{
-                    
-                    if(res){
-                        navigator("/pipeline?pipeLineId="+res.pipelineID);
-                    }
-                    else{
-                        toast.error(res);
-                    }
-                }).catch(error=>{
-                    setError(error);
-                })
+        
+        if (selectedItem?.pipelineID == 0) {
+            pipeLineSvc.postItemBySubURL(selectedItem, 'SavePipelineDetails').then(res => {
+                if (res) {
+                    continueToSave(res.pipelineID);
+                }
+
+            })
+        }
+        else {
+            continueToSave(selectedItem?.pipelineID);
+        }
+
+
+    }
+
+    const continueToSave = (pipelineID?: number) => {
+        prepareToSave(pipelineID ?? pipeLineId);
+        stagesSvc.postItemBySubURL(stages as any, 'SaveStages').then(res => {
+
+            if (res) {
+                toast.success(`Pipeline ${(selectedItem as any)?.pipelineID > 0 ? ' updated ' : 'created'} successfully`, { autoClose: 500 });
+                setTimeout(() => {
+                    navigator("/pipeline?pipelineID=" + pipelineID ?? pipeLineId);
+                }, 500);
+
             }
-
+            else {
+                toast.error(res);
+            }
+        }).catch(error => {
+            setError(error);
         })
-
     }
 
     const cancelChanges = () => {
-        navigator("/pipeline");
+        navigator(pipeLineId>0 ? "/pipeline?pipelineID=" + pipeLineId : "/pipeline");
     }
 
     const deleteStage = () => {
-        stagesSvc.delete(selectedItemIndex).then(res=>{
+        stagesSvc.delete(selectedItemIndex).then(res => {
             setShowDeleteDialog(false);
-            if(res){
-                let index = stages.findIndex(i=>i.stageID==selectedItemIndex);
+            if (res) {
+                let index = stages.findIndex(i => i.stageID == selectedItemIndex);
                 stages.splice(index, 1);
+                toast.success(`Pipeline updated successfully`, { autoClose: 500 });
+                setTimeout(() => {
+                    navigator("/pipeline?pipelineID=" + pipeLineId);
+                }, 500);
+
             }
 
-        }).catch((err:AxiosError)=>{
+        }).catch((err: AxiosError) => {
             setShowDeleteDialog(false);
             setError(err);
-            // setTimeout(() => {
-            //     setError(null as any);
-            // }, 3000);
         })
     }
 
     return (
         <>
             <Spinner hidden={!isLoading} className="spinner" />
-            <div className="rs-container maincontent" style={{width:"100%"}} hidden={isLoading}>
+            <div className="rs-container maincontent" style={{ width: "100%" }} hidden={isLoading}>
                 <div className="rs-content maincontentinner">
                     {
                         <>
-                            <StageActions   onAddClick={addNewStage}
-                                            canSave={canSave}
-                                            onSaveClick={saveStages}
-                                            onCancelClick={cancelChanges}
-                                            selectedItem={selectedItem as any}
-                                            setSelectedItem={(e:any)=>setSelectedItem({...selectedItem, "pipelineName":e} as any)} />
+                            <StageActions onAddClick={addNewStage}
+                                canSave={canSave}
+                                onSaveClick={saveStages}
+                                onCancelClick={cancelChanges}
+                                selectedItem={selectedItem as any}
+                                setSelectedItem={(e: any) => setSelectedItem({ ...selectedItem, "pipelineName": e } as any)} />
                             {showDeleteDialog &&
                                 <DeleteDialog itemType={"Stage"}
                                     itemName={""}
@@ -252,7 +269,7 @@ export const Stages = (props: params) => {
                     }
                     <div className="pdstage-area">
                         <div className="container-fluid">
-                            
+
                             <div className="editstage-row scrollable-stages-container">
                                 <DragDropContext onDragEnd={onDragEnd}>
                                     <Droppable
@@ -262,32 +279,31 @@ export const Stages = (props: params) => {
                                     >
                                         {(provided) => (
                                             <>
-                                             <div ref={provided.innerRef} {...provided.droppableProps} style={{display:"flex"}}>
-                                                {stages?.map((item, index) => (
-                                                    <StageContainer
-                                                        key={index}
-                                                        index={index}
-                                                        title={item?.stageName}
-                                                        selectedItem={item}
-                                                        onAddClick={(e:any)=>addNewStage(e)}
-                                                        onDeleteClick={(index: number) => {setShowDeleteDialog(true); setSelectedItemIndex(index)}}
-                                                    />
-                                                ))}
+                                                <div ref={provided.innerRef} {...provided.droppableProps} style={{ display: "flex" }}>
+                                                    {stages?.map((item, index) => (
+                                                        <StageContainer
+                                                            key={index}
+                                                            index={index}
+                                                            title={item?.stageName}
+                                                            selectedItem={item}
+                                                            onAddClick={(e: any) => addNewStage(e)}
+                                                            onDeleteClick={(index: number) => { setShowDeleteDialog(true); setSelectedItemIndex(index) }}
+                                                        />
+                                                    ))}
 
-                                                {provided.placeholder}
+                                                    {provided.placeholder}
                                                 </div>
                                             </>
                                         )}
                                     </Droppable>
                                 </DragDropContext>
-                                <AddNewStage  onAddClick={addNewStage}/>
+                                <AddNewStage onAddClick={addNewStage} />
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             {/* {error && <UnAuthorized error={error as any} />} */}
-            <ToastContainer />
         </>
     );
 };

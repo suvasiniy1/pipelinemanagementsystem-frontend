@@ -18,6 +18,7 @@ import { AxiosError } from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import { UnAuthorized } from "../../../common/unauthorized";
 import Util from "../../../others/util";
+import { Spinner } from "react-bootstrap";
 
 type params = {
     isCombineEnabled?: any,
@@ -39,17 +40,25 @@ export const Deals = (props: params) => {
     const [pipeLines, setPipeLines] = useState<Array<PipeLine>>([]);
     const [stages, setStages] = useState<Array<Stage>>([]);
     const [selectedItem, setSelectedItem] = useState<PipeLine>();
-    const [isDragging, setIsDragging]=useState(false);
-    const [error, setError]=useState<AxiosError>();
+    const [isDragging, setIsDragging] = useState(false);
+    const [error, setError] = useState<AxiosError>();
+    const [deals, setDeals]=useState<Array<Deal>>([]);
     const navigate = useNavigate();
     const [pipeLineId, setPipeLineId] = useState(new URLSearchParams(useLocation().search).get("pipelineID") as any);
-    
+    const userProfile = Util.UserProfile();
+
     useEffect(() => {
+        loadingData();
+    }, [])
+
+    const loadingData = () => {
+        setIsLoading(true);
         Promise.all([pipeLineSvc.getPipeLines(), stagesSvc.getStages(), dealsSvc.getDeals()]).then(res => {
             
             let pipelines = res[0] as Array<PipeLine>;
             let stages = res[1] as Array<Stage>;
             let deals = res[2] as Array<Deal>;
+            setDeals([...deals]);
 
             pipelines.forEach(p => {
                 p.stages = Util.sortList(stages.filter(s => s.pipelineID == p.pipelineID), "stageOrder");
@@ -60,96 +69,62 @@ export const Deals = (props: params) => {
 
             setPipeLines([...pipelines]);
             LocalStorageUtil.setItem(Constants.PIPE_LINES, JSON.stringify([...pipelines]));
-            setSelectedItem(pipeLineId ?? pipelines[0]);
-        }).catch((err:AxiosError)=>{
-            
+            setSelectedItem(pipeLineId>0 ? pipelines.find(i => i.pipelineID == pipeLineId) : pipelines[0]);
+            setIsLoading(false);
+        }).catch((err: AxiosError) => {
+
             setError(err);
         });
-    }, [])
+    }
 
     useEffect(() => {
         setStages(selectedItem?.stages as Array<Stage>);
     }, [selectedItem])
 
-    const updateRowData = () => {
-
-        setStages(JSON.parse(localStorage.getItem("stagesList") as any) ?? []);
-    }
-
-    const reorderQuoteMap = (quoteMap: Array<Stage>, source: any, destination: any) => {
-
-        // const sourceIndex = quoteMap.findIndex(q => q.name == source.droppableId);
-        // const destinationIndex = quoteMap.findIndex(q => q.name == destination.droppableId);
-        // const orderIndex = destination.index;
-
-        // let item = quoteMap[sourceIndex].deals[source.index];
-        // item.pipeLineId = quoteMap[sourceIndex].id;
-        // quoteMap[sourceIndex].deals.splice(source.index, 1);
-        // quoteMap[destinationIndex].deals.splice(orderIndex, 0, item);
-
-        return quoteMap;
-
-    };
-
     const onDragEnd = (result: any) => {
-        
-        // dropped nowhere
-        setIsDragging(false);
-        if (!result.destination) {
-            return;
-        }
-
         const source = result.source;
         const destination = result.destination;
+        if (source.droppableId === destination.droppableId) { return; }
+        else {
+            setIsLoading(true);
+            dealsSvc.putItemBySubURL({
+                "newStageId": +destination.droppableId,
+                "modifiedById": userProfile.userId,
+                "dealId": +source.index
+            }, +source.index + "/stage").then(res => {
+                loadingData();
+            });
 
-        // did not move anywhere - can bail early
-        if (
-            source.droppableId === destination.droppableId &&
-            source.index === destination.index
-        ) {
-            return;
         }
 
-        const data = reorderQuoteMap(
-            stages,
-            source,
-            destination
-        ) as any;
 
-        
-        localStorage.setItem("stagesList", JSON.stringify([...data]));
-        setIsLoading(true);
-        setStages([...data]);
-        setTimeout(() => {
-            setIsLoading(false);
-        }, 10);
 
 
     };
 
     return (
         <>
-            {isLoading ? null :
+            {isLoading ? <div style={{ textAlign: "center" }}><Spinner /></div> :
                 <>
                     <div className="pdstage-mainarea">
                         <DealHeader canAddDeal={stages?.length > 0}
-                            onSaveChanges={(e: any) => updateRowData()}
+                            onSaveChanges={(e: any) => loadingData()}
                             selectedItem={selectedItem as any}
-                            setSelectedItem={(e:any)=>setSelectedItem(e)}
+                            setSelectedItem={(e: any) => setSelectedItem(e)}
                             pipeLinesList={pipeLines}
                         />
                         <div className="pdstage-area">
                             <div className="container-fluid">
-                                
+
                                 <div className="pdstage-row" hidden={selectedItem?.stages?.length == 0}>
-                                    <DragDropContext onDragEnd={onDragEnd} onDragStart={(e:any)=>setIsDragging(true)}>
+                                    <DragDropContext onDragEnd={onDragEnd} onDragStart={(e: any) => setIsDragging(true)}>
                                         <Droppable
                                             droppableId="board"
                                             type="COLUMN"
                                             direction="horizontal"
                                         >
                                             {(provided) => (
-                                                <> 
+                                                <>
                                                     {stages?.map((item, index) => (
                                                         <DealStage
                                                             key={index}
@@ -158,6 +133,7 @@ export const Deals = (props: params) => {
                                                             deals={item.deals}
                                                             providedFromParent={provided}
                                                             isDragging={isDragging}
+                                                            pipeLinesList={pipeLines}
                                                             onSaveChanges={(e: any) => props.onSaveChanges()}
                                                         />
                                                     )
@@ -181,7 +157,7 @@ export const Deals = (props: params) => {
 
                 </>
             }
-             <ToastContainer />
+            <ToastContainer />
         </>
     );
 };

@@ -2,6 +2,7 @@ import { colors } from "@atlaskit/theme";
 import { useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import { DealList } from "./dealList";
+import { PipeLine } from "../../../models/pipeline";
 
 
 type params = {
@@ -14,10 +15,11 @@ type params = {
     onSaveChanges?: any;
     providedFromParent?:any;
     isDragging:any;
+    pipeLinesList:Array<PipeLine>
 }
 
 export const DealStage = (props: params) => {
-    const { title, deals, stageID, isScrollable, isCombineEnabled, useClone, providedFromParent, isDragging, ...others } = props;
+    const { title, deals, stageID, isScrollable, isCombineEnabled, useClone, providedFromParent, isDragging, pipeLinesList, ...others } = props;
 
     const [showAddButton, setShowAddButton] = useState(false);
     
@@ -31,7 +33,7 @@ export const DealStage = (props: params) => {
                     {(provided, snapshot) => (
                         <div {...provided.dragHandleProps} ref={provided.innerRef}>
                             <div className="pdstage-header">
-                                <div className="pdstage-head">{title}</div>
+                                <div className="pdstage-head">{title} {stageID}</div>
                                 <div className="pdstage-summary">
                                     <div className="pdstage-value">
                                         <span className='pdstage-price'>£0</span><span className='pdstage-num'>{deals.length} deals</span>
@@ -50,6 +52,7 @@ export const DealStage = (props: params) => {
                                 isCombineEnabled={isCombineEnabled}
                                 useClone={useClone}
                                 isDragging={isDragging}
+                                pipeLinesList={pipeLinesList}
                                 onSaveChanges={(e: any) => props.onSaveChanges()}
                             />
                         </div>

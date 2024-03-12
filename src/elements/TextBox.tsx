@@ -22,7 +22,7 @@ const TextBox: React.FC<props> = (props) => {
 
     const generatePlaceHolder=(item:any)=>{
         let msg=item.min>0 ? "min "+item.min+" & max "+item.max+" characters" : "max "+item.max+" characters";;
-        return item.min || item.max ? item.key+" "+"can be "+msg : "";
+        return item.min || item.max ? item.key+" "+"can be "+msg : item.key;
     }
 
     return (
