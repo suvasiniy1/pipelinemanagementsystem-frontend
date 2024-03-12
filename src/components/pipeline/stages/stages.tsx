@@ -220,7 +220,7 @@ export const Stages = (props: params) => {
     }
 
     const cancelChanges = () => {
-        navigator("/pipeline?pipelineID=" + pipeLineId);
+        navigator(pipeLineId>0 ? "/pipeline?pipelineID=" + pipeLineId : "/pipeline");
     }
 
     const deleteStage = () => {

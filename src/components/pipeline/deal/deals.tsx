@@ -69,7 +69,7 @@ export const Deals = (props: params) => {
 
             setPipeLines([...pipelines]);
             LocalStorageUtil.setItem(Constants.PIPE_LINES, JSON.stringify([...pipelines]));
-            setSelectedItem(pipeLineId ? pipelines.find(i => i.pipelineID == pipeLineId) : pipelines[0]);
+            setSelectedItem(pipeLineId>0 ? pipelines.find(i => i.pipelineID == pipeLineId) : pipelines[0]);
             setIsLoading(false);
         }).catch((err: AxiosError) => {
 
