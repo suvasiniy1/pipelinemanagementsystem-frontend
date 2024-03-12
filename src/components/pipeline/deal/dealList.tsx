@@ -8,6 +8,7 @@ import { DealItem } from "./dealItem";
 import styled from '@xstyled/styled-components';
 import { grid } from "../dnd/styles/constants";
 import Util from "../../../others/util";
+import { PipeLine } from "../../../models/pipeline";
 
 type paramsForQuote = {
     deals: Array<Deal>;
@@ -49,8 +50,10 @@ const DropZone = styled.divBox`
   padding-bottom: ${grid}px;
 `;
 
-function InnerList(props: { title?: any; deals?: Array<Deal>; dropProvided?: any; showAddButton: boolean, stageID?: number, onSaveChanges?: any, isDragging?:any }) {
-    const { deals, dropProvided, showAddButton, stageID, isDragging, ...others } = props;
+function InnerList(props: { title?: any; deals?: Array<Deal>; dropProvided?: any; 
+    showAddButton: boolean, stageID?: number, onSaveChanges?: any, 
+    isDragging?:any, pipeLinesList:Array<PipeLine> }) {
+    const { deals, dropProvided, showAddButton, stageID, isDragging, pipeLinesList, ...others } = props;
     const title = props.title ? <Title>{props.title}</Title> : null;
     const [dialogIsOpen, setDialogIsOpen] = useState(false);
 
@@ -63,9 +66,10 @@ function InnerList(props: { title?: any; deals?: Array<Deal>; dropProvided?: any
             </DropZone>
             {
                 dialogIsOpen && <DealAddEditDialog dialogIsOpen={dialogIsOpen}
-                    setDialogIsOpen={setDialogIsOpen}
-                    onSaveChanges={(e: any) => props.onSaveChanges()}
-                    index={stageID} />
+                                                    setDialogIsOpen={setDialogIsOpen}
+                                                    onSaveChanges={(e: any) => props.onSaveChanges()}
+                                                    index={stageID} 
+                                                    pipeLinesList={pipeLinesList}/>
             }
         </div>
     );
@@ -85,7 +89,8 @@ type params = {
     title?: any;
     useClone?: any;
     onSaveChanges: any;
-    isDragging:any
+    isDragging:any;
+    pipeLinesList:Array<PipeLine>
 }
 
 export const DealList = (props: params) => {
@@ -104,6 +109,7 @@ export const DealList = (props: params) => {
         useClone,
         onSaveChanges,
         isDragging,
+        pipeLinesList, 
         ...others
     } = props;
 
@@ -124,6 +130,7 @@ export const DealList = (props: params) => {
                         isDragging={isDragging}
                         dropProvided={dropProvided}
                         showAddButton={showAddButton}
+                        pipeLinesList={pipeLinesList}
                         onSaveChanges={(e: any) => props.onSaveChanges()} />
                 )}
             </Droppable>

@@ -126,9 +126,10 @@ export const DealHeader = (props: params) => {
             </div>
 
             {
-                dialogIsOpen && <DealAddEditDialog dialogIsOpen={dialogIsOpen}
-                    setDialogIsOpen={setDialogIsOpen}
-                    onSaveChanges={(e: any) => props.onSaveChanges()} />
+                dialogIsOpen && <DealAddEditDialog  dialogIsOpen={dialogIsOpen}
+                                                    setDialogIsOpen={setDialogIsOpen}
+                                                    onSaveChanges={(e: any) => props.onSaveChanges()}
+                                                    pipeLinesList={pipeLinesList} />
             }
 
         </>

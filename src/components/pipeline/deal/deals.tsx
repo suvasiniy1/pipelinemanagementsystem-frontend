@@ -45,12 +45,14 @@ export const Deals = (props: params) => {
     const [deals, setDeals]=useState<Array<Deal>>([]);
     const navigate = useNavigate();
     const [pipeLineId, setPipeLineId] = useState(new URLSearchParams(useLocation().search).get("pipelineID") as any);
+    const userProfile = Util.UserProfile();
 
     useEffect(() => {
         loadingData();
     }, [])
 
     const loadingData = () => {
+        setIsLoading(true);
         Promise.all([pipeLineSvc.getPipeLines(), stagesSvc.getStages(), dealsSvc.getDeals()]).then(res => {
             
             let pipelines = res[0] as Array<PipeLine>;
@@ -68,6 +70,7 @@ export const Deals = (props: params) => {
             setPipeLines([...pipelines]);
             LocalStorageUtil.setItem(Constants.PIPE_LINES, JSON.stringify([...pipelines]));
             setSelectedItem(pipeLineId ? pipelines.find(i => i.pipelineID == pipeLineId) : pipelines[0]);
+            setIsLoading(false);
         }).catch((err: AxiosError) => {
 
             setError(err);
@@ -78,50 +81,19 @@ export const Deals = (props: params) => {
         setStages(selectedItem?.stages as Array<Stage>);
     }, [selectedItem])
 
-    const updateRowData = () => {
-
-        setStages(JSON.parse(localStorage.getItem("stagesList") as any) ?? []);
-    }
-
-    const reorderQuoteMap = (quoteMap: Array<Stage>, source: any, destination: any) => {
-
-        // const sourceIndex = quoteMap.findIndex(q => q.name == source.droppableId);
-        // const destinationIndex = quoteMap.findIndex(q => q.name == destination.droppableId);
-        // const orderIndex = destination.index;
-
-        // let item = quoteMap[sourceIndex].deals[source.index];
-        // item.pipeLineId = quoteMap[sourceIndex].id;
-        // quoteMap[sourceIndex].deals.splice(source.index, 1);
-        // quoteMap[destinationIndex].deals.splice(orderIndex, 0, item);
-
-        return quoteMap;
-
-    };
-
     const onDragEnd = (result: any) => {
-        
-
         const source = result.source;
         const destination = result.destination;
-
-        // did not move anywhere - can bail early
         if (source.droppableId === destination.droppableId) { return; }
         else {
-            // let dealItem:Deal = deals.find(d=>d.dealID==+source.index) as any;
-            // dealItem.stageID = +destination.droppableId;
-            // dealItem.createdBy = LocalStorageUtil.getItem(Constants.User_Name) as any;
-            // dealsSvc.postItemBySubURL(dealItem, "SaveDealDetails").then(res => {
-            //     loadingData();
-            // });
-
-            let stagesList = stages;
-            let sourceIdx = stages.findIndex(s=>s.stageID==+source.droppableId);
-            let destinationIdx = stages.findIndex(s=>s.stageID==+destination.droppableId);
-            let dealIndex = stagesList[sourceIdx].deals.findIndex(d=>d.dealID==+source.index);
-            let dealItem = stagesList[sourceIdx].deals.find(d=>d.dealID==+source.index)  as any;
-            stagesList[sourceIdx].deals.splice(dealIndex, 1);
-            stagesList[destinationIdx].deals.push(dealItem);
-            setStages([...stagesList]);
+            setIsLoading(true);
+            dealsSvc.putItemBySubURL({
+                "newStageId": +destination.droppableId,
+                "modifiedById": userProfile.userId,
+                "dealId": +source.index
+            }, +source.index + "/stage").then(res => {
+                loadingData();
+            });
 
         }
 
@@ -136,7 +108,7 @@ export const Deals = (props: params) => {
                 <>
                     <div className="pdstage-mainarea">
                         <DealHeader canAddDeal={stages?.length > 0}
-                            onSaveChanges={(e: any) => updateRowData()}
+                            onSaveChanges={(e: any) => loadingData()}
                             selectedItem={selectedItem as any}
                             setSelectedItem={(e: any) => setSelectedItem(e)}
                             pipeLinesList={pipeLines}
@@ -161,6 +133,7 @@ export const Deals = (props: params) => {
                                                             deals={item.deals}
                                                             providedFromParent={provided}
                                                             isDragging={isDragging}
+                                                            pipeLinesList={pipeLines}
                                                             onSaveChanges={(e: any) => props.onSaveChanges()}
                                                         />
                                                     )

@@ -22,7 +22,7 @@ function App() {
     
     let currentDateTime = moment(new Date()).format("MM/DD/YYYY hh:mm:ss a");
     let tokenExpirationTime = (LocalStorageUtil.getItem(Constants.TOKEN_EXPIRATION_TIME) as any);
-    let isSessionExpired = currentDateTime > tokenExpirationTime;
+    let isSessionExpired = Date.parse(currentDateTime) > Date.parse(tokenExpirationTime);
     if (isSessionExpired) {
       console.log("Session has expired as token is expired... " + tokenExpirationTime);
       window.alert("Session has expired");
