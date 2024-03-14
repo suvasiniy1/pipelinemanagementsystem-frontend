@@ -1,13 +1,12 @@
-import './App.css';
 import "bootstrap/dist/css/bootstrap.min.css";
-import { SideBar } from './components/sidebar';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { AppRouter } from './others/appRouter';
-import Login from './components/login';
+import moment from 'moment';
 import { useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import './App.css';
+import Login from './components/login';
+import { SideBar } from './components/sidebar';
 import LocalStorageUtil from './others/LocalStorageUtil';
 import Constants from './others/constants';
-import moment from 'moment';
 
 function App() {
 

@@ -6,15 +6,17 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faCircleUser, faEnvelope, faBell, faGear} from '@fortawesome/free-solid-svg-icons';
 import Dropdown from 'react-bootstrap/Dropdown';
 
-
-export const HeaderComponent = () => {
+type params={
+    onExpandCollapseClick:any
+}
+export const HeaderComponent = (props:params) => {
     return (
         <header id="header" className="header pt-2 pb-2">
             <div className="container-fluid">
                 <div className="headerrow align-items-center">
                     <div className="header-col colheadname">
                         <div className="colheadname-row">
-                            <button className="sidemenuicon"><FontAwesomeIcon icon={faBars} /></button>
+                            <button className="sidemenuicon" onClick={(e:any)=>props.onExpandCollapseClick()}><FontAwesomeIcon icon={faBars} /></button>
                             <h1 className="headname">Deals</h1>
                         </div>
                     </div>

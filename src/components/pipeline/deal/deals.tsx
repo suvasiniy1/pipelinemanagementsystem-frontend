@@ -49,7 +49,7 @@ export const Deals = (props: params) => {
 
     useEffect(() => {
         loadingData();
-    }, [])
+    }, [pipeLineId])
 
     const loadingData = () => {
         setIsLoading(true);

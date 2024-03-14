@@ -1,26 +1,23 @@
-import React, { useState } from 'react';
-import { Sidenav, Nav, Icon, Container, Header, Content } from 'rsuite';
-import 'rsuite/dist/styles/rsuite-default.css';
-import { AppRouter } from '../others/appRouter';
-import { useNavigate } from 'react-router-dom';
-import { HeaderComponent } from './header/header';
-import svg from "../../src/resources/images/y1.svg";
-import jpg from "../../src/resources/images/logo.jpg";
+import { faAddressCard, faBox, faBullhorn, faCalendar, faChartLine, faClipboardCheck, faDollarSign, faDownload, faEnvelope, faFileContract, faLocationCrosshairs, faRobot, faStore } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLocationCrosshairs, faDollarSign, faClipboardCheck, faBullhorn, faEnvelope, faCalendar, faAddressCard, faChartLine, faBox, faStore, faRobot, faFileContract, faDownload} from '@fortawesome/free-solid-svg-icons';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Container, Content, Nav, Sidenav } from 'rsuite';
+import 'rsuite/dist/styles/rsuite-default.css';
+import jpg from "../../src/resources/images/logo.jpg";
+import {AppRouter} from '../others/appRouter';
+import { HeaderComponent } from './header/header';
 
 export const SideBar = () => {
-    const [activeKey, setActiveKey] = useState('1');
+    const [activeKey, setActiveKey] = useState();
     const [expanded, setExpanded] = useState(false);
     const navigate = useNavigate();
 
-    const handleSelect = (eventKey: any) => {
-        setActiveKey(eventKey);
-    };
-
-    const handleToggle = () => {
-        setExpanded(!expanded);
-    };
+    const getRoutes = useMemo(() => {
+        return (
+            <AppRouter />
+        )
+    }, [activeKey])
 
     const Drawer = () => {
         return (
@@ -29,7 +26,7 @@ export const SideBar = () => {
                     expanded={expanded}
                     // onMouseEnter={handleToggle}
                     // onMouseLeave={handleToggle}
-                    style={{ width: expanded ? 56 : 210 }}
+                    style={{ width: expanded ? 65 : 210 }}
                 >
                     <Sidenav.Header className='sidenavhead'>
                         {<img src={jpg} />}
@@ -42,7 +39,7 @@ export const SideBar = () => {
                             <Nav.Item eventKey="2" icon={<div className='nacicon'><FontAwesomeIcon icon={faLocationCrosshairs} /></div>} onSelect={(e) => navigate("/leads")}>
                                 <span className='nav-text'>Leads</span>
                             </Nav.Item>
-                            <Nav.Item eventKey="3" active={true} icon={<div className='nacicon'><FontAwesomeIcon icon={faDollarSign} /></div>} onSelect={(e) => navigate("/deals")}>
+                            <Nav.Item eventKey="3" active={true} icon={<div className='nacicon'><FontAwesomeIcon icon={faDollarSign} /></div>} onSelect={(e) => navigate("/pipeline")}>
                                 <span className='nav-text'>Deals</span>
                             </Nav.Item>
                             <Nav.Item eventKey="4" icon={<div className='nacicon'><FontAwesomeIcon icon={faClipboardCheck} /></div>} onSelect={(e) => navigate("/projects")}>
@@ -83,9 +80,9 @@ export const SideBar = () => {
                 </Sidenav>
 
                 <Container className='maincontent'>
-                    <HeaderComponent />
+                    <HeaderComponent onExpandCollapseClick={(e:any)=>setExpanded(!expanded)}/>
                     <Content className='maincontentinner'>
-                        <AppRouter />
+                            {getRoutes}
                     </Content>
                 </Container>
             </Container>
