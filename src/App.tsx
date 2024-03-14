@@ -35,10 +35,8 @@ function App() {
   }, [])
 
   return (
-    <>
-      <div>
-        {shouldShowSidebar() ? <SideBar /> : <Login/>}
-      </div>
+    <>      
+      {shouldShowSidebar() ? <SideBar /> : <Login/>}
     </>
 
   );
