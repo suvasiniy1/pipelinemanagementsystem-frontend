@@ -267,7 +267,7 @@ export const Stages = (props: params) => {
                             }
                         </>
                     }
-                    <div className="pdstage-area">
+                    <div className="pdstage-area editstage-area">
                         <div className="container-fluid">
 
                             <div className="editstage-row scrollable-stages-container">
@@ -279,7 +279,7 @@ export const Stages = (props: params) => {
                                     >
                                         {(provided) => (
                                             <>
-                                                <div ref={provided.innerRef} {...provided.droppableProps} style={{ display: "flex" }}>
+                                                <div className="editstage-innerrow" ref={provided.innerRef} {...provided.droppableProps}>
                                                     {stages?.map((item, index) => (
                                                         <StageContainer
                                                             key={index}
