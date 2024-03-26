@@ -29,9 +29,16 @@
 .colheadsearch .form-control {width: 100%; border-radius: 40px; height: 40px; padding: 10px 20px 10px 40px;}
 .headinput{position: relative;}
 .headinput .rs-icon{position: absolute; left: 10px; top: 10px;font-size: 18px;}
-.searchicon {margin-left: 10px;}
-.searchicon svg{color:#fff;}
-
+.quickadd-menu {margin-left: 10px;}
+.quickadd-menuicon{position: relative;}
+.quickadd-menu .quickadd-menuicon button{width: 40px; height: 40px;font-size: 18px; border-radius: 50%; background-color: #fff; color: #21232c; border: 1px solid rgba(33,35,44,.24); box-shadow: 0 1px 2px 0 rgb(42 54 71/5%); display: flex; align-items: center; justify-content: center; text-decoration: none; transition: background-color .1s;}
+.quickadd-menu .quickadd-menuicon button:after{display: none;}
+.quickadd-menu .quickadd-menuicon button:hover{background-color: #f5f5f6;}
+.quickadd-menu .quickadd-menuicon button.show{background-color: #e6e6e6; color: #21232c;}
+.quickadd-menu .quickadd-menuicon button.show svg{transform: rotate(45deg); transition: transform 0.1s ease 0s, fill 0.1s ease 0s;}
+.quickadd-menulist .dropdown-item-text{padding: 8px 15px; cursor: pointer;}
+.quickadd-menulist .dropdown-item-text:hover{background-color: #f5f5f6;}
+.quickadd-menulist .dropdown-item-text svg {width: 20px;}
 .toolbarview-filtersrow{display: flex; justify-content: end;}
 .colactionbtnrow{display: flex; justify-content: end;}
 

@@ -47,11 +47,11 @@ export const HeaderComponent = (props:params) => {
                                 </Dropdown.Toggle>
                                 <Dropdown.Menu>
                                     <Dropdown.Item href="#/action-1">Profile</Dropdown.Item>
-                                    <Dropdown.Item href="#/action-1">My Project</Dropdown.Item>
-                                    <Dropdown.Item href="#/action-1">Message</Dropdown.Item>
-                                    <Dropdown.Item href="#/action-1">Notification</Dropdown.Item>
-                                    <Dropdown.Item href="#/action-2">Settings</Dropdown.Item>
-                                    <Dropdown.Item href="#/action-3">Logout</Dropdown.Item>
+                                    <Dropdown.Item href="#/action-2">My Project</Dropdown.Item>
+                                    <Dropdown.Item href="#/action-3">Message</Dropdown.Item>
+                                    <Dropdown.Item href="#/action-4">Notification</Dropdown.Item>
+                                    <Dropdown.Item href="#/action-5">Settings</Dropdown.Item>
+                                    <Dropdown.Item href="#/action-6">Logout</Dropdown.Item>
                                 </Dropdown.Menu>
                             </Dropdown>
                         </div>

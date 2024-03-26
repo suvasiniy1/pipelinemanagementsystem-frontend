@@ -105,7 +105,7 @@ export const StageItem = (props: params) => {
                             </div>
                             <div className="editstage-field">
                                 <div className="editstage-fieldcheck">
-                                    <div className="editstage-checkbox">
+                                    <div className="editstage-fieldname editstage-checkbox">
                                         <label className="checktogglebox"><input type="checkbox" /><div className="checktoggle"></div></label>
                                         <div className="fieldchecklabel">Rotting in (days)</div>
                                         <div className="fieldcheck-infoicon"><FontAwesomeIcon icon={faInfoCircle} /></div>
@@ -120,6 +120,7 @@ export const StageItem = (props: params) => {
                             <div className="editstage-deleteinn">
                                 <button className="editstage-deletebtn" onClick={(e:any)=>props.onDeleteClick()}><FontAwesomeIcon icon={faTrash} /> <span>Delete Stage</span></button>
                             </div>
+                            <button className="addnewstag-btn"><i className="rs-icon rs-icon-plus"></i><span>New stage</span></button>
                         </div>
                     </div>
 
