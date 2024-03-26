@@ -47,38 +47,45 @@ export const Deals = (props: params) => {
     const [pipeLineId, setPipeLineId] = useState(new URLSearchParams(useLocation().search).get("pipelineID") as any);
     const userProfile = Util.UserProfile();
 
-    useEffect(() => {
-        loadingData();
-    }, [pipeLineId])
+    // useEffect(() => {
+    //     debugger
+    //     if(+pipeLineId>0) loadStages(pipeLineId);
+    // }, [pipeLineId])
 
-    const loadingData = () => {
+    useEffect(()=>{
+        loadPipeLines()
+    },[])
+
+
+
+    const loadPipeLines = () => {
         setIsLoading(true);
-        Promise.all([pipeLineSvc.getPipeLines(), stagesSvc.getStages(), dealsSvc.getDeals()]).then(res => {
-            
-            let pipelines = res[0] as Array<PipeLine>;
-            let stages = res[1] as Array<Stage>;
-            let deals = res[2] as Array<Deal>;
-            setDeals([...deals]);
+        
+        pipeLineSvc.getPipeLines().then((res: Array<PipeLine>) => {
+            setPipeLines(res);
+            let selectedPipeLineId = pipeLineId > 0 ? pipeLineId : res[0].pipelineID;
+            setPipeLineId(selectedPipeLineId);
+            setSelectedItem(res.find(i => i.pipelineID == selectedPipeLineId));
+            loadStages(selectedPipeLineId);
 
-            pipelines.forEach(p => {
-                p.stages = Util.sortList(stages.filter(s => s.pipelineID == p.pipelineID), "stageOrder");
-                p.stages.forEach(s => {
-                    s.deals = deals.filter(d => d.stageID == s.stageID && d.pipelineID == s.pipelineID);
-                });
-            });
-
-            setPipeLines([...pipelines]);
-            LocalStorageUtil.setItem(Constants.PIPE_LINES, JSON.stringify([...pipelines]));
-            setSelectedItem(pipeLineId>0 ? pipelines.find(i => i.pipelineID == pipeLineId) : pipelines[0]);
-            setIsLoading(false);
         }).catch((err: AxiosError) => {
-
             setError(err);
         });
     }
 
+    const loadStages=(selectedPipeLineId:number)=>{
+        setIsLoading(true);
+        stagesSvc.getStages(selectedPipeLineId).then(items => {
+            setStages(items.stageDtos);
+            setIsLoading(false);
+            
+        });
+    }
+
     useEffect(() => {
-        setStages(selectedItem?.stages as Array<Stage>);
+        if (selectedItem?.pipelineID != pipeLineId && (selectedItem?.pipelineID as any)>0) {
+            loadStages(selectedItem?.pipelineID as any);
+        }
     }, [selectedItem])
 
     const onDragEnd = (result: any) => {
@@ -92,7 +99,7 @@ export const Deals = (props: params) => {
                 "modifiedById": userProfile.userId,
                 "dealId": +source.index
             }, +source.index + "/stage").then(res => {
-                loadingData();
+                loadPipeLines();
             });
 
         }
@@ -104,19 +111,20 @@ export const Deals = (props: params) => {
 
     return (
         <>
-            {isLoading ? <div style={{ textAlign: "center" }}><Spinner /></div> :
+            {isLoading ? <div className="alignCenter"><Spinner /></div> :
                 <>
                     <div className="pdstage-mainarea">
-                        <DealHeader canAddDeal={stages?.length > 0}
-                            onSaveChanges={(e: any) => loadingData()}
+                        <DealHeader canAddDeal={pipeLines.length > 0}
+                            onSaveChanges={(e: any) => loadPipeLines()}
                             selectedItem={selectedItem as any}
                             setSelectedItem={(e: any) => setSelectedItem(e)}
                             pipeLinesList={pipeLines}
+                            stagesList={stages}
                         />
                         <div className="pdstage-area">
                             <div className="container-fluid">
 
-                                <div className="pdstage-row" hidden={selectedItem?.stages?.length == 0}>
+                                <div className="pdstage-row" hidden={pipeLines.length == 0}>
                                     <DragDropContext onDragEnd={onDragEnd} onDragStart={(e: any) => setIsDragging(true)}>
                                         <Droppable
                                             droppableId="board"
@@ -147,7 +155,7 @@ export const Deals = (props: params) => {
 
 
                                 </div>
-                                <div style={{ textAlign: "center" }} hidden={(selectedItem as any)?.stages?.length > 0}>
+                                <div style={{ textAlign: "center" }} hidden={pipeLines.length > 0}>
                                     No pipelines are avilable to show
                                 </div>
                             </div>

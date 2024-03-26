@@ -8,6 +8,7 @@ import { display, width } from '@xstyled/styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCaretDown, faPencil, faChartSimple, faAlignCenter, faBars, faDollarSign, faCheck, faAdd, faGripLines, faEye, faCircleInfo } from '@fortawesome/free-solid-svg-icons';
 import OutsideClickHandler from 'react-outside-click-handler';
+import { Stage } from '../../../models/stage';
 
 type params = {
     canAddDeal: boolean,
@@ -15,12 +16,13 @@ type params = {
     selectedItem: PipeLine,
     setSelectedItem: any,
     pipeLinesList: Array<PipeLine>
+    stagesList:Array<Stage>
 }
 export const DealHeader = (props: params) => {
 
     const navigate = useNavigate();
     const [dialogIsOpen, setDialogIsOpen] = useState(false);
-    const { canAddDeal, onSaveChanges, selectedItem, setSelectedItem, ...others } = props;
+    const { canAddDeal, onSaveChanges, selectedItem, setSelectedItem, stagesList, ...others } = props;
     const [pipeLinesList, setPipeLinesList]=useState(props.pipeLinesList);
     const [showPipeLineDropdown, setShowPipeLineDropdown] = useState(false);
     const [canEdit, setCanEdit]=useState(false);
@@ -103,7 +105,7 @@ export const DealHeader = (props: params) => {
                             </div>
                         </div>
                         <div className="col-sm-7 toolbarview-summery">
-                            <div className="toolsummary pr-4"><div className="toolsummary-deals">£0 <span>·</span>{selectedItem?.stages?.reduce((count, current) => count + current.deals.length, 0)} deals</div></div>
+                            <div className="toolsummary pr-4"><div className="toolsummary-deals">£0 <span>·</span>{stagesList?.reduce((count, current) => count + current.deals.length, 0)} deals</div></div>
 
                             <div className='toolbarview-filtersrow'>
                                 <div className="pipeselectbtngroup">

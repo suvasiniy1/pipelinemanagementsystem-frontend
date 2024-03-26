@@ -1,10 +1,8 @@
-import React from "react";
-import "./header.css";
-import { LetterAvatar } from "../other/avatar";
-import { SearchBar } from "./searchBar";
+import { faBars, faBell, faEnvelope, faGear } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faCircleUser, faEnvelope, faBell, faGear} from '@fortawesome/free-solid-svg-icons';
-import Dropdown from 'react-bootstrap/Dropdown';
+import "./header.css";
+import { SearchBar } from "./searchBar";
+import { Profile } from '../other/Profile';
 
 type params={
     onExpandCollapseClick:any
@@ -34,26 +32,7 @@ export const HeaderComponent = (props:params) => {
                             <div className="headicon headbtnenvelope">
                                 <button><FontAwesomeIcon icon={faEnvelope} /></button>
                             </div>
-                            <LetterAvatar />
-                            <Dropdown className="headerprofile">
-                                <Dropdown.Toggle className="profiledroupdown" variant="" id="dropdown-profile">
-                                    <span className="profiledroupdown-row">
-                                        <span className="profileicon"><FontAwesomeIcon icon={faCircleUser} /></span>
-                                        <strong className="profilename">
-                                            Y1 Capital
-                                            <span>info@gmail.com</span>
-                                        </strong>
-                                    </span>
-                                </Dropdown.Toggle>
-                                <Dropdown.Menu>
-                                    <Dropdown.Item href="#/action-1">Profile</Dropdown.Item>
-                                    <Dropdown.Item href="#/action-2">My Project</Dropdown.Item>
-                                    <Dropdown.Item href="#/action-3">Message</Dropdown.Item>
-                                    <Dropdown.Item href="#/action-4">Notification</Dropdown.Item>
-                                    <Dropdown.Item href="#/action-5">Settings</Dropdown.Item>
-                                    <Dropdown.Item href="#/action-6">Logout</Dropdown.Item>
-                                </Dropdown.Menu>
-                            </Dropdown>
+                            <Profile />
                         </div>
                     </div>
                 </div>

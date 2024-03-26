@@ -7,7 +7,7 @@ export class StageService extends BaseService<Stage>{
         super("Stage", "Stage", errorHandler);
     }
 
-    getStages(axiosCancel?: CancelTokenSource){
-        return this.getItems(axiosCancel, 'Stage/GetAllStageDetails')
+    getStages(pipelineId:number,  pageNo:number=1, pageSize:number=10, axiosCancel?: CancelTokenSource){
+        return this.getItems(axiosCancel, `Stage/GetAllStageDetails?PipelineId=${pipelineId}&pageNo=${pageNo}&pageSize=${pageSize}`)
     }
 }

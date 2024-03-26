@@ -2,7 +2,7 @@ import { faAddressCard, faBox, faBullhorn, faCalendar, faChartLine, faClipboardC
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Content, Nav, Sidenav } from 'rsuite';
+import { Container, Content, Dropdown, Nav, Sidenav } from 'rsuite';
 import 'rsuite/dist/styles/rsuite-default.css';
 import jpg from "../../src/resources/images/logo.jpg";
 import {AppRouter} from '../others/appRouter';
@@ -51,7 +51,7 @@ export const SideBar = () => {
                             <Nav.Item eventKey="6" icon={<div className='nacicon'><FontAwesomeIcon icon={faEnvelope} /></div>}>
                                 <span className='nav-text'>Sales Inbox</span>
                             </Nav.Item>
-                            <Nav.Item eventKey="7" icon={<div className='nacicon'><FontAwesomeIcon icon={faCalendar} /></div>}>
+                            {/* <Nav.Item eventKey="7" icon={<div className='nacicon'><FontAwesomeIcon icon={faCalendar} /></div>}>
                                 <span className='nav-text'>Activities</span>
                             </Nav.Item>
                             <Nav.Item eventKey="8" icon={<div className='nacicon'><FontAwesomeIcon icon={faAddressCard} /></div>}>
@@ -62,8 +62,8 @@ export const SideBar = () => {
                             </Nav.Item>
                             <Nav.Item eventKey="10" icon={<div className='nacicon'><FontAwesomeIcon icon={faBox} /></div>}>
                                 <span className='nav-text'>Products</span>
-                            </Nav.Item>
-                            <Nav.Item eventKey="11" icon={<div className='nacicon'><FontAwesomeIcon icon={faStore} /></div>}>
+                            </Nav.Item> */}
+                            {/* <Nav.Item eventKey="11" icon={<div className='nacicon'><FontAwesomeIcon icon={faStore} /></div>}>
                                 <span className='nav-text'>Marketplace</span>
                             </Nav.Item>
                             <Nav.Item eventKey="11" icon={<div className='nacicon'><FontAwesomeIcon icon={faRobot} /></div>}>
@@ -74,7 +74,12 @@ export const SideBar = () => {
                             </Nav.Item>
                             <Nav.Item eventKey="11" icon={<div className='nacicon'><FontAwesomeIcon icon={faDownload} /></div>}>
                                 <span className='nav-text'>Import data</span>
-                            </Nav.Item>
+                            </Nav.Item> */}
+                            <Dropdown activeKey="1" title="Admin">
+                                <Dropdown.Item eventKey="1-1">
+                                    Users
+                                </Dropdown.Item>
+                            </Dropdown>
                         </Nav>
                     </Sidenav.Body>
                 </Sidenav>

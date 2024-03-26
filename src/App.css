@@ -626,3 +626,11 @@ button.fields-editbtn{visibility: hidden; line-height: 1.2; background-color: #f
   select {
       -webkit-appearance: listbox !important;
     }
+
+    .alignCenter {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      -webkit-transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%);
+    }
