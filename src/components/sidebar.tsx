@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Container, Content, Dropdown, Nav, Sidenav } from 'rsuite';
 import 'rsuite/dist/styles/rsuite-default.css';
 import jpg from "../../src/resources/images/logo.jpg";
+import svg from "../../src/resources/images/y1.svg";
 import {AppRouter} from '../others/appRouter';
 import { HeaderComponent } from './header/header';
 
@@ -29,7 +30,8 @@ export const SideBar = () => {
                     style={{ width: expanded ? 65 : 210 }}
                 >
                     <Sidenav.Header className='sidenavhead'>
-                        {<img src={jpg} />}
+                        {<img className='sideopenlogo' src={jpg} />}
+                        {<img className='sidehidelogo' src={svg} />}
                     </Sidenav.Header>
                     <Sidenav.Body>
                         <Nav className='sidemenu'>

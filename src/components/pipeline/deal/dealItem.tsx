@@ -44,9 +44,9 @@ type params = {
                   </div>
                 </div>
               </a>
-              <div className="pdstage-status-indicator">
+              {/* <div className="pdstage-status-indicator">
                 <div className='pdstage-indicator-icon'><i className="rs-icon rs-icon-arrow-circle-left"></i></div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

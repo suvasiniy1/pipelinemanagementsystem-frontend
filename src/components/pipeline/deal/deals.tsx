@@ -122,7 +122,7 @@ export const Deals = (props: params) => {
                             stagesList={stages}
                         />
                         <div className="pdstage-area">
-                            <div className="container-fluid">
+                            <div className="pdstagearea-inner">
 
                                 <div className="pdstage-row" hidden={pipeLines.length == 0}>
                                     <DragDropContext onDragEnd={onDragEnd} onDragStart={(e: any) => setIsDragging(true)}>

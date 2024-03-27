@@ -97,23 +97,23 @@ html, body{overflow: hidden;}
 .toolbarview-summery{display: flex;align-items: center; justify-content: end;}
 .toolsummary-deals{margin-right: 10px;}
 .toolsummary-deals span{margin:0 5px;}
+.toolbarview-filtersrow{display: flex;}
 
-.toolbarview-filtersrow{display: flex;}                                    
 .pipeselectbtngroup{display: flex;}
 .pipeselectbox{position: relative;}
 .pipeselect{position: relative; display: inline-flex; align-items: center; justify-content: center; background-color: #fff; text-align: center; height: 32px; border: 1px solid rgba(33,35,44,.24); border-radius: 4px; box-shadow: 0 1px 2px 0 rgb(42 54 71/5%); cursor: pointer; margin: 0; padding: 6px 30px 6px 10px; text-decoration: none; transition: background .1s cubic-bezier(.5,0,.2,1); -webkit-user-select: none; -moz-user-select: none; user-select: none; vertical-align: top;}
 .pipeselect .fa-caret-down {position: absolute; right: 10px; top: 7px; z-index: 1;}
 .pipeselect .fa-chart-simple, .pipeselect .fa-align-center{margin-right: 10px;}
 .pipeselect svg.fa-chart-simple{transform: rotate(180deg);}
-.variantselectbox .pipeselect{border-radius: 4px 0 0 4px; border-right: none;}
+/* .variantselectbox .pipeselect{border-radius: 4px 0 0 4px; border-right: none;} */
 .selecteveryonebox{margin-left: 10px;}
-.updatestagebtn .btn {width: 32px; height: 32px; padding: 0 5px; border: 1px solid rgba(33, 35, 44, .24); border-radius: 0 4px 4px 0;}
+.updatestagebtn .btn {width: 32px; height: 32px; padding: 0 5px; border: 1px solid rgba(33, 35, 44, .24); /*border-radius: 0 4px 4px 0;*/ margin-right: 8px;}
 .updatestagebtn .btn:hover{border: 1px solid rgba(33, 35, 44, .24);}
 .updatestagebtn .btn .fa-pencil {font-size: 14px;}
 .toolbarview-filters select.form-control {height: 32px; margin-right: 10px;}
 
 .pipeselectcontent{background-color: #fff; border-radius: 4px; box-shadow: 0 0 2px 0 rgba(0,0,0,.24),0 8px 10px 1px rgb(0 0 0/5%),0 3px 14px 2px rgb(0 0 0/6%),0 5px 5px -3px rgba(0,0,0,.1);
-max-width: 360px; position: absolute; right: 0; top: 100%; z-index:2;
+max-width: 360px; position: absolute; left: 0; top: 100%; z-index:2;
 -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text;}
 .pipeselectcontentinner{overflow: auto; white-space: nowrap;}
 .pipeselectpadlr{padding: 8px;}
@@ -167,7 +167,8 @@ color: #fff; cursor: pointer; flex-basis: 0; font: 450 12px / 18px "Inter",sans-
 
 
 /* Pipedrive Box Code */
-.pdstage-area {overflow: hidden auto; height: calc(100% - 73px); display: grid;}
+.pdstage-area {overflow: hidden auto; height: calc(100% - 64px); display: grid;}
+.pdstagearea-inner{padding: 0 12px; overflow: auto;}
 /* .pdstage-area::-webkit-scrollbar {width: 10px;}
 .pdstage-area::-webkit-scrollbar-track {background-color: #e4e4e4; border-radius: 100px;}
 .pdstage-area::-webkit-scrollbar-thumb {border-radius: 100px; background-color:#211c52; box-shadow: inset 2px 2px 5px 0 rgba(#fff, 0.5);} */
@@ -190,12 +191,16 @@ color: #fff; cursor: pointer; flex-basis: 0; font: 450 12px / 18px "Inter",sans-
 .colactionbtnrow .btn {height: 32px; padding: 4px 10px; font-size: 14px;}
 
 .pdstage-row {display: flex; height: 100%;}
-.pdstage-col{min-width: 0; display: flex; flex-direction: column; flex-basis: 100%; background-color: #f5f5f6; padding: 8px 0; margin-left: 8px;}
+.pdstage-col{min-width: 0; display: flex; flex-direction: column; flex-basis: 100%; background-color: #f5f5f6; padding:0 0 8px 0; margin-left: 8px;}
 .pdstage-col:first-child{margin-left: 0;}
-.pdstage-header{padding:0 8px; display: flex; align-items: flex-start; -webkit-box-pack: justify; justify-content: space-between; position: sticky; top: -1px; min-width: 45px; z-index: 1; flex-direction: column; background-color: #f5f5f6;}
-.pdstage-head{width: 100%; overflow: hidden; font-size: 16px; font-weight: 600;}
+.pdstage-header{display: flex; align-items: flex-start; -webkit-box-pack: justify; justify-content: space-between; position: sticky; top: -1px; min-width: 45px; z-index: 1; flex-direction: column; background-color: #f5f5f6;}
+.pdstage-head{display: flex; align-items: center; justify-content: space-between; padding:8px; width: 100%; overflow: hidden; font-size: 16px; font-weight: 600; height: 40px; border-top: 3px solid #3f3f3f; border-radius: 3px 3px 0 0; background-color:#eaeaea;}
+.pdstagehead-title {overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
+.pdstagehead-btns {display: flex;}
+.pdstagehead-btns button {background-color: #fff; border-radius: 3px; width: 22px; height: 22px;}
+.pdstagehead-btns button:last-child{margin-left: 8px;}
 .pdstage-headinner{font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
-.pdstage-summary{margin-top: 8px;}
+.pdstage-summary{margin-top: 8px; width: 100%; padding: 0 8px;}
 .pdstage-price{margin-right: 8px;}
 .pdstage-value{white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 .pdstage-num{position: relative; padding-left: 10px;}
@@ -203,10 +208,10 @@ color: #fff; cursor: pointer; flex-basis: 0; font: 450 12px / 18px "Inter",sans-
 
 .pdstage-list{padding: 0 8px; margin-top: 4px;}
 .pdstage-item{margin-top: 8px; padding: 0 8px;}
-.pdstage-box{position: relative; background-color: #fff; padding: 6px 8px; border-radius: 4px; box-shadow: 0 0 1px 1px rgb(0 0 0/5%),0 1px 2px -2px rgb(0 0 0/6%),0 1px 3px 0 rgb(0 0 0/7%);}
+.pdstage-box{position: relative; background-color: #fff; padding: 6px 8px; border-radius: 4px; border-left: 3px solid #3f3f3f; box-shadow: 0 0 1px 1px rgb(0 0 0/5%),0 1px 2px -2px rgb(0 0 0/6%),0 1px 3px 0 rgb(0 0 0/7%);}
 .pdstage-boxlink, .pdstage-boxlink:focus{color: #21232c; text-decoration: none; outline: 0;}
 .pdstage-boxlink:hover{color: #21232c; text-decoration: none;}
-.pdstage-title{font-weight:bold; word-break: break-word;}
+.pdstage-title{font-weight:bold; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
 .pdstage-description{min-height: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px;}
 .pdstage-descitem{white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 
@@ -634,3 +639,8 @@ button.fields-editbtn{visibility: hidden; line-height: 1.2; background-color: #f
       -webkit-transform: translate(-50%, -50%);
       transform: translate(-50%, -50%);
     }
+
+
+@media (max-width: 1199.98px) {
+  .pdstage-col{min-width: 200px;}
+}

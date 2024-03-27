@@ -42,7 +42,7 @@ export const DealHeader = (props: params) => {
     const addorUpdateDeal = () => {
         return (
             <>
-                <button type="button" className="btn btn-success" onClick={(e: any) => setDialogIsOpen(true)} disabled={!canAddDeal}>+ Deal</button>
+                <button type="button" className="btn btn-success" onClick={(e: any) => setDialogIsOpen(true)} disabled={!canAddDeal}>+ New Deal</button>
             </>
         )
     }
@@ -91,22 +91,10 @@ export const DealHeader = (props: params) => {
 
     return (
         <>
-            <div className="pipe-toolbar pt-3 pb-4">
+            <div className="pipe-toolbar pt-3 pb-3">
                 <div className="container-fluid">
                     <div className="row toolbarview-row">
                         <div className="col-sm-5 toolbarview-actions">
-                            <div className='toolbarview-actionsrow'>
-                                <div className="d-flex toolbutton-group">
-                                    <button className="toolpipebtn activetoolbtn" type="button"><FontAwesomeIcon icon={faChartSimple} /></button>
-                                    <button className="tooldealbtn" type="button"><FontAwesomeIcon icon={faBars} /></button>
-                                    <button className="tooltimebtn" type="button"><FontAwesomeIcon icon={faDollarSign} /></button>
-                                </div>
-                                {addorUpdateDeal()}
-                            </div>
-                        </div>
-                        <div className="col-sm-7 toolbarview-summery">
-                            <div className="toolsummary pr-4"><div className="toolsummary-deals">£0 <span>·</span>{stagesList?.reduce((count, current) => count + current.deals.length, 0)} deals</div></div>
-
                             <div className='toolbarview-filtersrow'>
                                 <div className="pipeselectbtngroup">
                                     <div className='pipeselectbox variantselectbox' onClick={(e: any) => setShowPipeLineDropdown(!showPipeLineDropdown)}>
@@ -114,13 +102,25 @@ export const DealHeader = (props: params) => {
                                         <div className='pipeselectcontent' hidden={!showPipeLineDropdown}>
                                             {pipeLinesJSX()}
                                         </div>
-                                    </div>
-                                    <div className='updatestagebtn'>{addorUpdateStage()}</div>
+                                    </div>                                    
                                 </div>
-                                <div className="pipeselectbox selecteveryonebox">
+                                {/* <div className="pipeselectbox selecteveryonebox">
                                     <button className="pipeselect" type="button"><FontAwesomeIcon icon={faAlignCenter} /> Everyone <FontAwesomeIcon icon={faCaretDown} /></button>
-                                </div>
+                                </div> */}
                             </div>
+                        </div>
+                        <div className="col-sm-7 toolbarview-summery">
+                            {/* <div className="toolsummary pr-4"><div className="toolsummary-deals">£0 <span>·</span>{stagesList?.reduce((count, current) => count + current.deals.length, 0)} deals</div></div> */}
+                            <div className='toolbarview-actionsrow'>
+                                <div className='updatestagebtn'>{addorUpdateStage()}</div>
+                                <div className="d-flex toolbutton-group">
+                                    <button className="toolpipebtn activetoolbtn" type="button"><FontAwesomeIcon icon={faChartSimple} /></button>
+                                    <button className="tooldealbtn" type="button"><FontAwesomeIcon icon={faBars} /></button>
+                                    <button className="tooltimebtn" type="button"><FontAwesomeIcon icon={faDollarSign} /></button>
+                                </div>
+                                {addorUpdateDeal()}
+                            </div>
+                            
                         </div>
 
                     </div>

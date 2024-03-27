@@ -33,7 +33,13 @@ export const DealStage = (props: params) => {
                     {(provided, snapshot) => (
                         <div {...provided.dragHandleProps} ref={provided.innerRef}>
                             <div className="pdstage-header">
-                                <div className="pdstage-head">{title} {stageID}</div>
+                                <div className="pdstage-head">
+                                    <div className="pdstagehead-title">{title} {stageID}</div>
+                                    <div className="pdstagehead-btns">
+                                        <button className=''><i className="rs-icon rs-icon-plus"></i></button>
+                                        <button className=''><i className="rs-icon rs-icon-arrow-right"></i></button>
+                                    </div>
+                                </div>
                                 <div className="pdstage-summary">
                                     <div className="pdstage-value">
                                         <span className='pdstage-price'>£0</span><span className='pdstage-num'>{deals.length} deals</span>
@@ -58,9 +64,9 @@ export const DealStage = (props: params) => {
                         </div>
                     )}
                 </Draggable>
-                <div id="addNewQuote" style={{ display: showAddButton ? 'block' : 'none' }}>
+                {/* <div id="addNewQuote" style={{ display: showAddButton ? 'block' : 'none' }}>
                     <div className="pdstage-add"><button className='pdstage-addplus'><i className="rs-icon rs-icon-plus"></i></button></div>
-                </div>
+                </div> */}
             </div>
         </div>
 
