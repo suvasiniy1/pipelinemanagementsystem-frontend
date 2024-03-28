@@ -15,13 +15,14 @@ type Props = {
     dialogSize?: any;
     customSaveChangesButtonName?: string;
     children?: any;
+    disabled?:boolean
 };
 
 export const AddEditDialog: React.FC<Props> = (props) => {
 
     console.log("AddEditDialog - props: ", props);
     const [dialogIsOpen, setDialogIsOpen] = useState(props.dialogIsOpen);
-    const { customSaveChangesButtonName, header, customHeader, onSave, onClose, closeDialog, canSave, children, customFooter, onFormChange, ...rest } = props;
+    const { customSaveChangesButtonName, header, customHeader, onSave, onClose, closeDialog, canSave, children, customFooter, onFormChange, disabled, ...rest } = props;
     const [dialogSize, setDialogSize] = useState(props.dialogSize ? props.dialogSize : "lg");
 
     useEffect(() => {
@@ -45,7 +46,9 @@ export const AddEditDialog: React.FC<Props> = (props) => {
                 </Modal.Header>
                 <Modal.Body className='modalbody'>
                     <form className="DialogForm" id="AddEditForm" onChange={(e) => onFormChange1()}>
-                        {children}
+                        <fieldset disabled={disabled}>
+                            {children}
+                        </fieldset>
                     </form>
                 </Modal.Body>
                 <Modal.Footer className='modalfoot'>

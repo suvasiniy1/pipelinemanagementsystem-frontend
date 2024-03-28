@@ -34,7 +34,7 @@ export const DealStage = (props: params) => {
                         <div {...provided.dragHandleProps} ref={provided.innerRef}>
                             <div className="pdstage-header">
                                 <div className="pdstage-head">
-                                    <div className="pdstagehead-title">{title} {stageID}</div>
+                                    <div className="pdstagehead-title">{title}</div>
                                     <div className="pdstagehead-btns">
                                         <button className=''><i className="rs-icon rs-icon-plus"></i></button>
                                         <button className=''><i className="rs-icon rs-icon-arrow-right"></i></button>

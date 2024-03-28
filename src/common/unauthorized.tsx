@@ -20,7 +20,7 @@ export const UnAuthorized = (props: params) => {
             navigate("/login");
         }
         else{
-            toast.error(isRetrivingList? "Unable to retreive the list" : "Unable to perform the action");
+            toast.error(isRetrivingList? "Unable to retreive the list" : "Unable to perform the action", {delay:20});
         }
     },[error])
 

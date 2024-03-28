@@ -1,15 +1,8 @@
-import { useState } from "react";
-import GenerateElements from "../../../common/generateElements"
-import { ElementType, IControl } from "../../../models/iControl";
-import { Stage } from "../../../models/stage"
-import { yupResolver } from "@hookform/resolvers/yup";
-import { FormProvider, useForm } from "react-hook-form";
-import Util from "../../../others/util";
-import * as Yup from 'yup';
-import styled from "@xstyled/styled-components";
-import { grid } from "../dnd/styles/constants";
+import { faBell, faInfoCircle, faScaleBalanced, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faScaleBalanced, faBell, faInfoCircle, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { useEffect, useState } from "react";
+import { Stage } from "../../../models/stage";
+import Util from "../../../others/util";
 
 export const getBackgroundColor = (isDraggingOver: any, isDraggingFrom: any) => {
     if (isDraggingOver) {
@@ -23,49 +16,28 @@ export const getBackgroundColor = (isDraggingOver: any, isDraggingFrom: any) => 
 
 type params = {
     selectedItem?: Stage;
+    setSelectedItem?:any;
     provided?: any;
     onAddClick:any;
     onDeleteClick:any;
 }
 export const StageItem = (props: params) => {
     
-    const { selectedItem, provided, ...others } = props;
-    const [controlsList, setControlsList] = useState<Array<IControl>>([
-        { "key": "Name", "value": "name", "isRequired": true, "tabIndex": 1, "isFocus": true, "isControlInNewLine": true, "elementSize": 12 },
-        { "key": "Probability", "value": "probability", "type": ElementType.number, "min": 0, "max": 100, "isRequired": true, "tabIndex": 2, "isControlInNewLine": true, "elementSize": 12 },
-    ]);
+    const { selectedItem, setSelectedItem, provided, ...others } = props;
+    const [isNameNull, setIsNameNull]=useState<boolean>(false);
+    const [isProbabilityNull, setIsProbabilityNull]=useState<boolean>(false);
+    const [isRottinngInNull, setIsRottinngInNull]=useState<boolean>(false);
 
-    const validationsSchema = Yup.object().shape({
-        ...Util.buildValidations(controlsList)
-    });
+    useEffect(() => {
+        setIsNameNull(Util.isNullOrUndefinedOrEmpty(selectedItem?.stageName));
+        setIsProbabilityNull(Util.isNullOrUndefinedOrEmpty(selectedItem?.probability));
+    }, [selectedItem])
 
-    const formOptions = { resolver: yupResolver(validationsSchema) };
-    const methods = useForm(formOptions);
-    const { handleSubmit, getValues, setValue } = methods;
-
-    const Wrapper = styled.divBox`
-    background-color: ${(props: { isDraggingOver: any; isDraggingFrom: any; }) => getBackgroundColor(props.isDraggingOver, props.isDraggingFrom)};
-    display: flex;
-    flex-direction: column;
-    padding: ${grid}px;
-    border: ${grid}px;
-    padding-bottom: 0;
-    transition: background-color 0.2s ease, opacity 0.1s ease;
-    user-select: none;
-    width: 250px;
-    `;
-
-    const scrollContainerHeight = 250;
-
-    const DropZone = styled.divBox`
-  /* stop the list collapsing when empty */
-  min-height: ${scrollContainerHeight}px;
-  /*
-    not relying on the items for a margin-bottom
-    as it will collapse when the list is empty
-  */
-  padding-bottom: ${grid}px;
-`;
+    const updateItem = (e: any, key:string) => {
+        let obj = key=="stageName" ? { ...selectedItem, "stageName": e.target?.value } : 
+        { ...selectedItem, "probability": e.target?.value }
+        setSelectedItem(obj);
+    }
 
     return (
         <>
@@ -91,7 +63,10 @@ export const StageItem = (props: params) => {
                                 <div className="editstage-fieldname">Name</div>
                                 <div className="editstage-fieldinput">
                                     <div className="editstage-inputbox">
-                                        <input className="form-control" type="text" defaultValue={selectedItem?.stageName} />
+                                        <input className="form-control" type="text" placeholder='Name' value={selectedItem?.stageName} onChange={(e:any)=>updateItem(e, "stageName")}/>
+                                    </div>
+                                    <div>
+                                    <p className="text-danger" id={`validationMsgfor_"name"`} hidden={!isNameNull}>Name is required</p>
                                     </div>
                                 </div>
                             </div>
@@ -99,11 +74,14 @@ export const StageItem = (props: params) => {
                                 <div className="editstage-fieldname">Probability <div className="editstage-infoicon"><FontAwesomeIcon icon={faInfoCircle} /></div></div>
                                 <div className="editstage-fieldinput">
                                     <div className="editstage-inputbox">
-                                        <input className="form-control" min="0" type="number" defaultValue={selectedItem?.probability} />
+                                        <input className="form-control" min="0" type="number" placeholder='Probability' value={selectedItem?.probability} onChange={(e:any)=>updateItem(e, "probability")}/>
+                                    </div>
+                                    <div>
+                                    <p className="text-danger" id={`validationMsgfor_"name"`} hidden={!isProbabilityNull}>Probability is required</p>
                                     </div>
                                 </div>
                             </div>
-                            <div className="editstage-field">
+                            {/* <div className="editstage-field">
                                 <div className="editstage-fieldcheck">
                                     <div className="editstage-fieldname editstage-checkbox">
                                         <label className="checktogglebox"><input type="checkbox" /><div className="checktoggle"></div></label>
@@ -114,13 +92,13 @@ export const StageItem = (props: params) => {
                                         <input className="form-control" min="0" type="number" defaultValue="0" />
                                     </div>
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
                         <div className="editstage-delete">
                             <div className="editstage-deleteinn">
                                 <button className="editstage-deletebtn" onClick={(e:any)=>props.onDeleteClick()}><FontAwesomeIcon icon={faTrash} /> <span>Delete Stage</span></button>
                             </div>
-                            <button className="addnewstag-btn"><i className="rs-icon rs-icon-plus"></i><span>New stage</span></button>
+                            <button className="addnewstag-btn" onClick={(e:any)=>props.onAddClick()}><i className="rs-icon rs-icon-plus"></i><span>New stage</span></button>
                         </div>
                     </div>
 

@@ -75,38 +75,39 @@ export const Deals = (props: params) => {
 
     const loadStages=(selectedPipeLineId:number)=>{
         setIsLoading(true);
-        stagesSvc.getStages(selectedPipeLineId).then(items => {
-            setStages(items.stageDtos);
-            setIsLoading(false);
+        if(selectedPipeLineId>0) stagesSvc.getStages(selectedPipeLineId).then(items => {
             
+            setStages(Util.sortList(items.stageDtos, "stageOrder"));
+            setIsLoading(false);
+        }).catch(err=>{
+            setError(err);
         });
     }
 
     useEffect(() => {
-        if (selectedItem?.pipelineID != pipeLineId && (selectedItem?.pipelineID as any)>0) {
-            loadStages(selectedItem?.pipelineID as any);
-        }
+        LocalStorageUtil.setItemObject(Constants.PIPE_LINE, selectedItem);
+        loadStages(selectedItem?.pipelineID as any);
     }, [selectedItem])
 
     const onDragEnd = (result: any) => {
+        
         const source = result.source;
         const destination = result.destination;
-        if (source.droppableId === destination.droppableId) { return; }
-        else {
-            setIsLoading(true);
-            dealsSvc.putItemBySubURL({
-                "newStageId": +destination.droppableId,
-                "modifiedById": userProfile.userId,
-                "dealId": +source.index
-            }, +source.index + "/stage").then(res => {
-                loadPipeLines();
-            });
-
+        if(source && destination){
+            if (source.droppableId === destination.droppableId) { return; }
+            else {
+                dealsSvc.putItemBySubURL({
+                    "newStageId": +destination.droppableId,
+                    "modifiedById": userProfile.userId,
+                    "dealId": +source.index
+                }, +source.index + "/stage").then(res => {
+                    loadPipeLines();
+                }).catch(err=>{
+                    setError(err);
+                })
+    
+            }
         }
-
-
-
-
     };
 
     return (

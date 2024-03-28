@@ -1,14 +1,12 @@
 import { Title } from "@material-ui/icons";
-import React, { useState } from "react";
+import styled from '@xstyled/styled-components';
+import { useState } from "react";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import { Deal } from "../../../models/deal";
-import { Stage } from "../../../models/stage";
+import { PipeLine } from "../../../models/pipeline";
+import { grid } from "../dnd/styles/constants";
 import { DealAddEditDialog } from "./dealAddEditDialog";
 import { DealItem } from "./dealItem";
-import styled from '@xstyled/styled-components';
-import { grid } from "../dnd/styles/constants";
-import Util from "../../../others/util";
-import { PipeLine } from "../../../models/pipeline";
 
 type paramsForQuote = {
     deals: Array<Deal>;

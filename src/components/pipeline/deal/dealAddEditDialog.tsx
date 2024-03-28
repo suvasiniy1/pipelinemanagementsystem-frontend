@@ -13,6 +13,7 @@ import { Spinner } from "react-bootstrap";
 import { ErrorBoundary } from "react-error-boundary";
 import { DealService } from "../../../services/dealService";
 import { ToastContainer, toast } from 'react-toastify';
+import { StageService } from "../../../services/stageService";
 
 type params = {
     dialogIsOpen: boolean;
@@ -25,8 +26,9 @@ export const DealAddEditDialog = (props: params) => {
     const { dialogIsOpen, setDialogIsOpen, onSaveChanges, index, pipeLinesList, ...others } = props;
     const [stages, setStages] = useState<Array<Stage>>([]);
     const [selectedItem, setSelectedItem] = useState({ ...new Deal()});
-    const [isLoading, setIsLoading]=useState(true);
+    const [isLoading, setIsLoading]=useState(false);
     const dealsSvc = new DealService(ErrorBoundary);
+    const stagesSvc = new StageService(ErrorBoundary);
 
     const controlsList1 = [
         { "key": "Contact Person", "value": "personName", "isRequired": true, "isControlInNewLine": true, "dependentChildren": null },
@@ -54,24 +56,33 @@ export const DealAddEditDialog = (props: params) => {
 
     const formOptions = { resolver: yupResolver(validationsSchema.concat(validationsSchema2)) };
     const methods = useForm(formOptions);
-    const { handleSubmit } = methods;
+    const { handleSubmit} = methods;
 
     const oncloseDialog = () => {
         setDialogIsOpen(false);
     }
 
-    useEffect(()=>{
-        let defaultPipeLine = pipeLinesList[0].pipelineID;
-        let stages = pipeLinesList.find(p=>p.pipelineID==defaultPipeLine)?.stages as any;
-        setSelectedItem({...selectedItem, "pipelineID":defaultPipeLine, "stageID":stages[0]?.stageID});
-        setStages(stages as any);
-        setIsLoading(false);
-    },[])
+    useEffect(() => {
+        let defaultPipeLine = pipeLinesList[0]?.pipelineID;
+        setSelectedItem({...selectedItem, "pipelineID":+defaultPipeLine});
+        loadStages(defaultPipeLine);
+    }, [])
+
+    const loadStages=(selectedPipeLineId:number)=>{
+        setIsLoading(true);
+        if(selectedPipeLineId>0) stagesSvc.getStages(selectedPipeLineId).then(items => {
+            setStages(items.stageDtos);
+            setSelectedItem({...selectedItem, "pipelineID":+selectedPipeLineId, "stageID":items.stageDtos[0]?.stageID});
+            setIsLoading(false);
+        }).catch(err=>{
+        });
+    }
 
     const onChange = (value: any, item: any) => {
         if (item.key==="Pipeline") {
             setSelectedItem({...selectedItem, "pipelineID":+value});
-            setStages(pipeLinesList.find(p=>p.pipelineID==+value)?.stages as any);
+            setStages([])
+            loadStages(+value);
         }
     }
 
@@ -112,56 +123,61 @@ export const DealAddEditDialog = (props: params) => {
     }
     return (
         <>
-            {isLoading ? <Spinner /> :
-                <FormProvider {...methods}>
-                    <AddEditDialog dialogIsOpen={dialogIsOpen}
-                        header={"Add Deal"}
-                        closeDialog={oncloseDialog}
-                        onClose={oncloseDialog}
-                        onSave={handleSubmit(onSubmit)}>
-                        {
-                            <>
-                                <div className='modelformfiledrow row'>
-                                    <div className='modelformleft col-6 pt-3 pb-3'>
-                                        <div className='modelformbox ps-2 pe-2'>
-                                            <GenerateElements
-                                                controlsList={controlsList1}
-                                                selectedItem={selectedItem}
-                                                onChange={(value: any, item: any) => onChange(value, item)}
-                                                getListofItemsForDropdown={(e: any) => getPipeLines()}
-                                            />
+            {
+                selectedItem.pipelineID ?
+                    <FormProvider {...methods}>
+                        <AddEditDialog dialogIsOpen={dialogIsOpen}
+                            header={"Add Deal"}
+                            closeDialog={oncloseDialog}
+                            onClose={oncloseDialog}
+                            onSave={handleSubmit(onSubmit)}
+                            disabled={isLoading}>
+                            {
+                                <>
+                                    {isLoading && <div className="alignCenter"><Spinner /></div>}
+                                    <div className='modelformfiledrow row'>
+                                        <div className='modelformleft col-6 pt-3 pb-3'>
+                                            <div className='modelformbox ps-2 pe-2'>
+                                                <GenerateElements
+                                                    controlsList={controlsList1}
+                                                    selectedItem={selectedItem}
+                                                    onChange={(value: any, item: any) => onChange(value, item)}
+                                                    getListofItemsForDropdown={(e: any) => getPipeLines()}
+                                                />
 
-                                            <div className="form-group row pt-2">
-                                                <label htmlFor="name" id={`labelFor`} className={`col-sm-6`}>Pipeline Stage:</label>
-                                                <div className="col-sm-6 pipelinestage-selector pipelinestage-active">
-                                                    {
-                                                        stages.map((sItem, sIndex) => (
-                                                            <label className="pipelinestage pipelinestage-current" aria-label={sItem.stageName} title={sItem.stageName} onClick={(e:any)=>setSelectedItem({...selectedItem, "stageID":sItem.stageID})}></label>
-                                                        ))
-                                                    }
+                                                <div className="form-group row pt-2">
+                                                    <label htmlFor="name" id={`labelFor`} className={`col-sm-6`}>Pipeline Stage:</label>
+                                                    <div className="col-sm-6 pipelinestage-selector pipelinestage-active" aria-disabled={isLoading}>
+                                                        {
+                                                            stages.map((sItem, sIndex) => (
+                                                                <label className="pipelinestage pipelinestage-current" aria-label={sItem.stageName} title={sItem.stageName} onClick={(e: any) => setSelectedItem({ ...selectedItem, "stageID": sItem.stageID })}></label>
+                                                            ))
+                                                        }
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div className='modelformright col-6 pt-3 pb-3'>
-                                        <div className='modelformbox ps-2 pe-2'>
-                                            <div className='personname'>Person</div>
-                                            <GenerateElements
-                                                controlsList={controlsList2}
-                                                selectedItem={selectedItem}
-                                                onChange={(value: any, item: any) => onChange(value, item)}
-                                                getListofItemsForDropdown={(e: any) => getPipeLines()}
-                                            />
+                                        <div className='modelformright col-6 pt-3 pb-3'>
+                                            <div className='modelformbox ps-2 pe-2'>
+                                                <div className='personname'>Person</div>
+                                                <GenerateElements
+                                                    controlsList={controlsList2}
+                                                    selectedItem={selectedItem}
+                                                    onChange={(value: any, item: any) => onChange(value, item)}
+                                                    getListofItemsForDropdown={(e: any) => getPipeLines()}
+                                                />
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </>
+
+                                </>
 
 
 
-                        }
-                    </AddEditDialog>
-                </FormProvider>
+                            }
+                        </AddEditDialog>
+                    </FormProvider>
+                    : null
             }
         </>
     )

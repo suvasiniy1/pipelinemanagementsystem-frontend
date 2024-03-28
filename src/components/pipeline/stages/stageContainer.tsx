@@ -9,13 +9,14 @@ import { StageItem } from "./stageItem";
 type params = {
     title: any,
     index: any,
-    selectedItem: Stage
+    selectedItem: Stage;
+    setSelectedItem:any;
     onDeleteClick: any;
-    onAddClick:any
+    onAddClick:any;
 }
 export const StageContainer = (props: params) => {
     
-    const { title, index, selectedItem, onDeleteClick, ...others } = props;
+    const { title, index, selectedItem, setSelectedItem, onDeleteClick, ...others } = props;
     const [opacity, setOpacity] = useState();
 
     const deleteStage = (index: number) => {
@@ -27,11 +28,10 @@ export const StageContainer = (props: params) => {
             <Draggable draggableId={""+index} index={index}>
                 {(provided, snapshot) => (
                     <div className="editstage-col"
-                        ref={provided.innerRef} {...provided.draggableProps}
-                        onMouseEnter={(e: any) => { setOpacity('inherit' as any) }}
-                        onMouseLeave={(e: any) => { setOpacity(0.5 as any) }}>
+                        ref={provided.innerRef} {...provided.draggableProps}>
 
-                        <StageItem  selectedItem={selectedItem}  
+                        <StageItem  selectedItem={selectedItem} 
+                                    setSelectedItem={setSelectedItem} 
                                     provided={provided}
                                     onAddClick={(e:any)=>props.onAddClick(e==="left" ? index-1 : index+1)}
                                     onDeleteClick={(e:any)=>props.onDeleteClick(selectedItem.stageID)}

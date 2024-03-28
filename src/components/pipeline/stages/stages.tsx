@@ -21,6 +21,7 @@ import { AddNewStage } from "./addNewStage";
 import { StageActions } from "./stageActions";
 import { StageContainer } from "./stageContainer";
 import { UserProfile } from "../../../models/userProfile";
+import Util from "../../../others/util";
 
 type params = {
     isCombineEnabled?: any,
@@ -59,10 +60,9 @@ export const Stages = (props: params) => {
         
         setIsLoading(true);
         if (pipeLineId) {
-            let pipeLinesList: Array<PipeLine> = JSON.parse(LocalStorageUtil.getItem(Constants.PIPE_LINES) as any);
-            let pipeLineItem = pipeLinesList.find(i => i.pipelineID == +pipeLineId) as any;
-            setStages(pipeLineItem?.stages as Array<Stage>);
-            setOriginalStages([...pipeLineItem?.stages as Array<Stage>]);
+            
+            loadStages(pipeLineId);
+            let pipeLineItem = LocalStorageUtil.getItemObject(Constants.PIPE_LINE) as any;
             setSelectedItem(pipeLineItem);
         }
         else {
@@ -94,15 +94,25 @@ export const Stages = (props: params) => {
         setCanSave(JSON.stringify(originalsStages) != JSON.stringify(stages) || originalsStages?.length != stages?.length || selectedItem?.pipelineID == 0)
     }, [stages])
 
+    const loadStages=(selectedPipeLineId:number)=>{
+        setIsLoading(true);
+        if(selectedPipeLineId>0) stagesSvc.getStages(selectedPipeLineId).then(items => {
+            let stagesList = Util.sortList(items.stageDtos, "stageOrder");
+            setStages(stagesList);
+            setOriginalStages(stagesList);
+            setIsLoading(false);
+        }).catch(err=>{
+        });
+    }
+
     const createNewStageObject = () => {
         let obj = new Stage();
-        obj.stageOrder = (selectedItem?.stages as Array<Stage>)?.length + 1;
-        obj.stageName = "New Stage" + (selectedItem?.stages as Array<Stage>)?.length + 1;
+        obj.stageOrder = stages?.length + 1;
         return obj;
     }
 
     const onDragEnd = (result: any) => {
-
+        
         if (result.combine) {
             if (result.type === "COLUMN") {
                 const shallow = [...ordered];
@@ -158,12 +168,10 @@ export const Stages = (props: params) => {
         // setStages(data as any);
     };
 
-    const addNewStage = (index?: number) => {
+    const addNewStage = (index: number) => {
 
         let stagesList = stages;
-        if (index) stagesList.splice(index == -1 ? 0 : index, 0, createNewStageObject());
-        else stagesList.push(createNewStageObject());
-
+        stagesList.splice(index, 0, createNewStageObject());
         setStages([...stagesList]);
     }
 
@@ -184,7 +192,7 @@ export const Stages = (props: params) => {
     }
 
     const saveStages = () => {
-        
+         if(stages.find(s=>!s.stageName)) return;
         if (selectedItem?.pipelineID == 0) {
             pipeLineSvc.postItemBySubURL(selectedItem, 'SavePipelineDetails').then(res => {
                 if (res) {
@@ -242,6 +250,14 @@ export const Stages = (props: params) => {
         })
     }
 
+    const updateStageItem=(item:Stage, index:number)=>{
+        
+        let stagesList = [...stages];
+        stagesList[index] = item;
+        setStages(stagesList);
+
+    }
+
     return (
         <>
             <Spinner hidden={!isLoading} className="spinner" />
@@ -275,7 +291,7 @@ export const Stages = (props: params) => {
                                     <Droppable
                                         droppableId="board"
                                         type="COLUMN"
-                                        direction="horizontal"
+                                        direction="vertical"
                                     >
                                         {(provided) => (
                                             <>
@@ -286,6 +302,7 @@ export const Stages = (props: params) => {
                                                             index={index}
                                                             title={item?.stageName}
                                                             selectedItem={item}
+                                                            setSelectedItem={(e:any)=>updateStageItem(e, index)}
                                                             onAddClick={(e: any) => addNewStage(e)}
                                                             onDeleteClick={(index: number) => { setShowDeleteDialog(true); setSelectedItemIndex(index) }}
                                                         />
