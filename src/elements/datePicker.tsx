@@ -18,7 +18,7 @@ export const DATEPICKER = (props: params) => {
             placeholderText="MM/DD/YYYY"
             showIcon
             selected={selectedItem[item.value]}
-            className="form-control displayFlex"
+            className="form-control"
             onChange={(date) => onChange(date as any)}
         />
     );

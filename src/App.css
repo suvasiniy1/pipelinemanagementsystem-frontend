@@ -645,6 +645,6 @@ button.fields-editbtn{visibility: hidden; line-height: 1.2; background-color: #f
   .pdstage-col{min-width: 200px;}
 }
 
-.displayFlex{
-  display: flex
+.react-datepicker-wrapper{
+  display: flex !important
 }
