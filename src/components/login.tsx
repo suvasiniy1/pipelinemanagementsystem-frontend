@@ -8,7 +8,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import * as Yup from 'yup';
 import GenerateElements from "../common/generateElements";
-import { IControl } from "../models/iControl";
+import { ElementType, IControl } from "../models/iControl";
 import LocalStorageUtil from '../others/LocalStorageUtil';
 import Constants from '../others/constants';
 import Util from "../others/util";
@@ -48,7 +48,7 @@ const Login = () => {
 
   const [controlsList, setControlsList] = useState<Array<IControl>>([
     { "key": "User Name", "value": "userName", "isRequired": true, "tabIndex": 1, "isFocus": true, "placeHolder": "User Name", "isControlInNewLine": true, "elementSize": 12 },
-    { "key": "Password", "value": "passwordHash", "disabled": true, "tabIndex": 2, "placeHolder": "Password", "isControlInNewLine": true, "elementSize": 12 },
+    { "key": "Password", "value": "passwordHash", "disabled": false, "tabIndex": 2, "placeHolder": "Password", "isControlInNewLine": true, "elementSize": 12, "type":ElementType.password, "showEyeIcon":false },
   ]);
 
   const validationsSchema = Yup.object().shape({
@@ -112,7 +112,6 @@ const Login = () => {
   }
 
   const onChange = (value: any, item: any) => {
-
     let obj = { ...selectedItem };
     if (item.value == "userName") obj.userName = value;
     if (item.value == "passwordHash") obj.passwordHash = value;
@@ -120,9 +119,7 @@ const Login = () => {
     setSelectedItem(obj);
     setDisablePassword(Util.isNullOrUndefinedOrEmpty(obj.userName));
     let cntrlList = [...controlsList];
-    cntrlList[1].disabled = Util.isNullOrUndefinedOrEmpty(obj.userName);
     cntrlList[1].isRequired = obj.userName !== "developer";
-    cntrlList[1].isFocus = !Util.isNullOrUndefinedOrEmpty(obj.userName);
     setControlsList([...cntrlList]);
   }
 
@@ -162,9 +159,9 @@ const Login = () => {
             </div>
             {
               <GenerateElements controlsList={controlsList}
-                selectedItem={selectedItem}
-                disable={loading}
-                onChange={(value: any, item: any) => onChange(value, item)}
+                                selectedItem={selectedItem}
+                                disable={loading}
+                                onChange={(value: any, item: any) => onChange(value, item)}
               />
             }
             <Form.Group className="mb-2" controlId="checkbox">

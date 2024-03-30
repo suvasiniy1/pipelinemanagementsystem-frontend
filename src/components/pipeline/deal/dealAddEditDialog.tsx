@@ -14,49 +14,75 @@ import { ErrorBoundary } from "react-error-boundary";
 import { DealService } from "../../../services/dealService";
 import { ToastContainer, toast } from 'react-toastify';
 import { StageService } from "../../../services/stageService";
+import LocalStorageUtil from "../../../others/LocalStorageUtil";
+import Constants from "../../../others/constants";
+import { Utility } from "../../../models/utility";
 
 type params = {
     dialogIsOpen: boolean;
     setDialogIsOpen: any;
     onSaveChanges: any;
     index?: number;
-    pipeLinesList:Array<PipeLine>
+    pipeLinesList: Array<PipeLine>
 }
 export const DealAddEditDialog = (props: params) => {
     const { dialogIsOpen, setDialogIsOpen, onSaveChanges, index, pipeLinesList, ...others } = props;
     const [stages, setStages] = useState<Array<Stage>>([]);
-    const [selectedItem, setSelectedItem] = useState({ ...new Deal()});
-    const [isLoading, setIsLoading]=useState(false);
+    const [selectedItem, setSelectedItem] = useState({ ...new Deal() });
+    const [isLoading, setIsLoading] = useState(false);
     const dealsSvc = new DealService(ErrorBoundary);
     const stagesSvc = new StageService(ErrorBoundary);
+    const utility: Utility = JSON.parse(LocalStorageUtil.getItemObject(Constants.UTILITY) as any);
+    const [persons, setPersons] = useState(utility?.persons ?? []);
 
-    const controlsList1 = [
-        { "key": "Contact Person", "value": "personName", "isRequired": true, "isControlInNewLine": true, "dependentChildren": null },
-        { "key": "Organization", "value": "organization", "isRequired": true, "isControlInNewLine": true, "dependentChildren": null },
-        { "key": "Title", "value": "title", "isRequired": true, "isControlInNewLine": true, "dependentChildren": null },
-        { "key": "Value", "value": "value", "isRequired": true, "isControlInNewLine": true, "dependentChildren": "Currency Type" },
-        { "key": "Currency Type", "value": "currencyType", "type": ElementType.dropdown, "isRequired": false, "isControlInNewLine": true, "isDependentChildren": true, "customAction": CustomActionPosition.Right, "actionName": "Add products" },
-        { "key": "Pipeline", "value": "pipelineID", "type": ElementType.dropdown, "isRequired": true, "isControlInNewLine": true, "dependentChildren": null }
+    const controlsList1: Array<IControl> = [
+        { key: "Deal Name", value: "title", sidebyItem: "Company", isRequired: true },
+        { key: "Company", value: "organizationID", type: ElementType.dropdown, isSideByItem: true, isRequired: true },
     ];
 
-    const controlsList2 = [
-        { "key": "Phone", "value": "phoneNumber", "isRequired": false, "isControlInNewLine": true, "dependentChildren": "Phone Type", "customAction": CustomActionPosition.Left, "actionName": "+ Add phone" },
-        { "key": "Phone Type", "value": "phoneType", "type": ElementType.dropdown, "isRequired": false, "isControlInNewLine": true, "isDependentChildren": true },
-        { "key": "Email", "value": "email", "isRequired": false, "isControlInNewLine": true, "dependentChildren": "Email Type", "customAction": CustomActionPosition.Left, "actionName": "+ Add email" },
-        { "key": "Email Type", "value": "emailType", "type": ElementType.dropdown, "isRequired": false, "isControlInNewLine": true, "isDependentChildren": true },
+    const controlsList2: Array<IControl> = [
+        { key: "Category", value: "category", sidebyItem: "Probability Of Winning", isRequired: true },
+        { key: "Probability Of Winning", value: "probability", isSideByItem: true, isRequired: true },
+        { key: "Forecast Close Date", value: "operationDate", sidebyItem: "Actual Close Date", type:ElementType.datepicker },
+        { key: "Actual Close Date", value: "expectedCloseDate", isSideByItem: true, type:ElementType.datepicker },
+        { key: "User Responsible", value: "contactPersonID", sidebyItem: "Deal Value" },
+        { key: "Deal Value", value: "contactPersonID", isRequired: false, isSideByItem: true }
     ];
 
-    const validationsSchema = Yup.object().shape({
-        ...Util.buildValidations(controlsList1)
-    });
+    const controlsList3: Array<IControl> = [
+        { key: "Description", value: "description", isControlInNewLine:true, elementSize:12, type: ElementType.textarea, isRequired: false },
+    ]
 
-    const validationsSchema2 = Yup.object().shape({
-        ...Util.buildValidations(controlsList2)
-    });
+    const controlsList4: Array<IControl> = [
+        { key: "Tag List", value: "tags", isControlInNewLine:true, elementSize:12,type: ElementType.dropdown, isRequired: false },
+    ]
 
-    const formOptions = { resolver: yupResolver(validationsSchema.concat(validationsSchema2)) };
+    const controlsList5: Array<IControl> = [
+        { key: "Pipeline", value: "pipelineID", type: ElementType.dropdown, sidebyItem: "Stage" },
+        { key: "Stage", value: "stageID", type: ElementType.custom, isSideByItem: true },
+    ]
+
+    const controlsList = [controlsList1, controlsList2, controlsList3, controlsList4, controlsList5];
+
+    
+
+    const getValidationsSchema = (list: Array<any>) => {
+        return Yup.object().shape({
+            ...Util.buildValidations(list)
+        });
+    }
+
+    const formOptions = {
+        resolver: yupResolver(getValidationsSchema(controlsList[0])
+            .concat(getValidationsSchema(controlsList[1]))
+            .concat(getValidationsSchema(controlsList[2]))
+            .concat(getValidationsSchema(controlsList[3]))
+            .concat(getValidationsSchema(controlsList[4]))
+        )
+    };
+
     const methods = useForm(formOptions);
-    const { handleSubmit} = methods;
+    const { handleSubmit } = methods;
 
     const oncloseDialog = () => {
         setDialogIsOpen(false);
@@ -64,39 +90,57 @@ export const DealAddEditDialog = (props: params) => {
 
     useEffect(() => {
         let defaultPipeLine = pipeLinesList[0]?.pipelineID;
-        setSelectedItem({...selectedItem, "pipelineID":+defaultPipeLine});
+        setSelectedItem({ ...selectedItem, "pipelineID": +defaultPipeLine });
         loadStages(defaultPipeLine);
     }, [])
 
-    const loadStages=(selectedPipeLineId:number)=>{
+    const loadStages = (selectedPipeLineId: number) => {
         setIsLoading(true);
-        if(selectedPipeLineId>0) stagesSvc.getStages(selectedPipeLineId).then(items => {
+        if (selectedPipeLineId > 0) stagesSvc.getStages(selectedPipeLineId).then(items => {
             setStages(items.stageDtos);
-            setSelectedItem({...selectedItem, "pipelineID":+selectedPipeLineId, "stageID":items.stageDtos[0]?.stageID});
+            setSelectedItem({ ...selectedItem, "pipelineID": +selectedPipeLineId, "stageID": items.stageDtos[0]?.stageID });
             setIsLoading(false);
-        }).catch(err=>{
+        }).catch(err => {
         });
     }
 
     const onChange = (value: any, item: any) => {
-        if (item.key==="Pipeline") {
-            setSelectedItem({...selectedItem, "pipelineID":+value});
+        if (item.key === "Pipeline") {
+            setSelectedItem({ ...selectedItem, "pipelineID": +value });
             setStages([])
             loadStages(+value);
+        }
+        if(item.key ==="Forecast Close Date"){
+            setSelectedItem({...selectedItem, operationDate:value})
+        }
+        if(item.key ==="Actual Close Date"){
+            setSelectedItem({...selectedItem, expectedCloseDate:value})
         }
     }
 
     const getPipeLines = () => {
         let list: Array<any> = [];
         pipeLinesList.forEach(s => {
-            let obj = { "name": s.pipelineName, "value": s.pipelineID };
+            let obj = { "name": s.pipelineName, value: s.pipelineID };
             list.push(obj);
         });
         return list;
     }
 
+    const getJsxForStage = () => {
+        return (
+            <div className="col-sm-6 pipelinestage-selector pipelinestage-active" aria-disabled={isLoading}>
+                {
+                    stages.map((sItem, sIndex) => (
+                        <label className="pipelinestage pipelinestage-current" aria-label={sItem.stageName} title={sItem.stageName} onClick={(e: any) => setSelectedItem({ ...selectedItem, "stageID": sItem.stageID })}></label>
+                    ))
+                }
+            </div>
+        )
+    }
+
     const onSubmit = (item: any) => {
-        
+
         let addUpdateItem: Deal = new Deal();
         addUpdateItem.createdBy = Util.UserProfile()?.user;
         addUpdateItem.modifiedBy = Util.UserProfile()?.userId;
@@ -104,23 +148,28 @@ export const DealAddEditDialog = (props: params) => {
         Util.toClassObject(addUpdateItem, item);
         addUpdateItem.pipelineID = +selectedItem.pipelineID;
         addUpdateItem.stageID = selectedItem.stageID;
-        console.log("addUpdateItem" + {...addUpdateItem});
+        console.log("addUpdateItem" + { ...addUpdateItem });
 
-       dealsSvc.postItemBySubURL(addUpdateItem, "saveDealDetails").then(res=>{
-        if(res.dealID>0){
-            toast.success("Deal added successfully");
-            setTimeout(() => {
-                setDialogIsOpen(false);
-                props.onSaveChanges();
-            }, 500);
-        }
-        else{
-            toast.error("Unable to add Deal");
-        }
+        // dealsSvc.postItemBySubURL(addUpdateItem, "saveDealDetails").then(res => {
+        //     if (res.dealID > 0) {
+        //         toast.success("Deal added successfully");
+        //         setTimeout(() => {
+        //             setDialogIsOpen(false);
+        //             props.onSaveChanges();
+        //         }, 500);
+        //     }
+        //     else {
+        //         toast.error("Unable to add Deal");
+        //     }
 
-       })
+        // })
 
     }
+
+    const getCustomElement=(item:IControl)=>{
+        if(item.key==="Stage") return getJsxForStage();
+    }
+
     return (
         <>
             {
@@ -136,43 +185,25 @@ export const DealAddEditDialog = (props: params) => {
                                 <>
                                     {isLoading && <div className="alignCenter"><Spinner /></div>}
                                     <div className='modelformfiledrow row'>
-                                        <div className='modelformleft col-6 pt-3 pb-3'>
+                                        <div>
                                             <div className='modelformbox ps-2 pe-2'>
-                                                <GenerateElements
-                                                    controlsList={controlsList1}
-                                                    selectedItem={selectedItem}
-                                                    onChange={(value: any, item: any) => onChange(value, item)}
-                                                    getListofItemsForDropdown={(e: any) => getPipeLines()}
-                                                />
-
-                                                <div className="form-group row pt-2">
-                                                    <label htmlFor="name" id={`labelFor`} className={`col-sm-6`}>Pipeline Stage:</label>
-                                                    <div className="col-sm-6 pipelinestage-selector pipelinestage-active" aria-disabled={isLoading}>
-                                                        {
-                                                            stages.map((sItem, sIndex) => (
-                                                                <label className="pipelinestage pipelinestage-current" aria-label={sItem.stageName} title={sItem.stageName} onClick={(e: any) => setSelectedItem({ ...selectedItem, "stageID": sItem.stageID })}></label>
-                                                            ))
-                                                        }
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className='modelformright col-6 pt-3 pb-3'>
-                                            <div className='modelformbox ps-2 pe-2'>
-                                                <div className='personname'>Person</div>
-                                                <GenerateElements
-                                                    controlsList={controlsList2}
-                                                    selectedItem={selectedItem}
-                                                    onChange={(value: any, item: any) => onChange(value, item)}
-                                                    getListofItemsForDropdown={(e: any) => getPipeLines()}
-                                                />
+                                                {
+                                                    controlsList.map((c, cIndex) => (
+                                                        <GenerateElements
+                                                            controlsList={c}
+                                                            selectedItem={selectedItem}
+                                                            onChange={(value: any, item: any) => onChange(value, item)}
+                                                            getListofItemsForDropdown={(e: any) => getPipeLines()}
+                                                            getCustomElement={(item:IControl)=>getCustomElement(item)}
+                                                        />
+                                                    ))
+                                                }
+                                                                                                        <br/>
                                             </div>
                                         </div>
                                     </div>
 
                                 </>
-
-
 
                             }
                         </AddEditDialog>

@@ -3,7 +3,7 @@ export interface IControl {
     value: string;
     type?: ElementType;
     itemType?: string;
-    isRequired?: boolean;
+    isRequired?: boolean | true;
     hidden?: boolean | false;
     disabled?: boolean | false;
     placeHolder?: string;
@@ -16,7 +16,7 @@ export interface IControl {
     errMsg3?: string;
     min?: number | null;
     max?: number | null;
-    isControlInNewLine?: boolean | false;
+    isControlInNewLine?: boolean | true;
     elementSize?: number;
     isFocus?: boolean;
     tabIndex?: number;
@@ -25,6 +25,9 @@ export interface IControl {
     customAction?: CustomActionPosition | 2;
     actionName?:string;
     labelSize?:number;
+    showEyeIcon?:boolean;
+    sidebyItem?:string;
+    isSideByItem?:boolean;
 }
 
 export enum CustomActionPosition {
@@ -38,5 +41,7 @@ export enum ElementType {
     "dropdown" = "dropdown",
     "slider" = "slider",
     "password" = "password",
-    "number" = "number"
+    "number" = "number",
+    "custom" = "custom",
+    "datepicker" = "datepicker"
 }

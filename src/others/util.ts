@@ -21,7 +21,7 @@ export default class Util {
 
   public static buildValidations = (controlsList: IControl[]) => {
     const validateObj = {};
-    controlsList.filter(i => !i.hidden || Util.isNullOrUndefinedOrEmpty(i.hidden)).map((field) => {
+    controlsList?.filter(i => !i.hidden || Util.isNullOrUndefinedOrEmpty(i.hidden)).map((field:any) => {
       if (field.isRequired && !field.disabled) {
         if (field.min && !field.max) {
           Object.assign(validateObj, {

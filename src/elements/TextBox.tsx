@@ -20,6 +20,8 @@ const TextBox: React.FC<props> = (props) => {
     const [ revealSecret, setRevealSecret] = useState(false);
     const {register, formState: { errors }} = useFormContext();
 
+    
+
     const generatePlaceHolder=(item:any)=>{
         let msg=item.min>0 ? "min "+item.min+" & max "+item.max+" characters" : "max "+item.max+" characters";;
         return item.min || item.max ? item.key+" "+"can be "+msg : item.key;
@@ -27,7 +29,7 @@ const TextBox: React.FC<props> = (props) => {
 
     return (
         <>
-        <input  type={item.type && !revealSecret ? item.type : item.type ?? "text"}
+        <input  type={item.type && !revealSecret ? item.type : revealSecret ? "text" : item.type ?? "text"}
                 id={item.value}
                 min={item.min}
                 max={item.max}

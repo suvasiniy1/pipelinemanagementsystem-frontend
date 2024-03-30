@@ -19,6 +19,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { UnAuthorized } from "../../../common/unauthorized";
 import Util from "../../../others/util";
 import { Spinner } from "react-bootstrap";
+import { UtilService } from "../../../services/utilService";
 
 type params = {
     isCombineEnabled?: any,
@@ -39,6 +40,7 @@ export const Deals = (props: params) => {
     const dealsSvc = new DealService(ErrorBoundary);
     const [pipeLines, setPipeLines] = useState<Array<PipeLine>>([]);
     const [stages, setStages] = useState<Array<Stage>>([]);
+    const [originalStages, setOriginalStages] = useState<Array<Stage>>([]);
     const [selectedItem, setSelectedItem] = useState<PipeLine>();
     const [isDragging, setIsDragging] = useState(false);
     const [error, setError] = useState<AxiosError>();
@@ -46,14 +48,22 @@ export const Deals = (props: params) => {
     const navigate = useNavigate();
     const [pipeLineId, setPipeLineId] = useState(new URLSearchParams(useLocation().search).get("pipelineID") as any);
     const userProfile = Util.UserProfile();
-
+    const utilSvc = new UtilService(ErrorBoundary);
+    
     // useEffect(() => {
     //     debugger
     //     if(+pipeLineId>0) loadStages(pipeLineId);
     // }, [pipeLineId])
 
     useEffect(()=>{
-        loadPipeLines()
+        loadPipeLines();
+        utilSvc.getDropdownValues().then(res=>{
+            if(res?.data?.utility){
+                LocalStorageUtil.setItemObject(Constants.UTILITY, JSON.stringify(res?.data?.utility));
+            }
+        }).catch(err=>{
+            setError(err); 
+        })
     },[])
 
 
@@ -73,11 +83,12 @@ export const Deals = (props: params) => {
         });
     }
 
-    const loadStages=(selectedPipeLineId:number)=>{
-        setIsLoading(true);
+    const loadStages=(selectedPipeLineId:number, skipLoading:boolean=false)=>{
+        if(!skipLoading) setIsLoading(true);
         if(selectedPipeLineId>0) stagesSvc.getStages(selectedPipeLineId).then(items => {
             
             setStages(Util.sortList(items.stageDtos, "stageOrder"));
+            setOriginalStages(Util.sortList(items.stageDtos, "stageOrder"));
             setIsLoading(false);
         }).catch(err=>{
             setError(err);
@@ -96,14 +107,27 @@ export const Deals = (props: params) => {
         if(source && destination){
             if (source.droppableId === destination.droppableId) { return; }
             else {
+                let stagesList = [...stages];
+                let sourceIndex = stagesList.findIndex(s=>s.stageID==+source.droppableId);
+                let destinationIndex = stagesList.findIndex(s=>s.stageID==+destination.droppableId);
+                let dItem = stagesList[sourceIndex]?.deals?.find(d=>d.dealID==+source.index);
+                let dIndex = stagesList[sourceIndex]?.deals?.findIndex(d=>d.dealID==+source.index);
+                stagesList[sourceIndex]?.deals.splice(dIndex, 1);
+                stagesList[destinationIndex].deals.push(dItem as any);
+
+                setStages([...stagesList]);
+
                 dealsSvc.putItemBySubURL({
                     "newStageId": +destination.droppableId,
                     "modifiedById": userProfile.userId,
                     "dealId": +source.index
                 }, +source.index + "/stage").then(res => {
-                    loadPipeLines();
+                    
+                toast.success("Deal updated successfully.")
+                    loadStages(selectedItem?.pipelineID as any, true);
                 }).catch(err=>{
                     setError(err);
+                    setStages([...originalStages]);
                 })
     
             }
