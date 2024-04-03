@@ -24,9 +24,10 @@ type params = {
     onSaveChanges: any;
     index?: number;
     pipeLinesList: Array<PipeLine>
+    selectedPipeLineId:number;
 }
 export const DealAddEditDialog = (props: params) => {
-    const { dialogIsOpen, setDialogIsOpen, onSaveChanges, index, pipeLinesList, ...others } = props;
+    const { dialogIsOpen, setDialogIsOpen, onSaveChanges, index, pipeLinesList, selectedPipeLineId, ...others } = props;
     const [stages, setStages] = useState<Array<Stage>>([]);
     const [selectedItem, setSelectedItem] = useState({ ...new Deal() });
     const [isLoading, setIsLoading] = useState(false);
@@ -43,10 +44,10 @@ export const DealAddEditDialog = (props: params) => {
     const controlsList2: Array<IControl> = [
         { key: "Category", value: "category", sidebyItem: "Probability Of Winning", isRequired: true },
         { key: "Probability Of Winning", value: "probability", isSideByItem: true, isRequired: true },
-        { key: "Forecast Close Date", value: "operationDate", sidebyItem: "Actual Close Date", type:ElementType.datepicker },
-        { key: "Actual Close Date", value: "expectedCloseDate", isSideByItem: true, type:ElementType.datepicker },
-        { key: "User Responsible", value: "contactPersonID", sidebyItem: "Deal Value" },
-        { key: "Deal Value", value: "contactPersonID", isRequired: false, isSideByItem: true }
+        { key: "Forecast Close Date", value: "operationDate", sidebyItem: "Actual Close Date", type:ElementType.datepicker, isRequired: true },
+        { key: "Actual Close Date", value: "expectedCloseDate", isSideByItem: true, type:ElementType.datepicker, isRequired: true },
+        { key: "User Responsible", value: "contactPersonID", sidebyItem: "Deal Value", type:ElementType.dropdown, isRequired: true },
+        { key: "Deal Value", value: "value", isRequired: true, isSideByItem: true }
     ];
 
     const controlsList3: Array<IControl> = [
@@ -58,7 +59,7 @@ export const DealAddEditDialog = (props: params) => {
     ]
 
     const controlsList5: Array<IControl> = [
-        { key: "Pipeline", value: "pipelineID", type: ElementType.dropdown, sidebyItem: "Stage" },
+        { key: "Pipeline", value: "pipelineID", type: ElementType.dropdown, sidebyItem: "Stage", disabled:true },
         { key: "Stage", value: "stageID", type: ElementType.custom, isSideByItem: true },
     ]
 
@@ -74,10 +75,10 @@ export const DealAddEditDialog = (props: params) => {
 
     const formOptions = {
         resolver: yupResolver(getValidationsSchema(controlsList[0])
-            .concat(getValidationsSchema(controlsList[1]))
-            .concat(getValidationsSchema(controlsList[2]))
-            .concat(getValidationsSchema(controlsList[3]))
-            .concat(getValidationsSchema(controlsList[4]))
+            // .concat(getValidationsSchema(controlsList[1]))
+            // .concat(getValidationsSchema(controlsList[2]))
+            // .concat(getValidationsSchema(controlsList[3]))
+            // .concat(getValidationsSchema(controlsList[4]))
         )
     };
 
@@ -89,7 +90,7 @@ export const DealAddEditDialog = (props: params) => {
     }
 
     useEffect(() => {
-        let defaultPipeLine = pipeLinesList[0]?.pipelineID;
+        let defaultPipeLine = selectedPipeLineId ?? pipeLinesList[0]?.pipelineID;
         setSelectedItem({ ...selectedItem, "pipelineID": +defaultPipeLine });
         loadStages(defaultPipeLine);
     }, [])
@@ -140,34 +141,47 @@ export const DealAddEditDialog = (props: params) => {
     }
 
     const onSubmit = (item: any) => {
-
+        
         let addUpdateItem: Deal = new Deal();
-        addUpdateItem.createdBy = Util.UserProfile()?.user;
+        addUpdateItem.createdBy = Util.UserProfile()?.userId;
         addUpdateItem.modifiedBy = Util.UserProfile()?.userId;
         addUpdateItem.createdDate = new Date();
         Util.toClassObject(addUpdateItem, item);
         addUpdateItem.pipelineID = +selectedItem.pipelineID;
         addUpdateItem.stageID = selectedItem.stageID;
         console.log("addUpdateItem" + { ...addUpdateItem });
+        
+        dealsSvc.postItemBySubURL(addUpdateItem, "saveDealDetails").then(res => {
+            if (res.dealID > 0) {
+                toast.success("Deal added successfully");
+                setTimeout(() => {
+                    setDialogIsOpen(false);
+                    props.onSaveChanges();
+                }, 500);
+            }
+            else {
+                toast.error("Unable to add Deal");
+            }
 
-        // dealsSvc.postItemBySubURL(addUpdateItem, "saveDealDetails").then(res => {
-        //     if (res.dealID > 0) {
-        //         toast.success("Deal added successfully");
-        //         setTimeout(() => {
-        //             setDialogIsOpen(false);
-        //             props.onSaveChanges();
-        //         }, 500);
-        //     }
-        //     else {
-        //         toast.error("Unable to add Deal");
-        //     }
-
-        // })
+        })
 
     }
 
     const getCustomElement=(item:IControl)=>{
         if(item.key==="Stage") return getJsxForStage();
+    }
+
+    const getDropdownvalues=(item:any)=>{
+        if(item.key ==="Pipeline"){
+            return getPipeLines() ?? [];
+        }
+        if(item.key ==="Company"){
+            
+            return utility?.organizations.map(({ name, organizationID }) => ({"name":name, "value":organizationID})) ?? [];
+        }
+        if(item.key ==="User Responsible"){
+            return utility?.persons.map(({ personName, personID }) => ({"name":personName, "value":personID})) ?? [];
+        }
     }
 
     return (
@@ -193,7 +207,7 @@ export const DealAddEditDialog = (props: params) => {
                                                             controlsList={c}
                                                             selectedItem={selectedItem}
                                                             onChange={(value: any, item: any) => onChange(value, item)}
-                                                            getListofItemsForDropdown={(e: any) => getPipeLines()}
+                                                            getListofItemsForDropdown={(e: any) => getDropdownvalues(e) as any}
                                                             getCustomElement={(item:IControl)=>getCustomElement(item)}
                                                         />
                                                     ))

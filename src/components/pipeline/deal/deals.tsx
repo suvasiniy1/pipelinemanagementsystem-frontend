@@ -46,6 +46,7 @@ export const Deals = (props: params) => {
     const [error, setError] = useState<AxiosError>();
     const [deals, setDeals]=useState<Array<Deal>>([]);
     const navigate = useNavigate();
+    
     const [pipeLineId, setPipeLineId] = useState(new URLSearchParams(useLocation().search).get("pipelineID") as any);
     const userProfile = Util.UserProfile();
     const utilSvc = new UtilService(ErrorBoundary);
@@ -56,14 +57,16 @@ export const Deals = (props: params) => {
     // }, [pipeLineId])
 
     useEffect(()=>{
-        loadPipeLines();
-        utilSvc.getDropdownValues().then(res=>{
-            if(res?.data?.utility){
-                LocalStorageUtil.setItemObject(Constants.UTILITY, JSON.stringify(res?.data?.utility));
-            }
-        }).catch(err=>{
-            setError(err); 
-        })
+        if(!pipeLineId){
+            loadPipeLines();
+            utilSvc.getDropdownValues().then(res=>{
+                if(res?.data?.utility){
+                    LocalStorageUtil.setItemObject(Constants.UTILITY, JSON.stringify(res?.data?.utility));
+                }
+            }).catch(err=>{
+                setError(err); 
+            })
+        }
     },[])
 
 
@@ -73,7 +76,7 @@ export const Deals = (props: params) => {
         
         pipeLineSvc.getPipeLines().then((res: Array<PipeLine>) => {
             setPipeLines(res);
-            let selectedPipeLineId = pipeLineId > 0 ? pipeLineId : res[0].pipelineID;
+            let selectedPipeLineId = pipeLineId > 0 ? pipeLineId : res[1].pipelineID;
             setPipeLineId(selectedPipeLineId);
             setSelectedItem(res.find(i => i.pipelineID == selectedPipeLineId));
             loadStages(selectedPipeLineId);

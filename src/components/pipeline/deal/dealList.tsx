@@ -67,6 +67,7 @@ function InnerList(props: { title?: any; deals?: Array<Deal>; dropProvided?: any
                                                     setDialogIsOpen={setDialogIsOpen}
                                                     onSaveChanges={(e: any) => props.onSaveChanges()}
                                                     index={stageID} 
+                                                    selectedPipeLineId={null as any}
                                                     pipeLinesList={pipeLinesList}/>
             }
         </div>

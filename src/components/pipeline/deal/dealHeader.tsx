@@ -131,7 +131,8 @@ export const DealHeader = (props: params) => {
                 dialogIsOpen && <DealAddEditDialog  dialogIsOpen={dialogIsOpen}
                                                     setDialogIsOpen={setDialogIsOpen}
                                                     onSaveChanges={(e: any) => props.onSaveChanges()}
-                                                    pipeLinesList={pipeLinesList} />
+                                                    pipeLinesList={pipeLinesList}
+                                                    selectedPipeLineId={selectedItem.pipelineID} />
             }
 
         </>
