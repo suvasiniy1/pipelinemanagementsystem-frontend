@@ -648,3 +648,11 @@ button.fields-editbtn{visibility: hidden; line-height: 1.2; background-color: #f
 .react-datepicker-wrapper{
   display: flex !important
 }
+.sidenavExpand{
+  width: 210px !important;
+  transition: width 900ms !important;
+}
+.sidenavCollapse{
+  width: 44px !important;
+  transition: width 900ms !important;
+}

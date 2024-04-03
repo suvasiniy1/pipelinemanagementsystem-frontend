@@ -56,18 +56,16 @@ export const Deals = (props: params) => {
     //     if(+pipeLineId>0) loadStages(pipeLineId);
     // }, [pipeLineId])
 
-    useEffect(()=>{
-        if(!pipeLineId){
-            loadPipeLines();
-            utilSvc.getDropdownValues().then(res=>{
-                if(res?.data?.utility){
-                    LocalStorageUtil.setItemObject(Constants.UTILITY, JSON.stringify(res?.data?.utility));
-                }
-            }).catch(err=>{
-                setError(err); 
-            })
-        }
-    },[])
+    useEffect(() => {
+        loadPipeLines();
+        utilSvc.getDropdownValues().then(res => {
+            if (res?.data?.utility) {
+                LocalStorageUtil.setItemObject(Constants.UTILITY, JSON.stringify(res?.data?.utility));
+            }
+        }).catch(err => {
+            setError(err);
+        })
+    }, [])
 
 
 

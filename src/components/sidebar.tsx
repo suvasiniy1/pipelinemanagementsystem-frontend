@@ -1,33 +1,43 @@
-import { faAddressCard, faBox, faBullhorn, faCalendar, faChartLine, faClipboardCheck, faDollarSign, faDownload, faEnvelope, faFileContract, faLocationCrosshairs, faRobot, faStore } from '@fortawesome/free-solid-svg-icons';
+import { faBullhorn, faClipboardCheck, faDollarSign, faEnvelope, faLocationCrosshairs } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Content, Dropdown, Nav, Sidenav } from 'rsuite';
 import 'rsuite/dist/styles/rsuite-default.css';
 import jpg from "../../src/resources/images/logo.jpg";
 import svg from "../../src/resources/images/y1.svg";
-import {AppRouter} from '../others/appRouter';
+import LocalStorageUtil from '../others/LocalStorageUtil';
+import { AppRouter } from '../others/appRouter';
+import Constants from '../others/constants';
 import { HeaderComponent } from './header/header';
 
 export const SideBar = () => {
-    const [activeKey, setActiveKey] = useState();
     const [expanded, setExpanded] = useState(false);
     const navigate = useNavigate();
 
-    const getRoutes = useMemo(() => {
-        return (
-            <AppRouter />
-        )
-    }, [activeKey])
+    const onExpandCollapseClick = (event: any) => {
+        
+        var e = document.getElementById("sideNav") as HTMLDivElement;
+        if (e && e.classList.contains("sidenavCollapse")) {
+            e.classList.remove("sidenavCollapse");
+            e.classList.add("sidenavExpand");
+            LocalStorageUtil.setItem(Constants.SIDEBAR_CLASS, "sidenavExpand");
+        }
+
+        else {
+            e.classList.add("sidenavCollapse");
+            e.classList.remove("sidenavExpand");
+            LocalStorageUtil.setItem(Constants.SIDEBAR_CLASS, "sidenavCollapse");
+        }
+
+    }
+
 
     const Drawer = () => {
         return (
             <Container className='mainlayout' style={{ display: 'flex', flexDirection: 'row'}}>
-                <Sidenav className='sidenav'
+                <Sidenav id="sideNav" className='sidenav sidenavCollapse'
                     expanded={expanded}
-                    // onMouseEnter={handleToggle}
-                    // onMouseLeave={handleToggle}
-                    style={{ width: expanded ? 65 : 210 }}
                 >
                     <Sidenav.Header className='sidenavhead'>
                         {<img className='sideopenlogo' src={jpg} />}
@@ -87,9 +97,9 @@ export const SideBar = () => {
                 </Sidenav>
 
                 <Container className='maincontent'>
-                    <HeaderComponent onExpandCollapseClick={(e:any)=>setExpanded(!expanded)}/>
+                    <HeaderComponent onExpandCollapseClick={(e:any)=>onExpandCollapseClick(e)}/>
                     <Content className='maincontentinner'>
-                            {getRoutes}
+                    <AppRouter />
                     </Content>
                 </Container>
             </Container>

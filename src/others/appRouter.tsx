@@ -8,8 +8,23 @@ import { Deals } from "../components/pipeline/deal/deals";
 import Stages from "../components/pipeline/stages/stages";
 import { DealDetails } from "../components/pipeline/deal/dealDetails";
 import { Home } from "../components/home";
+import { useEffect } from "react";
+import LocalStorageUtil from "./LocalStorageUtil";
+import Constants from "./constants";
 
 export const AppRouter = () => {
+
+    useEffect(() => {
+        var e = document.getElementById("sideNav") as HTMLDivElement;
+        if (e) {
+            let className = LocalStorageUtil.getItem(Constants.SIDEBAR_CLASS) as any;
+            e.classList.remove(getClasTobeRemoved(className))
+            e.classList.add(className);
+        }
+    }, [])
+
+    const getClasTobeRemoved = (className: string) => className === "sidenavExpand" ? "sidenavCollapse" : "sidenavExpand"
+
     return (
         <Routes>
             <Route
