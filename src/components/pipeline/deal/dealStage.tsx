@@ -15,11 +15,12 @@ type params = {
     onSaveChanges?: any;
     providedFromParent?:any;
     isDragging:any;
-    pipeLinesList:Array<PipeLine>
+    pipeLinesList:Array<PipeLine>;
+    onStageExpand:any
 }
 
 export const DealStage = (props: params) => {
-    const { title, deals, stageID, isScrollable, isCombineEnabled, useClone, providedFromParent, isDragging, pipeLinesList, ...others } = props;
+    const { onStageExpand, title, deals, stageID, isScrollable, isCombineEnabled, useClone, providedFromParent, isDragging, pipeLinesList, ...others } = props;
 
     const [showAddButton, setShowAddButton] = useState(false);
     
@@ -37,7 +38,7 @@ export const DealStage = (props: params) => {
                                     <div className="pdstagehead-title">{title}</div>
                                     <div className="pdstagehead-btns">
                                         <button className=''><i className="rs-icon rs-icon-plus"></i></button>
-                                        <button className=''><i className="rs-icon rs-icon-arrow-right"></i></button>
+                                        <button className='' onClick={(e:any)=>onStageExpand(stageID)}><i className="rs-icon rs-icon-arrow-right"></i></button>
                                     </div>
                                 </div>
                                 <div className="pdstage-summary">

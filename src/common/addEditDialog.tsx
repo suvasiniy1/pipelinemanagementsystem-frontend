@@ -53,10 +53,6 @@ export const AddEditDialog: React.FC<Props> = (props) => {
                 </Modal.Body>
                 <Modal.Footer className='modalfoot'>
                     <div className='modalfootbar' hidden={customFooter}>
-                        <div className="modelfootcountcol me-2">
-                            <div className="modelfootcount me-2">1608/10000</div>
-                            <button className="modelinfobtn"><i className="rs-icon rs-icon-info"></i></button>
-                        </div>
                         <button onClick={closeDialog} className="btn btn-secondary btn-sm me-2" id="closeDialog">Cancel</button>
                         <button type="submit" className={`btn btn-primary btn-sm save${header}`} onClick={onSave}>{customSaveChangesButtonName ? customSaveChangesButtonName : props.isNewItem ? "Create" : "Save"}</button>
                     </div>

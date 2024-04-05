@@ -1,4 +1,4 @@
-import { faBullhorn, faClipboardCheck, faDollarSign, faEnvelope, faLocationCrosshairs } from '@fortawesome/free-solid-svg-icons';
+import { faBullhorn, faClipboardCheck, faDollarSign, faEnvelope, faLocationCrosshairs, faUserGear } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +10,7 @@ import LocalStorageUtil from '../others/LocalStorageUtil';
 import { AppRouter } from '../others/appRouter';
 import Constants from '../others/constants';
 import { HeaderComponent } from './header/header';
+import HandleIdleTime from '../common/handleIdleTime';
 
 export const SideBar = () => {
     const [expanded, setExpanded] = useState(false);
@@ -35,6 +36,8 @@ export const SideBar = () => {
 
     const Drawer = () => {
         return (
+            <>
+            <HandleIdleTime/>
             <Container className='mainlayout' style={{ display: 'flex', flexDirection: 'row'}}>
                 <Sidenav id="sideNav" className='sidenav sidenavCollapse'
                     expanded={expanded}
@@ -87,9 +90,9 @@ export const SideBar = () => {
                             <Nav.Item eventKey="11" icon={<div className='nacicon'><FontAwesomeIcon icon={faDownload} /></div>}>
                                 <span className='nav-text'>Import data</span>
                             </Nav.Item> */}
-                            <Dropdown activeKey="1" title="Admin">
+                            <Dropdown activeKey="1" title=" Admin" icon={<div className='nacicon pr-3'><FontAwesomeIcon icon={faUserGear} /></div>}>
                                 <Dropdown.Item eventKey="1-1">
-                                    Users
+                                <span className='nav-text'>User</span>
                                 </Dropdown.Item>
                             </Dropdown>
                         </Nav>
@@ -103,6 +106,7 @@ export const SideBar = () => {
                     </Content>
                 </Container>
             </Container>
+            </>
         );
     };
 

@@ -20,6 +20,8 @@ import { UnAuthorized } from "../../../common/unauthorized";
 import Util from "../../../others/util";
 import { Spinner } from "react-bootstrap";
 import { UtilService } from "../../../services/utilService";
+import dealsByStage from "./dealsByStage";
+import DealsByStage from "./dealsByStage";
 
 type params = {
     isCombineEnabled?: any,
@@ -44,13 +46,15 @@ export const Deals = (props: params) => {
     const [selectedItem, setSelectedItem] = useState<PipeLine>();
     const [isDragging, setIsDragging] = useState(false);
     const [error, setError] = useState<AxiosError>();
-    const [deals, setDeals]=useState<Array<Deal>>([]);
+    const [deals, setDeals] = useState<Array<Deal>>([]);
+    const [dialogIsOpen, setDialogIsOpen] = useState(false);
+    const [selectedStageId, setSelectedStageId] = useState(null);
     const navigate = useNavigate();
-    
+
     const [pipeLineId, setPipeLineId] = useState(new URLSearchParams(useLocation().search).get("pipelineID") as any);
     const userProfile = Util.UserProfile();
     const utilSvc = new UtilService(ErrorBoundary);
-    
+
     // useEffect(() => {
     //     debugger
     //     if(+pipeLineId>0) loadStages(pipeLineId);
@@ -71,10 +75,10 @@ export const Deals = (props: params) => {
 
     const loadPipeLines = () => {
         setIsLoading(true);
-        
+
         pipeLineSvc.getPipeLines().then((res: Array<PipeLine>) => {
             setPipeLines(res);
-            let selectedPipeLineId = pipeLineId > 0 ? pipeLineId : res[1].pipelineID;
+            let selectedPipeLineId = pipeLineId > 0 ? pipeLineId : res[0].pipelineID;
             setPipeLineId(selectedPipeLineId);
             setSelectedItem(res.find(i => i.pipelineID == selectedPipeLineId));
             loadStages(selectedPipeLineId);
@@ -84,14 +88,14 @@ export const Deals = (props: params) => {
         });
     }
 
-    const loadStages=(selectedPipeLineId:number, skipLoading:boolean=false)=>{
-        if(!skipLoading) setIsLoading(true);
-        if(selectedPipeLineId>0) stagesSvc.getStages(selectedPipeLineId).then(items => {
-            
-            setStages(Util.sortList(items.stageDtos, "stageOrder"));
-            setOriginalStages(Util.sortList(items.stageDtos, "stageOrder"));
+    const loadStages = (selectedPipeLineId: number, skipLoading: boolean = false) => {
+        if (!skipLoading) setIsLoading(true);
+        if (selectedPipeLineId > 0) stagesSvc.getStages(selectedPipeLineId).then(items => {
+            let sortedStages = Util.sortList(items.stageDtos, "stageOrder");
+            setStages(sortedStages);
+            setOriginalStages(sortedStages);
             setIsLoading(false);
-        }).catch(err=>{
+        }).catch(err => {
             setError(err);
         });
     }
@@ -102,17 +106,17 @@ export const Deals = (props: params) => {
     }, [selectedItem])
 
     const onDragEnd = (result: any) => {
-        
+
         const source = result.source;
         const destination = result.destination;
-        if(source && destination){
+        if (source && destination) {
             if (source.droppableId === destination.droppableId) { return; }
             else {
                 let stagesList = [...stages];
-                let sourceIndex = stagesList.findIndex(s=>s.stageID==+source.droppableId);
-                let destinationIndex = stagesList.findIndex(s=>s.stageID==+destination.droppableId);
-                let dItem = stagesList[sourceIndex]?.deals?.find(d=>d.dealID==+source.index);
-                let dIndex = stagesList[sourceIndex]?.deals?.findIndex(d=>d.dealID==+source.index);
+                let sourceIndex = stagesList.findIndex(s => s.stageID == +source.droppableId);
+                let destinationIndex = stagesList.findIndex(s => s.stageID == +destination.droppableId);
+                let dItem = stagesList[sourceIndex]?.deals?.find(d => d.dealID == +source.index);
+                let dIndex = stagesList[sourceIndex]?.deals?.findIndex(d => d.dealID == +source.index);
                 stagesList[sourceIndex]?.deals.splice(dIndex, 1);
                 stagesList[destinationIndex].deals.push(dItem as any);
 
@@ -123,14 +127,14 @@ export const Deals = (props: params) => {
                     "modifiedById": userProfile.userId,
                     "dealId": +source.index
                 }, +source.index + "/stage").then(res => {
-                    
-                toast.success("Deal updated successfully.")
+
+                    toast.success("Deal updated successfully.")
                     loadStages(selectedItem?.pipelineID as any, true);
-                }).catch(err=>{
+                }).catch(err => {
                     setError(err);
                     setStages([...originalStages]);
                 })
-    
+
             }
         }
     };
@@ -168,6 +172,7 @@ export const Deals = (props: params) => {
                                                             providedFromParent={provided}
                                                             isDragging={isDragging}
                                                             pipeLinesList={pipeLines}
+                                                            onStageExpand={(e:any)=> {setDialogIsOpen(true) ; setSelectedStageId(e)}}
                                                             onSaveChanges={(e: any) => props.onSaveChanges()}
                                                         />
                                                     )
@@ -188,7 +193,11 @@ export const Deals = (props: params) => {
                         </div>
                     </div>
                     {error && <UnAuthorized error={error as any} />}
-
+                    {
+                    dialogIsOpen && <DealsByStage stageId={selectedStageId as any}
+                                                    dialogIsOpen={dialogIsOpen}
+                                                    setDialogIsOpen={setDialogIsOpen}/>
+                    }
                 </>
             }
             <ToastContainer />
