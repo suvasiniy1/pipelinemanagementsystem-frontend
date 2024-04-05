@@ -45,10 +45,10 @@ export const DealAddEditDialog = (props: params) => {
     const controlsList2: Array<IControl> = [
         { key: "Category", value: "category", sidebyItem: "Probability Of Winning", isRequired: true },
         { key: "Probability Of Winning", value: "probability", isSideByItem: true, isRequired: true },
-        { key: "Forecast Close Date", value: "operationDate", sidebyItem: "Actual Close Date", type: ElementType.datepicker, isRequired: true },
+        { key: "Forecast Close Date", value: "operationDate", sidebyItem: "Actual Close Date", type: ElementType.datepicker, isRequired: false },
         { key: "Actual Close Date", value: "expectedCloseDate", isSideByItem: true, type: ElementType.datepicker, isRequired: false },
-        { key: "User Responsible", value: "contactPersonID", sidebyItem: "Deal Value", type: ElementType.dropdown, isRequired: false },
-        { key: "Deal Value", value: "value", isRequired: true, isSideByItem: true }
+        { key: "User Responsible", value: "contactPersonID", sidebyItem: "Deal Value", type: ElementType.dropdown, isRequired: true },
+        { key: "Deal Value", value: "value", isRequired: true, isSideByItem: true } 
     ];
 
 
