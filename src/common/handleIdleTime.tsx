@@ -4,17 +4,14 @@ import { useNavigate } from "react-router-dom";
 
 const HandleIdleTime = () => {
     const navigate = useNavigate();
-
+    
     const handleIdle = () => {
         window.alert("You have been logged out due to inactivity");
         navigate("/login");
     }
     useIdleTimeout({ onIdle: handleIdle, idleTime: 1200 });
 
-    return(
-        <>
-        </>
-    )
+    return(<></>)
 }
 
 type params = {
@@ -29,12 +26,13 @@ const useIdleTimeout = (props: params) => {
     const handleIdle = () => {
         setIdle(true)
     }
+
     const idleTimer = useIdleTimer({
         timeout: idleTimeout,
         promptTimeout: idleTimeout / 2,
         onPrompt: onIdle,
         onIdle: handleIdle,
-        debounce: 500
+        debounce: 0
     })
     return {
         isIdle,

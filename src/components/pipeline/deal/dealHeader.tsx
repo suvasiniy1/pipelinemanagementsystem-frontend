@@ -15,14 +15,15 @@ type params = {
     onSaveChanges: any,
     selectedItem: PipeLine,
     setSelectedItem: any,
-    pipeLinesList: Array<PipeLine>
-    stagesList:Array<Stage>
+    pipeLinesList: Array<PipeLine>,
+    stagesList:Array<Stage>,
+    selectedStageId:number;
 }
 export const DealHeader = (props: params) => {
 
     const navigate = useNavigate();
     const [dialogIsOpen, setDialogIsOpen] = useState(false);
-    const { canAddDeal, onSaveChanges, selectedItem, setSelectedItem, stagesList, ...others } = props;
+    const { canAddDeal, onSaveChanges, selectedItem, setSelectedItem, stagesList, selectedStageId, ...others } = props;
     const [pipeLinesList, setPipeLinesList]=useState(props.pipeLinesList);
     const [showPipeLineDropdown, setShowPipeLineDropdown] = useState(false);
     const [canEdit, setCanEdit]=useState(false);
@@ -30,6 +31,10 @@ export const DealHeader = (props: params) => {
     useEffect(()=>{
         setPipeLinesList(props.pipeLinesList);
     },[props.pipeLinesList])
+
+    useEffect(()=>{
+        setDialogIsOpen(props.selectedStageId>0);
+    },[props.selectedStageId])
 
     const addorUpdateStage = () => {
         return (
@@ -131,6 +136,7 @@ export const DealHeader = (props: params) => {
                 dialogIsOpen && <DealAddEditDialog  dialogIsOpen={dialogIsOpen}
                                                     setDialogIsOpen={setDialogIsOpen}
                                                     onSaveChanges={(e: any) => props.onSaveChanges()}
+                                                    selectedStageId={selectedStageId}
                                                     pipeLinesList={pipeLinesList}/>
             }
 

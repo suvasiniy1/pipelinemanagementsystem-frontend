@@ -10,4 +10,8 @@ export class DealService extends BaseService<Deal>{
     getDeals(axiosCancel?: CancelTokenSource){
         return this.getItems(axiosCancel, 'Deal/GetDealDetails')
     }
+
+    getDealsById(dealId:number, axiosCancel?: CancelTokenSource){
+        return this.getItems(axiosCancel, 'Deal/'+dealId)
+    }
 }

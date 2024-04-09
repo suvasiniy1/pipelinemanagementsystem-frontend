@@ -150,6 +150,7 @@ export const Deals = (props: params) => {
                             setSelectedItem={(e: any) => setSelectedItem(e)}
                             pipeLinesList={pipeLines}
                             stagesList={stages}
+                            selectedStageId={selectedStageId as any}
                         />
                         <div className="pdstage-area">
                             <div className="pdstagearea-inner">
@@ -172,6 +173,7 @@ export const Deals = (props: params) => {
                                                             providedFromParent={provided}
                                                             isDragging={isDragging}
                                                             pipeLinesList={pipeLines}
+                                                            onDealAddClick={(e:any)=>setSelectedStageId(e)}
                                                             onStageExpand={(e:any)=> {setDialogIsOpen(true) ; setSelectedStageId(e)}}
                                                             onSaveChanges={(e: any) => props.onSaveChanges()}
                                                         />

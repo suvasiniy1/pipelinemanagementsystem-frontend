@@ -25,10 +25,11 @@ type params = {
     index?: number;
     pipeLinesList: Array<PipeLine>
     selectedPipeLineId?: number;
+    selectedStageId?:any;
 }
 export const DealAddEditDialog = (props: params) => {
     
-    const { dialogIsOpen, setDialogIsOpen, onSaveChanges, index, pipeLinesList, selectedPipeLineId, ...others } = props;
+    const { dialogIsOpen, setDialogIsOpen, onSaveChanges, index, pipeLinesList, selectedPipeLineId, selectedStageId, ...others } = props;
     const [stages, setStages] = useState<Array<Stage>>([]);
     const [selectedItem, setSelectedItem] = useState({ ...new Deal(), pipelineID: selectedPipeLineId ?? pipeLinesList[0].pipelineID });
     const [isLoading, setIsLoading] = useState(false);
@@ -95,7 +96,7 @@ export const DealAddEditDialog = (props: params) => {
         if (selectedPipeLineId > 0) stagesSvc.getStages(selectedPipeLineId).then(items => {
             let sortedStages = Util.sortList(items.stageDtos, "stageOrder");
             setStages(sortedStages);
-            setSelectedItem({ ...selectedItem, "pipelineID": +selectedPipeLineId, "stageID": items.stageDtos[0]?.stageID });
+            setSelectedItem({ ...selectedItem, "pipelineID": +selectedPipeLineId, "stageID": selectedStageId ?? items.stageDtos[0]?.stageID });
             setIsLoading(false);
         }).catch(err => {
         });
@@ -188,7 +189,7 @@ export const DealAddEditDialog = (props: params) => {
                         <div className="modelfootcount me-2">1608/10000</div>
                         <button className="modelinfobtn"><i className="rs-icon rs-icon-info"></i></button>
                     </div> */}
-                    <button onClick={setDialogIsOpen} className="btn btn-secondary btn-sm me-2" id="closeDialog">Cancel</button>
+                    <button onClick={oncloseDialog} className="btn btn-secondary btn-sm me-2" id="closeDialog">Cancel</button>
                     <button type="submit" className={`btn btn-primary btn-sm save`} onClick={handleSubmit(onSubmit)}>{"Save"}</button>
                 </div>
             </>

@@ -1,23 +1,50 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleUser, faPencil, faSortDown, faEllipsis, faAngleDown, faGear, faPlus, faMoneyBill, faTag, faScaleBalanced, faFlagCheckered, faUser, faBuilding, faBarsStaggered, faFileLines } from '@fortawesome/free-solid-svg-icons';
+import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { DealService } from '../../../services/dealService';
+import { ErrorBoundary } from 'react-error-boundary';
+import { AxiosError } from 'axios';
+import { UnAuthorized } from '../../../common/unauthorized';
+import { Spinner } from 'react-bootstrap';
+import { Deal } from '../../../models/deal';
 
-export const DealDetails=()=>{
-    return(
+export const DealDetails = () => {
+
+    const [dealId, setDealId] = useState(new URLSearchParams(useLocation().search).get("id") as any);
+    const dealSvc = new DealService(ErrorBoundary);
+    const [error, setError] = useState<AxiosError>();
+    const [dealItem, setDealItem] = useState<Deal>();
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        dealSvc.getDealsById(dealId).then(res => {
+            setDealItem(res);
+            setIsLoading(false);
+        }).catch(err => {
+            setIsLoading(false);
+            setError(err);
+        })
+    }, [])
+
+    return (
         <>
-            <div className="pdstage-detailarea">
-                <div className="pdstage-detailtop pt-3 pb-4">
-                    <div className="container-fluid">
-                        <div className="pdsdetailtop-row">
-                            <div className="pdsdetail-title">
-                                <h1>Transform deal <button className='titleeditable-btn'><FontAwesomeIcon icon={faPencil} /></button></h1>
-                            </div>
-                            <div className="pdsdetail-topright">
-                                <div className="rottingdays"><label className="rottingdays-label bg-danger">Rotting for 4 days</label></div>
+            {error && <UnAuthorized error={error as any} />}
+            {isLoading ? <Spinner /> :
+                <div className="pdstage-detailarea">
+                    <div className="pdstage-detailtop pt-3 pb-4">
+                        <div className="container-fluid">
+                            <div className="pdsdetailtop-row">
+                                <div className="pdsdetail-title">
+                                    <h1>{dealItem?.name} <button className='titleeditable-btn'><FontAwesomeIcon icon={faPencil} /></button></h1>
+                                </div>
+                                <div className="pdsdetail-topright">
+                                <div className="rottingdays"><label className="rottingdays-label bg-danger">Rotting for {dealItem?.probability} days</label></div>
                                 <div className="pdsdetail-avatar">
                                     <div className="pdsavatar-row">
                                         <div className="pdsavatar-img"><FontAwesomeIcon icon={faCircleUser} /></div>
                                         <div className="pdsavatar-name">
-                                            <div className='pdsavatar-ownername'><a href=''>Stuart Taylor</a></div>
+                                            <div className='pdsavatar-ownername'><a href=''>{dealItem?.personName}</a></div>
                                             <div className='pdsavatar-owner'>Owner</div>
                                             <button className='ownerbutton'><FontAwesomeIcon icon={faSortDown} /></button>
                                         </div>
@@ -32,8 +59,8 @@ export const DealDetails=()=>{
                                     <button className="ellipsis-btn"><FontAwesomeIcon icon={faEllipsis} /></button>
                                 </div>
                             </div>
-                        </div>
-                        <div className='stageday-bar pt-3'>
+                            </div>
+                            {/* <div className='stageday-bar pt-3'>
                             <div className="pipelinestage-selector pipelinestage-active">
                                 <label className="pipelinestage pipelinestage-current">1 day</label>
                                 <label className="pipelinestage pipelinestage-current">0 day</label>
@@ -46,10 +73,10 @@ export const DealDetails=()=>{
                                 <label className="pipelinestage">0 day</label>
                                 <label className="pipelinestage">0 day</label>
                             </div>
+                        </div> */}
                         </div>
                     </div>
-                </div>
-
+                    {/* 
                 <div className="pdstage-detail">
                     <div className='sidebardetail-col'>
                         <div className='app-dealblock'>
@@ -230,11 +257,12 @@ export const DealDetails=()=>{
                             </div>
                         </div>
                     </div>
+                </div> */}
+
+
+
                 </div>
-
-
-                                        
-            </div>
+            }
         </>
     )
 }

@@ -16,11 +16,12 @@ type params = {
     providedFromParent?:any;
     isDragging:any;
     pipeLinesList:Array<PipeLine>;
-    onStageExpand:any
+    onStageExpand:any;
+    onDealAddClick:any;
 }
 
 export const DealStage = (props: params) => {
-    const { onStageExpand, title, deals, stageID, isScrollable, isCombineEnabled, useClone, providedFromParent, isDragging, pipeLinesList, ...others } = props;
+    const { onDealAddClick, onStageExpand, title, deals, stageID, isScrollable, isCombineEnabled, useClone, providedFromParent, isDragging, pipeLinesList, ...others } = props;
 
     const [showAddButton, setShowAddButton] = useState(false);
     
@@ -37,7 +38,7 @@ export const DealStage = (props: params) => {
                                 <div className="pdstage-head">
                                     <div className="pdstagehead-title">{title}</div>
                                     <div className="pdstagehead-btns">
-                                        <button className=''><i className="rs-icon rs-icon-plus"></i></button>
+                                        <button className='' onClick={(e:any)=>onDealAddClick(stageID)}><i className="rs-icon rs-icon-plus"></i></button>
                                         <button className='' onClick={(e:any)=>onStageExpand(stageID)}><i className="rs-icon rs-icon-arrow-right"></i></button>
                                     </div>
                                 </div>
