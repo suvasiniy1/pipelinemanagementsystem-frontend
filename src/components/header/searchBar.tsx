@@ -20,7 +20,7 @@ export const SearchBar = () => {
                     </div>
                     <div className="results" />
                 </div>
-                <div className="quickadd-menu">
+                {/* <div className="quickadd-menu">
                     <Dropdown className="quickadd-menuicon">
                         <Dropdown.Toggle id="quick-dropdown-autoclose-true"><FontAwesomeIcon icon={faPlus} /></Dropdown.Toggle>
                         <Dropdown.Menu className='quickadd-menulist'>
@@ -31,7 +31,7 @@ export const SearchBar = () => {
                             <Dropdown.ItemText><FontAwesomeIcon icon={faBox} /> Products</Dropdown.ItemText>
                         </Dropdown.Menu>
                     </Dropdown>
-                </div>
+                </div> */}
             </div>
 
         </>

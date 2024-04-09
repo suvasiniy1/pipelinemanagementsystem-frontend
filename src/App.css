@@ -60,6 +60,7 @@ html body, html input, html button, html select, html textarea{font-family: "Int
   }
 }
 
+.form-control{height: 36px;}
 .sidebar {
   color: 1px solid red;
 }
@@ -88,7 +89,9 @@ html, body{overflow: hidden;}
 .toolbarview-actionsrow{display: flex;}
 .toolbutton-group{display: flex; margin-right: 10px;;}
 .toolbutton-group button{position: relative; display: inline-flex; align-items: center; justify-content: center; background-color: #fff; text-align: center; height: 32px; border: 1px solid rgba(33,35,44,.24); border-radius: 0; box-shadow: 0 1px 2px 0 rgb(42 54 71/5%); cursor: pointer; margin: 0; padding: 6px 15px 6px 15px; text-decoration: none; transition: background .1s cubic-bezier(.5,0,.2,1); -webkit-user-select: none; -moz-user-select: none; user-select: none; vertical-align: top;}
-.toolbutton-group .toolpipebtn{border-radius: 4px 0 0 4px;}
+.toolbutton-group .toolpipebtn, .toolbutton-group .toolpipebtn:focus{border-radius: 4px; color: #fff;}
+.toolbutton-group .toolpipebtn:hover, .toolbutton-group .toolpipebtn:focus{ color: #fff;}
+.toolbutton-group .toolpipebtn.dropdown-toggle::after{display: none;}
 .toolbutton-group .tooltimebtn{border-radius: 0 4px 4px 0;}
 .toolbutton-group .tooldealbtn{border-left: 0; border-right: 0;}
 .toolbutton-group .activetoolbtn{border-color: #0d68c5; color:#0d68c5;}
@@ -99,7 +102,7 @@ html, body{overflow: hidden;}
 .toolsummary-deals span{margin:0 5px;}
 .toolbarview-filtersrow{display: flex;}
 
-.pipeselectbtngroup{display: flex;}
+.pipeselectbtngroup{display: flex; margin-right: 8px;}
 .pipeselectbox{position: relative;}
 .pipeselect{position: relative; display: inline-flex; align-items: center; justify-content: center; background-color: #fff; text-align: center; height: 32px; border: 1px solid rgba(33,35,44,.24); border-radius: 4px; box-shadow: 0 1px 2px 0 rgb(42 54 71/5%); cursor: pointer; margin: 0; padding: 6px 30px 6px 10px; text-decoration: none; transition: background .1s cubic-bezier(.5,0,.2,1); -webkit-user-select: none; -moz-user-select: none; user-select: none; vertical-align: top;}
 .pipeselect .fa-caret-down {position: absolute; right: 10px; top: 7px; z-index: 1;}
@@ -232,7 +235,11 @@ color: #fff; cursor: pointer; flex-basis: 0; font: 450 12px / 18px "Inter",sans-
 .pdstage-addplus:hover{background-color:#ececed;}
 .pdstage-addplus i{color: rgba(33,35,44,.72); font-size: 18px;}
 
-
+/* Start CSS Deal By Stage Popup */
+.dealbystage-popup{padding: 8px 0 16px 0; overflow: auto; height: 485px;}
+.dealbystage-popuprow{display: flex; flex-wrap: wrap;}
+.dealbystage-popuprow .pdstage-item {width: 33.333%;}
+/* End CSS Deal By Stage Popup */
 
 .pdlist-row{margin: 0 -12px;}
 .pdlisttable-scroll{overflow-y: auto;}
@@ -647,12 +654,4 @@ button.fields-editbtn{visibility: hidden; line-height: 1.2; background-color: #f
 
 .react-datepicker-wrapper{
   display: flex !important
-}
-.sidenavExpand{
-  width: 210px !important;
-  transition: width 900ms !important;
-}
-.sidenavCollapse{
-  width: 44px !important;
-  transition: width 900ms !important;
 }
