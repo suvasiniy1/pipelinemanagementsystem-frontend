@@ -1,6 +1,6 @@
 
 // @flow
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { Stage } from "../../../models/stage";
 import { DealHeader } from "./dealHeader";
@@ -22,6 +22,7 @@ import { Spinner } from "react-bootstrap";
 import { UtilService } from "../../../services/utilService";
 import dealsByStage from "./dealsByStage";
 import DealsByStage from "./dealsByStage";
+import DealListView from "./dealListView";
 
 type params = {
     isCombineEnabled?: any,
@@ -49,11 +50,14 @@ export const Deals = (props: params) => {
     const [deals, setDeals] = useState<Array<Deal>>([]);
     const [dialogIsOpen, setDialogIsOpen] = useState(false);
     const [selectedStageId, setSelectedStageId] = useState(null);
+    const [viewType, setViewType]=useState("kanban");
+    const [totalDeals, setTotalDeals]=useState<Array<Deal>>([]);
     const navigate = useNavigate();
-
+    const listInnerRef = useRef();
     const [pipeLineId, setPipeLineId] = useState(new URLSearchParams(useLocation().search).get("pipelineID") as any);
     const userProfile = Util.UserProfile();
     const utilSvc = new UtilService(ErrorBoundary);
+    const [pageSize, setPageSize]=useState(5);
 
     // useEffect(() => {
     //     debugger
@@ -88,10 +92,18 @@ export const Deals = (props: params) => {
         });
     }
 
-    const loadStages = (selectedPipeLineId: number, skipLoading: boolean = false) => {
+    const loadStages = (selectedPipeLineId: number, skipLoading: boolean = false, pagesize:number=5) => {
         if (!skipLoading) setIsLoading(true);
-        if (selectedPipeLineId > 0) stagesSvc.getStages(selectedPipeLineId).then(items => {
+        if (selectedPipeLineId > 0) stagesSvc.getStages(selectedPipeLineId, 1, pagesize ?? pageSize).then(items => {
             let sortedStages = Util.sortList(items.stageDtos, "stageOrder");
+            let totalDealsList:Array<Deal>=[];
+            sortedStages.forEach((s:Stage)=>{
+               s.deals.forEach(d=>{
+                totalDealsList.push(d);
+               })
+            });
+            
+            setTotalDeals([...totalDealsList])
             setStages(sortedStages);
             setOriginalStages(sortedStages);
             setIsLoading(false);
@@ -99,6 +111,19 @@ export const Deals = (props: params) => {
             setError(err);
         });
     }
+
+    const onScroll = () => {
+        
+        if (listInnerRef.current) {
+          const { scrollTop, scrollHeight, clientHeight } = listInnerRef.current;
+          const isNearBottom = scrollTop + clientHeight >= scrollHeight;
+    
+          if (isNearBottom) {
+              setPageSize(pageSize => pageSize + 5);
+              loadStages(pipeLineId, true, pageSize + 5);
+          }
+        }
+      };
 
     useEffect(() => {
         LocalStorageUtil.setItemObject(Constants.PIPE_LINE, selectedItem);
@@ -151,9 +176,12 @@ export const Deals = (props: params) => {
                             pipeLinesList={pipeLines}
                             stagesList={stages}
                             selectedStageId={selectedStageId as any}
+                            onDealDialogClose={(e:any)=>setSelectedStageId(null)}
+                            setViewType={(e:any)=>setViewType(e)}
                         />
+                        {viewType ==="kanban" ?
                         <div className="pdstage-area">
-                            <div className="pdstagearea-inner">
+                            <div className="pdstagearea-inner" ref={listInnerRef as any} onScroll={(e:any)=>onScroll()}>
 
                                 <div className="pdstage-row" hidden={pipeLines.length == 0}>
                                     <DragDropContext onDragEnd={onDragEnd} onDragStart={(e: any) => setIsDragging(true)}>
@@ -192,7 +220,7 @@ export const Deals = (props: params) => {
                                     No pipelines are avilable to show
                                 </div>
                             </div>
-                        </div>
+                        </div> : <DealListView dealsList={totalDeals}/>}
                     </div>
                     {error && <UnAuthorized error={error as any} />}
                     {

@@ -55,8 +55,8 @@ export const DealAddEditDialog = (props: params) => {
 
 
     const controlsList5: Array<IControl> = [
-        { key: "Pipeline", value: "pipelineID", isRequired: true, type: ElementType.dropdown, sidebyItem: "Stage", disabled: !Util.isNullOrUndefinedOrEmpty(selectedPipeLineId) },
-        { key: "Stage", value: "stageID", isRequired: true, type: ElementType.custom, isSideByItem: true },
+        { key: "Pipeline", value: "pipelineID", isRequired: true, type: ElementType.dropdown, sidebyItem: "Stage", disabled: !Util.isNullOrUndefinedOrEmpty(selectedStageId) },
+        { key: "Stage", value: "stageID", isRequired: true, type: ElementType.custom, isSideByItem: true, disabled: !Util.isNullOrUndefinedOrEmpty(selectedStageId) },
     ]
 
     const controlsList = [controlsList1, controlsList2, controlsList5];

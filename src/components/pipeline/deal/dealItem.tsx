@@ -26,9 +26,9 @@ type params = {
           data-testid={deal?.dealID}
           data-index={index}
           key={index}
-          onClick={(e:any)=>navigator("/deal?id="+deal?.dealID)}
+          onClick={(e:any)=>navigator(`/deal?id=${deal?.dealID}&pipeLineId=${deal?.pipelineID}`)}
         >
-          <div className="pdstage-item">
+          <div className="pdstage-item" onScroll={(e:any)=>alert("onScroll")}>
             <div className='pdstage-box'>
               <a className='pdstage-boxlink' href=''>
                 <div className="pdstage-title">{deal?.name}</div>

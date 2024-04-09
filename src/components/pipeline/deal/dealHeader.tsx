@@ -19,12 +19,14 @@ type params = {
     pipeLinesList: Array<PipeLine>,
     stagesList:Array<Stage>,
     selectedStageId:number;
+    onDealDialogClose:any;
+    setViewType:any;
 }
 export const DealHeader = (props: params) => {
 
     const navigate = useNavigate();
     const [dialogIsOpen, setDialogIsOpen] = useState(false);
-    const { canAddDeal, onSaveChanges, selectedItem, setSelectedItem, stagesList, selectedStageId, ...others } = props;
+    const { canAddDeal, onSaveChanges, selectedItem, setSelectedItem, stagesList, selectedStageId, onDealDialogClose, setViewType, ...others } = props;
     const [pipeLinesList, setPipeLinesList]=useState(props.pipeLinesList);
     const [showPipeLineDropdown, setShowPipeLineDropdown] = useState(false);
     const [canEdit, setCanEdit]=useState(false);
@@ -36,6 +38,11 @@ export const DealHeader = (props: params) => {
     useEffect(()=>{
         setDialogIsOpen(props.selectedStageId>0);
     },[props.selectedStageId])
+
+    const onDialogClose=()=>{
+        setDialogIsOpen(false);
+        props.onDealDialogClose();
+    }
 
     const addorUpdateStage = () => {
         return (
@@ -124,9 +131,9 @@ export const DealHeader = (props: params) => {
                                     <Dropdown className='toolgrip-dropdownbox'>
                                         <Dropdown.Toggle className='toolpipebtn activetoolbtn' variant="success" id="dropdown-toolgrip"><FontAwesomeIcon icon={faGrip} /></Dropdown.Toggle>
                                         <Dropdown.Menu className='toolgrip-dropdown'>
-                                            <Dropdown.Item href="#/action-1">List View</Dropdown.Item>
-                                            <Dropdown.Item href="#/action-2">Kanban View</Dropdown.Item>
-                                            <Dropdown.Item href="#/action-3">Add New List View</Dropdown.Item>
+                                            <Dropdown.Item onClick={(e:any)=>props.setViewType("list")}>List View</Dropdown.Item>
+                                            <Dropdown.Item onClick={(e:any)=>props.setViewType("kanban")}>Kanban View</Dropdown.Item>
+                                            {/* <Dropdown.Item href="#/action-3">Add New List View</Dropdown.Item> */}
                                         </Dropdown.Menu>
                                     </Dropdown>
                                     
@@ -145,7 +152,7 @@ export const DealHeader = (props: params) => {
 
             {
                 dialogIsOpen && <DealAddEditDialog  dialogIsOpen={dialogIsOpen}
-                                                    setDialogIsOpen={setDialogIsOpen}
+                                                    setDialogIsOpen={(e: any) => onDialogClose()}
                                                     onSaveChanges={(e: any) => props.onSaveChanges()}
                                                     selectedStageId={selectedStageId}
                                                     pipeLinesList={pipeLinesList}/>
