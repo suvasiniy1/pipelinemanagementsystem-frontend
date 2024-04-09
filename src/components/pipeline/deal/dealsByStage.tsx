@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react'
 import { StageService } from '../../../services/stageService';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -52,8 +53,8 @@ const DealsByStage = (props: params) => {
         {
             <>
                 {isLoading && <div className="alignCenter"><Spinner /></div>}
-                <div className='modelformfiledrow row'>
-                    <div>
+                <div className='modelformfiledrow dealbystage-popup'>
+                    <div className='dealbystage-popuprow'>
                         {
                             dealsLIst?.map((deal, dIndex)=>(
                                 <div className="pdstage-item">
@@ -80,7 +81,6 @@ const DealsByStage = (props: params) => {
                             ))
                         }
                     </div>
-                    <br/>
                 </div>
                 {error && <UnAuthorized error={error as any} />}
 

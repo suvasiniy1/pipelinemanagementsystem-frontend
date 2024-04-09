@@ -6,9 +6,10 @@ import SelectDropdown from '../../../elements/SelectDropdown';
 import { PipeLine } from '../../../models/pipeline';
 import { display, width } from '@xstyled/styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCaretDown, faPencil, faChartSimple, faAlignCenter, faBars, faDollarSign, faCheck, faAdd, faGripLines, faEye, faCircleInfo } from '@fortawesome/free-solid-svg-icons';
+import { faCaretDown, faPencil, faChartSimple, faAlignCenter, faBars, faDollarSign, faCheck, faAdd, faGripLines, faEye, faCircleInfo, faGrip } from '@fortawesome/free-solid-svg-icons';
 import OutsideClickHandler from 'react-outside-click-handler';
 import { Stage } from '../../../models/stage';
+import Dropdown from 'react-bootstrap/Dropdown';
 
 type params = {
     canAddDeal: boolean,
@@ -104,6 +105,7 @@ export const DealHeader = (props: params) => {
                                         </div>
                                     </div>                                    
                                 </div>
+                                <div className='updatestagebtn'>{addorUpdateStage()}</div>
                                 {/* <div className="pipeselectbox selecteveryonebox">
                                     <button className="pipeselect" type="button"><FontAwesomeIcon icon={faAlignCenter} /> Everyone <FontAwesomeIcon icon={faCaretDown} /></button>
                                 </div> */}
@@ -112,11 +114,20 @@ export const DealHeader = (props: params) => {
                         <div className="col-sm-7 toolbarview-summery">
                             {/* <div className="toolsummary pr-4"><div className="toolsummary-deals">£0 <span>·</span>{stagesList?.reduce((count, current) => count + current.deals.length, 0)} deals</div></div> */}
                             <div className='toolbarview-actionsrow'>
-                                <div className='updatestagebtn'>{addorUpdateStage()}</div>
+                                
                                 <div className="d-flex toolbutton-group">
-                                    <button className="toolpipebtn activetoolbtn" type="button"><FontAwesomeIcon icon={faChartSimple} /></button>
+                                    <Dropdown className='toolgrip-dropdownbox'>
+                                        <Dropdown.Toggle className='toolpipebtn activetoolbtn' variant="success" id="dropdown-toolgrip"><FontAwesomeIcon icon={faGrip} /></Dropdown.Toggle>
+                                        <Dropdown.Menu className='toolgrip-dropdown'>
+                                            <Dropdown.Item href="#/action-1">List View</Dropdown.Item>
+                                            <Dropdown.Item href="#/action-2">Kanban View</Dropdown.Item>
+                                            <Dropdown.Item href="#/action-3">Add New List View</Dropdown.Item>
+                                        </Dropdown.Menu>
+                                    </Dropdown>
+                                    
+                                    {/* <button className="toolpipebtn activetoolbtn" type="button"><FontAwesomeIcon icon={faChartSimple} /></button>
                                     <button className="tooldealbtn" type="button"><FontAwesomeIcon icon={faBars} /></button>
-                                    <button className="tooltimebtn" type="button"><FontAwesomeIcon icon={faDollarSign} /></button>
+                                    <button className="tooltimebtn" type="button"><FontAwesomeIcon icon={faDollarSign} /></button> */}
                                 </div>
                                 {addorUpdateDeal()}
                             </div>
