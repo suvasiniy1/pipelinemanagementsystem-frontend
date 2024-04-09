@@ -43,12 +43,23 @@
 
 
 /* Sidebar Menu */
-
-.sidenavhead {padding: 10px; height: 58px; text-align: center; line-height: 38px; font-size: 30px; font-weight: 900; color: #ffffff;}
+/* .sidenavExpand{
+width: 210px !important;
+transition: width 900ms !important;
+}
+.sidenavCollapse{
+width: 44px !important;
+transition: width 900ms !important;
+} */
+.rs-sidenav.sidenavExpand {width: 220px;}
+.sidenavhead {padding: 10px 20px 10px 20px; height: 58px; line-height: 38px; font-size: 30px; font-weight: 900; color: #ffffff;}
 .sidenavhead img{width:auto; height: 100%;}
 .sidenavhead .sidehidelogo {display: none; position: absolute; left: 12px; top: 18px; width: 30px; height: auto;}
-.rs-sidenav-collapse-in .sidenavhead .sideopenlogo {display: none;}
-.rs-sidenav-collapse-in .sidenavhead .sidehidelogo {display: block;}
+.rs-sidenav-collapse-in .sidenavhead .sideopenlogo,
+.sidenavCollapse .sidenavhead .sideopenlogo{display: none;}
+.rs-sidenav-collapse-in .sidenavhead .sidehidelogo,
+.sidenavCollapse .sidenavhead .sidehidelogo {display: block;}
+.sidenavhead img.sideopenlogo {position: relative; top: -4px;}
 .sidenavhead i{font-size: 20px;}
 .tnavicon a img {position: absolute; left: 15px; top: 15px; width: 24px; height: auto;}
 .rs-sidenav.sidenav{display: flex; flex-direction: column; height: 100%; background-color: #fff; border-right: 1px solid #e6e6e6; box-shadow: 0 .9375rem 1.875rem 0 rgba(0,0,0,.02); transition: all .2s ease;}
@@ -56,10 +67,10 @@
 .rs-sidenav .rs-sidenav-body{margin: 10px 0; height:calc(100% - 58px); overflow: auto;}
 .rs-sidenav.sidenav .sidemenu ul > li{display: flex; flex-direction: column; position: relative;}
 .rs-sidenav.sidenav .sidemenu ul > li:first-child{padding-top:0;}
-.rs-sidenav.sidenav .sidemenu ul > li > a{height:auto; position: relative; margin: 0; font-size: 14px; color: #3f3f3f; display: flex; align-items: center; padding: 0.75rem 1.2rem; transition: all .5s;}
+.rs-sidenav.sidenav .sidemenu ul > li > a{height:auto; position: relative; margin: 0; font-size: 14px; color: #3f3f3f; display: flex; align-items: center; padding: 12px 15px 12px 45px; transition: all .5s; height: 46px; overflow: hidden;}
 .rs-sidenav.sidenav .sidemenu ul > li > a svg{color: #3f3f3f; font-size: 20px;}
-.nacicon {width: 26px; text-align: center;}
-.rs-sidenav.sidenav .sidemenu ul > li > a .nav-text{margin-left: 10px;}
+.nacicon {width: 26px; text-align: center; position: absolute; left: 15px; top: 12px;}
+.rs-sidenav.sidenav .sidemenu ul > li > a .nav-text{margin-left: 10px; white-space: nowrap;}
 .rs-sidenav-collapse-in .nav-text {display: none;}
 .rs-sidenav.sidenav .sidemenu ul > li > a:hover{background-color: rgba(63,63,63, 0.2) !important; color: #0d68c5;}
 .rs-sidenav.sidenav .sidemenu ul > li.rs-nav-item-active a{color: #0d68c5; fill: #0d68c5;}
