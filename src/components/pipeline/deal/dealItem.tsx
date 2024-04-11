@@ -1,5 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { Deal } from "../../../models/deal";
+import Dropdown from 'react-bootstrap/Dropdown';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
+
 
 type params = {
     deal?: Deal;
@@ -31,7 +35,15 @@ type params = {
           <div className="pdstage-item" onScroll={(e:any)=>alert("onScroll")}>
             <div className='pdstage-box'>
               <a className='pdstage-boxlink' href=''>
-                <div className="pdstage-title">{deal?.name}</div>
+                <div className="pdstage-title">{deal?.name}
+                  <Dropdown className='dropdownbox-toolgripdot'>
+                      <Dropdown.Toggle className='toolgrip-dot' variant="success" id="dropdown-toolgripdot"><FontAwesomeIcon icon={faEllipsisVertical} /></Dropdown.Toggle>
+                      <Dropdown.Menu className='toolgrip-dropdown'>
+                          <Dropdown.Item href='#'>View</Dropdown.Item>
+                          <Dropdown.Item href='#'>Delete</Dropdown.Item>
+                      </Dropdown.Menu>
+                  </Dropdown>
+                </div>
                 <div className="pdstage-description">
                   <div className="pdstage-descitem">{deal?.title}</div>
                 </div>
