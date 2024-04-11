@@ -7,29 +7,62 @@ import { PipeLine } from "../../../models/pipeline";
 import { grid } from "../dnd/styles/constants";
 import { DealAddEditDialog } from "./dealAddEditDialog";
 import { DealItem } from "./dealItem";
+import { DeleteDialog } from "../../../common/deleteDialog";
+import { DealService } from "../../../services/dealService";
+import { ErrorBoundary } from "react-error-boundary";
+import { ToastContainer, toast } from 'react-toastify';
 
 type paramsForQuote = {
     deals: Array<Deal>;
-    isDragging:boolean
+    isDragging: boolean;
 }
 
 const InnerQuoteList = (props: paramsForQuote) => {
-    const { deals, isDragging, ...others } = props;
+    const { isDragging, ...others } = props;
+    const [deals, setDeals] = useState(props.deals);
+    const [selectedDealIndex, setSelectedDealIndex] = useState<number>(0);
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    const dealSvc = new DealService(ErrorBoundary);
+
+    const deleteDeal = () => {
+        dealSvc.deleteDeal(deals[selectedDealIndex].dealID).then(res => {
+            
+            //if(res){
+            let dealsList = [...deals];
+            dealsList.splice(selectedDealIndex, 1);
+            setDeals([...dealsList]);
+            setShowDeleteDialog(false);
+            toast.success("Deal deleted successfully");
+            //}
+        })
+    }
+
     return (
         <>
             {
                 deals.map((deal, index) => (
-                    <Draggable key={deal.dealID}  draggableId={"" + deal.dealID as any} index={deal.dealID} disableInteractiveElementBlocking={true}>
+                    <Draggable key={deal.dealID} draggableId={"" + deal.dealID as any} index={deal.dealID} disableInteractiveElementBlocking={true}>
                         {(dragProvided, dragSnapshot) => (
                             <DealItem
                                 key={deal.dealID}
                                 deal={deal}
                                 isGroupedOver={false}
                                 provided={dragProvided}
+                                onDeleteClick={(e: any) => { setSelectedDealIndex(index); setShowDeleteDialog(true) }}
                             />
                         )}
                     </Draggable>
                 ))
+            }
+            {showDeleteDialog &&
+                <DeleteDialog itemType={"Deal"}
+                    itemName={""}
+                    dialogIsOpen={showDeleteDialog}
+                    closeDialog={(e: any) => setShowDeleteDialog(false)}
+                    onConfirm={(e: any) => deleteDeal()}
+                    isPromptOnly={false}
+                    actionType={"Delete"}
+                />
             }
         </>
 
@@ -48,9 +81,11 @@ const DropZone = styled.divBox`
   padding-bottom: ${grid}px;
 `;
 
-function InnerList(props: { title?: any; deals?: Array<Deal>; dropProvided?: any; 
-    showAddButton: boolean, stageID?: number, onSaveChanges?: any, 
-    isDragging?:any, pipeLinesList:Array<PipeLine> }) {
+function InnerList(props: {
+    title?: any; deals?: Array<Deal>; dropProvided?: any;
+    showAddButton: boolean, stageID?: number, onSaveChanges?: any,
+    isDragging?: any, pipeLinesList: Array<PipeLine>
+}) {
     const { deals, dropProvided, showAddButton, stageID, isDragging, pipeLinesList, ...others } = props;
     const title = props.title ? <Title>{props.title}</Title> : null;
     const [dialogIsOpen, setDialogIsOpen] = useState(false);
@@ -59,16 +94,18 @@ function InnerList(props: { title?: any; deals?: Array<Deal>; dropProvided?: any
         <div>
             {title}
             <DropZone ref={dropProvided.innerRef}>
-                <InnerQuoteList deals={deals ?? []} isDragging={isDragging}/>
+                <InnerQuoteList deals={deals ?? []}
+                    isDragging={isDragging} />
+                                    <ToastContainer/>
                 {dropProvided.placeholder}
             </DropZone>
             {
                 dialogIsOpen && <DealAddEditDialog dialogIsOpen={dialogIsOpen}
-                                                    setDialogIsOpen={setDialogIsOpen}
-                                                    onSaveChanges={(e: any) => props.onSaveChanges()}
-                                                    index={stageID} 
-                                                    selectedPipeLineId={null as any}
-                                                    pipeLinesList={pipeLinesList}/>
+                    setDialogIsOpen={setDialogIsOpen}
+                    onSaveChanges={(e: any) => props.onSaveChanges()}
+                    index={stageID}
+                    selectedPipeLineId={null as any}
+                    pipeLinesList={pipeLinesList} />
             }
         </div>
     );
@@ -88,8 +125,8 @@ type params = {
     title?: any;
     useClone?: any;
     onSaveChanges: any;
-    isDragging:any;
-    pipeLinesList:Array<PipeLine>
+    isDragging: any;
+    pipeLinesList: Array<PipeLine>;
 }
 
 export const DealList = (props: params) => {
@@ -108,7 +145,7 @@ export const DealList = (props: params) => {
         useClone,
         onSaveChanges,
         isDragging,
-        pipeLinesList, 
+        pipeLinesList,
         ...others
     } = props;
 
@@ -117,7 +154,7 @@ export const DealList = (props: params) => {
     return (
         <div>
             <Droppable
-                droppableId={""+stageID}
+                droppableId={"" + stageID}
                 type={listType}
                 ignoreContainerClipping={true}
                 isDropDisabled={false}

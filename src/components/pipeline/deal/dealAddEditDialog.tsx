@@ -71,10 +71,10 @@ export const DealAddEditDialog = (props: params) => {
 
     const formOptions = {
         resolver: yupResolver(getValidationsSchema(controlsList[0])
-            .concat(getValidationsSchema(controlsList[1]))
+            // .concat(getValidationsSchema(controlsList[1]))
+            // // .concat(getValidationsSchema(controlsList[2]))
+            // // .concat(getValidationsSchema(controlsList[3]))
             // .concat(getValidationsSchema(controlsList[2]))
-            // .concat(getValidationsSchema(controlsList[3]))
-            .concat(getValidationsSchema(controlsList[2]))
         )
     };
 
@@ -138,7 +138,7 @@ export const DealAddEditDialog = (props: params) => {
     }
 
     const onSubmit = (item: any) => {
-
+        
         let addUpdateItem: Deal = new Deal();
         addUpdateItem.createdBy = Util.UserProfile()?.userId;
         addUpdateItem.modifiedBy = Util.UserProfile()?.userId;

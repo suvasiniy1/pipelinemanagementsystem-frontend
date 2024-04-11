@@ -14,4 +14,8 @@ export class DealService extends BaseService<Deal>{
     getDealsById(dealId:number, axiosCancel?: CancelTokenSource){
         return this.getItems(axiosCancel, 'Deal/'+dealId)
     }
+
+    deleteDeal(dealId:number){
+        return this.delete(dealId, "Deal");
+    }
 }
