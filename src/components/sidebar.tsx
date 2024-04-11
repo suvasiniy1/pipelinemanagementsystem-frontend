@@ -14,6 +14,7 @@ import HandleIdleTime from '../common/handleIdleTime';
 
 export const SideBar = () => {
     const [expanded, setExpanded] = useState(false);
+    const [selectedNavItem, setSelectedNavItem]=useState("Deals");
     const navigate = useNavigate();
 
     const onExpandCollapseClick = (event: any) => {
@@ -51,13 +52,13 @@ export const SideBar = () => {
                             {/* <Nav.Item className='tnavicon' eventKey="1" icon={<img src={jpg} />} onSelect={(e) => navigate("/pipeline")}>
                                 
                             </Nav.Item> */}
-                            <Nav.Item eventKey="2" icon={<div className='nacicon'><FontAwesomeIcon icon={faLocationCrosshairs} /></div>} onSelect={(e) => navigate("/leads")}>
+                            <Nav.Item eventKey="2" active={selectedNavItem==="Leads"} icon={<div className='nacicon'><FontAwesomeIcon icon={faLocationCrosshairs} /></div>} onSelect={(e) => {navigate("/leads"); setSelectedNavItem("Leads")}}>
                                 <span className='nav-text'>Leads</span>
                             </Nav.Item>
-                            <Nav.Item eventKey="3" active={true} icon={<div className='nacicon'><FontAwesomeIcon icon={faDollarSign} /></div>} onSelect={(e) => navigate("/pipeline")}>
+                            <Nav.Item eventKey="3" active={selectedNavItem==="Deals"} icon={<div className='nacicon'><FontAwesomeIcon icon={faDollarSign} /></div>} onSelect={(e) => {navigate("/pipeline"); setSelectedNavItem("Deals")}}>
                                 <span className='nav-text'>Deals</span>
                             </Nav.Item>
-                            <Nav.Item eventKey="4" icon={<div className='nacicon'><FontAwesomeIcon icon={faClipboardCheck} /></div>} onSelect={(e) => navigate("/projects")}>
+                            <Nav.Item eventKey="4" active={selectedNavItem==="Projects"} icon={<div className='nacicon'><FontAwesomeIcon icon={faClipboardCheck} /></div>} onSelect={(e) => {navigate("/projects"); setSelectedNavItem("Projects")}}>
                                 <span className='nav-text'>Projects</span>
                             </Nav.Item>
                             <Nav.Item eventKey="5" icon={<div className='nacicon'><FontAwesomeIcon icon={faBullhorn} /></div>}>

@@ -50,14 +50,16 @@ export const Deals = (props: params) => {
     const [deals, setDeals] = useState<Array<Deal>>([]);
     const [dialogIsOpen, setDialogIsOpen] = useState(false);
     const [selectedStageId, setSelectedStageId] = useState(null);
-    const [viewType, setViewType]=useState("kanban");
-    const [totalDeals, setTotalDeals]=useState<Array<Deal>>([]);
+    const [stageIdForExpand, setStageIdForExpand] = useState(null);
+    const [viewType, setViewType] = useState("kanban");
+    const [totalDeals, setTotalDeals] = useState<Array<Deal>>([]);
+    const [selectedStageName, setSelectedStageName] = useState("");
     const navigate = useNavigate();
     const listInnerRef = useRef();
     const [pipeLineId, setPipeLineId] = useState(new URLSearchParams(useLocation().search).get("pipelineID") as any);
     const userProfile = Util.UserProfile();
     const utilSvc = new UtilService(ErrorBoundary);
-    const [pageSize, setPageSize]=useState(5);
+    const [pageSize, setPageSize] = useState(5);
 
     // useEffect(() => {
     //     debugger
@@ -92,17 +94,17 @@ export const Deals = (props: params) => {
         });
     }
 
-    const loadStages = (selectedPipeLineId: number, skipLoading: boolean = false, pagesize:number=5) => {
+    const loadStages = (selectedPipeLineId: number, skipLoading: boolean = false, pagesize: number = 5) => {
         if (!skipLoading) setIsLoading(true);
         if (selectedPipeLineId > 0) stagesSvc.getStages(selectedPipeLineId, 1, pagesize ?? pageSize).then(items => {
             let sortedStages = Util.sortList(items.stageDtos, "stageOrder");
-            let totalDealsList:Array<Deal>=[];
-            sortedStages.forEach((s:Stage)=>{
-               s.deals.forEach(d=>{
-                totalDealsList.push(d);
-               })
+            let totalDealsList: Array<Deal> = [];
+            sortedStages.forEach((s: Stage) => {
+                s.deals.forEach(d => {
+                    totalDealsList.push(d);
+                })
             });
-            
+
             setTotalDeals([...totalDealsList])
             setStages(sortedStages);
             setOriginalStages(sortedStages);
@@ -113,17 +115,17 @@ export const Deals = (props: params) => {
     }
 
     const onScroll = () => {
-        
+
         if (listInnerRef.current) {
-          const { scrollTop, scrollHeight, clientHeight } = listInnerRef.current;
-          const isNearBottom = scrollTop + clientHeight >= scrollHeight;
-    
-          if (isNearBottom) {
-              setPageSize(pageSize => pageSize + 5);
-              loadStages(pipeLineId, true, pageSize + 5);
-          }
+            const { scrollTop, scrollHeight, clientHeight } = listInnerRef.current;
+            const isNearBottom = scrollTop + clientHeight >= scrollHeight;
+
+            if (isNearBottom) {
+                setPageSize(pageSize => pageSize + 5);
+                loadStages(pipeLineId, true, pageSize + 5);
+            }
         }
-      };
+    };
 
     useEffect(() => {
         LocalStorageUtil.setItemObject(Constants.PIPE_LINE, selectedItem);
@@ -175,58 +177,59 @@ export const Deals = (props: params) => {
                             setSelectedItem={(e: any) => setSelectedItem(e)}
                             pipeLinesList={pipeLines}
                             stagesList={stages}
-                            selectedStageId={selectedStageId as any}
-                            onDealDialogClose={(e:any)=>setSelectedStageId(null)}
-                            setViewType={(e:any)=>setViewType(e)}
+                            selectedStageId={dialogIsOpen ? null : selectedStageId as any}
+                            onDealDialogClose={(e: any) => setSelectedStageId(null)}
+                            setViewType={(e: any) => setViewType(e)}
                         />
-                        {viewType ==="kanban" ?
-                        <div className="pdstage-area">
-                            <div className="pdstagearea-inner" ref={listInnerRef as any} onScroll={(e:any)=>onScroll()}>
+                        {viewType === "kanban" ?
+                            <div className="pdstage-area">
+                                <div className="pdstagearea-inner" ref={listInnerRef as any} onScroll={(e: any) => onScroll()}>
 
-                                <div className="pdstage-row" hidden={pipeLines.length == 0}>
-                                    <DragDropContext onDragEnd={onDragEnd} onDragStart={(e: any) => setIsDragging(true)}>
-                                        <Droppable
-                                            droppableId="board"
-                                            type="COLUMN"
-                                            direction="horizontal"
-                                        >
-                                            {(provided) => (
-                                                <>
-                                                    {stages?.map((item, index) => (
-                                                        <DealStage
-                                                            key={index}
-                                                            stageID={item.stageID}
-                                                            title={item.stageName}
-                                                            deals={item.deals}
-                                                            providedFromParent={provided}
-                                                            isDragging={isDragging}
-                                                            pipeLinesList={pipeLines}
-                                                            onDealAddClick={(e:any)=>setSelectedStageId(e)}
-                                                            onStageExpand={(e:any)=> {setDialogIsOpen(true) ; setSelectedStageId(e)}}
-                                                            onSaveChanges={(e: any) => props.onSaveChanges()}
-                                                        />
-                                                    )
-                                                    )}
-                                                    {/* {provided.placeholder} */}
-                                                </>
-                                            )}
-                                        </Droppable>
+                                    <div className="pdstage-row" hidden={pipeLines.length == 0}>
+                                        <DragDropContext onDragEnd={onDragEnd} onDragStart={(e: any) => setIsDragging(true)}>
+                                            <Droppable
+                                                droppableId="board"
+                                                type="COLUMN"
+                                                direction="horizontal"
+                                            >
+                                                {(provided) => (
+                                                    <>
+                                                        {stages?.map((item, index) => (
+                                                            <DealStage
+                                                                key={index}
+                                                                stageID={item.stageID}
+                                                                title={item.stageName}
+                                                                deals={item.deals}
+                                                                providedFromParent={provided}
+                                                                isDragging={isDragging}
+                                                                pipeLinesList={pipeLines}
+                                                                onDealAddClick={(e: any) => setSelectedStageId(e)}
+                                                                onStageExpand={(e: any) => { setSelectedStageName(item.stageName); setDialogIsOpen(true); setStageIdForExpand(e) }}
+                                                                onSaveChanges={(e: any) => props.onSaveChanges()}
+                                                            />
+                                                        )
+                                                        )}
+                                                        {/* {provided.placeholder} */}
+                                                    </>
+                                                )}
+                                            </Droppable>
 
-                                    </DragDropContext>
+                                        </DragDropContext>
 
 
+                                    </div>
+                                    <div style={{ textAlign: "center" }} hidden={pipeLines.length > 0}>
+                                        No pipelines are avilable to show
+                                    </div>
                                 </div>
-                                <div style={{ textAlign: "center" }} hidden={pipeLines.length > 0}>
-                                    No pipelines are avilable to show
-                                </div>
-                            </div>
-                        </div> : <DealListView dealsList={totalDeals}/>}
+                            </div> : <DealListView dealsList={totalDeals} />}
                     </div>
                     {error && <UnAuthorized error={error as any} />}
                     {
-                    dialogIsOpen && <DealsByStage stageId={selectedStageId as any}
-                                                    dialogIsOpen={dialogIsOpen}
-                                                    setDialogIsOpen={setDialogIsOpen}/>
+                        dialogIsOpen && <DealsByStage   stageId={stageIdForExpand as any}
+                                                        stageName={selectedStageName as any}
+                                                        dialogIsOpen={dialogIsOpen}
+                                                        setDialogIsOpen={setDialogIsOpen} />
                     }
                 </>
             }

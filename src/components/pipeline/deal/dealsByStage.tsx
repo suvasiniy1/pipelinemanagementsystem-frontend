@@ -10,11 +10,12 @@ import { UnAuthorized } from '../../../common/unauthorized';
 
 type params = {
     stageId: number;
+    stageName:string;
     dialogIsOpen: boolean;
     setDialogIsOpen: any;
 }
 const DealsByStage = (props: params) => {
-    const { stageId, dialogIsOpen, setDialogIsOpen, ...others } = props;
+    const { stageId, stageName, dialogIsOpen, setDialogIsOpen, ...others } = props;
     const stageSvc = new StageService(ErrorBoundary);
     const [dealsLIst, setDealsList]=useState<Array<Deal>>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -23,8 +24,9 @@ const DealsByStage = (props: params) => {
     useEffect(()=>{
         setIsLoading(true);
         stageSvc.getDealsbyStageId(stageId).then(res=>{
-            
-            setDealsList(res?.deals);
+            if(res && res.deals){
+              setDealsList(res?.deals);
+            }
             setIsLoading(false);
         }).catch(err=>{
             setError(err);
@@ -45,7 +47,7 @@ const DealsByStage = (props: params) => {
 
     return (
         <AddEditDialog dialogIsOpen={dialogIsOpen}
-        header={"Deals by Stage"}
+        header={`Deals under ${stageName}`}
         closeDialog={oncloseDialog}
         onClose={oncloseDialog}
         customFooter={customFooter()}
@@ -54,7 +56,7 @@ const DealsByStage = (props: params) => {
             <>
                 {isLoading && <div className="alignCenter"><Spinner /></div>}
                 <div className='modelformfiledrow dealbystage-popup'>
-                    <div className='dealbystage-popuprow'>
+                    <div className='dealbystage-popuprow' hidden={dealsLIst.length==0}>
                         {
                             dealsLIst?.map((deal, dIndex)=>(
                                 <div className="pdstage-item">
@@ -80,6 +82,9 @@ const DealsByStage = (props: params) => {
                               </div>
                             ))
                         }
+                    </div>
+                    <div className="alignCenter" hidden={dealsLIst.length>0}>
+                      No deals are available for {stageName}
                     </div>
                 </div>
                 {error && <UnAuthorized error={error as any} />}
