@@ -30,13 +30,13 @@ type params = {
           data-testid={deal?.dealID}
           data-index={index}
           key={index}
-          onClick={(e:any)=>navigator(`/deal?id=${deal?.dealID}&pipeLineId=${deal?.pipelineID}`)}
+          // onClick={(e:any)=>navigator(`/deal?id=${deal?.dealID}&pipeLineId=${deal?.pipelineID}`)}
         >
-          <div className="pdstage-item" onScroll={(e:any)=>alert("onScroll")}>
+          <div className="pdstage-item">
             <div className='pdstage-box'>
-              <a className='pdstage-boxlink' href=''>
+              <a className='pdstage-boxlink'>
                 <div className="pdstage-title">{deal?.name}
-                  <Dropdown className='dropdownbox-toolgripdot'>
+                  <Dropdown className='dropdownbox-toolgripdot' style={{cursor : 'pointer'}}>
                       <Dropdown.Toggle className='toolgrip-dot' variant="success" id="dropdown-toolgripdot"><FontAwesomeIcon icon={faEllipsisVertical} /></Dropdown.Toggle>
                       <Dropdown.Menu className='toolgrip-dropdown'>
                           <Dropdown.Item href='#'>View</Dropdown.Item>
@@ -45,7 +45,7 @@ type params = {
                   </Dropdown>
                 </div>
                 <div className="pdstage-description">
-                  <div className="pdstage-descitem">{deal?.title}</div>
+                  <div className="pdstage-descitem"><a href="" onClick={(e:any)=>navigator(`/deal?id=${deal?.dealID}&pipeLineId=${deal?.pipelineID}`)}>{deal?.title}</a></div>
                 </div>
                 <div className="pdstage-status-row">
                   <div className="pdstage-avatar">
