@@ -23,7 +23,7 @@ export const AddEditDialog: React.FC<Props> = (props) => {
     console.log("AddEditDialog - props: ", props);
     const [dialogIsOpen, setDialogIsOpen] = useState(props.dialogIsOpen);
     const { customSaveChangesButtonName, header, customHeader, onSave, onClose, closeDialog, canSave, children, customFooter, onFormChange, disabled, ...rest } = props;
-    const [dialogSize, setDialogSize] = useState(props.dialogSize ? props.dialogSize : "lg");
+    const [dialogSize, setDialogSize] = useState(props.dialogSize =="default"? null : props.dialogSize ?? "lg");
 
     useEffect(() => {
         setDialogIsOpen(props.dialogIsOpen);

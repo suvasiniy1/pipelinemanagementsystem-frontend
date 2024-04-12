@@ -18,6 +18,7 @@ type params = {
     pipeLinesList:Array<PipeLine>;
     onStageExpand:any;
     onDealAddClick:any;
+    onDealModify:any;
 }
 
 export const DealStage = (props: params) => {
@@ -61,6 +62,7 @@ export const DealStage = (props: params) => {
                                 useClone={useClone}
                                 isDragging={isDragging}
                                 pipeLinesList={pipeLinesList}
+                                onDealModify={(e:any)=>props.onDealModify()}
                                 onSaveChanges={(e: any) => props.onSaveChanges()}
                             />
                         </div>

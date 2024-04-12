@@ -15,10 +15,12 @@ import { ToastContainer, toast } from 'react-toastify';
 type paramsForQuote = {
     deals: Array<Deal>;
     isDragging: boolean;
+    pipeLinesList:Array<PipeLine>;
+    onDealModify:any;
 }
 
 const InnerQuoteList = (props: paramsForQuote) => {
-    const { isDragging, ...others } = props;
+    const { isDragging, pipeLinesList, ...others } = props;
     const [deals, setDeals] = useState(props.deals);
     const [selectedDealIndex, setSelectedDealIndex] = useState<number>(0);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -48,6 +50,8 @@ const InnerQuoteList = (props: paramsForQuote) => {
                                 deal={deal}
                                 isGroupedOver={false}
                                 provided={dragProvided}
+                                pipeLinesList={pipeLinesList}
+                                onDealModify={(e:any)=>props.onDealModify()}
                                 onDeleteClick={(e: any) => { setSelectedDealIndex(index); setShowDeleteDialog(true) }}
                             />
                         )}
@@ -55,8 +59,9 @@ const InnerQuoteList = (props: paramsForQuote) => {
                 ))
             }
             {showDeleteDialog &&
-                <DeleteDialog itemType={"Deal"}
+                <DeleteDialog customHeader={"Are you sure you want to delete this deal?"}
                     itemName={""}
+                    customDeleteMessage={"All activities, notes, files, documents and invoices linked to the deal are deleted as well. Deals admins can restore deleted deals within 30 days. The linked items will be restored as well."}
                     dialogIsOpen={showDeleteDialog}
                     closeDialog={(e: any) => setShowDeleteDialog(false)}
                     onConfirm={(e: any) => deleteDeal()}
@@ -84,7 +89,7 @@ const DropZone = styled.divBox`
 function InnerList(props: {
     title?: any; deals?: Array<Deal>; dropProvided?: any;
     showAddButton: boolean, stageID?: number, onSaveChanges?: any,
-    isDragging?: any, pipeLinesList: Array<PipeLine>
+    isDragging?: any, pipeLinesList: Array<PipeLine>, onDealModify:any
 }) {
     const { deals, dropProvided, showAddButton, stageID, isDragging, pipeLinesList, ...others } = props;
     const title = props.title ? <Title>{props.title}</Title> : null;
@@ -95,7 +100,9 @@ function InnerList(props: {
             {title}
             <DropZone ref={dropProvided.innerRef}>
                 <InnerQuoteList deals={deals ?? []}
-                    isDragging={isDragging} />
+                                isDragging={isDragging}
+                                pipeLinesList={pipeLinesList}
+                                onDealModify={(e:any)=>props.onDealModify()}/>
                                     <ToastContainer/>
                 {dropProvided.placeholder}
             </DropZone>
@@ -127,6 +134,7 @@ type params = {
     onSaveChanges: any;
     isDragging: any;
     pipeLinesList: Array<PipeLine>;
+    onDealModify:any
 }
 
 export const DealList = (props: params) => {
@@ -167,6 +175,7 @@ export const DealList = (props: params) => {
                         dropProvided={dropProvided}
                         showAddButton={showAddButton}
                         pipeLinesList={pipeLinesList}
+                        onDealModify={(e:any)=>props.onDealModify()}
                         onSaveChanges={(e: any) => props.onSaveChanges()} />
                 )}
             </Droppable>

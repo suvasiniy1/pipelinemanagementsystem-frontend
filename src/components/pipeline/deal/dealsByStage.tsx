@@ -83,7 +83,7 @@ const DealsByStage = (props: params) => {
                             ))
                         }
                     </div>
-                    <div className="alignCenter" hidden={dealsLIst.length>0}>
+                    <div className="alignCenter" hidden={dealsLIst.length>0 || isLoading}>
                       No deals are available for {stageName}
                     </div>
                 </div>

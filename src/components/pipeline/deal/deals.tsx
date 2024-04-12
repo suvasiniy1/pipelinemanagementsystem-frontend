@@ -95,6 +95,7 @@ export const Deals = (props: params) => {
     }
 
     const loadStages = (selectedPipeLineId: number, skipLoading: boolean = false, pagesize: number = 5) => {
+        
         if (!skipLoading) setIsLoading(true);
         if (selectedPipeLineId > 0) stagesSvc.getStages(selectedPipeLineId, 1, pagesize ?? pageSize).then(items => {
             let sortedStages = Util.sortList(items.stageDtos, "stageOrder");
@@ -152,7 +153,8 @@ export const Deals = (props: params) => {
                 dealsSvc.putItemBySubURL({
                     "newStageId": +destination.droppableId,
                     "modifiedById": userProfile.userId,
-                    "dealId": +source.index
+                    "dealId": +source.index,
+                    "pipelineId":selectedItem?.pipelineID
                 }, +source.index + "/stage").then(res => {
 
                     toast.success("Deal updated successfully.")
@@ -203,6 +205,7 @@ export const Deals = (props: params) => {
                                                                 providedFromParent={provided}
                                                                 isDragging={isDragging}
                                                                 pipeLinesList={pipeLines}
+                                                                onDealModify={(e:any)=>{loadStages(selectedItem?.pipelineID as any) ; toast.success("Deal updated successfully.");}}
                                                                 onDealAddClick={(e: any) => setSelectedStageId(e)}
                                                                 onStageExpand={(e: any) => { setSelectedStageName(item.stageName); setDialogIsOpen(true); setStageIdForExpand(e) }}
                                                                 onSaveChanges={(e: any) => props.onSaveChanges()}

@@ -2,7 +2,7 @@
 import { Button, Modal } from "react-bootstrap"
 
 type Props = {
-    itemType: string;
+    itemType?: string;
     itemName: string;
     dialogIsOpen: any;
     closeDialog: any;
@@ -13,12 +13,13 @@ type Props = {
     cancelLabel?: string;
     actionType: any;
     hideCrossButton?: any;
+    customHeader?:any;
 };
 
 export const DeleteDialog: React.FC<Props> = (props) => {
     
 
-    const { itemType, itemName, dialogIsOpen, closeDialog, onConfirm, customDeleteMessage, isPromptOnly, confirmLabel, cancelLabel, actionType, hideCrossButton } = props;
+    const { customHeader, itemType, itemName, dialogIsOpen, closeDialog, onConfirm, customDeleteMessage, isPromptOnly, confirmLabel, cancelLabel, actionType, hideCrossButton } = props;
 
     const getDeleteMessage = () => {
 
@@ -33,10 +34,10 @@ export const DeleteDialog: React.FC<Props> = (props) => {
                 keyboard={false} // this is added to disable click outside of Modal window
                 centered >
                 {!hideCrossButton ? <Modal.Header closeButton >
-                    <Modal.Title id="deleteDialogHeader">{actionType} {itemType}</Modal.Title>
+                    <Modal.Title id="deleteDialogHeader">{customHeader ?? actionType  + itemType}</Modal.Title>
                 </Modal.Header>
                     : <Modal.Header >
-                        <Modal.Title id="deleteDialogHeader">{actionType} {itemType}</Modal.Title>
+                        <Modal.Title id="deleteDialogHeader">{customHeader ?? actionType  + itemType}</Modal.Title>
                     </Modal.Header>
                 }
                 <Modal.Body id="deleteModelBody">{getDeleteMessage()} </Modal.Body>

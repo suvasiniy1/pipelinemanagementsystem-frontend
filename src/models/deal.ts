@@ -103,3 +103,10 @@ export class Deal extends AuditItem {
 
     // }
 }
+
+export class DealMove {
+    newStageId!: number
+    modifiedById!: number
+    dealId!: number
+    pipelineId!: number
+}
