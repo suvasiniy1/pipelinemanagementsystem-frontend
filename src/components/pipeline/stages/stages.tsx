@@ -5,14 +5,15 @@ import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { Spinner } from "react-bootstrap";
 import { ErrorBoundary } from "react-error-boundary";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { DeleteDialog } from "../../../common/deleteDialog";
-import { UnAuthorized } from "../../../common/unauthorized";
 import { PipeLine } from "../../../models/pipeline";
 import { Stage } from "../../../models/stage";
+import { UserProfile } from "../../../models/userProfile";
 import LocalStorageUtil from "../../../others/LocalStorageUtil";
 import Constants from "../../../others/constants";
+import Util from "../../../others/util";
 import { PipeLineService } from "../../../services/pipeLineService";
 import { StageService } from "../../../services/stageService";
 import { generateQuoteMap } from "../dnd/mockData";
@@ -20,8 +21,6 @@ import reorder from "../dnd/reorder";
 import { AddNewStage } from "./addNewStage";
 import { StageActions } from "./stageActions";
 import { StageContainer } from "./stageContainer";
-import { UserProfile } from "../../../models/userProfile";
-import Util from "../../../others/util";
 
 type params = {
     isCombineEnabled?: any,

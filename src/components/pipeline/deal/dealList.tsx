@@ -2,15 +2,15 @@ import { Title } from "@material-ui/icons";
 import styled from '@xstyled/styled-components';
 import { useState } from "react";
 import { Draggable, Droppable } from "react-beautiful-dnd";
+import { ErrorBoundary } from "react-error-boundary";
+import { toast } from 'react-toastify';
+import { DeleteDialog } from "../../../common/deleteDialog";
 import { Deal } from "../../../models/deal";
 import { PipeLine } from "../../../models/pipeline";
+import { DealService } from "../../../services/dealService";
 import { grid } from "../dnd/styles/constants";
 import { DealAddEditDialog } from "./dealAddEditDialog";
 import { DealItem } from "./dealItem";
-import { DeleteDialog } from "../../../common/deleteDialog";
-import { DealService } from "../../../services/dealService";
-import { ErrorBoundary } from "react-error-boundary";
-import { ToastContainer, toast } from 'react-toastify';
 
 type paramsForQuote = {
     deals: Array<Deal>;
@@ -103,7 +103,6 @@ function InnerList(props: {
                                 isDragging={isDragging}
                                 pipeLinesList={pipeLinesList}
                                 onDealModify={(e:any)=>props.onDealModify()}/>
-                                    <ToastContainer/>
                 {dropProvided.placeholder}
             </DropZone>
             {

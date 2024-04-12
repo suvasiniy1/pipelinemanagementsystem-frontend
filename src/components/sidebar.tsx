@@ -6,11 +6,11 @@ import { Container, Content, Dropdown, Nav, Sidenav } from 'rsuite';
 import 'rsuite/dist/styles/rsuite-default.css';
 import jpg from "../../src/resources/images/logo.jpg";
 import svg from "../../src/resources/images/y1.svg";
+import HandleIdleTime from '../common/handleIdleTime';
 import LocalStorageUtil from '../others/LocalStorageUtil';
 import { AppRouter } from '../others/appRouter';
 import Constants from '../others/constants';
 import { HeaderComponent } from './header/header';
-import HandleIdleTime from '../common/handleIdleTime';
 
 export const SideBar = () => {
     const [expanded, setExpanded] = useState(false);

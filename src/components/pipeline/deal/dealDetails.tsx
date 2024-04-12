@@ -1,17 +1,17 @@
+import { faAngleDown, faBarsStaggered, faBuilding, faCircleUser, faEllipsis, faFileLines, faFlagCheckered, faGear, faMoneyBill, faPencil, faPlus, faScaleBalanced, faSortDown, faTag, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleUser, faPencil, faSortDown, faEllipsis, faAngleDown, faGear, faPlus, faMoneyBill, faTag, faScaleBalanced, faFlagCheckered, faUser, faBuilding, faBarsStaggered, faFileLines } from '@fortawesome/free-solid-svg-icons';
-import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { DealService } from '../../../services/dealService';
-import { ErrorBoundary } from 'react-error-boundary';
 import { AxiosError } from 'axios';
-import { UnAuthorized } from '../../../common/unauthorized';
+import { useEffect, useState } from 'react';
 import { Spinner } from 'react-bootstrap';
+import { ErrorBoundary } from 'react-error-boundary';
+import { useLocation } from 'react-router-dom';
+import { toast } from "react-toastify";
+import { UnAuthorized } from '../../../common/unauthorized';
 import { Deal } from '../../../models/deal';
-import { StageService } from '../../../services/stageService';
 import { Stage } from '../../../models/stage';
 import Util from '../../../others/util';
-import { ToastContainer, toast } from "react-toastify";
+import { DealService } from '../../../services/dealService';
+import { StageService } from '../../../services/stageService';
 
 export const DealDetails = () => {
 
@@ -283,7 +283,7 @@ export const DealDetails = () => {
 
                 </div>
             }
-            <ToastContainer />
+
         </>
     )
 }

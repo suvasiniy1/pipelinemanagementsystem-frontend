@@ -11,6 +11,7 @@ import { Home } from "../components/home";
 import { useEffect } from "react";
 import LocalStorageUtil from "./LocalStorageUtil";
 import Constants from "./constants";
+import { ToastContainer } from "react-toastify";
 
 export const AppRouter = () => {
 
@@ -26,6 +27,7 @@ export const AppRouter = () => {
     const getClasTobeRemoved = (className: string) => className === "sidenavExpand" ? "sidenavCollapse" : "sidenavExpand"
 
     return (
+        <>
         <Routes>
             <Route
                 path="/pipeline"
@@ -60,5 +62,7 @@ export const AppRouter = () => {
                 element={<DealDetails />}
             />
         </Routes>
+            <ToastContainer />  
+        </>
     )
 }

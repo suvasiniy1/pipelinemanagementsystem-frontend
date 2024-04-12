@@ -1,28 +1,27 @@
 
 // @flow
+import { AxiosError } from "axios";
 import { useEffect, useRef, useState } from "react";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
-import { Stage } from "../../../models/stage";
-import { DealHeader } from "./dealHeader";
-import { DealStage } from "./dealStage";
-import { PipeLineService } from "../../../services/pipeLineService";
+import { Spinner } from "react-bootstrap";
 import { ErrorBoundary } from "react-error-boundary";
-import { StageService } from "../../../services/stageService";
-import { DealService } from "../../../services/dealService";
-import { PipeLine } from "../../../models/pipeline";
+import { useLocation, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { UnAuthorized } from "../../../common/unauthorized";
 import { Deal } from "../../../models/deal";
+import { PipeLine } from "../../../models/pipeline";
+import { Stage } from "../../../models/stage";
 import LocalStorageUtil from "../../../others/LocalStorageUtil";
 import Constants from "../../../others/constants";
-import { ToastContainer, toast } from "react-toastify";
-import { AxiosError } from "axios";
-import { useLocation, useNavigate } from "react-router-dom";
-import { UnAuthorized } from "../../../common/unauthorized";
 import Util from "../../../others/util";
-import { Spinner } from "react-bootstrap";
+import { DealService } from "../../../services/dealService";
+import { PipeLineService } from "../../../services/pipeLineService";
+import { StageService } from "../../../services/stageService";
 import { UtilService } from "../../../services/utilService";
-import dealsByStage from "./dealsByStage";
-import DealsByStage from "./dealsByStage";
+import { DealHeader } from "./dealHeader";
 import DealListView from "./dealListView";
+import { DealStage } from "./dealStage";
+import DealsByStage from "./dealsByStage";
 
 type params = {
     isCombineEnabled?: any,
@@ -96,7 +95,7 @@ export const Deals = (props: params) => {
 
     const loadStages = (selectedPipeLineId: number, skipLoading: boolean = false, pagesize: number = 5) => {
         
-        if (!skipLoading) setIsLoading(true);
+        setIsLoading(true);
         if (selectedPipeLineId > 0) stagesSvc.getStages(selectedPipeLineId, 1, pagesize ?? pageSize).then(items => {
             let sortedStages = Util.sortList(items.stageDtos, "stageOrder");
             let totalDealsList: Array<Deal> = [];
@@ -110,6 +109,12 @@ export const Deals = (props: params) => {
             setStages(sortedStages);
             setOriginalStages(sortedStages);
             setIsLoading(false);
+            setTimeout(() => {
+                if(skipLoading){
+                    toast.success("Deal updated successfully.", );
+                }
+            }, 100);
+
         }).catch(err => {
             setError(err);
         });
@@ -150,14 +155,14 @@ export const Deals = (props: params) => {
 
                 setStages([...stagesList]);
 
+                setIsLoading(true);
+
                 dealsSvc.putItemBySubURL({
                     "newStageId": +destination.droppableId,
                     "modifiedById": userProfile.userId,
                     "dealId": +source.index,
                     "pipelineId":selectedItem?.pipelineID
                 }, +source.index + "/stage").then(res => {
-
-                    toast.success("Deal updated successfully.")
                     loadStages(selectedItem?.pipelineID as any, true);
                 }).catch(err => {
                     setError(err);
@@ -205,7 +210,7 @@ export const Deals = (props: params) => {
                                                                 providedFromParent={provided}
                                                                 isDragging={isDragging}
                                                                 pipeLinesList={pipeLines}
-                                                                onDealModify={(e:any)=>{loadStages(selectedItem?.pipelineID as any) ; toast.success("Deal updated successfully.");}}
+                                                                onDealModify={(e:any)=>{loadStages(selectedItem?.pipelineID as any, true);}}
                                                                 onDealAddClick={(e: any) => setSelectedStageId(e)}
                                                                 onStageExpand={(e: any) => { setSelectedStageName(item.stageName); setDialogIsOpen(true); setStageIdForExpand(e) }}
                                                                 onSaveChanges={(e: any) => props.onSaveChanges()}
@@ -236,7 +241,7 @@ export const Deals = (props: params) => {
                     }
                 </>
             }
-            <ToastContainer />
+
         </>
     );
 };

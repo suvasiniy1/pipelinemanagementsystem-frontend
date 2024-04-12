@@ -1,22 +1,22 @@
-import { useEffect, useState } from "react";
-import { AddEditDialog } from "../../../common/addEditDialog"
-import { IControl, ElementType, CustomActionPosition } from "../../../models/iControl";
-import Util from "../../../others/util";
-import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { FormProvider, useForm } from "react-hook-form";
-import GenerateElements from "../../../common/generateElements";
-import { Deal } from "../../../models/deal";
-import { Stage } from "../../../models/stage";
-import { PipeLine } from "../../../models/pipeline";
+import { useEffect, useState } from "react";
 import { Spinner } from "react-bootstrap";
 import { ErrorBoundary } from "react-error-boundary";
-import { DealService } from "../../../services/dealService";
-import { ToastContainer, toast } from 'react-toastify';
-import { StageService } from "../../../services/stageService";
+import { FormProvider, useForm } from "react-hook-form";
+import { toast } from 'react-toastify';
+import * as Yup from 'yup';
+import { AddEditDialog } from "../../../common/addEditDialog";
+import GenerateElements from "../../../common/generateElements";
+import { Deal } from "../../../models/deal";
+import { ElementType, IControl } from "../../../models/iControl";
+import { PipeLine } from "../../../models/pipeline";
+import { Stage } from "../../../models/stage";
+import { Utility } from "../../../models/utility";
 import LocalStorageUtil from "../../../others/LocalStorageUtil";
 import Constants from "../../../others/constants";
-import { Utility } from "../../../models/utility";
+import Util from "../../../others/util";
+import { DealService } from "../../../services/dealService";
+import { StageService } from "../../../services/stageService";
 
 type params = {
     dialogIsOpen: boolean;
