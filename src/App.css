@@ -389,19 +389,41 @@ color: #fff; cursor: pointer; flex-basis: 0; font: 450 12px / 18px "Inter",sans-
 .sidebardetail-col{width: 400px; height: 100%; overflow-y: auto; z-index: 1; flex-shrink: 0; background-color: #fff; border-right: 1px solid rgba(33,35,44,.12);}
 .timelinecontent-col{width: 100%; height: 100%; overflow: hidden auto; background-color: #f5f5f6;}
 
-.app-dealblock{border-bottom: 1px solid rgba(33,35,44,.12);}
-.app-dealblock-inner{padding: 8px;}
 .appdealblock-head{padding:8px 0; position: relative; display: flex; align-items: center; justify-content: space-between;}
 .appblock-headcolleft{display: flex; -webkit-box-align: center; align-items: center;}
-.appblock-headcolright{margin-left: auto;}
-.appblock-collapse{display: flex; align-items: center; font-weight: 600; padding: 5px 10px; border-radius: 4px; background-color: inherit; font-size: 16px;}
+.appblock-headcolright{margin-left: auto; display: flex;}
+.appdealblock-row {padding: 4px 0;}
+.dflex{display: flex; align-items: center;}
+.appdeal-amountnum, .closedateinput, .stageappointment{padding-left: 5px;}
+.dropdown-scheduledbox button.btn{background-color: #fff; border: none; color: #0d68c5; padding: 0; font-weight: bold; font-size: 14px;}
+.dropdown-scheduledbox button.btn:hover{background-color: #fff; border: none; padding: 0; color: #0d68c5;}
+.sidebardetailtopbar{display: flex; width: 100%; align-items: center; justify-content: space-between; padding: 14px 14px 0;}
+.appdealtopbartitle {color: #0d68c5; font-size: 14px; font-weight: bold;}
+.dropdown-actionsbox button.btn, .dropdown-actionsbox button.btn:focus {background-color: #fff; border: none; padding: 0; color: #0d68c5; font-weight: bold; font-size: 14px;}
+.dropdown-actionsbox button.btn:hover{background-color: #fff; border: none; padding: 0; color: #0d68c5;}
+
+.app-dealblock{border-bottom: 1px solid rgba(33,35,44,.12);}
+.app-dealblock-inner{padding: 8px;}
+.appdealblock-title{padding: 0 8px; display: flex; justify-content: space-between; align-items: center;}
+.appdealblock-title h3{font-size: 22px;}
+.appdealblock-titleedit{opacity: 0;}
+.appdealblock-title:hover .appdealblock-titleedit{opacity: 1;}
+.appblock-collapse{display: flex; align-items: center; font-weight: 600; padding: 5px 10px; border-radius: 4px; background-color: inherit; font-size: 14px;}
 .appblock-collapse:hover{background-color: rgb(33 35 44/5%);}
 .appblock-collapse svg{vertical-align: middle; margin-right: 5px;}
+.appdealblock-iconlist {margin: 0; padding: 0; display: flex; align-items: center; justify-content: center;}
+.appdealblock-iconlist li {width: 50px; display: flex; flex-direction: column;}
+.dealicon{background-color: #eaf0f6; border:1px solid #cbd6e2; color: #506e91; font-size: 16px; width: 32px; height:32px; border-radius: 32px;}
+.dealicon-name{padding-top: 5px; overflow: hidden; text-overflow: ellipsis; font-size: 14px;}
+
 .summerysetting-btn{padding: 1px; border-radius: 4px; height: 24px; width: 24px; background-color: inherit;}
 .summerysetting-btn:hover{background-color: rgb(33 35 44/5%);}
 .appblock-titlelabel{flex-grow: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
 .appblock-collapse{}
-.appdealblock-data{padding: 8px;}
+.appdealblock-data{padding: 0 8px 8px;}
+.dropdown-dealactionsbox button.btn, .dropdown-dealactionsbox button.btn:focus {background-color: #fff; border: 1px solid rgba(0, 0, 0, 0.175); color: #21232c; padding: 0; font-size: 14px; padding: 2px 8px; margin-right: 8px;}
+.dropdown-dealactionsbox button.btn:hover{background-color: #fff;}
+
 .dealvalue-col{display: flex; max-width: 100%; -webkit-box-align: center; align-items: center; flex: 1 1 auto;}
 .dealvalue{display: flex; justify-content: space-between; align-items: center;}
 .fields-listrow{display: flex; width: 100%; position: relative; border-radius: 4px; padding: 5px 4px; padding-right: 30px;}
@@ -420,18 +442,21 @@ button.fields-editbtn{visibility: hidden; line-height: 1.2; background-color: #f
 .summery-addlabels:hover{background-color: rgb(33 35 44/5%);}
 .summery-addlabels:hover .fields-editbtn{visibility: visible; background-color: #fff; border: 1px solid rgba(33, 35, 44, .24);}
 
-.appdeal-dtrow{display: flex;}
-.appdeal-dtname{width: 100px; padding: 4px 0; display: flex; -webkit-box-pack: end; justify-content: flex-end; flex-shrink: 0; text-align: right;}
-.appdeal-dtvalue{margin-left: 8px;  padding: 4px 5px; cursor: pointer; position: relative; display: flex; align-items: center; -webkit-box-flex: 1; flex-grow: 1; -webkit-box-pack: center; justify-content: space-between; width: auto;}
-.appdeal-dtvalue:hover{background-color: rgb(33 35 44/5%); border-radius: 4px;}
+.appdeal-dtrow{display: flex; position: relative; flex-direction: column; padding-top: 8px; padding-bottom: 8px; padding-right: 90px; border-bottom: 1px solid rgba(33, 35, 44, .24);}
+.appdeal-dtvalue{padding-top: 8px;}
 .appdeal-dtvalue:hover .fields-editbtn{visibility: visible; background-color: #fff; border: 1px solid rgba(33, 35, 44, .24);}
+.fields-btnedit{line-height: 1.2; background-color: #fff; padding: 4px 5px; color: #21232c; height: 24px; width: 24px; font-size: 12px; border: 1px solid rgba(33, 35, 44, .24); border-radius: 4px;box-shadow: 0 1px 2px 0 rgb(42 54 71/5%);}
+.fields-btnedit:hover{border: 1px solid rgba(33, 35, 44, .24);}
+.fields-detailbtn{margin-left: 5px; background-color: #fff; border: 1px solid rgba(0, 0, 0, 0.175); color: #21232c; font-size: 14px; padding: 2px 8px;}
+.fields-detailbtn:hover{border: 1px solid rgba(0, 0, 0, 0.175);}
 .appdeal-dtname .fa-circle-user {font-size: 24px; color: #2b74da;}
-
+.appdeal-dtdetail {opacity: 0; position: absolute; right: 0; z-index: 1; top: 50%; margin-top: -13px;}
+.appdeal-dtrow:hover .appdeal-dtdetail{opacity: 1;}
 
 .timelinecontent{height: 100%; width: 100%; max-width: 1300px;}
 .timeline-block{width: 100%; padding: 24px 24px 0;}
-.timeline-blockinner{background-color: #fff; width: 100%; border-radius: 4px; box-shadow: 0 0 1px 1px rgb(0 0 0/5%),0 1px 2px -2px rgb(0 0 0/6%),0 1px 3px 0 rgb(0 0 0/7%);}
-.timeline-tabs{display: flex; flex-direction: column; width: 100%;}
+.timeline-blockinner{width: 100%;}
+/* .timeline-tabs{display: flex; flex-direction: column; width: 100%;}
 .timeline-tabslist{display: flex; flex-direction: row;  order: 1; position: relative; width: 100%; z-index: 1; border-bottom: 1px solid rgba(33,35,44,.12);}
 .timeline-tabswrap{display: flex; -webkit-box-pack: justify; justify-content: space-between; width: 100%;}
 .timeline-tabslinks{display: flex; flex-wrap: wrap;}
@@ -440,8 +465,18 @@ button.fields-editbtn{visibility: hidden; line-height: 1.2; background-color: #f
 .tabactive{background-color: #eff6ff; color: #0d68c5; border-color: #2b74da;}
 .tabbtn:first-child{border-radius: 4px 0 0 0;}
 .tabbtn svg{font-size: 16px; margin-right: 8px;}
-.timeline-tabscontent{position: relative; order: 2;}
-.notecomposer-tab{padding: 16px;}
+.timeline-tabscontent{position: relative; order: 2;} */
+.timelinetab-block .nav-link{color: #0d68c5;}
+.activity-subtab .nav-link{color: #0d68c5;}
+.whiteshadowbox{background-color: #fff; margin-bottom: 16px; box-shadow: rgba(45, 62, 80, 0.12) 0px 1px 5px 0px; border-radius: 3px; padding: 24px;}
+.tabcard-header{display: flex; align-items: center; justify-content: space-between; padding-bottom: 24px;}
+.tabcard-header h2{font-size: 20px;line-height: 1.3;}
+.tabcard-actions .summerysetting-btn{font-size: 18px;}
+.tabcard-content{padding-top: 24px; padding-bottom: 24px;}
+.datahighlights-list{display: flex;}
+.datahighlights-item{width: 33.333%; text-align: center;}
+.datahighlights-item h3{font-size: 14px; text-transform: uppercase;}
+.datahighlights-datetxt{}
 
 
 
