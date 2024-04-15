@@ -1,8 +1,9 @@
-import { faAngleDown, faBarsStaggered, faBuilding, faCircleUser, faEllipsis, faFileLines, faFlagCheckered, faGear, faMoneyBill, faPencil, faPlus, faScaleBalanced, faSortDown, faTag, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faAngleLeft, faPenToSquare, faEnvelope, faPhone, faCalendarDays, faListCheck, faAngleDown, faBarsStaggered, faBuilding, faCircleUser, faEllipsis, faFileLines, faFlagCheckered, faGear, faMoneyBill, faPencil, faPlus, faScaleBalanced, faSortDown, faTag, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { AxiosError } from 'axios';
 import { useEffect, useState } from 'react';
 import { Spinner } from 'react-bootstrap';
+import Dropdown from 'react-bootstrap/Dropdown';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useLocation } from 'react-router-dom';
 import { toast } from "react-toastify";
@@ -12,6 +13,8 @@ import { Stage } from '../../../models/stage';
 import Util from '../../../others/util';
 import { DealService } from '../../../services/dealService';
 import { StageService } from '../../../services/stageService';
+import Tab from 'react-bootstrap/Tab';
+import Tabs from 'react-bootstrap/Tabs';
 
 export const DealDetails = () => {
 
@@ -99,180 +102,227 @@ export const DealDetails = () => {
 
                     <div className="pdstage-detail">
                         <div className='sidebardetail-col'>
+                            <div className='sidebardetailtopbar'>
+                                <div className='appdealtopbartitle'><FontAwesomeIcon icon={faAngleLeft} /> Deals</div>
+                                <div className='appdealtopbaractions'>
+                                    <Dropdown className='dropdown-actionsbox'>
+                                        <Dropdown.Toggle id="dropdown-actions">Actions</Dropdown.Toggle>
+                                        <Dropdown.Menu className='dropdown-actionslist'>
+                                            <Dropdown.Item href="#/action-1">Unfollow</Dropdown.Item>
+                                            <Dropdown.Item href="#/action-2">View all properties</Dropdown.Item>
+                                            <Dropdown.Item href="#/action-3">View property history</Dropdown.Item>
+                                            <Dropdown.Divider />
+                                            <Dropdown.Item href="#/action-4">View association history</Dropdown.Item>
+                                            <Dropdown.Divider />
+                                            <Dropdown.Item href="#/action-5">Merge</Dropdown.Item>
+                                            <Dropdown.Item href="#/action-6">Delete</Dropdown.Item>
+                                        </Dropdown.Menu>
+                                    </Dropdown>
+                                </div>
+                            </div>
                             <div className='app-dealblock'>
                                 <div className='app-dealblock-inner'>
-                                    <div className='appdealblock-head'>
-                                        <div className='appblock-headcolleft'><button className="appblock-collapse"><span className="appblock-titlelabel"><FontAwesomeIcon icon={faAngleDown} /> Summary</span></button></div>
-                                        <div className='appblock-headcolright'><button className="summerysetting-btn"><FontAwesomeIcon icon={faGear} /></button></div>
+                                    <div className='appdealblock-title'>
+                                        <h3>Consulting: Admiral blue</h3>
+                                        <div className='appdealblock-titleedit'>
+                                            <FontAwesomeIcon icon={faPencil} />
+                                        
+                                        </div>
                                     </div>
                                     <div className='appdealblock-data'>
-                                        <div className='dealvalue'>
-                                            <div className='dealvalue-col'>
-                                                <div className='dealvalueicon'><FontAwesomeIcon icon={faMoneyBill} /></div>
-                                                <div className='fields-listrow'>£0
-                                                    <button className='btn fields-editbtn'><FontAwesomeIcon icon={faPencil} /></button>
+                                        <div className='appdealblock-row'>
+                                            <div className='appdeal-amount dflex'>Amount: <span className='appdeal-amountnum'>$2,500</span></div>
+                                        </div>
+                                        <div className='appdealblock-row'>
+                                            <div className='appdeal-closedate dflex'>Close Date: <div className='closedateinput'><input type='date' placeholder='MM/DD/YYYY' /></div></div>
+                                        </div>
+                                        <div className='appdealblock-row'>
+                                            <div className='appdeal-closedate dflex'>Stage: 
+                                                <div className='stageappointment'>
+                                                    <Dropdown className='dropdown-scheduledbox'>
+                                                        <Dropdown.Toggle id="dropdown-scheduled">Appointment Scheduled</Dropdown.Toggle>
+                                                        <Dropdown.Menu className='dropdown-scheduledlist'>
+                                                            <Dropdown.Item href="#/action-1">Unfollow</Dropdown.Item>
+                                                            <Dropdown.Item href="#/action-2">View all properties</Dropdown.Item>
+                                                            <Dropdown.Item href="#/action-3">View property history</Dropdown.Item>
+                                                            <Dropdown.Divider />
+                                                            <Dropdown.Item href="#/action-4">View association history</Dropdown.Item>
+                                                            <Dropdown.Divider />
+                                                            <Dropdown.Item href="#/action-5">Merge</Dropdown.Item>
+                                                            <Dropdown.Item href="#/action-6">Delete</Dropdown.Item>
+                                                        </Dropdown.Menu>
+                                                    </Dropdown>
                                                 </div>
                                             </div>
-                                            <div className='products-addbutton'>
-                                                <button className='btn'><FontAwesomeIcon icon={faPlus} /> Products</button>
-                                            </div>
                                         </div>
-                                        <div className='dealvalue-row'>
-                                            <div className='dealvalueicon'><FontAwesomeIcon icon={faTag} /></div>
-                                            <div className='dealvalue-rowdata'>
-                                                <button className='summery-addlabels'>Add labels</button>
-                                            </div>
+                                        <div className='appdealblock-row'>
+                                            <ul className='appdealblock-iconlist'>
+                                                <li>
+                                                    <button className='dealicon'><FontAwesomeIcon icon={faPenToSquare} /></button>
+                                                    <span className='dealicon-name'>Note</span>
+                                                </li>
+                                                <li>
+                                                    <button className='dealicon'><FontAwesomeIcon icon={faEnvelope} /></button>
+                                                    <span className='dealicon-name'>Email</span>
+                                                </li>
+                                                <li>
+                                                    <button className='dealicon'><FontAwesomeIcon icon={faPhone} /></button>
+                                                    <span className='dealicon-name'>Call</span>
+                                                </li>
+                                                <li>
+                                                    <button className='dealicon'><FontAwesomeIcon icon={faListCheck} /></button>
+                                                    <span className='dealicon-name'>Task</span>
+                                                </li>
+                                                <li>
+                                                    <button className='dealicon'><FontAwesomeIcon icon={faCalendarDays} /></button>
+                                                    <span className='dealicon-name'>Metting</span>
+                                                </li>
+                                                <li>
+                                                    <button className='dealicon'><FontAwesomeIcon icon={faEllipsis} /></button>
+                                                    <span className='dealicon-name'>More</span>
+                                                </li>
+                                            </ul>
                                         </div>
-                                        <div className='dealvalue-row'>
-                                            <div className='dealvalueicon'><FontAwesomeIcon icon={faScaleBalanced} /></div>
-                                            <div className='dealvalue-rowdata'>
-                                                <div className='summery-addlabels'>Set deal probability <button className='btn fields-editbtn'><FontAwesomeIcon icon={faPencil} /></button></div>
-                                            </div>
-                                        </div>
-                                        <div className='dealvalue-row'>
-                                            <div className='dealvalueicon'><FontAwesomeIcon icon={faFlagCheckered} /></div>
-                                            <div className='dealvalue-rowdata'>
-                                                <div className='summery-addlabels'>Set expected close date <button className='btn fields-editbtn'><FontAwesomeIcon icon={faPencil} /></button></div>
-                                            </div>
-                                        </div>
-                                        <div className='dealvalue-row'>
-                                            <div className='dealvalueicon'><FontAwesomeIcon icon={faUser} /></div>
-                                            <div className='dealvalue-rowdata'>
-                                                <div className='summery-addlabels'><a><strong>Stuart Taylor</strong></a> <button className='btn fields-editbtn'><FontAwesomeIcon icon={faPencil} /></button></div>
-                                            </div>
-                                        </div>
-                                        <div className='dealvalue-row'>
-                                            <div className='dealvalueicon'><FontAwesomeIcon icon={faBuilding} /></div>
-                                            <div className='dealvalue-rowdata'>
-                                                <div className='summery-addlabels'><a><strong>Transform</strong></a> <button className='btn fields-editbtn'><FontAwesomeIcon icon={faPencil} /></button></div>
-                                            </div>
-                                        </div>
-
                                     </div>
                                 </div>
                             </div>
                             <div className='app-dealblock'>
                                 <div className='app-dealblock-inner'>
                                     <div className='appdealblock-head'>
-                                        <div className='appblock-headcolleft'><button className="appblock-collapse"><span className="appblock-titlelabel"><FontAwesomeIcon icon={faAngleDown} /> Details</span></button></div>
-                                        <div className='appblock-headcolright'><button className="summerysetting-btn"><FontAwesomeIcon icon={faBarsStaggered} /></button> <button className="summerysetting-btn"><FontAwesomeIcon icon={faPencil} /></button></div>
+                                        <div className='appblock-headcolleft'><button className="appblock-collapse"><span className="appblock-titlelabel"><FontAwesomeIcon icon={faAngleDown} /> About this deal</span></button></div>
+                                        <div className='appblock-headcolright'>
+                                            <Dropdown className='dropdown-dealactionsbox'>
+                                                <Dropdown.Toggle id="dropdown-dealactions">Actions</Dropdown.Toggle>
+                                                <Dropdown.Menu className='dropdown-dealactionslist'>
+                                                    <Dropdown.Item href="#/action-1">Edit properties</Dropdown.Item>
+                                                    <Dropdown.Item href="#/action-2">View all properties</Dropdown.Item>
+                                                    <Dropdown.Item href="#/action-3">View property history</Dropdown.Item>
+                                                </Dropdown.Menu>
+                                            </Dropdown>
+                                            <button className="summerysetting-btn"><FontAwesomeIcon icon={faGear} /></button></div>
                                     </div>
                                     <div className='appdealblock-data'>
                                         <div className='appdeal-dtrow'>
-                                            <div className='appdeal-dtname'>Clinic</div>
-                                            <div className='appdeal-dtvalue'><div className='appdeal-dtvalueedit'>-</div> <button className='btn fields-editbtn'><FontAwesomeIcon icon={faPencil} /></button></div>
+                                            <div className='appdeal-dtname'>Deal owner</div>
+                                            <div className='appdeal-dtvalue'>
+                                                <select className='ownerselect'>
+                                                    <option>No Owner</option>
+                                                    <option selected>Pankur Patel</option>
+                                                </select>
+                                            </div>
+                                            <div className='appdeal-dtdetail'>
+                                                <button className='btn fields-btnedit'><FontAwesomeIcon icon={faPencil} /></button>
+                                                <button className='btn fields-detailbtn'>Detail</button>
+                                            </div>
                                         </div>
                                         <div className='appdeal-dtrow'>
-                                            <div className='appdeal-dtname'>Referral Code</div>
-                                            <div className='appdeal-dtvalue'><div className='appdeal-dtvalueedit'>-</div> <button className='btn fields-editbtn'><FontAwesomeIcon icon={faPencil} /></button></div>
+                                            <div className='appdeal-dtname'>Last contacted</div>
+                                            <div className='appdeal-dtvalue'>
+                                            -
+                                            </div>
+                                            <div className='appdeal-dtdetail'>                                                
+                                                <button className='btn fields-detailbtn'>Detail</button>
+                                            </div>
                                         </div>
                                         <div className='appdeal-dtrow'>
-                                            <div className='appdeal-dtname'>Source</div>
-                                            <div className='appdeal-dtvalue'><div className='appdeal-dtvalueedit'>-</div> <button className='btn fields-editbtn'><FontAwesomeIcon icon={faPencil} /></button></div>
-                                        </div>
-                                        <div className='appdeal-dtrow'>
-                                            <div className='appdeal-dtname'>Treatment</div>
-                                            <div className='appdeal-dtvalue'><div className='appdeal-dtvalueedit'>-</div> <button className='btn fields-editbtn'><FontAwesomeIcon icon={faPencil} /></button></div>
-                                        </div>
-                                        <div className='appdeal-dtrow'>
-                                            <div className='appdeal-dtname'>Enquiry</div>
-                                            <div className='appdeal-dtvalue'><div className='appdeal-dtvalueedit'>-</div> <button className='btn fields-editbtn'><FontAwesomeIcon icon={faPencil} /></button></div>
-                                        </div>
-                                        <div className='appdeal-dtrow'>
-                                            <div className='appdeal-dtname'>Appointment Status</div>
-                                            <div className='appdeal-dtvalue'><div className='appdeal-dtvalueedit'>-</div> <button className='btn fields-editbtn'><FontAwesomeIcon icon={faPencil} /></button></div>
-                                        </div>
-                                        <div className='appdeal-dtrow'>
-                                            <div className='appdeal-dtname'>PA First Name</div>
-                                            <div className='appdeal-dtvalue'><div className='appdeal-dtvalueedit'>Charlotte</div> <button className='btn fields-editbtn'><FontAwesomeIcon icon={faPencil} /></button></div>
-                                        </div>
-                                        <div className='appdeal-dtrow'>
-                                            <div className='appdeal-dtname'>Operation Date</div>
-                                            <div className='appdeal-dtvalue'><div className='appdeal-dtvalueedit'>-</div> <button className='btn fields-editbtn'><FontAwesomeIcon icon={faPencil} /></button></div>
-                                        </div>
-                                        <div className='appdeal-dtrow'>
-                                            <div className='appdeal-dtname'>Pipeline Type</div>
-                                            <div className='appdeal-dtvalue'><div className='appdeal-dtvalueedit'>-</div> <button className='btn fields-editbtn'><FontAwesomeIcon icon={faPencil} /></button></div>
+                                            <div className='appdeal-dtname'>Deal Type</div>
+                                            <div className='appdeal-dtvalue'>
+                                                <select className='ownerselect'>
+                                                    <option selected></option>
+                                                    <option>New Business</option>
+                                                    <option>Existing Business</option>
+                                                </select>
+                                            </div>
+                                            <div className='appdeal-dtdetail'>
+                                                <button className='btn fields-btnedit'><FontAwesomeIcon icon={faPencil} /></button>
+                                                <button className='btn fields-detailbtn'>Detail</button>
+                                            </div>
                                         </div>
 
 
                                     </div>
                                 </div>
                             </div>
-                            <div className='app-dealblock'>
-                                <div className='app-dealblock-inner'>
-                                    <div className='appdealblock-head'>
-                                        <div className='appblock-headcolleft'><button className="appblock-collapse"><span className="appblock-titlelabel"><FontAwesomeIcon icon={faAngleDown} /> Person</span></button></div>
-                                        <div className='appblock-headcolright'><button className="summerysetting-btn"><FontAwesomeIcon icon={faBarsStaggered} /></button> <button className="summerysetting-btn"><FontAwesomeIcon icon={faPencil} /></button> <button className="summerysetting-btn"><FontAwesomeIcon icon={faEllipsis} /></button></div>
-                                    </div>
-                                    <div className='appdealblock-data'>
-                                        <div className='appdeal-dtrow'>
-                                            <div className='appdeal-dtname'><FontAwesomeIcon icon={faCircleUser} /></div>
-                                            <div className='appdeal-dtvalue'><div className='appdeal-dtvalueedit'><a className='text-primary'><strong>Stuart Taylor</strong></a></div> <button className='btn fields-editbtn'><FontAwesomeIcon icon={faPencil} /></button></div>
-                                        </div>
-                                        <div className='appdeal-dtrow'>
-                                            <div className='appdeal-dtname'>Label</div>
-                                            <div className='appdeal-dtvalue'><div className='appdeal-dtvalueedit'>-</div> <button className='btn fields-editbtn'><FontAwesomeIcon icon={faPencil} /></button></div>
-                                        </div>
-                                        <div className='appdeal-dtrow'>
-                                            <div className='appdeal-dtname'>Email</div>
-                                            <div className='appdeal-dtvalue'><div className='appdeal-dtvalueedit'><a href='mailto:stuart.taylor001@yahoo.com'>stuart.taylor001@yahoo.com</a> <br></br>(Work)</div> <button className='btn fields-editbtn'><FontAwesomeIcon icon={faPencil} /></button></div>
-                                        </div>
-                                        <div className='appdeal-dtrow'>
-                                            <div className='appdeal-dtname'>First name</div>
-                                            <div className='appdeal-dtvalue'><div className='appdeal-dtvalueedit'>Stuart</div> <button className='btn fields-editbtn'><FontAwesomeIcon icon={faPencil} /></button></div>
-                                        </div>
-                                        <div className='appdeal-dtrow'>
-                                            <div className='appdeal-dtname'>Last name</div>
-                                            <div className='appdeal-dtvalue'><div className='appdeal-dtvalueedit'>Taylor</div> <button className='btn fields-editbtn'><FontAwesomeIcon icon={faPencil} /></button></div>
-                                        </div>
-                                        <div className='appdeal-dtrow'>
-                                            <div className='appdeal-dtname'>Clinic</div>
-                                            <div className='appdeal-dtvalue'><div className='appdeal-dtvalueedit'>-</div> <button className='btn fields-editbtn'><FontAwesomeIcon icon={faPencil} /></button></div>
-                                        </div>
-                                        <div className='appdeal-dtrow'>
-                                            <div className='appdeal-dtname'>First Name</div>
-                                            <div className='appdeal-dtvalue'><div className='appdeal-dtvalueedit'>Charlotte</div> <button className='btn fields-editbtn'><FontAwesomeIcon icon={faPencil} /></button></div>
-                                        </div>
-                                        <div className='appdeal-dtrow'>
-                                            <div className='appdeal-dtname'>Last Name</div>
-                                            <div className='appdeal-dtvalue'><div className='appdeal-dtvalueedit'>-</div> <button className='btn fields-editbtn'><FontAwesomeIcon icon={faPencil} /></button></div>
-                                        </div>
-                                        <div className='appdeal-dtrow'>
-                                            <div className='appdeal-dtname'>Source</div>
-                                            <div className='appdeal-dtvalue'><div className='appdeal-dtvalueedit'>-</div> <button className='btn fields-editbtn'><FontAwesomeIcon icon={faPencil} /></button></div>
-                                        </div>
-
-
-                                    </div>
-                                </div>
-                            </div>
+                           
                         </div>
                         <div className='timelinecontent-col'>
                             <div className='timelinecontent'>
                                 <div className='timeline-block'>
                                     <div className='timeline-blockinner'>
-                                        <div className='timeline-tabs'>
-                                            <div className='timeline-tabslist'>
-                                                <div className='timeline-tabswrap'>
-                                                    <div className='timeline-tabslinks'>
-                                                        <button className='tabbtn tabactive'><FontAwesomeIcon icon={faFileLines} /> <span>Notes</span></button>
-                                                        <button className='tabbtn'><FontAwesomeIcon icon={faFileLines} /> <span>Activity</span></button>
-                                                        <button className='tabbtn'><FontAwesomeIcon icon={faFileLines} /> <span>Meeting scheduler</span></button>
-                                                        <button className='tabbtn'><FontAwesomeIcon icon={faFileLines} /> <span>Call</span></button>
-                                                        <button className='tabbtn'><FontAwesomeIcon icon={faFileLines} /> <span>Email</span></button>
-                                                        <button className='tabbtn'><FontAwesomeIcon icon={faFileLines} /> <span>Files</span></button>
-                                                        <button className='tabbtn'><FontAwesomeIcon icon={faFileLines} /> <span>Documents</span></button>
-                                                        <button className='tabbtn'><FontAwesomeIcon icon={faFileLines} /> <span>Invoice</span></button>
+                                        <Tabs
+                                            defaultActiveKey="overview"
+                                            transition={false}
+                                            id="noanim-tab-example"
+                                            className="mb-5 timelinetab-block"
+                                            >
+                                            <Tab eventKey="overview" title="Overview" className='timelinetab overviewtab'>
+                                                <div className='timeline-tabscontent'>
+                                                    <div className='whiteshadowbox datahighlightsbox'>
+                                                        <div className='tabcard-header'>
+                                                            <h2>Data Highlights</h2>
+                                                            <div className='tabcard-actions'>
+                                                                <button className='summerysetting-btn'><FontAwesomeIcon icon={faGear} /></button>
+                                                            </div>
+                                                        </div>
+                                                        <div className='tabcard-content'>
+                                                            <div className='datahighlights-list'>
+                                                                <div className='datahighlights-item'>
+                                                                    <h3>Create Date</h3>
+                                                                    <div className='datahighlights-datetxt'>04/15/2024 2:03 PM GMT+5:30</div>
+                                                                </div>
+                                                                <div className='datahighlights-item'>
+                                                                    <h3>DEAL STAGE</h3>
+                                                                    <div className='datahighlights-datetxt'>Appointment Scheduled ( Sales Pipeline)</div>
+                                                                </div>
+                                                                <div className='datahighlights-item'>
+                                                                    <h3>LAST ACTIVITY DATE</h3>
+                                                                    <div className='datahighlights-datetxt'>--</div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
+
+                                                    <div className='whiteshadowbox datahighlightsbox'>
+                                                        <div className='tabcard-header'>
+                                                            <h2>Recent activities</h2>
+                                                        </div>
+                                                        <div className='tabcard-content'>
+                                                            
+                                                        </div>
+                                                    </div>
+
                                                 </div>
-                                            </div>
-                                            <div className='timeline-tabscontent'>
-                                                <div className='notecomposer-tab'>
-                                                    <br></br><br></br>
+                                                
+                                            </Tab>
+                                            <Tab eventKey="activities" title="Activities" className='timelinetab activitiestab'>
+                                                <div className='timeline-tabscontent'>
+                                                    <Tabs
+                                                        defaultActiveKey="activity_sub"
+                                                        transition={false}
+                                                        id="noanim-tab-example"
+                                                        className="mb-5 activity-subtab"
+                                                        >
+                                                        <Tab eventKey="activity_sub" title="Activity">
+                                                            Tab content for Home
+                                                        </Tab>
+                                                        <Tab eventKey="notes" title="Notes">
+                                                            Tab content for Notes
+                                                        </Tab>
+                                                        <Tab eventKey="email" title="Email">
+                                                            Tab content for Email
+                                                        </Tab>
+                                                        <Tab eventKey="calls" title="Calls">
+                                                            Tab content for Calls
+                                                        </Tab>
+                                                        <Tab eventKey="tasks" title="Tasks">
+                                                            Tab content for Tasks
+                                                        </Tab>
+                                                    </Tabs>
+
                                                 </div>
-                                            </div>
-                                        </div>
+                                            </Tab>
+                                        </Tabs>
+                                        
                                     </div>
                                 </div>
                             </div>
