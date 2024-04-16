@@ -15,6 +15,7 @@ import { DealService } from '../../../services/dealService';
 import { StageService } from '../../../services/stageService';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
+import Accordion from 'react-bootstrap/Accordion';
 
 export const DealDetails = () => {
 
@@ -287,7 +288,51 @@ export const DealDetails = () => {
                                                             <h2>Recent activities</h2>
                                                         </div>
                                                         <div className='tabcard-content'>
-                                                            
+                                                            <div className='activityfilter-row pb-3'>
+                                                                <div className='activityfilter-col1'>
+                                                                    <label>Filter by:</label> 
+                                                                    <select>
+                                                                        <option>All activities</option>
+                                                                    </select>
+                                                                </div>
+                                                                <div className='activityfilter-col2'>
+                                                                    <Dropdown className='dropdown-collapseall'>
+                                                                        <Dropdown.Toggle id="dropdown-collapseall">Collapse all</Dropdown.Toggle>
+                                                                        <Dropdown.Menu className='dropdown-collapsealllist'>
+                                                                            <Dropdown.Item href="#/action-1">Collapse all</Dropdown.Item>
+                                                                            <Dropdown.Item href="#/action-3">Expand all</Dropdown.Item>
+                                                                        </Dropdown.Menu>
+                                                                    </Dropdown>
+                                                                </div>
+                                                            </div>
+                                                            <div className='activityfilter-accrow'>
+                                                            <Accordion className='activityfilter-acco'>
+                                                                <Accordion.Item eventKey="0">
+                                                                    <Accordion.Header><FontAwesomeIcon icon={faPenToSquare} /> Shudhakar created a <span className='accocolortext'> note</span></Accordion.Header>
+                                                                    <Accordion.Body>
+                                                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                                                                        eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+                                                                        minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+                                                                        aliquip ex ea commodo consequat. Duis aute irure dolor in
+                                                                        reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+                                                                        pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+                                                                        culpa qui officia deserunt mollit anim id est laborum.
+                                                                    </Accordion.Body>
+                                                                </Accordion.Item>
+                                                                <Accordion.Item eventKey="1">
+                                                                    <Accordion.Header><FontAwesomeIcon icon={faPenToSquare} /> Shudhakar created a <span className='accocolortext'> note</span></Accordion.Header>
+                                                                    <Accordion.Body>
+                                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                                                                    eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+                                                                    minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+                                                                    aliquip ex ea commodo consequat. Duis aute irure dolor in
+                                                                    reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+                                                                    pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+                                                                    culpa qui officia deserunt mollit anim id est laborum.
+                                                                    </Accordion.Body>
+                                                                </Accordion.Item>
+                                                                </Accordion>
+                                                            </div>
                                                         </div>
                                                     </div>
 
@@ -303,10 +348,14 @@ export const DealDetails = () => {
                                                         className="mb-5 activity-subtab"
                                                         >
                                                         <Tab eventKey="activity_sub" title="Activity">
-                                                            Tab content for Home
+                                                            <div className='whiteshadowbox'>
+                                                                Activity
+                                                            </div>
                                                         </Tab>
                                                         <Tab eventKey="notes" title="Notes">
-                                                            Tab content for Notes
+                                                            <div className='whiteshadowbox'>
+                                                                Tab content for Notes
+                                                            </div>
                                                         </Tab>
                                                         <Tab eventKey="email" title="Email">
                                                             Tab content for Email

@@ -477,8 +477,11 @@ button.fields-editbtn{visibility: hidden; line-height: 1.2; background-color: #f
 .datahighlights-item{width: 33.333%; text-align: center;}
 .datahighlights-item h3{font-size: 14px; text-transform: uppercase;}
 .datahighlights-datetxt{}
-
-
+.activityfilter-row{display: flex; align-items: center; justify-content: space-between;}
+.activityfilter-col1 label {margin-right: 5px;}
+.dropdown-collapseall button.btn, .dropdown-collapseall button.btn:focus {background-color: #fff; border: none; padding: 0; color: #0d68c5; font-weight: bold; font-size: 14px;}
+.activityfilter-acco .accordion-header button svg{margin-right: 5px; color: #0d68c5;}
+.accocolortext{color: #0d68c5; font-weight: bold; margin-left: 4px;}
 
 /* Deal Detail Page CSS End */
 
