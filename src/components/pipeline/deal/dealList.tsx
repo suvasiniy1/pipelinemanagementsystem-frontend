@@ -1,6 +1,6 @@
 import { Title } from "@material-ui/icons";
 import styled from '@xstyled/styled-components';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import { ErrorBoundary } from "react-error-boundary";
 import { toast } from 'react-toastify';
@@ -25,6 +25,10 @@ const InnerQuoteList = (props: paramsForQuote) => {
     const [selectedDealIndex, setSelectedDealIndex] = useState<number>(0);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const dealSvc = new DealService(ErrorBoundary);
+
+    useEffect(()=>{
+    setDeals(props.deals)
+    },[props.deals])
 
     const deleteDeal = () => {
         dealSvc.deleteDeal(deals[selectedDealIndex].dealID).then(res => {

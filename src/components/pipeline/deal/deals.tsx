@@ -53,12 +53,12 @@ export const Deals = (props: params) => {
     const [viewType, setViewType] = useState("kanban");
     const [totalDeals, setTotalDeals] = useState<Array<Deal>>([]);
     const [selectedStageName, setSelectedStageName] = useState("");
-    const navigate = useNavigate();
-    const listInnerRef = useRef();
+    const [isLoadingMore, setIsLoadingMore]=useState(false);
+    const defaultPageSize = 4;
     const [pipeLineId, setPipeLineId] = useState(new URLSearchParams(useLocation().search).get("pipelineID") as any);
     const userProfile = Util.UserProfile();
     const utilSvc = new UtilService(ErrorBoundary);
-    const [pageSize, setPageSize] = useState(5);
+    const [pageSize, setPageSize] = useState(4);
 
     // useEffect(() => {
     //     debugger
@@ -93,9 +93,9 @@ export const Deals = (props: params) => {
         });
     }
 
-    const loadStages = (selectedPipeLineId: number, skipLoading: boolean = false, pagesize: number = 5) => {
+    const loadStages = (selectedPipeLineId: number, skipLoading: boolean = false, pagesize: number = 4, fromDealModify:boolean=false) => {
         
-        setIsLoading(true);
+        if(!skipLoading) setIsLoading(true);
         if (selectedPipeLineId > 0) stagesSvc.getStages(selectedPipeLineId, 1, pagesize ?? pageSize).then(items => {
             let sortedStages = Util.sortList(items.stageDtos, "stageOrder");
             let totalDealsList: Array<Deal> = [];
@@ -109,8 +109,9 @@ export const Deals = (props: params) => {
             setStages(sortedStages);
             setOriginalStages(sortedStages);
             setIsLoading(false);
+            setIsLoadingMore(false);
             setTimeout(() => {
-                if(skipLoading){
+                if(skipLoading && fromDealModify){
                     toast.success("Deal updated successfully.", );
                 }
             }, 100);
@@ -120,17 +121,10 @@ export const Deals = (props: params) => {
         });
     }
 
-    const onScroll = () => {
-
-        if (listInnerRef.current) {
-            const { scrollTop, scrollHeight, clientHeight } = listInnerRef.current;
-            const isNearBottom = scrollTop + clientHeight >= scrollHeight;
-
-            if (isNearBottom) {
-                setPageSize(pageSize => pageSize + 5);
-                loadStages(pipeLineId, true, pageSize + 5);
-            }
-        }
+    const loadMoreDeals = () => {
+        setIsLoadingMore(true);
+        setPageSize(pageSize => pageSize + defaultPageSize);
+        loadStages(pipeLineId, true, pageSize + defaultPageSize);
     };
 
     useEffect(() => {
@@ -190,7 +184,7 @@ export const Deals = (props: params) => {
                         />
                         {viewType === "kanban" ?
                             <div className="pdstage-area">
-                                <div className="pdstagearea-inner" ref={listInnerRef as any} onScroll={(e: any) => onScroll()}>
+                                <div className="pdstagearea-inner">
 
                                     <div className="pdstage-row" hidden={pipeLines.length == 0}>
                                         <DragDropContext onDragEnd={onDragEnd} onDragStart={(e: any) => setIsDragging(true)}>
@@ -210,7 +204,7 @@ export const Deals = (props: params) => {
                                                                 providedFromParent={provided}
                                                                 isDragging={isDragging}
                                                                 pipeLinesList={pipeLines}
-                                                                onDealModify={(e:any)=>{loadStages(selectedItem?.pipelineID as any, true);}}
+                                                                onDealModify={(e:any)=>{loadStages(selectedItem?.pipelineID as any, true, null as any, true);}}
                                                                 onDealAddClick={(e: any) => setSelectedStageId(e)}
                                                                 onStageExpand={(e: any) => { setSelectedStageName(item.stageName); setDialogIsOpen(true); setStageIdForExpand(e) }}
                                                                 onSaveChanges={(e: any) => props.onSaveChanges()}
@@ -225,6 +219,12 @@ export const Deals = (props: params) => {
                                         </DragDropContext>
 
 
+                                    </div>
+                                    <div style={{ textAlign: "center" }} hidden={isLoadingMore || pipeLines.length==0}>
+                                    <button type="button" className="btn btn-primary" onClick={(e: any) => loadMoreDeals()}>Load More</button>
+                                    </div>
+                                    <div style={{ textAlign: "center" }} hidden={!isLoadingMore}>
+                                        Loading More...
                                     </div>
                                     <div style={{ textAlign: "center" }} hidden={pipeLines.length > 0}>
                                         No pipelines are avilable to show
