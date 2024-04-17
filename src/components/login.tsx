@@ -146,7 +146,7 @@ const Login = () => {
                   {<img className='lohheaderlogo' src={jpg} />}
               </div>
               {/* Form */}
-              <Form className="shadow p-4 bg-white rounded" onSubmit={handleSubmit(onSubmitClick)}>
+              <Form className="shadow p-4 bg-white rounded loginformblock" onSubmit={handleSubmit(onSubmitClick)}>
                 {/* Header */}
                 <div className='logformhead'>
                   <div className='logformheadimg'>

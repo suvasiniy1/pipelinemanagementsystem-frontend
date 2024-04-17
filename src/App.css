@@ -85,6 +85,10 @@ html body, html input, html button, html select, html textarea{font-family: "Int
 .logformheadimg{margin-right: 15px;}
 .logformheadimg img{margin: 0;}
 .logformhead .h4{margin: 0;}
+.loginformblock .form-group {margin-bottom: 10px;}
+.loginformblock .form-group .col-form-label{padding-bottom: 0;width: 100%;}
+.loginformblock .form-control{border-radius: 0;}
+.loginformblock .form-control:focus, .loginformblock .form-control:active {background: transparent; outline: 0; box-shadow: none;}
 
 .loginfooter{position: relative;  padding-bottom: 30px; width: 100%; z-index: 1;}
 .loginfooter-inner {background-color: #fff; border-radius: 5px; padding: 15px 30px;}
@@ -749,6 +753,23 @@ button.fields-editbtn{visibility: hidden; line-height: 1.2; background-color: #f
 @media (max-width: 1199.98px) {
   .pdstage-col{min-width: 200px;}
 }
+
+@media (max-width: 767.98px) {
+  .sign-in__backdrop{display: none;}
+  .sign-in__wrapper {overflow: auto; height: 100vh; justify-content: start;}
+  .signinwrapper-layout {height: auto;}
+  .loginfooter{padding-bottom: 0;}
+
+}
+@media (max-width: 480.98px) {
+  /* Login Screen */
+  .loginfooter-row{justify-content: center; flex-direction: column;}
+  .loginfooter-link{justify-content: center; flex-direction: column;}
+  .loginfooter-link li{padding: 0;}
+  .loginfooter-link li:after{display: none;}
+  .loginfooter{padding-bottom: 0;}
+}
+
 
 .react-datepicker-wrapper{
   display: flex !important
