@@ -4,6 +4,7 @@ import moment from "moment";
 import LocalStorageUtil from "./LocalStorageUtil";
 import Constants from "./constants";
 import { UserProfile } from "../models/userProfile";
+import { Utility } from "../models/utility";
 
 export default class Util {
 
@@ -157,5 +158,10 @@ export default class Util {
         (order === 'desc') ? (comparison * -1) : comparison
       );
     };
+  }
+
+  static getUserNameById(userId:number){
+    let utility: Utility = JSON.parse(LocalStorageUtil.getItemObject(Constants.UTILITY) as any);
+    return utility.persons.find(u=>u.personID==userId)?.personName;
   }
 }
