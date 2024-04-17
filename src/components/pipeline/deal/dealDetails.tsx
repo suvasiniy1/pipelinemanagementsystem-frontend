@@ -1,4 +1,4 @@
-import { faAngleLeft, faPenToSquare, faEnvelope, faPhone, faCalendarDays, faListCheck, faAngleDown, faCircleCheck, faCommentDots, faBarsStaggered, faBuilding, faCircleUser, faEllipsis, faFileLines, faFlagCheckered, faGear, faMoneyBill, faPencil, faPlus, faScaleBalanced, faSortDown, faTag, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faAngleLeft, faPenToSquare, faEnvelope, faPhone, faCalendarDays, faListCheck, faAngleDown, faCircleCheck, faCommentDots, faBarsStaggered, faBuilding, faCircleUser, faEllipsis, faFileLines, faFlagCheckered, faGear, faMoneyBill, faPencil, faPlus, faScaleBalanced, faSortDown, faTag, faUser, faThumbsUp, faThumbsDown } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { AxiosError } from 'axios';
 import { useEffect, useState } from 'react';
@@ -60,47 +60,7 @@ export const DealDetails = () => {
         <>
             {error && <UnAuthorized error={error as any} />}
             {isLoading ? <div className="alignCenter"><Spinner /></div> :
-                <div className="pdstage-detailarea">
-                    <div className="pdstage-detailtop pt-3 pb-4">
-                        <div className="container-fluid">
-                            <div className="pdsdetailtop-row">
-                                <div className="pdsdetail-title">
-                                    <h1>{dealItem?.name} <button className='titleeditable-btn'><FontAwesomeIcon icon={faPencil} /></button></h1>
-                                </div>
-                                <div className="pdsdetail-topright">
-                                    <div className="rottingdays"><label className="rottingdays-label bg-danger">Rotting for {dealItem?.probability} days</label></div>
-                                    <div className="pdsdetail-avatar">
-                                        <div className="pdsavatar-row">
-                                            <div className="pdsavatar-img"><FontAwesomeIcon icon={faCircleUser} /></div>
-                                            <div className="pdsavatar-name">
-                                                <div className='pdsavatar-ownername'><a href=''>{dealItem?.personName}</a></div>
-                                                <div className='pdsavatar-owner'>Owner</div>
-                                                <button className='ownerbutton'><FontAwesomeIcon icon={faSortDown} /></button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <button className="follower-button"><span className="followerlabel">1 follower</span><FontAwesomeIcon icon={faSortDown} /></button>
-                                    <div className="wonlost-btngroup">
-                                        <button className="btn btn-success wonbtn"><span className="label">Won</span></button>
-                                        <button className="btn btn-danger lostbtn"><span className="label">Lost</span></button>
-                                    </div>
-                                    <div className="ellipsis-btncol">
-                                        <button className="ellipsis-btn"><FontAwesomeIcon icon={faEllipsis} /></button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className='stageday-bar pt-3'>
-                                <div className="pipelinestage-selector pipelinestage-active">
-                                    {
-                                        stages.map((sItem, sIndex) => (
-                                            <label key={sIndex} className={'pipelinestage ' + (sItem.stageID == dealItem?.stageID ? 'pipelinestage-current' : '')} aria-label={sItem.stageName} title={sItem.stageName} onClick={(e: any) => {setDealItem({ ...dealItem, "stageID": sItem.stageID }); onDealModified(sItem.stageID)}}>{sItem.stageName}</label>
-                                        ))
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
+                <div className="pdstage-detailarea">  
                     <div className="pdstage-detail">
                         <div className='sidebardetail-col'>
                             <div className='sidebardetailtopbar'>
@@ -249,6 +209,47 @@ export const DealDetails = () => {
                         <div className='timelinecontent-col'>
                             <div className='timelinecontent'>
                                 <div className='timeline-block'>
+                                    <div className="pdstage-detailtop pt-3 pb-4">
+                                        <div className="container-fluid">
+                                            <div className="pdsdetailtop-row">
+                                                <div className="pdsdetail-title">
+                                                    <h1>{dealItem?.name} <button className='titleeditable-btn'><FontAwesomeIcon icon={faPencil} /></button></h1>
+                                                </div>
+                                                <div className="pdsdetail-topright">
+                                                    {/* <div className="rottingdays"><label className="rottingdays-label bg-danger">Rotting for {dealItem?.probability} days</label></div>
+                                                    <div className="pdsdetail-avatar">
+                                                        <div className="pdsavatar-row">
+                                                            <div className="pdsavatar-img"><FontAwesomeIcon icon={faCircleUser} /></div>
+                                                            <div className="pdsavatar-name">
+                                                                <div className='pdsavatar-ownername'><a href=''>{dealItem?.personName}</a></div>
+                                                                <div className='pdsavatar-owner'>Owner</div>
+                                                                <button className='ownerbutton'><FontAwesomeIcon icon={faSortDown} /></button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <button className="follower-button"><span className="followerlabel">1 follower</span><FontAwesomeIcon icon={faSortDown} /></button>
+                                                     */}
+                                                    <div className="wonlost-btngroup">
+                                                        <button className="btn btn-success wonbtn"><span className="label"><FontAwesomeIcon icon={faThumbsUp} /></span></button>
+                                                        <button className="btn btn-danger lostbtn"><span className="label"><FontAwesomeIcon icon={faThumbsDown} /></span></button>
+                                                    </div>
+                                                    <div className="ellipsis-btncol">
+                                                        <button className="ellipsis-btn"><FontAwesomeIcon icon={faEllipsis} /></button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className='stageday-bar pt-3'>
+                                                <div className="pipelinestage-selector pipelinestage-active">
+                                                    {
+                                                        stages.map((sItem, sIndex) => (
+                                                            <label key={sIndex} className={'pipelinestage ' + (sItem.stageID == dealItem?.stageID ? 'pipelinestage-current' : '')} aria-label={sItem.stageName} title={sItem.stageName} onClick={(e: any) => {setDealItem({ ...dealItem, "stageID": sItem.stageID }); onDealModified(sItem.stageID)}}>{sItem.stageName}</label>
+                                                        ))
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <div className='timeline-blockinner'>
                                         <Tabs
                                             defaultActiveKey="overview"
