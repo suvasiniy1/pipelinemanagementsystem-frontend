@@ -14,8 +14,10 @@ import Constants from '../others/constants';
 import Util from "../others/util";
 import BackgroundImage from "../resources/images/background.png";
 import Logo from "../resources/images/logo.png";
+import jpg from "../resources/images/Y1Logo.jpg";
 import { LoginService } from '../services/loginService';
 import { UserProfile } from '../models/userProfile';
+
 
 export class UserCredentails {
   public userName!: string;
@@ -135,61 +137,104 @@ const Login = () => {
   return (
     <>
       <FormProvider {...methods}>
-        <div
-          className="sign-in__wrapper"
-          style={{ backgroundImage: `url(${BackgroundImage})` }}
-        >
-          {/* Overlay */}
-          <div className="sign-in__backdrop"></div>
-          {/* Form */}
-          <Form className="shadow p-4 bg-white rounded" onSubmit={handleSubmit(onSubmitClick)}>
-            {/* Header */}
-            <img
-              className="img-thumbnail mx-auto d-block mb-2"
-              src={Logo}
-              alt="logo"
-            />
-            <div className="h4 mb-2 text-center">Sign In</div>
-            <div style={{ textAlign: "center" }}>
-              <span className="text-danger" hidden={!isIncorrectCredentails}>{isIncorrectCredentails}</span>
-              <div hidden={!loading}>
-                <Spinner />
+        <div className="sign-in__wrapper" style={{ backgroundImage: `url(${BackgroundImage})` }}>
+          <div className='signinwrapper-layout'>
+            <div className='signinwrapper-inner'>
+              {/* Overlay */}
+              <div className="sign-in__backdrop"></div>
+              <div className='logheader'>
+                  {<img className='lohheaderlogo' src={jpg} />}
               </div>
-              <hr />
+              {/* Form */}
+              <Form className="shadow p-4 bg-white rounded" onSubmit={handleSubmit(onSubmitClick)}>
+                {/* Header */}
+                <div className='logformhead'>
+                  <div className='logformheadimg'>
+                    <img className="img-thumbnail" src={Logo} alt="logo" />
+                  </div>
+                  <div className="h4">Sign In</div>
+                </div>
+                <div className='logformsubtext p-2 text-center'>Please log in to continie.</div>
+                
+                
+                <div style={{ textAlign: "center" }}>
+                  <span className="text-danger" hidden={!isIncorrectCredentails}>{isIncorrectCredentails}</span>
+                  <div hidden={!loading}>
+                    <Spinner />
+                  </div>
+                
+                </div>
+                {
+                  <GenerateElements controlsList={controlsList}
+                                    selectedItem={selectedItem}
+                                    disable={loading}
+                                    onChange={(value: any, item: any) => onChange(value, item)}
+                  />
+                }
+                <Form.Group className="mb-2" controlId="checkbox">
+                  <Form.Check type="checkbox" checked={rememberMe} onChange={(e: any) => setRememberMe(!rememberMe)} disabled={Util.isNullOrUndefinedOrEmpty(selectedItem.userName)} tabIndex={3} label="Remember me" />
+                </Form.Group>
+                {!loading ? (
+                  <Button className="w-100" variant="primary" type="submit">
+                    Log In
+                  </Button>
+                ) : loading && (
+                  <Button className="w-100" variant="primary" type="submit" disabled>
+                    Logging In...
+                  </Button>
+                )}
+                <div className="d-grid justify-content-end">
+                  <Button
+                    className="text-muted px-0"
+                    variant="link"
+                    onClick={handlePassword}
+                  >
+                    Forgot password?
+                  </Button>
+                </div>
+                <div className='oraccessquickly text-center mt-3 mb-3'>
+                  <span>or access quickly</span>
+                </div>
+                <div className='oraccessquicklybtn'>
+                  <a className='btn' href='#'>Google</a>
+                  <a className='btn' href='#'>SSO</a>
+                </div>
+
+              </Form>
+              {/* Footer */}
+              {/* <div className="w-100 mb-2 position-absolute bottom-0 start-50 translate-middle-x text-white text-center">
+            Made by Hendrik C | &copy;2022
+          </div> */}
             </div>
-            {
-              <GenerateElements controlsList={controlsList}
-                                selectedItem={selectedItem}
-                                disable={loading}
-                                onChange={(value: any, item: any) => onChange(value, item)}
-              />
-            }
-            <Form.Group className="mb-2" controlId="checkbox">
-              <Form.Check type="checkbox" checked={rememberMe} onChange={(e: any) => setRememberMe(!rememberMe)} disabled={Util.isNullOrUndefinedOrEmpty(selectedItem.userName)} tabIndex={3} label="Remember me" />
-            </Form.Group>
-            {!loading ? (
-              <Button className="w-100" variant="primary" type="submit">
-                Log In
-              </Button>
-            ) : loading && (
-              <Button className="w-100" variant="primary" type="submit" disabled>
-                Logging In...
-              </Button>
-            )}
-            <div className="d-grid justify-content-end">
-              <Button
-                className="text-muted px-0"
-                variant="link"
-                onClick={handlePassword}
-              >
-                Forgot password?
-              </Button>
+          </div>
+          <div className='loginfooter'>
+            <div className='container'>
+              <div className='loginfooter-inner'>
+                <div className='loginfooter-row'>
+                  <div className='loginfooter-lang'>
+                    <select>
+                      <option>Language</option>
+                      <option selected>English (US)</option>
+                    </select>
+                  </div>
+                  <div className='loginfooter-social'>
+                    {/* <ul className='socialmedia'>
+                      <li><a href='#' target='_blank'><FontAwesomeIcon icon={faFacebook} /></a></li>
+                      <li><a href='#' target='_blank'><FontAwesomeIcon icon={faXTwitter} /></a></li>
+                      <li><a href='#' target='_blank'><FontAwesomeIcon icon={faLinkedin} /></a></li>
+                    </ul> */}
+                  </div>
+                </div>
+                <div className='loginfooter-btmlink'>
+                  <ul className='loginfooter-link'>
+                    <li>@ 2024 Pipedrive</li>
+                    <li><a href='#'>Terms of Service</a></li>
+                    <li><a href='#'>Privacy Policy</a></li>
+                  </ul>
+                </div>
+              </div>
             </div>
-          </Form>
-          {/* Footer */}
-          {/* <div className="w-100 mb-2 position-absolute bottom-0 start-50 translate-middle-x text-white text-center">
-        Made by Hendrik C | &copy;2022
-      </div> */}
+          </div>
         </div>
       </FormProvider>
       <ToastContainer />

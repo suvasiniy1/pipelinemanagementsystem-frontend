@@ -18,12 +18,14 @@ html body, html input, html button, html select, html textarea{font-family: "Int
   justify-content: center;
   align-items: center;
   width: 100vw;
-  height: 100vh;
   background-position: center center;
   background-repeat: no-repeat;
   background-size: cover;
   position: relative;
+  padding: 30px 0;
 }
+.signinwrapper-layout {height: calc(100vh - 145px); display: flex; align-items: center; padding-bottom: 30px;}
+.signinwrapper-inner{display: flex; align-items: center; justify-content: center; flex-direction: column;}
 
 .sign-in__backdrop {
   position: absolute;
@@ -36,6 +38,8 @@ html body, html input, html button, html select, html textarea{font-family: "Int
   max-width: 90%;
   z-index: 1;
   animation: showSignInForm 1s;
+  position: relative;
+  z-index: 1;
 }
 
 .sign-in__wrapper form img {
@@ -74,6 +78,30 @@ html body, html input, html button, html select, html textarea{font-family: "Int
   padding: 0; margin: 0;
 }
 
+/* Login Screen */
+.logheader {position: relative; top:0; left:0; width: 350px; z-index: 1; margin-bottom: 40px;}
+.logheader img{width: auto; max-width: 100%; height: auto;}
+.logformhead{display: flex; align-items: center; justify-content: center;}
+.logformheadimg{margin-right: 15px;}
+.logformheadimg img{margin: 0;}
+.logformhead .h4{margin: 0;}
+
+.loginfooter{position: relative;  padding-bottom: 30px; width: 100%; z-index: 1;}
+.loginfooter-inner {background-color: #fff; border-radius: 5px; padding: 15px 30px;}
+.loginfooter-row {display: flex; align-items: center; justify-content: space-between;}
+.loginfooter-btmlink {padding-top: 15px;}
+.loginfooter-link {margin: 0; padding: 0; display: flex; align-items: center;}
+.loginfooter-link li{padding: 0 10px; position: relative;}
+.loginfooter-link li:first-child{padding-left: 0;}
+.loginfooter-link li:first-child:after{display: none;}
+.loginfooter-link li:after{content: ''; position: absolute; left: 0; top: 0; width: 1px; height: 20px; background-color: #21232c;}
+.loginfooter-link li a{color:#21232c;}
+.oraccessquickly{position: relative;}
+.oraccessquickly:after {content: ''; position: absolute; left: 0; top: 50%; width: 100%; height: 1px; background-color: #ddd; margin-top: -1px; z-index: -1;}
+.oraccessquickly span{background-color: #fff; padding: 0 15px;}
+.oraccessquicklybtn{display: flex; align-items: center; justify-content: center;}
+.oraccessquicklybtn .btn{display: block; background-color: #ddd; color: #444; border: none; width: 120px; font-size: 14px; font-weight: bold; margin: 0 5px; text-decoration: none;}
+.oraccessquicklybtn .btn:hover{text-decoration: none; background-color: #212529; color: #fff;}
 
 
 /* Main Content */
@@ -507,6 +535,7 @@ button.fields-editbtn{visibility: hidden; line-height: 1.2; background-color: #f
 .accoaddasso{}
 .accordion-collapse.collapse ~ .accofooterbtmrow {display: none;}
 .accordion-collapse.collapse.show ~ .accofooterbtmrow {display:flex;}
+.movetoformbox .col-sm-6.errmessage {width: 100%;}
 
 
 /* Deal Detail Page CSS End */

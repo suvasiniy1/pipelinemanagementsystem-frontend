@@ -6,6 +6,7 @@ import { Container, Content, Dropdown, Nav, Sidenav } from 'rsuite';
 import 'rsuite/dist/styles/rsuite-default.css';
 import jpg from "../../src/resources/images/logo.jpg";
 import svg from "../../src/resources/images/y1.svg";
+import png from "../../src/resources/images/y1.png";
 import HandleIdleTime from '../common/handleIdleTime';
 import LocalStorageUtil from '../others/LocalStorageUtil';
 import { AppRouter } from '../others/appRouter';
@@ -45,7 +46,7 @@ export const SideBar = () => {
                 >
                     <Sidenav.Header className='sidenavhead'>
                         {<img className='sideopenlogo' src={jpg} />}
-                        {<img className='sidehidelogo' src={svg} />}
+                        {<img className='sidehidelogo' src={png} />}
                     </Sidenav.Header>
                     <Sidenav.Body>
                         <Nav className='sidemenu'>

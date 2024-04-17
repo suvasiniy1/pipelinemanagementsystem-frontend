@@ -51,10 +51,11 @@ transition: width 900ms !important;
 width: 44px !important;
 transition: width 900ms !important;
 } */
+.rs-sidenav.sidenav{position: relative; display: flex; flex-direction: column; height: 100%; background-color: #fff; border-right: 1px solid #e6e6e6; box-shadow: 0 .9375rem 1.875rem 0 rgba(0,0,0,.02); transition: all .2s ease;}
 .rs-sidenav.sidenavExpand {width: 220px;}
-.sidenavhead {padding: 10px 20px 10px 20px; height: 58px; line-height: 38px; font-size: 30px; font-weight: 900; color: #ffffff;}
+.sidenavhead {position: absolute; left: 0; top: 0; width: 100%; padding: 10px 20px 10px 10px; height: 58px; line-height: 38px; font-size: 30px; font-weight: 900; color: #ffffff;}
 .sidenavhead img{width:auto; height: 100%;}
-.sidenavhead .sidehidelogo {display: none; position: absolute; left: 12px; top: 18px; width: 30px; height: auto;}
+.sidenavhead .sidehidelogo {display: none; position: absolute; left: 9px; top: 9px; width: 37px; height: auto;}
 .rs-sidenav-collapse-in .sidenavhead .sideopenlogo,
 .sidenavCollapse .sidenavhead .sideopenlogo{display: none;}
 .rs-sidenav-collapse-in .sidenavhead .sidehidelogo,
@@ -62,9 +63,8 @@ transition: width 900ms !important;
 .sidenavhead img.sideopenlogo {position: relative; top: -4px;}
 .sidenavhead i{font-size: 20px;}
 .tnavicon a img {position: absolute; left: 15px; top: 15px; width: 24px; height: auto;}
-.rs-sidenav.sidenav{display: flex; flex-direction: column; height: 100%; background-color: #fff; border-right: 1px solid #e6e6e6; box-shadow: 0 .9375rem 1.875rem 0 rgba(0,0,0,.02); transition: all .2s ease;}
 .rs-sidenav.sidenav .sidenavhead{background-color: #3f3f3f;}
-.rs-sidenav .rs-sidenav-body{margin: 10px 0; height:calc(100% - 58px); overflow: auto;}
+.rs-sidenav .rs-sidenav-body{margin: 10px 0; height:100%; overflow: auto; padding-top: 58px;}
 .rs-sidenav.sidenav .sidemenu ul > li{display: flex; flex-direction: column; position: relative;}
 .rs-sidenav.sidenav .sidemenu ul > li:first-child{padding-top:0;}
 .rs-sidenav.sidenav .sidemenu ul > li > a{height:auto; position: relative; margin: 0; font-size: 14px; color: #3f3f3f; display: flex; align-items: center; padding: 12px 15px 12px 45px; transition: all .5s; height: 46px; overflow: hidden;}

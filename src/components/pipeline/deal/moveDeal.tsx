@@ -143,8 +143,8 @@ const MoveDeal = (props: params) => {
                         onSave={handleSubmit(onSubmit)}>
                         {isLoading && <div className="alignCenter"><Spinner /></div>}
                         <>
-                            <div className='modelformfiledrow'>
-                                <div className='dealbystage-popuprow'>
+                            <div className='modelformfiledrow movetopopup-row'>
+                                <div className='movetostage-popuprow'>
                                     <div className="pdstage-item">
                                         <div className='pdstage-box'>
                                             <a className='pdstage-boxlink' href=''>
@@ -164,19 +164,16 @@ const MoveDeal = (props: params) => {
                                         </div>
                                     </div>
                                 </div>
-                                <div>
-                                    <div className='modelformbox ps-2 pe-2'>
-                                        {
-                                            <GenerateElements
-                                                controlsList={controlsList}
-                                                selectedItem={selectedItem}
-                                                onChange={(value: any, item: any) => onChange(value, item)}
-                                                getListofItemsForDropdown={(e: any) => getDropdownvalues(e) as any}
-                                                getCustomElement={(item: IControl) => getCustomElement(item)}
-                                            />
-                                        }
-                                    </div>
-                                    <br />
+                                <div className='modelformbox pt-3 ps-2 pe-2 pb-4 movetoformbox'>
+                                    {
+                                        <GenerateElements
+                                            controlsList={controlsList}
+                                            selectedItem={selectedItem}
+                                            onChange={(value: any, item: any) => onChange(value, item)}
+                                            getListofItemsForDropdown={(e: any) => getDropdownvalues(e) as any}
+                                            getCustomElement={(item: IControl) => getCustomElement(item)}
+                                        />
+                                    }
                                 </div>
                             </div>
                         </>
