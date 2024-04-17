@@ -478,10 +478,36 @@ button.fields-editbtn{visibility: hidden; line-height: 1.2; background-color: #f
 .datahighlights-item h3{font-size: 14px; text-transform: uppercase;}
 .datahighlights-datetxt{}
 .activityfilter-row{display: flex; align-items: center; justify-content: space-between;}
-.activityfilter-col1 label {margin-right: 5px;}
+.activityfilter-col1{display: flex;}
+.activityfilter-col1 label{margin-right: 5px;}
 .dropdown-collapseall button.btn, .dropdown-collapseall button.btn:focus {background-color: #fff; border: none; padding: 0; color: #0d68c5; font-weight: bold; font-size: 14px;}
+.accordion .accordion-item{}
+.accordion .accordion-item .accordion-header{border-bottom: 1px solid #eee;}
+.accordion .accordion-item .accordion-button{padding: 10px 15px; font-size: 14px; justify-content: space-between;}
+.accordion .accordion-item .accordion-button:focus{border: 0; outline: 0; box-shadow:none;}
+.accordion .accordion-item .accordion-button:not(.collapsed){background-color: #ddd;}
+.accoheader-title label {margin-right: 5px;}
+.accordion .accordion-item .accordion-button:after{position: absolute; left: 10px; top: 10px; z-index: 1; transform: rotate(0deg);}
+.accordion .accordion-item .accordion-button.collapsed:after{transform: rotate(-90deg);}
+
+
+.accoheader-title {padding-left: 22px;}
+.accoheader-date {padding-right:0;}
 .activityfilter-acco .accordion-header button svg{margin-right: 5px; color: #0d68c5;}
 .accocolortext{color: #0d68c5; font-weight: bold; margin-left: 4px;}
+
+.activityfilter-col1 .dropdown-link{margin-left: 8px;}
+.dropdown-link button.btn, .dropdown-link button.btn:focus{background-color: inherit; border: none; padding:2px 0; color: #0d68c5; font-weight: bold; font-size: 14px;}
+.timelinesubtab h3{font-size: 16px; margin-bottom: 10px;}
+.accofooter{padding: 15px 15px 15px 40px;}
+
+.accofooterbtmrow{display: flex; align-items: center; justify-content: space-between; padding: 0 15px 15px 40px;}
+.accoaddcomment{}
+.addcomlink{color: #0d68c5; text-decoration: none; cursor: pointer;}
+.accoaddasso{}
+.accordion-collapse.collapse ~ .accofooterbtmrow {display: none;}
+.accordion-collapse.collapse.show ~ .accofooterbtmrow {display:flex;}
+
 
 /* Deal Detail Page CSS End */
 
