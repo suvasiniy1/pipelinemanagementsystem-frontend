@@ -1,21 +1,20 @@
-import { faAngleLeft, faPenToSquare, faEnvelope, faPhone, faCalendarDays, faListCheck, faAngleDown, faCircleCheck, faCommentDots, faBarsStaggered, faBuilding, faCircleUser, faEllipsis, faFileLines, faFlagCheckered, faGear, faMoneyBill, faPencil, faPlus, faScaleBalanced, faSortDown, faTag, faUser, faThumbsUp, faThumbsDown } from '@fortawesome/free-solid-svg-icons';
+import { faEllipsis, faGear, faPenToSquare, faPencil, faThumbsDown, faThumbsUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { AxiosError } from 'axios';
+import moment from 'moment';
+import { useEffect, useState } from 'react';
 import Accordion from 'react-bootstrap/Accordion';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
-import DealActivities from './dealActivities';
-import { Deal } from '../../../models/deal';
-import SelectDropdown from '../../../elements/SelectDropdown';
-import { useEffect, useState } from 'react';
-import { NotesService } from '../../../services/notesService';
 import { ErrorBoundary } from 'react-error-boundary';
-import { Notes } from '../../../models/notes';
-import { AxiosError } from 'axios';
-import { UnAuthorized } from '../../../common/unauthorized';
-import Util from '../../../others/util';
-import moment from 'moment';
-import { Stage } from '../../../models/stage';
+import { UnAuthorized } from '../../../../common/unauthorized';
+import SelectDropdown from '../../../../elements/SelectDropdown';
+import { Deal } from '../../../../models/deal';
+import { Notes } from '../../../../models/notes';
+import { Stage } from '../../../../models/stage';
+import { NotesService } from '../../../../services/notesService';
+import DealActivities from '../activities/dealActivities';
 
 type params = {
     dealItem: Deal;

@@ -201,8 +201,6 @@ export class BaseService<TItem extends AuditItem>{
     }
 
     putItemBySubURL(item: any, urlSuffix2: string,
-        suppressToasterMessage: boolean = false,
-        ignoreToastr: boolean = false,
         axiosCancel?: CancelTokenSource) {
         console.log("postItemBySubURL - URL: ", `${baseURL}/${this.urlSuffix}/${urlSuffix2}`,
             " | item: ", JSON.stringify(item));

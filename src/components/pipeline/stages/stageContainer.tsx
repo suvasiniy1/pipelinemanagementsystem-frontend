@@ -19,10 +19,6 @@ export const StageContainer = (props: params) => {
     const { title, index, selectedItem, setSelectedItem, onDeleteClick, ...others } = props;
     const [opacity, setOpacity] = useState();
 
-    const deleteStage = (index: number) => {
-        props.onDeleteClick(index);
-    }
-
     return (
         <>
             <Draggable draggableId={""+index} index={index}>

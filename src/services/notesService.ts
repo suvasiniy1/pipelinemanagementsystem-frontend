@@ -10,4 +10,8 @@ export class NotesService extends BaseService<Notes>{
     getNotes(dealId:number, axiosCancel?: CancelTokenSource){
         return this.getItems(axiosCancel, `Notes/GetNotesByDeal/${dealId}`)
     }
+
+    deleteNote(noteId:number){
+        return this.delete(noteId)
+    }
 }

@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { Spinner } from 'react-bootstrap';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { ErrorBoundary } from 'react-error-boundary';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from "react-toastify";
 import { UnAuthorized } from '../../../common/unauthorized';
 import { Deal } from '../../../models/deal';
@@ -13,14 +13,14 @@ import { Stage } from '../../../models/stage';
 import Util from '../../../others/util';
 import { DealService } from '../../../services/dealService';
 import { StageService } from '../../../services/stageService';
-import DealOverVitew from './dealOverView';
+import DealOverVitew from './overview/dealOverView';
 import { DATEPICKER } from '../../../elements/datePicker';
 import moment from 'moment';
 import SelectDropdown from '../../../elements/SelectDropdown';
 import { Utility } from '../../../models/utility';
 import Constants from '../../../others/constants';
 import LocalStorageUtil from '../../../others/LocalStorageUtil';
-import DealOverView from './dealOverView';
+import DealOverView from './overview/dealOverView';
 
 export const DealDetails = () => {
 
@@ -34,6 +34,7 @@ export const DealDetails = () => {
     const [stages, setStages] = useState<Array<Stage>>([]);
     const userProfile = Util.UserProfile();
     const utility: Utility = JSON.parse(LocalStorageUtil.getItemObject(Constants.UTILITY) as any);
+    const navigator = useNavigate();
 
     useEffect(() => {
         Promise.all([dealSvc.getDealsById(dealId), stagesSvc.getStages(pipeLineId)]).then(res => {
@@ -70,7 +71,8 @@ export const DealDetails = () => {
                     <div className="pdstage-detail">
                         <div className='sidebardetail-col'>
                             <div className='sidebardetailtopbar'>
-                                <div className='appdealtopbartitle'><FontAwesomeIcon icon={faAngleLeft} /> Deals</div>
+                                <div className='appdealtopbartitle' onClick={(e: any) => navigator("/pipeline?pipelineID=" + pipeLineId)} >
+                                    <a href="javascript:void(0);"><FontAwesomeIcon icon={faAngleLeft}/> Deals</a> </div>
                                 <div className='appdealtopbaractions'>
                                     <Dropdown className='dropdown-actionsbox'>
                                         <Dropdown.Toggle id="dropdown-actions">Actions</Dropdown.Toggle>
