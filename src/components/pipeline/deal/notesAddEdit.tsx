@@ -35,9 +35,9 @@ const NotesAddEdit = (props: params) => {
         (obj.noteID>0 ? noteSvc.putItemBySubURL(obj, `${obj.noteID}`) : noteSvc.postItemBySubURL(obj, "SaveNoteDetails")).then(res => {
             setDialogIsOpen(false);
             props.onSaveNote();
-            toast.success(`Note ${obj.noteID>0 ? " Edited " : " Added "} Successfully`);
+            toast.success(`Note ${obj.noteID>0 ? " Updated " : " Added "} Successfully`);
         }).catch(err=>{
-            toast.error(`Unable to ${obj.noteID>0 ? " Edit " : " Add "} note`);
+            toast.error(`Unable to ${obj.noteID>0 ? " Update " : " Add "} note`);
         })
     }
 

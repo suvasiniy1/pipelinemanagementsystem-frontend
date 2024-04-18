@@ -12,6 +12,7 @@ import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { DeleteDialog } from '../../../../common/deleteDialog';
 import { toast } from 'react-toastify';
 import { Spinner } from 'react-bootstrap';
+import DealNoteDetails from './dealNoteDetails';
 
 type params = {
   dealId: number;
@@ -61,14 +62,14 @@ const DealNotes = (props: params) => {
     <>
       {isLoading ? <div className="alignCenter"><Spinner /></div> :
         <>
-          <div className='whiteshadowbox' hidden={notesList.length==0}>
+          <div className='whiteshadowbox'>
             <div className='activityfilter-row pb-3'>
               <div className='createnote-row'>
                 <button className='btn btn-primary' type='button' onClick={(e: any) => setDialogIsOpen(true)}>Create Note</button>
               </div>
             </div>
             <h3>April 2024</h3>
-            <div className='activityfilter-accrow  mb-3'>
+            <div className='activityfilter-accrow  mb-3' hidden={notesList.length==0}>
               <Accordion className='activityfilter-acco'>
                 {notesList.map((note, index) => (
                   <Accordion.Item eventKey={"" + index} key={index}>
@@ -79,9 +80,7 @@ const DealNotes = (props: params) => {
                       <span className='accoheader-date'>{moment(note.createdDate).format("MM-DD-YYYY hh:mm:ss a")}</span>
                     </Accordion.Header>
                     <Accordion.Body>
-                      <div>
-                        {note.noteDetails.replace(/<[^>]+>/g, '')}
-                      </div>
+                      <DealNoteDetails noteDetails={note.noteDetails}/>
                       <div className="editstage-delete">
                         <button className="editstage-deletebtn" onClick={(e: any) => { setDialogIsOpen(true); setSelectedNoteItem(note as any) }}><FontAwesomeIcon icon={faEdit} /></button>
                         <button className="editstage-deletebtn" onClick={(e: any) => { setShowDeleteDialog(true); setSelectedNoteId(note.noteID as any) }}><FontAwesomeIcon icon={faTrash} /></button>

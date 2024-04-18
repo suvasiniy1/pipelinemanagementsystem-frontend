@@ -779,3 +779,6 @@ button.fields-editbtn{visibility: hidden; line-height: 1.2; background-color: #f
     cursor: not-allowed;
     pointer-events: none;
 }
+.cke_bottom{
+  display: none !important;
+}
