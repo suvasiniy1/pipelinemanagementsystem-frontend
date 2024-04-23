@@ -82,7 +82,7 @@ const Login = () => {
       loginSvc.login(obj).then((res: UserProfile) => {
         setLoading(false);
         
-        if (res) {
+        if (res && res?.token) {
           LocalStorageUtil.setItem(Constants.USER_LOGGED_IN, "true");
           LocalStorageUtil.setItem(Constants.ACCESS_TOKEN, res?.token);
           LocalStorageUtil.setItem(Constants.User_Name, res?.user);
@@ -154,7 +154,7 @@ const Login = () => {
                   </div>
                   <div className="h4">Sign In</div>
                 </div>
-                <div className='logformsubtext p-2 text-center'>Please log in to continie.</div>
+                <div className='logformsubtext p-2 text-center'>Please log in to continue.</div>
                 
                 
                 <div style={{ textAlign: "center" }}>

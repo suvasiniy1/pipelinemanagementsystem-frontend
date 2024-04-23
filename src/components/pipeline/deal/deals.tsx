@@ -230,7 +230,7 @@ export const Deals = (props: params) => {
                                         No pipelines are avilable to show
                                     </div>
                                 </div>
-                            </div> : <DealListView dealsList={totalDeals} />}
+                            </div> : <DealListView pipeLineId={selectedItem?.pipelineID ?? pipeLineId} />}
                     </div>
                     {error && <UnAuthorized error={error as any} />}
                     {

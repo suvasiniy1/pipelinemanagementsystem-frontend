@@ -1,21 +1,59 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Deal } from '../../../models/deal'
 import LocalStorageUtil from '../../../others/LocalStorageUtil'
 import { Utility } from '../../../models/utility'
 import Constants from '../../../others/constants'
+import { StageService } from '../../../services/stageService'
+import { ErrorBoundary } from 'react-error-boundary'
+import Util from '../../../others/util'
+import { Stage } from '../../../models/stage'
+import { AxiosError } from 'axios'
+import { UnAuthorized } from '../../../common/unauthorized'
+import { useNavigate } from 'react-router-dom'
 
 type params = {
-    dealsList: Array<Deal>
+    pipeLineId:number;
 }
 
 const DealListView = (props: params) => {
 
-    const { dealsList, ...others } = props;
+    const [dealsList, setDealsList]=useState<Array<Deal>>([])
     const utility: Utility = JSON.parse(LocalStorageUtil.getItemObject(Constants.UTILITY) as any);
+    const [isLoading, setIsLoading]=useState(false);
+    const stagesSvc = new StageService(ErrorBoundary);
+    const [pageSize, setPageSize] = useState(10);
+    const [pipeLineId, setPipeLineId]=useState(props.pipeLineId)
+    const [error, setError] = useState<AxiosError>();
+    const navigator = useNavigate();
 
     const getOrganizationName=(orgId:number)=> utility.organizations.find(o=>o.organizationID==orgId)?.name;
 
     const getContactPersonName=(personId:number)=> utility.persons.find(p=>p.personID==personId)?.personName;
+
+    useEffect(()=>{
+        if(!isLoading){
+            loadStages(pipeLineId);
+        }
+    },[pipeLineId])
+
+    const loadStages = (pipeLineId:number, pagesize: number = 40) => {
+        setIsLoading(true);
+        stagesSvc.getStages(pipeLineId, 1, pagesize ?? pageSize).then(items => {
+            let sortedStages = Util.sortList(items.stageDtos, "stageOrder");
+            let totalDealsList: Array<Deal> = [];
+            sortedStages.forEach((s: Stage) => {
+                s.deals.forEach(d => {
+                    totalDealsList.push(d);
+                })
+            });
+
+            setDealsList([...totalDealsList])
+            setIsLoading(false);
+
+        }).catch(err => {
+            setError(err);
+        });
+    }
 
     return (
 
@@ -80,7 +118,7 @@ const DealListView = (props: params) => {
                                                 {/* <div className="tbl-editicon">
                                                     <a href="#"><i className="rs-icon rs-icon-edit2"></i></a>
                                                 </div> */}
-                                                <div className="tbltitle-data"><a href="#">{d.title}</a></div>
+                                                <div className="tbltitle-data pdstage-descitem"><a href="" onClick={(e: any) => navigator(`/deal?id=${d?.dealID}&pipeLineId=${d?.pipelineID}`)}>{d?.title}{d.title}</a></div>
                                             </div>
                                         </td>
                                         <td className="pdlist-table-value">
@@ -136,6 +174,7 @@ const DealListView = (props: params) => {
                 </div>
 
             </div>
+            {error && <UnAuthorized error={error as any} />}
         </div>
     )
 }

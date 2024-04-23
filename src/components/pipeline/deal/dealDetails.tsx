@@ -21,6 +21,7 @@ import { Utility } from '../../../models/utility';
 import Constants from '../../../others/constants';
 import LocalStorageUtil from '../../../others/LocalStorageUtil';
 import DealOverView from './overview/dealOverView';
+import NotesAddEdit from './notesAddEdit';
 
 export const DealDetails = () => {
 
@@ -33,6 +34,7 @@ export const DealDetails = () => {
     const stagesSvc = new StageService(ErrorBoundary);
     const [stages, setStages] = useState<Array<Stage>>([]);
     const userProfile = Util.UserProfile();
+    const [dialogIsOpen, setDialogIsOpen] = useState(false);
     const utility: Utility = JSON.parse(LocalStorageUtil.getItemObject(Constants.UTILITY) as any);
     const navigator = useNavigate();
 
@@ -72,7 +74,7 @@ export const DealDetails = () => {
                         <div className='sidebardetail-col'>
                             <div className='sidebardetailtopbar'>
                                 <div className='appdealtopbartitle' onClick={(e: any) => navigator("/pipeline?pipelineID=" + pipeLineId)} >
-                                    <a href="javascript:void(0);"><FontAwesomeIcon icon={faAngleLeft}/> Deals</a> </div>
+                                    <a href="javascript:void(0);"><FontAwesomeIcon icon={faAngleLeft} /> Deals</a> </div>
                                 <div className='appdealtopbaractions'>
                                     <Dropdown className='dropdown-actionsbox'>
                                         <Dropdown.Toggle id="dropdown-actions">Actions</Dropdown.Toggle>
@@ -89,7 +91,7 @@ export const DealDetails = () => {
                                     </Dropdown>
                                 </div>
                             </div>
-                            
+
                             <div className='app-dealblock'>
                                 <div className='app-dealblock-inner'>
                                     <div className='appdealblock-title'>
@@ -113,7 +115,8 @@ export const DealDetails = () => {
                                         <div className='appdealblock-row'>
                                             <div className='appdeal-closedate dflex'>Stage:
                                                 <div className='stageappointment'>
-                                                    <Dropdown className='dropdown-scheduledbox'>
+                                                    {dealItem.stageName}
+                                                    {/* <Dropdown className='dropdown-scheduledbox'>
                                                         <Dropdown.Toggle id="dropdown-scheduled">{dealItem.stageName}</Dropdown.Toggle>
                                                         <Dropdown.Menu className='dropdown-scheduledlist'>
                                                             <Dropdown.Item href="#/action-1">Unfollow</Dropdown.Item>
@@ -125,14 +128,14 @@ export const DealDetails = () => {
                                                             <Dropdown.Item href="#/action-5">Merge</Dropdown.Item>
                                                             <Dropdown.Item href="#/action-6">Delete</Dropdown.Item>
                                                         </Dropdown.Menu>
-                                                    </Dropdown>
+                                                    </Dropdown> */}
                                                 </div>
                                             </div>
                                         </div>
                                         <div className='appdealblock-row'>
                                             <ul className='appdealblock-iconlist'>
                                                 <li>
-                                                    <button className='dealicon'><FontAwesomeIcon icon={faPenToSquare} /></button>
+                                                    <button className='dealicon'><FontAwesomeIcon icon={faPenToSquare} onClick={(e:any)=>setDialogIsOpen(true)} /></button>
                                                     <span className='dealicon-name'>Note</span>
                                                 </li>
                                                 <li>
@@ -193,10 +196,15 @@ export const DealDetails = () => {
                             </div>
 
                         </div>
-                        <DealOverView   dealItem={dealItem} 
-                                        stages={stages} 
-                                        setDealItem={setDealItem} 
-                                        onDealModified={(e:any)=>onDealModified(e)} />
+                        {dialogIsOpen && <NotesAddEdit dialogIsOpen={dialogIsOpen}
+                            dealId={dealId}
+                            setDialogIsOpen={setDialogIsOpen} />
+                        }
+                        <DealOverView dealItem={dealItem}
+                            stages={stages}
+                            setDealItem={setDealItem}
+                            onDealModified={(e: any) => onDealModified(e)} />
+
                     </div>
                 </div>
             }

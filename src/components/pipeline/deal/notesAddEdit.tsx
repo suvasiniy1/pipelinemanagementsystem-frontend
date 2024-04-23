@@ -11,9 +11,9 @@ type params = {
     dealId: number;
     dialogIsOpen: any;
     setDialogIsOpen: any;
-    onSaveNote: any;
+    onSaveNote?: any;
     noteItem?: Notes;
-    onCloseDialog:any;
+    onCloseDialog?:any;
 }
 const NotesAddEdit = (props: params) => {
 
@@ -23,7 +23,7 @@ const NotesAddEdit = (props: params) => {
 
     const oncloseDialog = () => {
         setDialogIsOpen(false);
-        props.onCloseDialog();
+        props.onCloseDialog && props.onCloseDialog();
     }
 
     const onSave = () => {

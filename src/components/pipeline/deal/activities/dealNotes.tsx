@@ -8,7 +8,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { AxiosError } from 'axios';
 import Util from '../../../../others/util';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faCircleCheck, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { DeleteDialog } from '../../../../common/deleteDialog';
 import { toast } from 'react-toastify';
 import { Spinner } from 'react-bootstrap';
@@ -62,7 +62,7 @@ const DealNotes = (props: params) => {
     <>
       {isLoading ? <div className="alignCenter"><Spinner /></div> :
         <>
-          <div className='whiteshadowbox'>
+
             <div className='activityfilter-row pb-3'>
               <div className='createnote-row'>
                 <button className='btn btn-primary' type='button' onClick={(e: any) => setDialogIsOpen(true)}>Create Note</button>
@@ -86,11 +86,13 @@ const DealNotes = (props: params) => {
                         <button className="editstage-deletebtn" onClick={(e: any) => { setShowDeleteDialog(true); setSelectedNoteId(note.noteID as any) }}><FontAwesomeIcon icon={faTrash} /></button>
                       </div>
                     </Accordion.Body>
+                    <div className='accofooter'>
+                      <FontAwesomeIcon icon={faCircleCheck} style={{paddingRight:5}}/>{note.noteDetails?.replace(/<[^>]*>/g, '')}
+                    </div>
                   </Accordion.Item>
                 ))}
               </Accordion>
             </div>
-          </div>
           <div style={{ textAlign: "center" }} hidden={notesList.length > 0}>
             No notes are avilable to show
           </div>
