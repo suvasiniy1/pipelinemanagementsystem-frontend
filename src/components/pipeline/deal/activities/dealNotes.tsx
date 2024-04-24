@@ -1,17 +1,14 @@
-import moment from 'moment';
-import Accordion from 'react-bootstrap/Accordion';
-import { Notes } from '../../../../models/notes';
-import NotesAddEdit from '../notesAddEdit';
-import { NotesService } from '../../../../services/notesService';
-import { useEffect, useState } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
 import { AxiosError } from 'axios';
-import Util from '../../../../others/util';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleCheck, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { DeleteDialog } from '../../../../common/deleteDialog';
-import { toast } from 'react-toastify';
+import { useEffect, useState } from 'react';
 import { Spinner } from 'react-bootstrap';
+import Accordion from 'react-bootstrap/Accordion';
+import { ErrorBoundary } from 'react-error-boundary';
+import { toast } from 'react-toastify';
+import { DeleteDialog } from '../../../../common/deleteDialog';
+import { Notes } from '../../../../models/notes';
+import Util from '../../../../others/util';
+import { NotesService } from '../../../../services/notesService';
+import NotesAddEdit from '../notesAddEdit';
 import DealNoteDetails from './dealNoteDetails';
 
 type params = {
@@ -27,6 +24,7 @@ const DealNotes = (props: params) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedNoteId, setSelectedNoteId] = useState<number>(0);
   const [selectedNoteItem, setSelectedNoteItem] = useState<Notes>();
+  const [selectedIndex, setSelectedIndex]=useState<any>(null);
 
   useEffect(() => {
     loadNotes();
@@ -72,24 +70,14 @@ const DealNotes = (props: params) => {
             <div className='activityfilter-accrow  mb-3' hidden={notesList.length==0}>
               <Accordion className='activityfilter-acco'>
                 {notesList.map((note, index) => (
-                  <Accordion.Item eventKey={"" + index} key={index}>
-                    <Accordion.Header>
-                      <span className='accoheader-title'>
-                        <strong>Note</strong> by {note.userName}
-                      </span>
-                      <span className='accoheader-date'>{moment(note.createdDate).format("MM-DD-YYYY hh:mm:ss a")}</span>
-                    </Accordion.Header>
-                    <Accordion.Body>
-                      <DealNoteDetails noteDetails={note.noteDetails}/>
-                      <div className="editstage-delete">
-                        <button className="editstage-deletebtn" onClick={(e: any) => { setDialogIsOpen(true); setSelectedNoteItem(note as any) }}><FontAwesomeIcon icon={faEdit} /></button>
-                        <button className="editstage-deletebtn" onClick={(e: any) => { setShowDeleteDialog(true); setSelectedNoteId(note.noteID as any) }}><FontAwesomeIcon icon={faTrash} /></button>
-                      </div>
-                    </Accordion.Body>
-                    <div className='accofooter'>
-                      <FontAwesomeIcon icon={faCircleCheck} style={{paddingRight:5}}/>{note.noteDetails?.replace(/<[^>]*>/g, '')}
-                    </div>
-                  </Accordion.Item>
+                  <DealNoteDetails note={note} 
+                  index={index} 
+                  setDialogIsOpen={(e:any)=>{setDialogIsOpen(e)}} 
+                  setShowDeleteDialog={(e:any)=>{setShowDeleteDialog(e)}} 
+                  setSelectedNoteItem={(e:any)=>{setSelectedNoteItem(e)}} 
+                  setSelectedNoteId={(e:any)=>{setSelectedNoteId(e)}}
+                  selectedIndex={selectedIndex}
+                  setSelectedIndex={(e:any)=>{setSelectedIndex(e)}} />
                 ))}
               </Accordion>
             </div>
