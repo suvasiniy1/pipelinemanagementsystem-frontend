@@ -15,6 +15,7 @@ import { Notes } from '../../../../models/notes';
 import { Stage } from '../../../../models/stage';
 import { NotesService } from '../../../../services/notesService';
 import DealActivities from '../activities/dealActivities';
+import { IsMockService } from '../../../../others/util';
 
 type params = {
     dealItem: Deal;
@@ -33,7 +34,7 @@ const DealOverView = (props: params) => {
 
     useEffect(() => {
         notesSvc.getNotes(dealItem.dealID).then(res => {
-            setNotesList(res)
+            setNotesList(IsMockService() ? (res as Array<Notes>).filter(n=>n.dealID==dealItem.dealID) : res)
         }).catch(err => {
             setError(err);
         })

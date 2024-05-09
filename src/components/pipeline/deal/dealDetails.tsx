@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 import { UnAuthorized } from '../../../common/unauthorized';
 import { Deal } from '../../../models/deal';
 import { Stage } from '../../../models/stage';
-import Util from '../../../others/util';
+import Util, { IsMockService } from '../../../others/util';
 import { DealService } from '../../../services/dealService';
 import { StageService } from '../../../services/stageService';
 import DealOverVitew from './overview/dealOverView';
@@ -40,8 +40,9 @@ export const DealDetails = () => {
 
     useEffect(() => {
         Promise.all([dealSvc.getDealsById(dealId), stagesSvc.getStages(pipeLineId)]).then(res => {
+            
             if (res && res.length > 0) {
-                setDealItem(res[0]);
+                setDealItem(IsMockService() ? res[0].find((d:Deal)=>d.dealID==dealId) : res[0]);
                 let sortedStages = Util.sortList(res[1].stageDtos, "stageOrder");
                 setStages(sortedStages);
             }

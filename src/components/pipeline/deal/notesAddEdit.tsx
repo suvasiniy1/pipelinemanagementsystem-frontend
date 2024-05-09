@@ -49,10 +49,9 @@ const NotesAddEdit = (props: params) => {
                     onSave={onSave}
                     closeDialog={oncloseDialog}
                     onClose={oncloseDialog}>
-                    <br />
                     <RichTextEditor onChange={(e: any) => setSelectedItem({ ...selectedItem, noteDetails: e })}
-                                    value={selectedItem.noteDetails} />
-                    <br />
+                                    value={selectedItem.noteDetails}
+                                    isValidationOptional={true} />
                 </AddEditDialog>
             </div>
         </>

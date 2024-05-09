@@ -51,7 +51,7 @@ const NoteComment = (props: params) => {
     return (
         <>
             <div hidden={editComment}>
-                <div><FontAwesomeIcon icon={faUser} /> {userObj.user}</div>
+                <div><FontAwesomeIcon icon={faUser} /> {userObj?.user}</div>
                 <div><span>{comment.comment}</span></div>
             </div>
             <div className="editstage-delete" hidden={editComment}>

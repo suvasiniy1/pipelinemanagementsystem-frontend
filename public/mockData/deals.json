@@ -1,0 +1,68 @@
+[
+    {
+        "dealID": 1,
+        "title": "Deal1",
+        "value": 100,
+        "pipelineID": 1,
+        "stageID": 1,
+        "labelID": 1,
+        "probability": "100",
+        "pipelineName": "PipeLine1",
+        "stageName": "Stage1"
+    },
+    {
+        "dealID": 2,
+        "title": "Deal2",
+        "value": 100,
+        "pipelineID": 1,
+        "stageID": 1,
+        "labelID": 1,
+        "probability": "100",
+        "pipelineName": "PipeLine1",
+        "stageName": "Stage1"
+    },
+    {
+        "dealID": 3,
+        "title": "Deal3",
+        "value": 100,
+        "pipelineID": 1,
+        "stageID": 1,
+        "labelID": 1,
+        "probability": "100",
+        "pipelineName": "PipeLine1",
+        "stageName": "Stage1"
+    },
+    {
+        "dealID": 4,
+        "title": "Deal1",
+        "value": 100,
+        "pipelineID": 1,
+        "stageID": 2,
+        "labelID": 1,
+        "probability": "100",
+        "pipelineName": "PipeLine1",
+        "stageName": "Stage1"
+    },
+    {
+        "dealID": 5,
+        "title": "Deal2",
+        "value": 100,
+        "pipelineID": 1,
+        "stageID": 2,
+        "labelID": 1,
+        "probability": "100",
+        "pipelineName": "PipeLine1",
+        "stageName": "Stage1"
+    },
+    {
+        "dealID": 6,
+        "title": "Deal3",
+        "value": 100,
+        "pipelineID": 1,
+        "stageID": 2,
+        "labelID": 1,
+        "probability": "100",
+        "pipelineName": "PipeLine1",
+        "stageName": "Stage1"
+    }
+]

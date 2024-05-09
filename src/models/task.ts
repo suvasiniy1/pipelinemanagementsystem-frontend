@@ -1,4 +1,6 @@
-export class Task {
+import { AuditItem } from "./base/AuditNamedItem"
+
+export class Task extends AuditItem{
     taskId!: number
     name!: string
     dueDate!: string
@@ -8,8 +10,4 @@ export class Task {
     assignedTo!: number
     taskDetails!: string
     dealId!: number
-    createdDate!: string
-    createdBy!: number
-    modifiedDate!: string
-    modifiedBy!: number
   }

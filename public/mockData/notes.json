@@ -1,0 +1,34 @@
+[
+	{
+		"noteID": 1,
+		"dealID": 1,
+		"noteDetails": "My first note",
+		"comments": [
+			{
+				"commentId": 1,
+				"comment": "my first comment",
+				"dealID": 1,
+				"noteId": 1
+			},
+			{
+				"commentId": 2,
+				"comment": "my second comment",
+				"dealID": 1,
+				"noteId": 1
+			}
+		]
+	},
+	{
+		"noteID": 2,
+		"dealID": 1,
+		"noteDetails": "My second note",
+		"comments": [
+			{
+				"commentId": 3,
+				"comment": "my first comment",
+				"dealID": 1,
+				"noteId": 2
+			}
+		]
+	}
+]

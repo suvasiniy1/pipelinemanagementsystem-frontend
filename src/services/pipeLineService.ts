@@ -1,6 +1,7 @@
 import { CancelTokenSource } from "axios";
 import { PipeLine } from "../models/pipeline";
 import { BaseService } from "./BaseService";
+import { IsMockService } from "../others/util";
 
 export class PipeLineService extends BaseService<PipeLine>{
 
@@ -9,7 +10,7 @@ export class PipeLineService extends BaseService<PipeLine>{
     }
 
     getPipeLines(axiosCancel?: CancelTokenSource){
-        return this.getItems(axiosCancel, 'Pipeline/GetAllPipelineDetails')
+        return this.getItems(axiosCancel, IsMockService() ? 'mockData/pipeline.json' : 'Pipeline/GetAllPipelineDetails')
     }
 
 }

@@ -4,6 +4,7 @@ declare global {
         config: {
             ServicesBaseURL: string;
             DefaultStages:Array<string>;
+            UseMockService:boolean;
         }
     }
 }

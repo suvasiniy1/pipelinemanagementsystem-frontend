@@ -1,6 +1,7 @@
 import { CancelTokenSource } from "axios";
 import { Deal } from "../models/deal";
 import { BaseService } from "./BaseService";
+import { IsMockService } from "../others/util";
 
 export class DealService extends BaseService<Deal>{
     constructor(errorHandler: any){
@@ -12,7 +13,7 @@ export class DealService extends BaseService<Deal>{
     }
 
     getDealsById(dealId:number, axiosCancel?: CancelTokenSource){
-        return this.getItems(axiosCancel, 'Deal/'+dealId)
+        return this.getItems(axiosCancel, IsMockService() ?  'mockData/deals.json' : 'Deal/'+dealId)
     }
 
     deleteDeal(dealId:number){

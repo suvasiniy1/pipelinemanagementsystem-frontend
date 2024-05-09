@@ -28,6 +28,7 @@ export interface IControl {
     showEyeIcon?:boolean;
     sidebyItem?:string;
     isSideByItem?:boolean;
+    hideLabel?:boolean
 }
 
 export enum CustomActionPosition {
@@ -43,5 +44,6 @@ export enum ElementType {
     "password" = "password",
     "number" = "number",
     "custom" = "custom",
-    "datepicker" = "datepicker"
+    "datepicker" = "datepicker",
+    "ckeditor" = "ckeditor"
 }

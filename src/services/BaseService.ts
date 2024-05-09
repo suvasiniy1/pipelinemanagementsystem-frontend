@@ -3,6 +3,7 @@ import { toast } from 'react-toastify';
 import { getActiveUserToken } from "../others/authUtil";
 import { APIResult } from "./APIResult";
 import { AuditItem } from "../models/base/AuditNamedItem";
+import { IsMockService } from "../others/util";
 
 
 //const baseURLDev="https://localhost:44310/api";
@@ -24,7 +25,7 @@ export class BaseService<TItem extends AuditItem>{
         var promise = new Promise<any>((resolve, reject) => {
             axios({
                 method: 'GET',
-                url: `${baseURL}/${customURL ? customURL : this.urlSuffix}`,
+                url: IsMockService()? customURL as any :  `${baseURL}/${customURL ? customURL : this.urlSuffix}`,
                 headers: {
                     'Content-Type': 'application/json; charset=UTF-8',
                     'Media-type': 'application/json',
@@ -46,7 +47,7 @@ export class BaseService<TItem extends AuditItem>{
         var promise = new Promise<any>((resolve, reject) => {
             axios({
                 method: 'GET',
-                url: `${baseURL}/${this.urlSuffix}/${urlSuffix2}`,
+                url:  IsMockService()? urlSuffix2 as any : `${baseURL}/${this.urlSuffix}/${urlSuffix2}`,
                 headers: {
                     'Content-Type': 'application/json; charset=UTF-8',
                     'Media-type': 'application/json',

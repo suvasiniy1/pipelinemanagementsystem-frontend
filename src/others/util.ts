@@ -165,3 +165,5 @@ export default class Util {
     return utility.persons.find(u=>u.personID==userId)?.personName;
   }
 }
+
+export const IsMockService = ()=> window.config.UseMockService;

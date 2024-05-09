@@ -11,7 +11,7 @@ import GenerateElements from "../common/generateElements";
 import { ElementType, IControl } from "../models/iControl";
 import LocalStorageUtil from '../others/LocalStorageUtil';
 import Constants from '../others/constants';
-import Util from "../others/util";
+import Util, { IsMockService } from "../others/util";
 import BackgroundImage from "../resources/images/background.png";
 import Logo from "../resources/images/logo.png";
 import jpg from "../resources/images/Y1Logo.jpg";
@@ -79,25 +79,32 @@ const Login = () => {
     }
 
     if (obj.userName.toLocaleLowerCase() !== "developer") {
-      loginSvc.login(obj).then((res: UserProfile) => {
-        setLoading(false);
-        
-        if (res && res?.token) {
-          LocalStorageUtil.setItem(Constants.USER_LOGGED_IN, "true");
-          LocalStorageUtil.setItem(Constants.ACCESS_TOKEN, res?.token);
-          LocalStorageUtil.setItem(Constants.User_Name, res?.user);
-          LocalStorageUtil.setItem(Constants.TOKEN_EXPIRATION_TIME, Util.convertTZ(res?.expires));
-          LocalStorageUtil.setItemObject(Constants.USER_PROFILE, res as any);
-          navigate("/pipeline");
+      if(IsMockService()){
+        LocalStorageUtil.setItem(Constants.USER_LOGGED_IN, "true");
+        navigate("/pipeline");
+      }
+      else{
+        loginSvc.login(obj).then((res: UserProfile) => {
+          setLoading(false);
+          
+          if (res && res?.token) {
+            LocalStorageUtil.setItem(Constants.USER_LOGGED_IN, "true");
+            LocalStorageUtil.setItem(Constants.ACCESS_TOKEN, res?.token);
+            LocalStorageUtil.setItem(Constants.User_Name, res?.user);
+            LocalStorageUtil.setItem(Constants.TOKEN_EXPIRATION_TIME, Util.convertTZ(res?.expires));
+            LocalStorageUtil.setItemObject(Constants.USER_PROFILE, res as any);
+            navigate("/pipeline");
+  
+          }
+          else {
+            setIsIncorrectCredentails(res);
+          }
+        }).catch(err => {
+          setLoading(false);
+          toast.error(err);
+        })
+      }
 
-        }
-        else {
-          setIsIncorrectCredentails(res);
-        }
-      }).catch(err => {
-        setLoading(false);
-        toast.error(err);
-      })
     }
     else {
       setLoading(false);

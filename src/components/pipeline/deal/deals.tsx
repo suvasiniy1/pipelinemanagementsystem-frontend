@@ -13,7 +13,7 @@ import { PipeLine } from "../../../models/pipeline";
 import { Stage } from "../../../models/stage";
 import LocalStorageUtil from "../../../others/LocalStorageUtil";
 import Constants from "../../../others/constants";
-import Util from "../../../others/util";
+import Util, { IsMockService } from "../../../others/util";
 import { DealService } from "../../../services/dealService";
 import { PipeLineService } from "../../../services/pipeLineService";
 import { StageService } from "../../../services/stageService";
@@ -68,8 +68,9 @@ export const Deals = (props: params) => {
     useEffect(() => {
         loadPipeLines();
         utilSvc.getDropdownValues().then(res => {
-            if (res?.data?.utility) {
-                LocalStorageUtil.setItemObject(Constants.UTILITY, JSON.stringify(res?.data?.utility));
+            let result = IsMockService() ? res?.data : res?.data?.utility
+            if (result) {
+                LocalStorageUtil.setItemObject(Constants.UTILITY, JSON.stringify(result));
             }
         }).catch(err => {
             setError(err);
@@ -82,6 +83,7 @@ export const Deals = (props: params) => {
         setIsLoading(true);
 
         pipeLineSvc.getPipeLines().then((res: Array<PipeLine>) => {
+            
             setPipeLines(res);
             let selectedPipeLineId = pipeLineId > 0 ? pipeLineId : res[0].pipelineID;
             setPipeLineId(selectedPipeLineId);

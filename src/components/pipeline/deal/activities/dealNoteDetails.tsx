@@ -92,7 +92,7 @@ const DealNoteDetails = (props: params) => {
                             <NoteComment comment={c}
                             loadComments={(e:any)=>getnote()} />
                         ))}
-                    <FontAwesomeIcon icon={faUser} /> {userObj.user}
+                    <FontAwesomeIcon icon={faUser} /> {userObj?.user}
                     <textarea className='form-control pt-4' ref={commentRef as any} defaultValue={defaultComment as any} onChange={(e: any) => setComment({ ...comment, comment: e.target.value })} style={{ minHeight: "150px", maxWidth: "600px" }} />
                     <br />
                     <button type="button" className="btn btn-secondary" onClick={(e: any) => saveComment()}>Save</button>
