@@ -5,4 +5,5 @@ export class Comment extends AuditItem{
     comment!: string;
     dealID!: number;
     noteId!: number;
+    taskId!:number;
 }

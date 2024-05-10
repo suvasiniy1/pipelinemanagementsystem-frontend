@@ -4,17 +4,18 @@ import { Spinner } from 'react-bootstrap';
 import Accordion from 'react-bootstrap/Accordion';
 import { ErrorBoundary } from 'react-error-boundary';
 import { toast } from 'react-toastify';
-import { DeleteDialog } from '../../../../common/deleteDialog';
-import { Notes } from '../../../../models/notes';
-import Util from '../../../../others/util';
-import { NotesService } from '../../../../services/notesService';
-import NotesAddEdit from '../notesAddEdit';
-import DealNoteDetails from './dealNoteDetails';
+import { DeleteDialog } from '../../../../../common/deleteDialog';
+import Util from '../../../../../others/util';
+import { NotesService } from '../../../../../services/notesService';
+import NotesAddEdit from './notesAddEdit';
+import DealNoteDetails from './noteDetails';
+import NoteDetails from './noteDetails';
+import { Notes } from '../../../../../models/notes';
 
 type params = {
   dealId: number;
 }
-const DealNotes = (props: params) => {
+const NotesList = (props: params) => {
   const { dealId, ...others } = props;
   const notesSvc = new NotesService(ErrorBoundary);
   const [notesList, setNotesList] = useState<Array<Notes>>([]);
@@ -70,7 +71,7 @@ const DealNotes = (props: params) => {
             <div className='activityfilter-accrow  mb-3' hidden={notesList.length==0}>
               <Accordion className='activityfilter-acco'>
                 {notesList.map((note, index) => (
-                  <DealNoteDetails note={note} 
+                  <NoteDetails note={note} 
                   index={index} 
                   setDialogIsOpen={(e:any)=>{setDialogIsOpen(e)}} 
                   setShowDeleteDialog={(e:any)=>{setShowDeleteDialog(e)}} 
@@ -108,4 +109,4 @@ const DealNotes = (props: params) => {
   )
 }
 
-export default DealNotes
+export default NotesList

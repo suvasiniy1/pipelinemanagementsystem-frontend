@@ -1,19 +1,15 @@
 import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState } from 'react';
-import { Spinner } from 'react-bootstrap';
 import Accordion from 'react-bootstrap/Accordion';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
-import { ErrorBoundary } from 'react-error-boundary';
 import { Deal } from '../../../../models/deal';
-import { Notes } from '../../../../models/notes';
-import { NotesService } from '../../../../services/notesService';
-import DealNotes from './dealNotes';
-import EmailActivites from './emailActivites';
-import CallsActivites from './callsActivites';
-import TasksActivites from './tasksActivites';
+import CallsActivites from './call/callsActivites';
+import EmailActivites from './email/emailActivites';
+import NotesList from './notes/notesList';
+import TasksList from './tasks/tasksList';
 
 type params = {
     dealItem: Deal
@@ -155,7 +151,7 @@ const DealActivities = (props: params) => {
                         </div>
                     </Tab>
                     <Tab eventKey="notes" title="Notes">
-                        <DealNotes dealId={dealItem.dealID} />
+                        <NotesList dealId={dealItem.dealID} />
                     </Tab>
                     <Tab eventKey="email" title="Email">
                         <EmailActivites/>
@@ -164,7 +160,7 @@ const DealActivities = (props: params) => {
                         <CallsActivites/>
                     </Tab>
                     <Tab eventKey="tasks" title="Tasks">
-                        <TasksActivites/>
+                        <TasksList dealId={dealItem.dealID}/>
                     </Tab>
                 </Tabs>
 

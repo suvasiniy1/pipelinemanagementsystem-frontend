@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
-import { AddEditDialog } from '../../../common/addEditDialog'
-import RichTextEditor from '../../../elements/richTextEditor';
-import { Notes } from '../../../models/notes';
-import { NotesService } from '../../../services/notesService';
+import { AddEditDialog } from '../../../../../common/addEditDialog'
+import RichTextEditor from '../../../../../elements/richTextEditor';
+import { Notes } from '../../../../../models/notes';
+import { NotesService } from '../../../../../services/notesService';
 import { ErrorBoundary } from 'react-error-boundary';
-import Util from '../../../others/util';
+import Util from '../../../../../others/util';
 import { toast } from 'react-toastify';
 
 type params = {

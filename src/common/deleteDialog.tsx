@@ -34,10 +34,10 @@ export const DeleteDialog: React.FC<Props> = (props) => {
                 keyboard={false} // this is added to disable click outside of Modal window
                 centered >
                 {!hideCrossButton ? <Modal.Header closeButton >
-                    <Modal.Title id="deleteDialogHeader">{customHeader ?? actionType  + itemType}</Modal.Title>
+                    <Modal.Title id="deleteDialogHeader">{customHeader ?? actionType  + ' ' + itemType}</Modal.Title>
                 </Modal.Header>
                     : <Modal.Header >
-                        <Modal.Title id="deleteDialogHeader">{customHeader ?? actionType  + itemType}</Modal.Title>
+                        <Modal.Title id="deleteDialogHeader">{customHeader ?? actionType  + ' ' + itemType}</Modal.Title>
                     </Modal.Header>
                 }
                 <Modal.Body id="deleteModelBody">{getDeleteMessage()} </Modal.Body>

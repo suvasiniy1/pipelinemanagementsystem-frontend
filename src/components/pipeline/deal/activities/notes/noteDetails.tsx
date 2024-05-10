@@ -5,14 +5,14 @@ import { useEffect, useRef, useState } from 'react';
 import { Accordion } from 'react-bootstrap';
 import { ErrorBoundary } from 'react-error-boundary';
 import { toast } from 'react-toastify';
-import { Comment } from '../../../../models/comment';
-import { Notes } from '../../../../models/notes';
-import { UserProfile } from '../../../../models/userProfile';
-import LocalStorageUtil from '../../../../others/LocalStorageUtil';
-import Constants from '../../../../others/constants';
-import { CommentsService } from '../../../../services/commentsService';
-import { NotesService } from '../../../../services/notesService';
-import NoteComment from './noteComment';
+import { Comment } from '../../../../../models/comment';
+import { Notes } from '../../../../../models/notes';
+import { UserProfile } from '../../../../../models/userProfile';
+import LocalStorageUtil from '../../../../../others/LocalStorageUtil';
+import Constants from '../../../../../others/constants';
+import { CommentsService } from '../../../../../services/commentsService';
+import { NotesService } from '../../../../../services/notesService';
+import Comments from '../common/comment';
 
 type params = {
     note: Notes;
@@ -24,7 +24,7 @@ type params = {
     selectedIndex: any;
     setSelectedIndex: any;
 }
-const DealNoteDetails = (props: params) => {
+const NoteDetails = (props: params) => {
     const { index, selectedIndex, ...others } = props;
     const [note, setNote] = useState(props.note);
     const divRef = useRef();
@@ -89,7 +89,7 @@ const DealNoteDetails = (props: params) => {
                 <div hidden={!showcomments}>
                     {
                         note.comments?.map((c, index) => (
-                            <NoteComment comment={c}
+                            <Comments comment={c}
                             loadComments={(e:any)=>getnote()} />
                         ))}
                     <FontAwesomeIcon icon={faUser} /> {userObj?.user}
@@ -106,4 +106,4 @@ const DealNoteDetails = (props: params) => {
     )
 }
 
-export default DealNoteDetails
+export default NoteDetails

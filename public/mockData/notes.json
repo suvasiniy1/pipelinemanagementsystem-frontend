@@ -6,13 +6,13 @@
 		"comments": [
 			{
 				"commentId": 1,
-				"comment": "my first comment",
+				"comment": "my first comment for note",
 				"dealID": 1,
 				"noteId": 1
 			},
 			{
 				"commentId": 2,
-				"comment": "my second comment",
+				"comment": "my second comment for note",
 				"dealID": 1,
 				"noteId": 1
 			}
@@ -25,7 +25,7 @@
 		"comments": [
 			{
 				"commentId": 3,
-				"comment": "my first comment",
+				"comment": "my first comment for note",
 				"dealID": 1,
 				"noteId": 2
 			}

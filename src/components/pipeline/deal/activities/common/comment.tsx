@@ -3,17 +3,19 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useRef, useState } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { toast } from 'react-toastify'
-import { DeleteDialog } from '../../../../common/deleteDialog'
-import { Comment } from '../../../../models/comment'
-import { UserProfile } from '../../../../models/userProfile'
-import LocalStorageUtil from '../../../../others/LocalStorageUtil'
-import Constants from '../../../../others/constants'
-import { CommentsService } from '../../../../services/commentsService'
+import { DeleteDialog } from '../../../../../common/deleteDialog'
+import { UserProfile } from '../../../../../models/userProfile'
+import LocalStorageUtil from '../../../../../others/LocalStorageUtil'
+import Constants from '../../../../../others/constants'
+import { CommentsService } from '../../../../../services/commentsService'
+import { Comment } from '../../../../../models/comment'
+
 type params = {
     comment: Comment,
     loadComments:any
 }
-const NoteComment = (props: params) => {
+
+const Comments = (props: params) => {
     const [comment, setComment] = useState(props.comment);
     const userObj = LocalStorageUtil.getItemObject(Constants.USER_PROFILE) as UserProfile;
     const [editComment, setEditComment] = useState(false);
@@ -80,4 +82,4 @@ const NoteComment = (props: params) => {
     )
 }
 
-export default NoteComment
+export default Comments

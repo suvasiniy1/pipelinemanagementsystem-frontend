@@ -21,7 +21,7 @@ import { Utility } from '../../../models/utility';
 import Constants from '../../../others/constants';
 import LocalStorageUtil from '../../../others/LocalStorageUtil';
 import DealOverView from './overview/dealOverView';
-import NotesAddEdit from './notesAddEdit';
+import NotesAddEdit from './activities/notes/notesAddEdit';
 
 export const DealDetails = () => {
 

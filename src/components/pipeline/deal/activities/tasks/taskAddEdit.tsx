@@ -5,15 +5,15 @@ import { ErrorBoundary } from "react-error-boundary";
 import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
-import { AddEditDialog } from "../../../../common/addEditDialog";
-import GenerateElements from "../../../../common/generateElements";
-import { ElementType, IControl } from "../../../../models/iControl";
-import { Task } from "../../../../models/task";
-import { Utility } from "../../../../models/utility";
-import LocalStorageUtil from "../../../../others/LocalStorageUtil";
-import Constants from "../../../../others/constants";
-import Util from "../../../../others/util";
-import { TaskService } from "../../../../services/taskService";
+import { AddEditDialog } from "../../../../../common/addEditDialog";
+import GenerateElements from "../../../../../common/generateElements";
+import { ElementType, IControl } from "../../../../../models/iControl";
+import { Task } from "../../../../../models/task";
+import { Utility } from "../../../../../models/utility";
+import LocalStorageUtil from "../../../../../others/LocalStorageUtil";
+import Constants from "../../../../../others/constants";
+import Util from "../../../../../others/util";
+import { TaskService } from "../../../../../services/taskService";
 
 
 type params = {
@@ -21,12 +21,13 @@ type params = {
   dialogIsOpen: any;
   setDialogIsOpen: any;
   onSaveNote?: any;
+  taskItem?:Task;
   onCloseDialog?: any;
 };
 
 export const TaskAddEdit = (props: params) => {
-  const { dialogIsOpen, setDialogIsOpen, dealId, ...Others } = props;
-  const [selectedItem, setSelectedItem] = useState(new Task());
+  const { dialogIsOpen, setDialogIsOpen, dealId, taskItem, ...Others } = props;
+  const [selectedItem, setSelectedItem] = useState(taskItem ?? new Task());
   const [isLoading, setIsLoading] = useState(false);
   const typesList=["To Do", "Call", "Email"];
   const prioritiesList = ["High", "Medium", "Low"]

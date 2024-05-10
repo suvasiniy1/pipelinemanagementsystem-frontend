@@ -9,5 +9,12 @@ export class TaskService extends BaseService<Task>{
         super("Task", "Task", errorHandler);
     }
 
-    
+    getTasks(dealId:number, axiosCancel?: CancelTokenSource){
+        return this.getItems(axiosCancel, IsMockService() ? 'mockData/tasks.json' : `Tasks/GetTasksByDeal/${dealId}`)
+    }
+
+    deleteTask(taskId:number){
+        return this.delete(taskId)
+    }
+
 }

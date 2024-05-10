@@ -1,4 +1,5 @@
 import { AuditItem } from "./base/AuditNamedItem"
+import { Comment } from "./comment"
 
 export class Task extends AuditItem{
     taskId!: number
@@ -10,4 +11,6 @@ export class Task extends AuditItem{
     assignedTo!: number
     taskDetails!: string
     dealId!: number
+    userName!:string
+    comments!:Array<Comment>
   }
