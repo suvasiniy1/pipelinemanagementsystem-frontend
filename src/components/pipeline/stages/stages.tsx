@@ -47,7 +47,7 @@ export const Stages = (props: params) => {
     const [isLoading, setIsLoading] = useState(false);
     const [selectedItem, setSelectedItem] = useState<PipeLine>();
     const [pipeLineId, setPipeLineId] = useState(new URLSearchParams(useLocation().search).get("pipelineID") as any);
-    const defaultStages = ["Qualified", "Conact Made", "Demo Scheduled", "Proposal Made", "Negotiations Started"];
+    const defaultStages = ["Qualified", "Contact Made", "Demo Scheduled", "Proposal Made", "Negotiations Started"];
     const pipeLineSvc = new PipeLineService(ErrorBoundary);
     const stagesSvc = new StageService(ErrorBoundary);
     const [error, setError] = useState<AxiosError>();
@@ -68,7 +68,7 @@ export const Stages = (props: params) => {
             if (defaultStages?.length > 0) {
                 let newPipeLine = new PipeLine();
                 newPipeLine.pipelineID = 0;
-                newPipeLine.createdBy = userProfile.user;
+                newPipeLine.createdBy = userProfile.userId;
                 newPipeLine.createdDate = new Date();
                 newPipeLine.pipelineName = newPipeLine.description = "New PipeLine";
                 newPipeLine.stages = [];
@@ -191,9 +191,19 @@ export const Stages = (props: params) => {
     }
 
     const saveStages = () => {
+        debugger;
          if(stages.find(s=>!s.stageName)) return;
         if (selectedItem?.pipelineID == 0) {
-            pipeLineSvc.postItemBySubURL(selectedItem, 'SavePipelineDetails').then(res => {
+            var pipeline={
+                "pipelineID":selectedItem.pipelineID,
+                "pipelineName": selectedItem.pipelineName,
+                "description": selectedItem.description,
+                "createdBy": selectedItem.createdBy,
+                "createdDate": selectedItem.createdDate,
+                "modifiedDate":selectedItem.modifiedDate,
+                "modifiedBy":selectedItem.modifiedBy
+            }
+            pipeLineSvc.postItemBySubURL(pipeline, 'SavePipelineDetails').then(res => {
                 if (res) {
                     continueToSave(res.pipelineID);
                 }
@@ -208,6 +218,7 @@ export const Stages = (props: params) => {
     }
 
     const continueToSave = (pipelineID?: number) => {
+        debugger;
         prepareToSave(pipelineID ?? pipeLineId);
         stagesSvc.postItemBySubURL(stages as any, 'SaveStages').then(res => {
 

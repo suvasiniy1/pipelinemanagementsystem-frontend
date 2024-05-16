@@ -85,18 +85,18 @@ export const DealHeader = (props: params) => {
                             ))}
                         </ul>
                     </div>
-                    <div className='pipeselectpadlr pipeselectbtm'>
+                   {/*<div className='pipeselectpadlr pipeselectbtm'>
                         <ul className='pipeselectlist'>
                             <li><button className='pipeselectlink' type='button'><FontAwesomeIcon icon={faGripLines} /> Reorder Pipelines</button></li>
                             <li><button className='pipeselectlink' type='button'><FontAwesomeIcon icon={faEye} /> Pipeline Visibility</button></li>
                             <li><button className='pipeselectlink' type='button'><FontAwesomeIcon icon={faPencil} /> Custumize deal cards <a className='pipeselect-infolink'><FontAwesomeIcon icon={faCircleInfo} /></a></button></li>
-                        </ul>
-                    </div>
-                    <div className='pipeselectpadlr pipeselectbtm'>
+                            </ul>*
+                            </div>*/}
+                    {/*<div className='pipeselectpadlr pipeselectbtm'>
                         <ul className='pipeselectlist'>
-                            <li onClick={(e:any)=>navigate("/pipeline/add")}><button className='newpipeline' type='button'><FontAwesomeIcon icon={faAdd} /> New pipeline</button></li>
+                            <li onClick={(e:any)=>navigate("/pipeline/edit")}><button className='newpipeline' type='button'><FontAwesomeIcon icon={faAdd} /> New pipeline</button></li>
                         </ul>
-                    </div>
+                    </div>*/}
                 </div>
             </OutsideClickHandler>
         )

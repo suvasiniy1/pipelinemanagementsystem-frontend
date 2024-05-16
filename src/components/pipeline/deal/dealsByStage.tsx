@@ -64,7 +64,7 @@ const DealsByStage = (props: params) => {
                                   <a className='pdstage-boxlink' href=''>
                                     <div className="pdstage-title">{deal?.name}</div>
                                     <div className="pdstage-description">
-                                      <div className="pdstage-descitem">{deal?.title}</div>
+                                      <div className="pdstage-descitem">{deal?.personName}</div>
                                     </div>
                                     <div className="pdstage-status-row">
                                       <div className="pdstage-avatar">

@@ -54,6 +54,10 @@ export const AppRouter = () => {
                 element={<Leads />}
             />
             <Route
+                path="/Stages"
+                element={<Stages stages={[]} />}
+            />
+            <Route
                 path="/deals"
                 element={<Deals />}
             />
