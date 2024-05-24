@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { TaskAddEdit } from "./taskAddEdit";
-import { Accordion } from "react-bootstrap";
+import { Accordion, Spinner } from "react-bootstrap";
 import DealNoteDetails from "../notes/noteDetails";
 import { AxiosError } from "axios";
 import { Task } from "../../../../../models/task";
@@ -31,6 +31,7 @@ const TasksList = (props: params) => {
   }, []);
 
   const loadTasks = () => {
+    ;
     setIsLoading(true);
     taskSvc
       .getTasks(dealId)
@@ -61,58 +62,70 @@ const TasksList = (props: params) => {
 
   return (
     <>
-      <div className="activityfilter-row pb-3">
-        <div className="createnote-row">
-          <button
-            className="btn btn-primary"
-            type="button"
-            onClick={(e: any) => setDialogIsOpen(true)}
-          >
-            Create Task
-          </button>
+      {isLoading ? (
+        <div className="alignCenter">
+          <Spinner />
         </div>
-      </div>
-      <h3>April 2024</h3>
-      <div
-        className="activityfilter-accrow  mb-3"
-        hidden={tasksList.length == 0}
-      >
-        <Accordion className="activityfilter-acco">
-          {tasksList.map((task, index) => (
-            <div key={index}>
-              <TaskDetails
-                task={task}
-                index={index}
-                setDialogIsOpen={(e: any) => {
-                  setDialogIsOpen(e);
+      ) : (
+        <>
+          <div className="activityfilter-row pb-3">
+            <div className="createnote-row">
+              <button
+                className="btn btn-primary"
+                type="button"
+                onClick={(e: any) => {
+                  setSelectedTaskItem(null as any);
+                  setDialogIsOpen(true);
                 }}
-                setShowDeleteDialog={(e: any) => {
-                  setShowDeleteDialog(e);
-                }}
-                setSelectedTaskItem={(e: any) => {
-                  setSelectedTaskItem(e);
-                }}
-                setSelectedTaskId={(e: any) => {
-                  setSelectedTaskId(e);
-                }}
-                selectedIndex={selectedIndex}
-                setSelectedIndex={(e: any) => {
-                  setSelectedIndex(e);
-                }}
-              />
+              >
+                Create Task
+              </button>
             </div>
-          ))}
-        </Accordion>
-      </div>
-      <div style={{ textAlign: "center" }} hidden={tasksList.length > 0}>
-        No tasks are avilable to show
-      </div>
+          </div>
+          <h3>April 2024</h3>
+          <div
+            className="activityfilter-accrow  mb-3"
+            hidden={tasksList.length == 0}
+          >
+            <Accordion className="activityfilter-acco">
+              {tasksList.map((task, index) => (
+                <div key={index}>
+                  <TaskDetails
+                    task={task}
+                    index={index}
+                    setDialogIsOpen={(e: any) => {
+                      setDialogIsOpen(e);
+                    }}
+                    setShowDeleteDialog={(e: any) => {
+                      setShowDeleteDialog(e);
+                    }}
+                    setSelectedTaskItem={(e: any) => {
+                      setSelectedTaskItem(e);
+                    }}
+                    setSelectedTaskId={(e: any) => {
+                      setSelectedTaskId(e);
+                    }}
+                    selectedIndex={selectedIndex}
+                    setSelectedIndex={(e: any) => {
+                      setSelectedIndex(e);
+                    }}
+                  />
+                </div>
+              ))}
+            </Accordion>
+          </div>
+          <div style={{ textAlign: "center" }} hidden={tasksList.length > 0}>
+            No tasks are avilable to show
+          </div>
+        </>
+      )}
       {dialogIsOpen && (
         <TaskAddEdit
           dialogIsOpen={dialogIsOpen}
-          dealId={0}
+          dealId={dealId}
           taskItem={selectedTaskItem}
           setDialogIsOpen={setDialogIsOpen}
+          onSaveTask={(e: any) => loadTasks()}
         />
       )}
       {showDeleteDialog && (

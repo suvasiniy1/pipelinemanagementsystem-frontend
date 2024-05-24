@@ -85,7 +85,7 @@ const TaskDetails = (props: params) => {
                     <button className="editstage-deletebtn" onClick={(e: any) => { props.setDialogIsOpen(true); props.setSelectedTaskItem(task as any) }}><FontAwesomeIcon icon={faEdit} /></button>
                     <button className="editstage-deletebtn" onClick={(e: any) => { props.setShowDeleteDialog(true); props.setSelectedTaskId(task.taskId as any) }}><FontAwesomeIcon icon={faTrash} /></button>
                 </div>
-                <a href="javascript:void(0);"><span style={{ color: "#0091ae" }} onClick={(e: any) => { setShowComments(!showcomments) }}>{showcomments ? task.comments.length > 1 ? 'Hide Comments' : 'Hide Comment' : task.comments.length > 0 ? task.comments.length == 1 ? task.comments.length + " Comment" : task.comments.length + " Comments" : 'Add Comment'} </span></a>
+                <a href="javascript:void(0);"><span style={{ color: "#0091ae" }} onClick={(e: any) => { setShowComments(!showcomments) }}>{showcomments ? task?.comments?.length > 1 ? 'Hide Comments' : 'Hide Comment' : task.comments?.length > 0 ? task.comments?.length == 1 ? task.comments?.length + " Comment" : task.comments?.length + " Comments" : 'Add Comment'} </span></a>
                 <br />
                 <br />
                 <div hidden={!showcomments}>

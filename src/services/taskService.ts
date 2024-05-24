@@ -6,11 +6,11 @@ import { Task } from "../models/task";
 
 export class TaskService extends BaseService<Task>{
     constructor(errorHandler: any){
-        super("Task", "Task", errorHandler);
+        super("Tasks", "Tasks", errorHandler);
     }
 
     getTasks(dealId:number, axiosCancel?: CancelTokenSource){
-        return this.getItems(axiosCancel, IsMockService() ? 'mockData/tasks.json' : `Tasks/GetTasksByDeal/${dealId}`)
+        return this.getItems(axiosCancel, IsMockService() ? 'mockData/tasks.json' : `Tasks/GetAllTask`)
     }
 
     deleteTask(taskId:number){

@@ -223,7 +223,7 @@ export class BaseService<TItem extends AuditItem>{
                 console.log("postItemBySubURL - res: ", res);
                 
                 if (res.data?.success) {
-                    resolve(res.data?.result);
+                    resolve(res.data?.updateResult);
 
                 }
                 else {

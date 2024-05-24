@@ -1,5 +1,5 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Spinner } from "react-bootstrap";
 import { ErrorBoundary } from "react-error-boundary";
 import { FormProvider, useForm } from "react-hook-form";
@@ -20,7 +20,7 @@ type params = {
   dealId: number;
   dialogIsOpen: any;
   setDialogIsOpen: any;
-  onSaveNote?: any;
+  onSaveTask?: any;
   taskItem?:Task;
   onCloseDialog?: any;
 };
@@ -86,6 +86,13 @@ export const TaskAddEdit = (props: params) => {
       }
   ];
 
+  useEffect(()=>{
+    if(taskItem){
+      setValue("dueDate" as never, taskItem.dueDate as never);
+      setValue("reminder" as never, taskItem.reminder as never);
+    }
+  }, [taskItem])
+
   const oncloseDialog = () => {
     setDialogIsOpen(false);
     props.onCloseDialog && props.onCloseDialog();
@@ -110,7 +117,10 @@ export const TaskAddEdit = (props: params) => {
     addUpdateItem.modifiedBy = Util.UserProfile()?.userId;
     addUpdateItem.createdDate = new Date();
     Util.toClassObject(addUpdateItem, item);
-    addUpdateItem.dealId = +selectedItem.dealId;
+    addUpdateItem.dealId = dealId;
+    addUpdateItem.taskId = taskItem?.taskId ?? 0 as any;
+    addUpdateItem.dueDate = new Date(addUpdateItem.dueDate);
+    addUpdateItem.reminder = new Date(addUpdateItem.reminder);
     console.log("addUpdateItem" + { ...addUpdateItem });
 
     if(new Date(addUpdateItem.reminder)<new Date()){
@@ -122,14 +132,16 @@ export const TaskAddEdit = (props: params) => {
         return;
     }
 
-    // taskSvc.postItemBySubURL(addUpdateItem, "saveTaskDetails").then(res => {
-    //     if (res.dealID > 0) {
-    //         toast.success("Task added successfully");
-    //     }
-    //     else {
-    //         toast.error("Unable to add Task");
-    //     }
-    // })
+    (addUpdateItem.taskId > 0 ? taskSvc.putItemBySubURL(addUpdateItem, `${addUpdateItem.taskId}`) : taskSvc.postItemBySubURL(addUpdateItem, "AddTask")).then(res => {
+      setDialogIsOpen(false);
+      props.onSaveTask();  
+      if (res) {
+            toast.success("Task added successfully");
+        }
+        else {
+            toast.error("Unable to add Task");
+        }
+    })
   };
 
   const getDropdownvalues = (item: any) => {

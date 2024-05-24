@@ -4,8 +4,8 @@ import { Comment } from "./comment"
 export class Task extends AuditItem{
     taskId!: number
     name!: string
-    dueDate!: string
-    reminder!: number
+    dueDate!: Date
+    reminder!: Date
     todo!: string
     priority!: string
     assignedTo!: number
