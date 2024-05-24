@@ -1,9 +1,5 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-<<<<<<< HEAD
 import { useEffect, useState } from "react";
-=======
-import React, { useState } from 'react'
->>>>>>> afa03462e0f7e66dea76be1692007f9928caf444
 import { Spinner } from "react-bootstrap";
 import { ErrorBoundary } from "react-error-boundary";
 import { FormProvider, useForm } from "react-hook-form";
@@ -20,19 +16,12 @@ import Util from "../../../../../others/util";
 import { TaskService } from "../../../../../services/taskService";
 
 
-
-
 type params = {
   dealId: number;
   dialogIsOpen: any;
   setDialogIsOpen: any;
-<<<<<<< HEAD
   onSaveTask?: any;
-  taskItem?:Task;
-=======
-  onSaveNote?: any;
   taskItem?:Tasks;
->>>>>>> afa03462e0f7e66dea76be1692007f9928caf444
   onCloseDialog?: any;
 };
 
@@ -122,36 +111,19 @@ export const TaskAddEdit = (props: params) => {
   const { handleSubmit, unregister, register, resetField, setValue, setError } = methods;
 
   const onSubmit = (item:any) => {
+    
     let addUpdateItem: Tasks = new Tasks();
     addUpdateItem.createdBy = Util.UserProfile()?.userId;
-    
     addUpdateItem.modifiedBy = Util.UserProfile()?.userId;
     addUpdateItem.createdDate = new Date();
-<<<<<<< HEAD
     Util.toClassObject(addUpdateItem, item);
     addUpdateItem.dealId = dealId;
     addUpdateItem.taskId = taskItem?.taskId ?? 0 as any;
     addUpdateItem.dueDate = new Date(addUpdateItem.dueDate);
     addUpdateItem.reminder = new Date(addUpdateItem.reminder);
     console.log("addUpdateItem" + { ...addUpdateItem });
-=======
-    addUpdateItem.modifiedDate = new Date();
-    addUpdateItem.userName = Util.UserProfile()?.user;
-    addUpdateItem.dealId = +selectedItem.dealId;
->>>>>>> afa03462e0f7e66dea76be1692007f9928caf444
 
-    Util.toClassObject(addUpdateItem, item);
-
-    console.log("addUpdateItem" + { ...addUpdateItem });
-    
-
-const dueDate = new Date(addUpdateItem.dueDate);
-addUpdateItem.dueDate = dueDate.toISOString();  
-
-
-addUpdateItem.reminder = new Date(addUpdateItem.reminder).toISOString();
-
-   if(new Date(addUpdateItem.reminder)<new Date()){
+    if(new Date(addUpdateItem.reminder)<new Date()){
         toast.warning("Reminder cannot be lesser than current date");
         return;
     }
@@ -160,7 +132,6 @@ addUpdateItem.reminder = new Date(addUpdateItem.reminder).toISOString();
         return;
     }
 
-<<<<<<< HEAD
     (addUpdateItem.taskId > 0 ? taskSvc.putItemBySubURL(addUpdateItem, `${addUpdateItem.taskId}`) : taskSvc.postItemBySubURL(addUpdateItem, "AddTask")).then(res => {
       setDialogIsOpen(false);
       props.onSaveTask();  
@@ -171,16 +142,6 @@ addUpdateItem.reminder = new Date(addUpdateItem.reminder).toISOString();
             toast.error("Unable to add Task");
         }
     })
-=======
-    
-    taskSvc.postItemBySubURL(addUpdateItem, "AddTask").then(res => {
-       toast.success("Task added successfully");
-    }).catch(err => {
-       console.error("Request failed", err.response.data);
-       toast.error("Error adding task: " + err.response.data.message);
-    });
-    
->>>>>>> afa03462e0f7e66dea76be1692007f9928caf444
   };
 
   const getDropdownvalues = (item: any) => {
@@ -201,7 +162,7 @@ addUpdateItem.reminder = new Date(addUpdateItem.reminder).toISOString();
     if(value) unregister(item.value as never);
     else register(item.value as never);
     resetField(item.value as never);
-    
+
     if (item.key === "Due Date") {
         setSelectedItem({ ...selectedItem, "dueDate": value });
     }

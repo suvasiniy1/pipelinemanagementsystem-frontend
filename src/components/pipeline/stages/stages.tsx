@@ -191,7 +191,7 @@ export const Stages = (props: params) => {
     }
 
     const saveStages = () => {
-        debugger;
+        ;
          if(stages.find(s=>!s.stageName)) return;
         if (selectedItem?.pipelineID == 0) {
             var pipeline={
@@ -218,7 +218,7 @@ export const Stages = (props: params) => {
     }
 
     const continueToSave = (pipelineID?: number) => {
-        debugger;
+        ;
         prepareToSave(pipelineID ?? pipeLineId);
         stagesSvc.postItemBySubURL(stages as any, 'SaveStages').then(res => {
 
