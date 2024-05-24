@@ -53,17 +53,17 @@ export const SideBar = () => {
                             {/* <Nav.Item className='tnavicon' eventKey="1" icon={<img src={jpg} />} onSelect={(e) => navigate("/pipeline")}>
                                 
                             </Nav.Item> */}
-                            <Nav.Item eventKey="2" active={selectedNavItem==="Leads"} icon={<div className='nacicon'><FontAwesomeIcon icon={faLocationCrosshairs} /></div>} onSelect={(e) => {navigate("/leads"); setSelectedNavItem("Leads")}}>
-                                <span className='nav-text'>Leads</span>
+                            <Nav.Item eventKey="2" active={selectedNavItem==="Stages"} icon={<div className='nacicon'><FontAwesomeIcon icon={faLocationCrosshairs} /></div>} onSelect={(e) => {navigate("/Stages"); setSelectedNavItem("Stages")}}>
+                                <span className='nav-text'>Stages</span>
                             </Nav.Item>
                             <Nav.Item eventKey="3" active={selectedNavItem==="Deals"} icon={<div className='nacicon'><FontAwesomeIcon icon={faDollarSign} /></div>} onSelect={(e) => {navigate("/pipeline"); setSelectedNavItem("Deals")}}>
                                 <span className='nav-text'>Deals</span>
                             </Nav.Item>
-                            <Nav.Item eventKey="4" active={selectedNavItem==="Projects"} icon={<div className='nacicon'><FontAwesomeIcon icon={faClipboardCheck} /></div>} onSelect={(e) => {navigate("/projects"); setSelectedNavItem("Projects")}}>
-                                <span className='nav-text'>Projects</span>
+                            <Nav.Item eventKey="4" active={selectedNavItem==="Activities"} icon={<div className='nacicon'><FontAwesomeIcon icon={faClipboardCheck} /></div>} onSelect={(e) => {navigate("/Activities"); setSelectedNavItem("Activities")}}>
+                                <span className='nav-text'>Activities</span>
                             </Nav.Item>
-                            <Nav.Item eventKey="5" icon={<div className='nacicon'><FontAwesomeIcon icon={faBullhorn} /></div>}>
-                                <span className='nav-text'>Campaigns</span>
+                            <Nav.Item eventKey="5" icon={<div className='nacicon'><FontAwesomeIcon icon={faUserGear} /></div>}>
+                                <span className='nav-text'>Settings</span>
                             </Nav.Item>
                             <Nav.Item eventKey="6" icon={<div className='nacicon'><FontAwesomeIcon icon={faEnvelope} /></div>}>
                                 <span className='nav-text'>Sales Inbox</span>
@@ -92,11 +92,10 @@ export const SideBar = () => {
                             <Nav.Item eventKey="11" icon={<div className='nacicon'><FontAwesomeIcon icon={faDownload} /></div>}>
                                 <span className='nav-text'>Import data</span>
                             </Nav.Item> */}
-                            <Dropdown activeKey="1" title=" Admin" icon={<div className='nacicon pr-3'><FontAwesomeIcon icon={faUserGear} /></div>}>
-                                <Dropdown.Item eventKey="1-1">
-                                <span className='nav-text'>User</span>
-                                </Dropdown.Item>
-                            </Dropdown>
+                            <Nav.Item eventKey="9" icon={<div className='nacicon'><FontAwesomeIcon icon={faBullhorn} /></div>}>
+                                <span className='nav-text'>Reports</span>
+                            </Nav.Item>
+                            
                         </Nav>
                     </Sidenav.Body>
                 </Sidenav>

@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "Debug Reach Backend",
+        "program": "${workspaceFolder}/index.js", // This should point to your main Reach entry file if it's JavaScript
+        "stopOnEntry": false,
+        "args": [], // Any command line args required by your program
+        "cwd": "${workspaceFolder}", // Sets the current working directory
+        "preLaunchTask": "", // Any build tasks that need to run before launching
+        "runtimeExecutable": null, // Optional: Path to your custom Node.js executable
+        "env": { "NODE_ENV": "development" }, // Environment variables
+        "console": "integratedTerminal" // Outputs logs in VSCode's integrated terminal
+      }
+    ]
+  }
+  

@@ -23,6 +23,7 @@ import LocalStorageUtil from '../../../others/LocalStorageUtil';
 import DealOverView from './overview/dealOverView';
 import NotesAddEdit from './activities/notes/notesAddEdit';
 
+
 export const DealDetails = () => {
 
     const [dealId, setDealId] = useState(new URLSearchParams(useLocation().search).get("id") as any);
@@ -96,7 +97,7 @@ export const DealDetails = () => {
                             <div className='app-dealblock'>
                                 <div className='app-dealblock-inner'>
                                     <div className='appdealblock-title'>
-                                        <h3>{dealItem?.title}</h3>
+                                        <h3>{dealItem?.pipelineName}</h3>
                                         <div className='appdealblock-titleedit'>
                                             <FontAwesomeIcon icon={faPencil} />
 
@@ -164,6 +165,10 @@ export const DealDetails = () => {
                                     </div>
                                 </div>
                             </div>
+                            
+   
+                            
+
                             <div className='app-dealblock'>
                                 <div className='app-dealblock-inner'>
                                     <div className='appdealblock-head'>
@@ -179,6 +184,8 @@ export const DealDetails = () => {
                                             </Dropdown>
                                             <button className="summerysetting-btn"><FontAwesomeIcon icon={faGear} /></button></div>
                                     </div>
+                                    
+                                    
                                     <div className='appdealblock-data'>
                                         <div className='appdeal-dtrow'>
                                             <div className='appdeal-dtname'>Deal owner</div>
@@ -205,7 +212,7 @@ export const DealDetails = () => {
                             stages={stages}
                             setDealItem={setDealItem}
                             onDealModified={(e: any) => onDealModified(e)} />
-
+                        
                     </div>
                 </div>
             }

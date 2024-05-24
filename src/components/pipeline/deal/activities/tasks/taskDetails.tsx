@@ -13,11 +13,11 @@ import Constants from '../../../../../others/constants';
 import { CommentsService } from '../../../../../services/commentsService';
 import { NotesService } from '../../../../../services/notesService';
 import Comments from '../common/comment';
-import { Task } from '../../../../../models/task';
+import { Tasks } from '../../../../../models/task';
 import { TaskService } from '../../../../../services/taskService';
 
 type params = {
-    task: Task;
+    task: Tasks;
     index: number;
     setDialogIsOpen: any;
     setShowDeleteDialog: any;

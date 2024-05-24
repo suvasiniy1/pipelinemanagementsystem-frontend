@@ -3,7 +3,7 @@ import { TaskAddEdit } from "./taskAddEdit";
 import { Accordion, Spinner } from "react-bootstrap";
 import DealNoteDetails from "../notes/noteDetails";
 import { AxiosError } from "axios";
-import { Task } from "../../../../../models/task";
+import { Tasks } from "../../../../../models/task";
 import TaskDetails from "./taskDetails";
 import { TaskService } from "../../../../../services/taskService";
 import { ErrorBoundary } from "react-error-boundary";
@@ -17,12 +17,12 @@ type params = {
 const TasksList = (props: params) => {
   const { dealId, ...others } = props;
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
-  const [tasksList, setTasksList] = useState<Array<Task>>([]);
+  const [tasksList, setTasksList] = useState<Array<Tasks>>([]);
   const [error, setError] = useState<AxiosError>();
   const [isLoading, setIsLoading] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<number>(0);
-  const [selectedTaskItem, setSelectedTaskItem] = useState<Task>();
+  const [selectedTaskItem, setSelectedTaskItem] = useState<Tasks>();
   const [selectedIndex, setSelectedIndex] = useState<any>(null);
   const taskSvc = new TaskService(ErrorBoundary);
 
@@ -36,7 +36,7 @@ const TasksList = (props: params) => {
     taskSvc
       .getTasks(dealId)
       .then((res) => {
-        (res as Array<Task>).forEach((i) => {
+        (res as Array<Tasks>).forEach((i) => {
           i.updatedDate = i.updatedDate ?? i.createdDate;
         });
         setTasksList(Util.sortList(res, "updatedDate", "desc"));
