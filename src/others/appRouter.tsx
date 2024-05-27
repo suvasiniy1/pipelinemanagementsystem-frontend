@@ -12,6 +12,7 @@ import { useEffect } from "react";
 import LocalStorageUtil from "./LocalStorageUtil";
 import Constants from "./constants";
 import { ToastContainer } from "react-toastify";
+import {EmailTemplate} from '../components/emailCampaign/emailtemplate';
 
 export const AppRouter = () => {
 
@@ -60,6 +61,14 @@ export const AppRouter = () => {
             <Route
                 path="/deal"
                 element={<DealDetails />}
+            />
+             <Route
+                path="/deal"
+                element={<DealDetails />}
+            />
+            <Route
+                path="/EmailTemplate"
+                element={<EmailTemplate />}
             />
         </Routes>
             <ToastContainer />  

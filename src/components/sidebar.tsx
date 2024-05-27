@@ -14,6 +14,7 @@ import Constants from '../others/constants';
 import { HeaderComponent } from './header/header';
 
 export const SideBar = () => {
+    
     const [expanded, setExpanded] = useState(false);
     const [selectedNavItem, setSelectedNavItem]=useState("Deals");
     const navigate = useNavigate();
@@ -34,6 +35,7 @@ export const SideBar = () => {
         }
 
     }
+    
 
 
     const Drawer = () => {
@@ -62,9 +64,22 @@ export const SideBar = () => {
                             <Nav.Item eventKey="4" active={selectedNavItem==="Projects"} icon={<div className='nacicon'><FontAwesomeIcon icon={faClipboardCheck} /></div>} onSelect={(e) => {navigate("/projects"); setSelectedNavItem("Projects")}}>
                                 <span className='nav-text'>Projects</span>
                             </Nav.Item>
-                            <Nav.Item eventKey="5" icon={<div className='nacicon'><FontAwesomeIcon icon={faBullhorn} /></div>}>
+                            {/* <Nav.Item eventKey="5" icon={<div className='nacicon'><FontAwesomeIcon icon={faBullhorn} /></div>}>
                                 <span className='nav-text'>Campaigns</span>
-                            </Nav.Item>
+                            </Nav.Item> */}
+                            <Dropdown                
+                            eventKey="3"
+                            title="Campaigns"
+                            icon={<div className='nacicon'><FontAwesomeIcon icon={faBullhorn} /></div>}
+                        >
+                            <Dropdown.Item eventKey="3-1" onSelect={(e) => {navigate("/EmailTemplate"); setSelectedNavItem("EmailTemplate")}}>
+                            <span className='nav-text'>Email Template</span>
+                                
+                                </Dropdown.Item>
+                            <Dropdown.Item eventKey="3-2">Email Campaign</Dropdown.Item>
+                            <Dropdown.Item eventKey="3-3">Campaign Groups</Dropdown.Item>                            
+                        </Dropdown>
+
                             <Nav.Item eventKey="6" icon={<div className='nacicon'><FontAwesomeIcon icon={faEnvelope} /></div>}>
                                 <span className='nav-text'>Sales Inbox</span>
                             </Nav.Item>
@@ -92,6 +107,21 @@ export const SideBar = () => {
                             <Nav.Item eventKey="11" icon={<div className='nacicon'><FontAwesomeIcon icon={faDownload} /></div>}>
                                 <span className='nav-text'>Import data</span>
                             </Nav.Item> */}
+               
+              <Dropdown
+               
+                eventKey="4"
+                title="Settings"
+                icon={<div className='nacicon'><FontAwesomeIcon icon={faEnvelope} /></div>}
+              >
+                <Dropdown.Item eventKey="4-1">Applications</Dropdown.Item>
+                <Dropdown.Item eventKey="4-2">Channels</Dropdown.Item>
+                <Dropdown.Item eventKey="4-3">Versions</Dropdown.Item>
+                <Dropdown.Menu eventKey="4-5" title="Custom Action">
+                  <Dropdown.Item eventKey="4-5-1">Action Name</Dropdown.Item>
+                  <Dropdown.Item eventKey="4-5-2">Action Params</Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
                             <Dropdown activeKey="1" title=" Admin" icon={<div className='nacicon pr-3'><FontAwesomeIcon icon={faUserGear} /></div>}>
                                 <Dropdown.Item eventKey="1-1">
                                 <span className='nav-text'>User</span>
