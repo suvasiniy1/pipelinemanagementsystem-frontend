@@ -90,6 +90,7 @@ export const TaskAddEdit = (props: params) => {
     if(taskItem){
       setValue("dueDate" as never, taskItem.dueDate as never);
       setValue("reminder" as never, taskItem.reminder as never);
+      setValue("taskDetails" as never, taskItem.taskDetails as never);
     }
   }, [taskItem])
 
@@ -136,7 +137,7 @@ export const TaskAddEdit = (props: params) => {
       setDialogIsOpen(false);
       props.onSaveTask();  
       if (res) {
-            toast.success("Task added successfully");
+            toast.success(`Task ${addUpdateItem.taskId > 0 ? 'updated' : 'added'} successfully`);
         }
         else {
             toast.error("Unable to add Task");

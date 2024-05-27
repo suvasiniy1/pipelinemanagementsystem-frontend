@@ -31,11 +31,12 @@ const TasksList = (props: params) => {
   }, []);
 
   const loadTasks = () => {
-    ;
+    
     setIsLoading(true);
     taskSvc
       .getTasks(dealId)
       .then((res) => {
+        
         (res as Array<Tasks>).forEach((i) => {
           i.updatedDate = i.updatedDate ?? i.createdDate;
         });
@@ -43,6 +44,7 @@ const TasksList = (props: params) => {
         setIsLoading(false);
       })
       .catch((err) => {
+        setTasksList([]);
         setError(err);
         setIsLoading(false);
       });
