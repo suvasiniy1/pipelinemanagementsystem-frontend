@@ -1,5 +1,5 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Spinner } from "react-bootstrap";
 import { ErrorBoundary } from "react-error-boundary";
 import { FormProvider, useForm } from "react-hook-form";
@@ -8,7 +8,7 @@ import * as Yup from "yup";
 import { AddEditDialog } from "../../../../../common/addEditDialog";
 import GenerateElements from "../../../../../common/generateElements";
 import { ElementType, IControl } from "../../../../../models/iControl";
-import { Task } from "../../../../../models/task";
+import { Tasks } from "../../../../../models/task";
 import { Utility } from "../../../../../models/utility";
 import LocalStorageUtil from "../../../../../others/LocalStorageUtil";
 import Constants from "../../../../../others/constants";
@@ -20,14 +20,14 @@ type params = {
   dealId: number;
   dialogIsOpen: any;
   setDialogIsOpen: any;
-  onSaveNote?: any;
-  taskItem?:Task;
+  onSaveTask?: any;
+  taskItem?:Tasks;
   onCloseDialog?: any;
 };
 
 export const TaskAddEdit = (props: params) => {
   const { dialogIsOpen, setDialogIsOpen, dealId, taskItem, ...Others } = props;
-  const [selectedItem, setSelectedItem] = useState(taskItem ?? new Task());
+  const [selectedItem, setSelectedItem] = useState(taskItem ?? new Tasks());
   const [isLoading, setIsLoading] = useState(false);
   const typesList=["To Do", "Call", "Email"];
   const prioritiesList = ["High", "Medium", "Low"]
@@ -86,6 +86,14 @@ export const TaskAddEdit = (props: params) => {
       }
   ];
 
+  useEffect(()=>{
+    if(taskItem){
+      setValue("dueDate" as never, taskItem.dueDate as never);
+      setValue("reminder" as never, taskItem.reminder as never);
+      setValue("taskDetails" as never, taskItem.taskDetails as never);
+    }
+  }, [taskItem])
+
   const oncloseDialog = () => {
     setDialogIsOpen(false);
     props.onCloseDialog && props.onCloseDialog();
@@ -105,12 +113,15 @@ export const TaskAddEdit = (props: params) => {
 
   const onSubmit = (item:any) => {
     
-    let addUpdateItem: Task = new Task();
+    let addUpdateItem: Tasks = new Tasks();
     addUpdateItem.createdBy = Util.UserProfile()?.userId;
     addUpdateItem.modifiedBy = Util.UserProfile()?.userId;
     addUpdateItem.createdDate = new Date();
     Util.toClassObject(addUpdateItem, item);
-    addUpdateItem.dealId = +selectedItem.dealId;
+    addUpdateItem.dealId = dealId;
+    addUpdateItem.taskId = taskItem?.taskId ?? 0 as any;
+    addUpdateItem.dueDate = new Date(addUpdateItem.dueDate);
+    addUpdateItem.reminder = new Date(addUpdateItem.reminder);
     console.log("addUpdateItem" + { ...addUpdateItem });
 
     if(new Date(addUpdateItem.reminder)<new Date()){
@@ -122,14 +133,16 @@ export const TaskAddEdit = (props: params) => {
         return;
     }
 
-    // taskSvc.postItemBySubURL(addUpdateItem, "saveTaskDetails").then(res => {
-    //     if (res.dealID > 0) {
-    //         toast.success("Task added successfully");
-    //     }
-    //     else {
-    //         toast.error("Unable to add Task");
-    //     }
-    // })
+    (addUpdateItem.taskId > 0 ? taskSvc.putItemBySubURL(addUpdateItem, `${addUpdateItem.taskId}`) : taskSvc.postItemBySubURL(addUpdateItem, "AddTask")).then(res => {
+      setDialogIsOpen(false);
+      props.onSaveTask();  
+      if (res) {
+            toast.success(`Task ${addUpdateItem.taskId > 0 ? 'updated' : 'added'} successfully`);
+        }
+        else {
+            toast.error("Unable to add Task");
+        }
+    })
   };
 
   const getDropdownvalues = (item: any) => {

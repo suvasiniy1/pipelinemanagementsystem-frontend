@@ -2,11 +2,11 @@ import { CancelTokenSource } from "axios";
 import { Stage } from "../models/stage";
 import { BaseService } from "./BaseService";
 import { IsMockService } from "../others/util";
-import { Task } from "../models/task";
+import { Tasks } from "../models/task";
 
-export class TaskService extends BaseService<Task>{
+export class TaskService extends BaseService<Tasks>{
     constructor(errorHandler: any){
-        super("Task", "Task", errorHandler);
+        super("Tasks", "Tasks", errorHandler);
     }
 
     getTasks(dealId:number, axiosCancel?: CancelTokenSource){
@@ -16,5 +16,7 @@ export class TaskService extends BaseService<Task>{
     deleteTask(taskId:number){
         return this.delete(taskId)
     }
-
+    addTask(task:Tasks){
+        return this.postItemBySubURL(task, "AddTask");
+    }
 }

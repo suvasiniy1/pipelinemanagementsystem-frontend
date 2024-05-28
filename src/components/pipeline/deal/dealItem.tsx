@@ -42,7 +42,7 @@ export const DealItem = (props: params) => {
         <div className="pdstage-item">
           <div className='pdstage-box'>
             <a className='pdstage-boxlink'>
-              <div className="pdstage-title">{deal?.name}
+              <div className="pdstage-title">{deal?.pipelineName}
               </div>
               <div>
                 <Dropdown className='dropdownbox-toolgripdot' style={{ cursor: 'pointer' }}>
@@ -56,7 +56,7 @@ export const DealItem = (props: params) => {
                 </Dropdown>
               </div>
               <div className="pdstage-description">
-                <div className="pdstage-descitem"><a href="" onClick={(e: any) => navigator(`/deal?id=${deal?.dealID}&pipeLineId=${deal?.pipelineID}`)}>{deal?.title}</a></div>
+                <div className="pdstage-descitem"><a href="" onClick={(e: any) => navigator(`/deal?id=${deal?.dealID}&pipeLineId=${deal?.pipelineID}`)}>{deal?.personName}</a></div>
               </div>
               <div className="pdstage-status-row">
                 <div className="pdstage-avatar">

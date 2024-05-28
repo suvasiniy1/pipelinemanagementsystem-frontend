@@ -47,7 +47,7 @@ export const Stages = (props: params) => {
     const [isLoading, setIsLoading] = useState(false);
     const [selectedItem, setSelectedItem] = useState<PipeLine>();
     const [pipeLineId, setPipeLineId] = useState(new URLSearchParams(useLocation().search).get("pipelineID") as any);
-    const defaultStages = ["Qualified", "Conact Made", "Demo Scheduled", "Proposal Made", "Negotiations Started"];
+    const defaultStages = ["Qualified", "Contact Made", "Demo Scheduled", "Proposal Made", "Negotiations Started"];
     const pipeLineSvc = new PipeLineService(ErrorBoundary);
     const stagesSvc = new StageService(ErrorBoundary);
     const [error, setError] = useState<AxiosError>();

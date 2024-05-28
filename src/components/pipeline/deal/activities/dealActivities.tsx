@@ -10,6 +10,7 @@ import CallsActivites from './call/callsActivites';
 import EmailActivites from './email/emailActivites';
 import NotesList from './notes/notesList';
 import TasksList from './tasks/tasksList';
+import { AuthProvider } from './email/authProvider';
 
 type params = {
     dealItem: Deal
@@ -154,7 +155,9 @@ const DealActivities = (props: params) => {
                         <NotesList dealId={dealItem.dealID} />
                     </Tab>
                     <Tab eventKey="email" title="Email">
+                        <AuthProvider>
                         <EmailActivites/>
+                        </AuthProvider>
                     </Tab>
                     <Tab eventKey="calls" title="Calls">
                         <CallsActivites/>
