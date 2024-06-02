@@ -15,16 +15,17 @@ type Props = {
     dialogSize?: any;
     customSaveChangesButtonName?: string;
     children?: any;
-    disabled?:boolean
+    disabled?:boolean;
+    isFullscreen?:boolean;
 };
 
 export const AddEditDialog: React.FC<Props> = (props) => {
 
     console.log("AddEditDialog - props: ", props);
     const [dialogIsOpen, setDialogIsOpen] = useState(props.dialogIsOpen);
-    const { customSaveChangesButtonName, header, customHeader, onSave, onClose, closeDialog, canSave, children, customFooter, onFormChange, disabled, ...rest } = props;
+    const {customSaveChangesButtonName, header, customHeader, onSave, onClose, closeDialog, canSave, children, customFooter, onFormChange, disabled, ...rest } = props;
     const [dialogSize, setDialogSize] = useState(props.dialogSize =="default"? null : props.dialogSize ?? "lg");
-
+    const [fullScreen, setFullScreen]=useState<any>(props.isFullscreen ?? false)
     useEffect(() => {
         setDialogIsOpen(props.dialogIsOpen);
     }, [props.dialogIsOpen]);
@@ -38,6 +39,7 @@ export const AddEditDialog: React.FC<Props> = (props) => {
             <Modal className='modalpopup modalpopupadddeal' animation={false} show={dialogIsOpen} onHide={closeDialog}
                 aria-labelledby="contained-modal-title-vcenter"
                 size={dialogSize as any}
+                fullscreen={fullScreen}
                 backdrop="static" keyboard={false} // this was added to disable click outside of Modal window
                 centered
             >

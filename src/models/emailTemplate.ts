@@ -1,13 +1,32 @@
-import { AuditItem } from "./base/AuditNamedItem"
-import { Comment } from "./comment"
+import { AuditItem } from "./base/AuditNamedItem";
 
-export class emailTemplate extends AuditItem {
-    TemplateID!: number
-    TemplateName!: string
-    TemplateBody!:string
-    CategoryId!:string
-    userID!: number
-    createdBy!: number
-    modifiedBy!: number
-    userName!:string    
+export class EmailTemplate extends AuditItem {
+  id!: number;
+  name!: string;
+  header!: EmailItemProps;
+  body!: EmailItemProps;
+  footer!: EmailItemProps;
+  categoryId!: number;
+
+  constructor(
+    id: number = null as any,
+    name: string = null as any,
+    header: EmailItemProps = new EmailItemProps(),
+    body: EmailItemProps = new EmailItemProps(),
+    footer: EmailItemProps = new EmailItemProps(),
+    categoryId: number = null as any
+  ) {
+    super();
+    this.id = id;
+    this.name = name;
+    this.header = header;
+    this.body = body;
+    this.footer = footer;
+    this.categoryId = categoryId;
   }
+}
+
+export class EmailItemProps {
+  content: any;
+  position: any="center";
+}

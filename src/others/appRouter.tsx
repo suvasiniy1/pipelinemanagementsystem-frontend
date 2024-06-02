@@ -1,18 +1,18 @@
+import { useEffect } from "react";
 import {
     Route,
     Routes
 } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import TemplatesList from "../components/emailCampaign/template/templatesList";
+import { Home } from "../components/home";
 import { Leads } from "../components/leads/leads";
 import Login from "../components/login";
+import { DealDetails } from "../components/pipeline/deal/dealDetails";
 import { Deals } from "../components/pipeline/deal/deals";
 import Stages from "../components/pipeline/stages/stages";
-import { DealDetails } from "../components/pipeline/deal/dealDetails";
-import { Home } from "../components/home";
-import { useEffect } from "react";
 import LocalStorageUtil from "./LocalStorageUtil";
 import Constants from "./constants";
-import { ToastContainer } from "react-toastify";
-import {EmailTemplate} from '../components/emailCampaign/emailtemplate';
 
 export const AppRouter = () => {
 
@@ -72,7 +72,7 @@ export const AppRouter = () => {
             />
             <Route
                 path="/EmailTemplate"
-                element={<EmailTemplate />}
+                element={<TemplatesList />}
             />
         </Routes>
             <ToastContainer />  

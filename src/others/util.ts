@@ -164,6 +164,14 @@ export default class Util {
     let utility: Utility = JSON.parse(LocalStorageUtil.getItemObject(Constants.UTILITY) as any);
     return utility.persons.find(u=>u.personID==userId)?.personName;
   }
+
+  public static toDateFormat(date: any) {
+    return moment(date, "YYYY-MM-DD").format("YYYY-MM-DD")
+  }
+
+  public static capitalizeFirstChar(inputString: string): string {
+    return inputString && inputString[0].toUpperCase() + inputString.slice(1);
+}
 }
 
 export const IsMockService = ()=> window.config.UseMockService;

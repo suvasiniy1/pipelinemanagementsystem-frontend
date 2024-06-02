@@ -8,11 +8,12 @@ type params = {
     disable?: boolean;
     isValidationOptional?: boolean;
     value?:any
+    hideSelect?:boolean;
 }
 
 export const SelectDropdownWithValidation = (props: params) => {
 
-    const { item, selectedItem, onItemChange, list, disable, isValidationOptional, value, ...others } = props;
+    const { item, selectedItem, onItemChange, list, disable, isValidationOptional, value, hideSelect, ...others } = props;
 
     const { register, formState: { errors } } = useFormContext();
 
@@ -26,7 +27,7 @@ export const SelectDropdownWithValidation = (props: params) => {
                 {...register(item.value)}
                 onChange={(e: any) => onItemChange(e.target.value)}
             >
-                <option value="">Select</option>
+                <option value="" hidden={hideSelect}>Select</option>
                 {list?.map((item: any, index: number) => {
                     return (
                         <option key={index} value={item.value}>{item.name}</option>
@@ -42,7 +43,7 @@ export const SelectDropdownWithValidation = (props: params) => {
 const SelectDropdown = (props: params) => {
     console.log("Selectdropdown component rendered with props " + props);
 
-    const { item, selectedItem, onItemChange, list, disable, isValidationOptional, value, ...others } = props;
+    const { item, selectedItem, onItemChange, list, disable, isValidationOptional, value, hideSelect, ...others } = props;
 
     return (
 
@@ -55,7 +56,7 @@ const SelectDropdown = (props: params) => {
                         defaultValue={value}
                         onChange={(e: any) => onItemChange(e.target.value)}
                     >
-                        <option value="">Select</option>
+                        <option value="" hidden={hideSelect}>Select</option>
                         {list?.map((item: any, index: number) => {
                             return (
                                 <option key={index} value={item.value}>{item.name}</option>
