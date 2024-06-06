@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import axios, { AxiosError, CancelTokenSource } from "axios";
-import ErrorFallback from "./errorFallBack";
 import Util from "../others/util";
+import ErrorFallback from "./errorFallBack";
 import Table from "./table";
 
 type params = {
@@ -335,7 +334,7 @@ const ItemCollection: React.FC<params> = (props) => {
 
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
-      {/*isLoading ? <Spinner /> : null */}
+      {/* {isLoading ? <Spinner /> : null} */}
       {addorUpdateItem()}
       <Table {...tableListProps} />
     </ErrorBoundary>

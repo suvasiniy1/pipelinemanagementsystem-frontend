@@ -224,14 +224,14 @@ const GenerateElements: React.FC<props> = (props) => {
               htmlFor="name"
               id={`labelFor_${item.value}`}
               className={`col-sm-${
-                item.labelSize ? item.labelSize : 6
+                item.labelSize ?? 6
               } col-form-label ${item.isRequired ? "required" : ""}`}
             >
               {item.key}:
             </label>
             <div
               className={`col-sm-${
-                item.elementSize ? item.elementSize : 6
+                item.elementSize ?? 6
               } errmessage`}
             >
               {getElement(item)}

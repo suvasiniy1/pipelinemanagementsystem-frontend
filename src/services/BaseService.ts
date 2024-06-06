@@ -111,11 +111,8 @@ export class BaseService<TItem extends AuditItem>{
                 cancelToken: axiosCancel?.token
             }).then((res: AxiosResponse) => {
                 console.log("postItem - res: ", res);
-                if (!res.data?.result?.hasOwnProperty("message")) {
-                    resolve(res.data?.result);
-                    // if(!ignoreToastr) toast.success(`${this.itemName} ${item.id>0?'updated':'created'} successfully`, { autoClose: 3000 });                    
-                }
-                resolve(res);
+                
+                resolve(res.data);
             }).catch((err: AxiosError) => {
                 console.log("Exception Occurred - res: ", err, " | Code: ", err.code, " | err.message", err.message,);
             });
@@ -222,12 +219,12 @@ export class BaseService<TItem extends AuditItem>{
             }).then((res: AxiosResponse) => {
                 console.log("postItemBySubURL - res: ", res);
                 
-                if (res.data?.success) {
-                    resolve(res.data?.updateResult);
+                if (res.data) {
+                    resolve(res.data);
 
                 }
                 else {
-                    resolve(res.data?.message);
+                    resolve(res.data);
                 }
             }).catch((err: AxiosError) => {
                 console.log("Exception Occurred - res: ", err, " | Code: ", err.code, " | err.message", err.message,);

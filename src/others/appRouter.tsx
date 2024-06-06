@@ -13,6 +13,7 @@ import { Deals } from "../components/pipeline/deal/deals";
 import Stages from "../components/pipeline/stages/stages";
 import LocalStorageUtil from "./LocalStorageUtil";
 import Constants from "./constants";
+import ContactsList from "../components/emailCampaign/contacts/contactsList";
 
 export const AppRouter = () => {
 
@@ -73,6 +74,10 @@ export const AppRouter = () => {
             <Route
                 path="/EmailTemplate"
                 element={<TemplatesList />}
+            />
+                        <Route
+                path="/Contact"
+                element={<ContactsList />}
             />
         </Routes>
             <ToastContainer />  

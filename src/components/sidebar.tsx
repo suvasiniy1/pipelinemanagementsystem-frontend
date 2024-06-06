@@ -72,12 +72,13 @@ export const SideBar = () => {
                             title="Campaigns"
                             icon={<div className='nacicon'><FontAwesomeIcon icon={faBullhorn} /></div>}
                         >
-                            <Dropdown.Item eventKey="3-1" onSelect={(e) => {navigate("/EmailTemplate"); setSelectedNavItem("EmailTemplate")}}>
+                            <Dropdown.Item eventKey="3-1" onSelect={(e) => {navigate("/EmailTemplate"); setSelectedNavItem("Campaigns")}}>
                             <span className='nav-text'>Email Template</span>
                                 
                                 </Dropdown.Item>
-                            <Dropdown.Item eventKey="3-2">Email Campaign</Dropdown.Item>
-                            <Dropdown.Item eventKey="3-3">Campaign Groups</Dropdown.Item>                            
+                                <Dropdown.Item eventKey="3-2" onSelect={(e) => {navigate("/Contact"); setSelectedNavItem("Contact")}}>Contacts</Dropdown.Item>
+                            <Dropdown.Item eventKey="3-3">Email Campaign</Dropdown.Item>
+                            <Dropdown.Item eventKey="3-4">Campaign Groups</Dropdown.Item>                            
                         </Dropdown>
 
                             <Nav.Item eventKey="6" icon={<div className='nacicon'><FontAwesomeIcon icon={faEnvelope} /></div>}>
