@@ -49,15 +49,20 @@ const ContactsAddEditDialog: React.FC<ViewEditProps> = (props) => {
       value: "email",
       isRequired: true,
       isControlInNewLine:true,
-      elementSize:12
+      elementSize:12,
+      regex1:/^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      errMsg1:"Please enter a valid email address"
     },
     {
       key: "Phone Number",
       type: ElementType.number,
       value: "phone",
+      min:0,
       isRequired: true,
       isControlInNewLine:true,
-      elementSize:12
+      elementSize:12,
+      regex1 : /^([0|\+[0-9]{1,5})?([7-9][0-9]{9})$/,
+      errMsg1:"Please enter a valid phone number"
     },
   ];
 
