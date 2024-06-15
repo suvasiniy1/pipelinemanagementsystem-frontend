@@ -61,7 +61,7 @@ export const Deals = (props: params) => {
     const [pageSize, setPageSize] = useState(4);
 
     // useEffect(() => {
-    //     debugger
+    //     
     //     if(+pipeLineId>0) loadStages(pipeLineId);
     // }, [pipeLineId])
 

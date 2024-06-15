@@ -1,8 +1,10 @@
+import { useState } from "react";
 import SelectDropdown from "../elements/SelectDropdown";
 import Slider from "../elements/Slider";
 import TextArea from "../elements/TextArea";
 import TextBox from "../elements/TextBox";
 import { DATEPICKER } from "../elements/datePicker";
+import MultiSelectDropdown from "../elements/multiSelectDropdown";
 import RichTextEditor from "../elements/richTextEditor";
 import {
   CustomActionPosition,
@@ -18,6 +20,9 @@ type props = {
   getListofItemsForDropdown?: (item: any) => {};
   disable?: boolean;
   getCustomElement?: any;
+  onSwitchableOptionChange?:any;
+  getSelectedList?:any;
+  defaultSwitch?:any
 };
 const GenerateElements: React.FC<props> = (props) => {
   const {
@@ -28,11 +33,25 @@ const GenerateElements: React.FC<props> = (props) => {
     getListofItemsForDropdown,
     disable,
     getCustomElement,
+    defaultSwitch,
     ...others
   } = props;
 
-  const getElement = (item: IControl) => {
-    switch (item.type) {
+  const [selectedOption, SetSelectedOption] = useState(defaultSwitch);
+  const [resetSwitchableElement, setResetSwitchableElement]=useState(false);
+  const handleOptionChange = (item: any) => {
+    
+    setResetSwitchableElement(true);
+    SetSelectedOption(item);
+    props.onSwitchableOptionChange(item);
+    setTimeout(() => {
+      setResetSwitchableElement(false);
+    });
+  };
+
+  const getElement = (item: IControl, elementType?: ElementType, forceDisable?:any) => {
+    let itemType = item?.isSwitchableElement ? elementType : item?.type;
+    switch (itemType) {
       case ElementType.textarea:
         return (
           <TextArea item={item} selectedItem={selectedItem} disable={disable} />
@@ -51,7 +70,21 @@ const GenerateElements: React.FC<props> = (props) => {
           <SelectDropdown
             item={item}
             selectedItem={selectedItem}
-            disable={disable}
+            disable={forceDisable ?? disable}
+            list={
+              getListofItemsForDropdown &&
+              (getListofItemsForDropdown(item) as any)
+            }
+            onItemChange={(e: any) => onChange(e, item)}
+          />
+        );
+      case ElementType.multiSelectDropdown:
+        return (
+          <MultiSelectDropdown
+            item={item}
+            selectedItem={selectedItem}
+            disable={forceDisable ?? disable}
+            selectedList={props.getSelectedList(item)}
             list={
               getListofItemsForDropdown &&
               (getListofItemsForDropdown(item) as any)
@@ -64,7 +97,7 @@ const GenerateElements: React.FC<props> = (props) => {
           <DATEPICKER
             item={item}
             selectedItem={selectedItem}
-            disable={disable}
+            disable={forceDisable ?? disable}
             onChange={(e: any) => {
               onChange && onChange(e, item);
             }}
@@ -88,7 +121,7 @@ const GenerateElements: React.FC<props> = (props) => {
           <TextBox
             item={item}
             selectedItem={selectedItem}
-            disable={disable}
+            disable={forceDisable ?? disable}
             onChange={(e: any) => {
               onChange && onChange(e, item);
             }}
@@ -98,6 +131,7 @@ const GenerateElements: React.FC<props> = (props) => {
   };
 
   const customActionElement = (item: IControl) => {
+    if (!item) return;
     return (
       <>
         {item.customAction == CustomActionPosition.Right ? (
@@ -113,10 +147,72 @@ const GenerateElements: React.FC<props> = (props) => {
     );
   };
 
+  const switchableElementLabels = (item: IControl) => {
+    
+    const labels = () => {
+      return (
+        <>
+          <label className={`col-sm-6 col-form-label`}>
+            <label>
+              <input
+                className="form-group"
+                type="radio"
+                value={item?.label1}
+                checked={selectedOption === item?.label1 || !selectedOption}
+                onChange={(e:any)=>handleOptionChange(item.label1)}
+              />
+              {item?.label1}
+            </label>
+
+            <label>
+              <input
+                className="form-group"
+                type="radio"
+                value={item.label2}
+                checked={selectedOption === item.label2}
+                onChange={(e:any)=>handleOptionChange(item.label2)}
+              />
+              {item.label2}
+            </label>
+          </label>
+        </>
+      );
+    };
+
+    return (
+      <>
+        {!item.isControlInNewLine ? (
+          <div className="form-group row">{labels()}</div>
+        ) : (
+          <div className="col-6">{labels()}</div>
+        )}
+      </>
+    );
+  };
+
+  const switchableElement = (item: IControl) => {
+    
+    return (
+      <>
+        <div className="form-group row">
+          <div className="col-md-12">
+            {selectedOption === item.label1 || !selectedOption
+              ? getElement(item, item.element2Type, true)
+              : getElement(item, item.element2Type)}
+          </div>
+        </div>
+      </>
+    );
+  };
+
   return (
     <>
       {controlsList.map((item: IControl, index: number) =>
-        item.isControlInNewLine ? (
+        item.isSwitchableElement && !item.isSideByItem ? (
+          switchableElement(item)
+        ) : item.isControlInNewLine &&
+          !item.isSidebyItemHavingCustomLabels &&
+          !item.isSwitchableElement ? (
           <div key={index}>
             {!item.dependentChildren && !item.isDependentChildren ? (
               <div>
@@ -150,7 +246,7 @@ const GenerateElements: React.FC<props> = (props) => {
                     item.labelSize ? item.labelSize : null
                   } col-form-label ${item.isRequired ? "required" : ""}`}
                 >
-                  {item.key}:
+                  {item.key}:124
                 </label>
                 <div className="row">
                   <div className="col-md-6">
@@ -184,36 +280,46 @@ const GenerateElements: React.FC<props> = (props) => {
                 </label>
               </div>
 
-              <div className="col-6">
-                <label
-                  htmlFor="name"
-                  id={`labelFor_${controlsList.find(
-                    (c) => c.key === item.sidebyItem
-                  )}`}
-                  className={`col-sm-${
-                    controlsList.find((c) => c.key === item.sidebyItem)
-                      ?.labelSize
-                      ? controlsList.find((c) => c.key === item.sidebyItem)
-                          ?.labelSize
-                      : 6
-                  } col-form-label ${
-                    controlsList.find((c) => c.key === item.sidebyItem)
-                      ?.isRequired
-                      ? "required"
-                      : ""
-                  }`}
-                >
-                  {controlsList.find((c) => c.key === item.sidebyItem)?.key}:
-                </label>
-              </div>
+              {item.isSidebyItemHavingCustomLabels ? (
+                switchableElementLabels(
+                  controlsList.find((c) => c.key === item.sidebyItem)
+                )
+              ) : (
+                <div className="col-6">
+                  <label
+                    htmlFor="name"
+                    id={`labelFor_${controlsList.find(
+                      (c) => c.key === item.sidebyItem
+                    )}`}
+                    className={`col-sm-${
+                      controlsList.find((c) => c.key === item.sidebyItem)
+                        ?.labelSize
+                        ? controlsList.find((c) => c.key === item.sidebyItem)
+                            ?.labelSize
+                        : 6
+                    } col-form-label ${
+                      controlsList.find((c) => c.key === item.sidebyItem)
+                        ?.isRequired
+                        ? "required"
+                        : ""
+                    }`}
+                  >
+                    {controlsList.find((c) => c.key === item.sidebyItem)?.key}
+                    :
+                  </label>
+                </div>
+              )}
             </div>
 
             <div className="form-group row">
               <div className="col-6">{getElement(item)}</div>
               <div className="col-6">
-                {getElement(
-                  controlsList.find((c) => c.key === item.sidebyItem)
-                )}
+                {controlsList.find((c) => c.key === item.sidebyItem)
+                  ?.isSwitchableElement
+                  ? resetSwitchableElement ? null : switchableElement(controlsList.find((c) => c.key === item.sidebyItem))
+                  : getElement(
+                      controlsList.find((c) => c.key === item.sidebyItem)
+                    )}
               </div>
             </div>
           </>
@@ -223,17 +329,13 @@ const GenerateElements: React.FC<props> = (props) => {
               hidden={item.hideLabel}
               htmlFor="name"
               id={`labelFor_${item.value}`}
-              className={`col-sm-${
-                item.labelSize ?? 6
-              } col-form-label ${item.isRequired ? "required" : ""}`}
+              className={`col-sm-${item.labelSize ?? 6} col-form-label ${
+                item.isRequired ? "required" : ""
+              }`}
             >
-              {item.key}:
+              {item.key}:126
             </label>
-            <div
-              className={`col-sm-${
-                item.elementSize ?? 6
-              } errmessage`}
-            >
+            <div className={`col-sm-${item.elementSize ?? 6} errmessage`}>
               {getElement(item)}
             </div>
           </div>

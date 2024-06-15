@@ -56,7 +56,7 @@ export class BaseService<TItem extends AuditItem>{
                 cancelToken: axiosCancel?.token
             }).then((res: AxiosResponse) => {
                 console.log("getItemsBySubURL - res: ", res);
-                resolve(res);
+                resolve(res?.data);
             }).catch((err: AxiosError) => {
                 console.log("getItemsBySubURL - Exception Occurred - err: ", err,
                     " | Code: ", err.code, " | err.message", err.message,);

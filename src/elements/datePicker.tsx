@@ -25,6 +25,7 @@ export const DatePickerWithValidation = (props: params) => {
                 showIcon
                 selected={selectedItem[item.value]}
                 className="form-control"
+                disabled={disable}
                 {...register(item.value)}
                 onChange={(date) => onChange(date as any)}
             />
@@ -46,6 +47,7 @@ export const DATEPICKER = (props: params) => {
                         showIcon
                         value={value}
                         selected={value}
+                        disabled={disable}
                         className="form-control"
                         onChange={(date) => onChange(date as any)}
                     /> :

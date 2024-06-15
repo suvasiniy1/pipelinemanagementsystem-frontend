@@ -12,6 +12,7 @@ const TemplatePreview = (props:params) => {
   const [selectedItem, setSelectedItem] = useState<EmailTemplate>(props.selectedItem);
 
   useEffect(()=>{
+    
     setSelectedItem(props.selectedItem)
   },[props])
 
@@ -23,14 +24,16 @@ const TemplatePreview = (props:params) => {
   },[selectedItem])
 
   return (
-    <div className="preview-pane">
+    <div className="preview-pane" style={{width:"200px", height:"200px"}}>
       {/* Preview */}
       <div className="email-preview">
         <div className="email-header" style={{textAlign:selectedItem?.header?.position}} ref={headerRef as any}>
         </div>
+        <br/>
         <div className="email-body" style={{textAlign:selectedItem?.body?.position}} ref={bodyRef as any}>
           Body
         </div>
+        <br/>
         <div className="email-footer"style={{textAlign:selectedItem?.footer?.position}}  ref={footerRef as any}>
           footer
         </div>
