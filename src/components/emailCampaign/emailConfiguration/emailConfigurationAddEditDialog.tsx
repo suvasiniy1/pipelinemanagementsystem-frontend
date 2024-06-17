@@ -38,31 +38,32 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
     ...others
   } = props;
 
-  
   const [isLoading, setIsLoading] = useState(true);
   const emailConfigSvc = new EmailConfigurationService(ErrorBoundary);
   const [activeStep, setActiveStep] = React.useState(0);
   const [skipped, setSkipped] = React.useState(new Set<any>());
   const [selectedId, setSelectedId] = useState();
-  const [scheduleOptionType, setScheduleOptionType]=useState("Send Now");
+  const [scheduleOptionType, setScheduleOptionType] = useState("Send Now");
   const utility: Utility = JSON.parse(
     LocalStorageUtil.getItemObject(Constants.UTILITY) as any
   );
-
+  const statusList = ["Draft", "Scheduled", "Sent", "Archived"];
   const controlsList1: Array<IControl> = [
     {
       key: "From Name",
       value: "fromName",
       isRequired: true,
       sidebyItem: "From Address",
+      type: ElementType.dropdown,
     },
     {
       key: "From Address",
       value: "fromAddress",
       isRequired: true,
       isSideByItem: true,
-      regex1:/^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-      errMsg1:"Please enter a valid email address"
+      regex1: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      errMsg1: "Please enter a valid email address",
+      type: ElementType.dropdown,
     },
     {
       key: "Subject",
@@ -75,14 +76,15 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
       value: "status",
       isRequired: true,
       isSideByItem: true,
+      type: ElementType.dropdown,
     },
     {
       key: "Reply to Address",
       value: "replytoaddress",
       isRequired: true,
       sidebyItem: "Campaign",
-      regex1:/^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-      errMsg1:"Please enter a valid email address"
+      regex1: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      errMsg1: "Please enter a valid email address",
     },
     {
       key: "Campaign",
@@ -108,7 +110,7 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
       element2Type: ElementType.datepicker,
       isControlInNewLine: true,
       isSideByItem: true,
-      isRequired:true,
+      isRequired: true,
     },
   ];
 
@@ -118,23 +120,39 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
     });
   };
 
-  const [formOptions, setFormOptions]=useState({ resolver: yupResolver(getValidationsSchema(controlsList1)) } as any);
+  const [formOptions, setFormOptions] = useState({
+    resolver: yupResolver(getValidationsSchema(controlsList1)),
+  } as any);
   // = { resolver: yupResolver(step1Schema) };
   // const { control, reset, formState, watch, setValue } = useForm();
   const [methods, setMethods] = useState(useForm(formOptions));
-  const { register, resetField, unregister, handleSubmit, trigger, clearErrors, control, reset, formState, watch, setValue, getValues } = methods;
+  const {
+    register,
+    resetField,
+    unregister,
+    handleSubmit,
+    trigger,
+    clearErrors,
+    control,
+    reset,
+    formState,
+    watch,
+    setValue,
+    getValues,
+  } = methods;
 
   const oncloseDialog = () => {
     setDialogIsOpen(false);
   };
 
   useEffect(() => {
-    
     if (selectedItem && selectedItem.id > 0) {
       let obj = {
         ...selectedItem,
         optionType: selectedItem.sendNow ? "Send Now" : "Schedule",
-        scheduleOption:selectedItem.sendNow ? null as any : selectedItem.scheduleTime
+        scheduleOption: selectedItem.sendNow
+          ? (null as any)
+          : selectedItem.scheduleTime,
       };
       setSelectedItem(obj);
       setSelectedId(obj.emailtemplateId);
@@ -148,10 +166,15 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
     } else setIsLoading(false);
   }, []);
 
-  useEffect(()=>{
-    let schema = scheduleOptionType==="Send Now" ? getValidationsSchema(controlsList1.filter(c=>c.key!="Schedule Option")) : getValidationsSchema(controlsList1)
+  useEffect(() => {
+    let schema =
+      scheduleOptionType === "Send Now"
+        ? getValidationsSchema(
+            controlsList1.filter((c) => c.key != "Schedule Option")
+          )
+        : getValidationsSchema(controlsList1);
     setFormOptions({ resolver: yupResolver(schema) } as any);
-  }, [scheduleOptionType])
+  }, [scheduleOptionType]);
 
   const resetValidationsOnLoad = (key: any, value: any) => {
     setValue(key as never, value as never);
@@ -163,7 +186,6 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
     itemName?: any,
     isValidationOptional: boolean = false
   ) => {
-    
     if (!isValidationOptional) {
       setValue(item.value as never, value as never);
       if (value) unregister(item.value as never);
@@ -179,29 +201,45 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
     }
   };
 
-  const onSwitchableOptionChange = (e:any)=>{
+  const onSwitchableOptionChange = (e: any) => {
     setScheduleOptionType(e);
     setSelectedItem({ ...selectedItem, optionType: e });
     setSelectedItem({ ...selectedItem, scheduleOption: null as any });
-  }
+  };
 
   const getDropdownvalues = (item: any) => {
-    if (item.key === "To Address") {
+    ;
+    if (item.key === "To Address" || item.key === "From Address") {
       return (
         utility?.persons.map(({ email }) => ({ name: email, value: email })) ??
         []
       );
     }
+
+    if (item.key === "From Name") {
+      return (
+        utility?.persons.map(({ personName }) => ({
+          name: personName,
+          value: personName,
+        })) ?? []
+      );
+    }
+
+    if (item.key === "Status") {
+      return statusList.map((item) => ({ name: item, value: item }));
+    }
   };
 
   const onSubmit = (item: any) => {
-    
     let obj: EmailConfiguration = { ...selectedItem };
     Util.toClassObject(obj, item);
     obj.createdBy = Util.UserProfile()?.userId;
     obj.id = obj.id ?? 0;
-    obj.scheduleTime = scheduleOptionType==="Send Now" ? new Date() : new Date(obj.scheduleOption);
-    obj.sendNow = scheduleOptionType==="Send Now";
+    obj.scheduleTime =
+      scheduleOptionType === "Send Now"
+        ? new Date()
+        : new Date(obj.scheduleOption);
+    obj.sendNow = scheduleOptionType === "Send Now";
     obj.campaginId = obj.campaginId ?? 0;
     obj.emailtemplateId = selectedId as any;
     console.log("ItemToSave");
@@ -231,6 +269,10 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
   };
 
   const handleNext = (item?: any) => {
+    if (!selectedId) {
+      toast.warn("Please select template to proceed further");
+      return;
+    }
     if (activeStep == steps.length - 1) {
     } else {
       let newSkipped = skipped;
@@ -263,7 +305,7 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
             onClick={handleBack}
             className="btn btn-secondary btn-sm me-2"
             id="closeDialog"
-            hidden={activeStep==0}
+            hidden={activeStep == 0}
           >
             Back
           </button>
@@ -289,14 +331,16 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
   };
 
   const getSelectedList = (item: IControl) => {
-    ;
-    let list:Array<any>=[];
+    let list: Array<any> = [];
     if (item.key === "To Address") {
       var res = (selectedItem as EmailConfiguration).toAddress?.split(",");
-      let personsList = utility?.persons.map(({ email }) => ({ name: email, value: email }))
-      res?.forEach(r=>{
-        list.push(personsList.find(p=>p.name===r))
-      })
+      let personsList = utility?.persons.map(({ email }) => ({
+        name: email,
+        value: email,
+      }));
+      res?.forEach((r) => {
+        list.push(personsList.find((p) => p.name === r));
+      });
     }
     return list;
   };
@@ -354,11 +398,13 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
                         onChange(value, item)
                       }
                       defaultSwitch={selectedItem.optionType}
-                      onSwitchableOptionChange={(e: any) =>onSwitchableOptionChange(e)}
+                      onSwitchableOptionChange={(e: any) =>
+                        onSwitchableOptionChange(e)
+                      }
                       getListofItemsForDropdown={(e: any) =>
                         getDropdownvalues(e) as any
                       }
-                      getSelectedList={(e: any) =>getSelectedList(e)}
+                      getSelectedList={(e: any) => getSelectedList(e)}
                     />
                   )}
                 </>

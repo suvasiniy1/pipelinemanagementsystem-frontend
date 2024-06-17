@@ -304,7 +304,7 @@ const TemplatesAddEditDialog: React.FC<ViewEditProps> = (props) => {
                     <br />
                   </div>
                   <div className="col-6">
-                    <TemplatePreview selectedItem={selectedItem} />
+                    <TemplatePreview selectedItem={selectedItem} setHieghtWidth={false}/>
                   </div>
                 </div>
               )}

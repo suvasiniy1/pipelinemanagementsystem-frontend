@@ -5,13 +5,13 @@ import { useEffect, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { EmailTemplate } from "../../../models/emailTemplate";
 import { EmailTemplateService } from "../../../services/emailTemplateService";
-import TemplateGridCards from "./templateGridCards";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import TemplatePreview from "../template/templatePreview";
 import { Spinner } from "react-bootstrap";
+import TemplatePreviewDialog from "./templatePreviewDialog";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -27,16 +27,18 @@ const useStyles = makeStyles({
   },
 });
 
-type params={
-    selectedId:number;
-    setSelectedId:any;
-}
-export const TemplateGrid = (props:params) => {
+type params = {
+  selectedId: number;
+  setSelectedId: any;
+};
+export const TemplateGrid = (props: params) => {
   const templateSvc = new EmailTemplateService(ErrorBoundary);
   const [rowData, setRowData] = useState<Array<EmailTemplate>>([]);
   const [isLoading, setIsLoading] = useState(true);
   const classes = useStyles();
   const [selectedId, setSelectedId] = useState(props.selectedId);
+  const [showPreview, setShowPreview] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<any>();
 
   useEffect(() => {
     templateSvc.getEmailTemplates().then((res: Array<EmailTemplate>) => {
@@ -71,7 +73,10 @@ export const TemplateGrid = (props:params) => {
                 }
               >
                 <CardActionArea
-                  onClick={(e) => {setSelectedId(template.id as any); props.setSelectedId(template.id as any)}}
+                  onClick={(e) => {
+                    setSelectedId(template.id as any);
+                    props.setSelectedId(template.id as any);
+                  }}
                 >
                   <CardActions
                     sx={{
@@ -86,18 +91,31 @@ export const TemplateGrid = (props:params) => {
                       size="small"
                       onClick={() => console.log("")}
                     ></Button>
-                    <Button size="small" onClick={() => console.log("")}>
+                    <Button
+                      size="small"
+                      onClick={() => {
+                        setSelectedTemplate(template);
+                        setShowPreview(true);
+                      }}
+                    >
                       Preview
                     </Button>
                   </CardActions>
                   <CardContent>
-                    <TemplatePreview selectedItem={template} />
+                    <TemplatePreview selectedItem={template} setHieghtWidth={true}/>
                   </CardContent>
                 </CardActionArea>
               </Card>
             </Grid>
           ))}
         </Grid>
+      )}
+      {showPreview && (
+        <TemplatePreviewDialog
+          dialogIsOpen={showPreview}
+          setDialogIsOpen={setShowPreview}
+          templateItem={selectedTemplate}
+        />
       )}
     </>
   );
