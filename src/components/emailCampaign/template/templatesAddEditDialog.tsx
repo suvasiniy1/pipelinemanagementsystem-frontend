@@ -193,7 +193,7 @@ const TemplatesAddEditDialog: React.FC<ViewEditProps> = (props) => {
             dialogIsOpen={dialogIsOpen}
             dialogSize={"xl"}
             isFullscreen={true}
-            header={"Add Task"}
+            header={"Add EmailConfiguration"}
             onSave={handleSubmit(onSubmit)}
             closeDialog={oncloseDialog}
             onClose={oncloseDialog}

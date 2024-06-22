@@ -8,4 +8,5 @@ export default class Constants{
     public static readonly USER_PROFILE : string = "UserProfile";
     public static readonly UTILITY : string = "Utility";
     public static readonly SIDEBAR_CLASS:string="SideBarClass"
+    public static readonly ISSIDEBAR_EXPANDED:string="IsSideBarExpanded"
 }

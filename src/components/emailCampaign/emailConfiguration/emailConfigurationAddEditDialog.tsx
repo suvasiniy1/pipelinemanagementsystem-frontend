@@ -20,6 +20,8 @@ import Constants from "../../../others/constants";
 import Util from "../../../others/util";
 import { EmailConfigurationService } from "../../../services/emailConfigurationService";
 import { TemplateGrid } from "./templateGrid";
+import { ContacteService } from "../../../services/contactService";
+import { Contact } from "../../../models/contact";
 
 const steps = ["Template", "Settings"];
 
@@ -44,6 +46,8 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
   const [skipped, setSkipped] = React.useState(new Set<any>());
   const [selectedId, setSelectedId] = useState();
   const [scheduleOptionType, setScheduleOptionType] = useState("Send Now");
+  const contactSvc = new ContacteService(ErrorBoundary);
+  const [contactsList, setContactsList]=useState<Array<Contact>>([]);
   const utility: Utility = JSON.parse(
     LocalStorageUtil.getItemObject(Constants.UTILITY) as any
   );
@@ -145,6 +149,14 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
     setDialogIsOpen(false);
   };
 
+  useEffect(()=>{
+    setIsLoading(true);
+    contactSvc.getContacts().then(res=>{
+      setContactsList(res);
+      setIsLoading(false);
+    })
+  },[])
+
   useEffect(() => {
     if (selectedItem && selectedItem.id > 0) {
       let obj = {
@@ -208,8 +220,15 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
   };
 
   const getDropdownvalues = (item: any) => {
-    ;
-    if (item.key === "To Address" || item.key === "From Address") {
+
+    if (item.key === "To Address") {
+      return (
+        contactsList.map(({ email }) => ({ name: email, value: email })) ??
+        []
+      );
+    }
+
+    if (item.key === "From Address") {
       return (
         utility?.persons.map(({ email }) => ({ name: email, value: email })) ??
         []
