@@ -53,5 +53,5 @@ export enum ElementType {
   "number" = "number",
   "custom" = "custom",
   "datepicker" = "datepicker",
-  "ckeditor" = "ckeditor",
+  "ckeditor" = "ckeditor"
 }

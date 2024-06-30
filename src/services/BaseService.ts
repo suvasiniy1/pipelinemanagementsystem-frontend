@@ -66,21 +66,21 @@ export class BaseService<TItem extends AuditItem>{
         return promise;
     }
 
-    getItem(id: number, axiosCancel?: CancelTokenSource) {
+    getItem(id: number, mockDataUrl?:string, axiosCancel?: CancelTokenSource) {
 
         var promise = new Promise<any>((resolve, reject) => {
             axios({
                 method: 'GET',
-                url: `${baseURL}/${this.urlSuffix}/${id}`,
+                url: IsMockService() ? mockDataUrl : `${baseURL}/${this.urlSuffix}/${id}`,
                 headers: {
                     'Content-Type': 'application/json; charset=UTF-8',
                     'Media-type': 'application/json',
                     'Authorization': `Bearer ${getActiveUserToken()}`
                 },
                 cancelToken: axiosCancel?.token
-            }).then((res: AxiosResponse) => {
+            }).then((res: any) => {
                 console.log("getItem - res: ", res);
-                resolve(res);
+                resolve(IsMockService() ? (res.data as Array<any>).find(i=>i.id==id) : res.data);
             }).catch((err: AxiosError) => {
                 console.log("Exception Occurred - res: ", err, " | Code: ", err.code, " | err.message", err.message,);
                 reject(err);
@@ -171,7 +171,7 @@ export class BaseService<TItem extends AuditItem>{
 
             axios({
                 method: 'POST',
-                url: `${baseURL}/${this.urlSuffix}/${urlSuffix2}`,
+                url: IsMockService()? urlSuffix2 as any : `${baseURL}/${this.urlSuffix}/${urlSuffix2}`,
                 headers: {
                     'Content-Type': 'application/json; charset=UTF-8',
                     'Media-type': 'application/json',

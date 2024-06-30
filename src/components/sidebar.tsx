@@ -136,7 +136,7 @@ export const SideBar = (props: params) => {
               </MenuItem>
               <MenuItem
                 icon={<MdCampaign />}
-                component={<Link to="/Campaign" />}
+                component={<Link to="/Campaigns" />}
                 onClick={(e: any) => setSelectedNavItem("Campaign")}
               >
               <b hidden={selectedNavItem != "Campaign"}>Campaign</b>

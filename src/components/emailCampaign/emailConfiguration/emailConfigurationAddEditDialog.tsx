@@ -17,12 +17,11 @@ import { ElementType, IControl } from "../../../models/iControl";
 import { Utility } from "../../../models/utility";
 import LocalStorageUtil from "../../../others/LocalStorageUtil";
 import Constants from "../../../others/constants";
-import Util from "../../../others/util";
+import Util, { IsMockService } from "../../../others/util";
 import { EmailConfigurationService } from "../../../services/emailConfigurationService";
 import { TemplateGrid } from "./templateGrid";
 import { ContacteService } from "../../../services/contactService";
 import { Contact } from "../../../models/contact";
-
 const steps = ["Template", "Settings"];
 
 const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
@@ -47,7 +46,7 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
   const [selectedId, setSelectedId] = useState();
   const [scheduleOptionType, setScheduleOptionType] = useState("Send Now");
   const contactSvc = new ContacteService(ErrorBoundary);
-  const [contactsList, setContactsList]=useState<Array<Contact>>([]);
+  const [contactsList, setContactsList] = useState<Array<Contact>>([]);
   const utility: Utility = JSON.parse(
     LocalStorageUtil.getItemObject(Constants.UTILITY) as any
   );
@@ -149,13 +148,13 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
     setDialogIsOpen(false);
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     setIsLoading(true);
-    contactSvc.getContacts().then(res=>{
+    contactSvc.getContacts().then((res) => {
       setContactsList(res);
       setIsLoading(false);
-    })
-  },[])
+    });
+  }, []);
 
   useEffect(() => {
     if (selectedItem && selectedItem.id > 0) {
@@ -220,11 +219,9 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
   };
 
   const getDropdownvalues = (item: any) => {
-
     if (item.key === "To Address") {
       return (
-        contactsList.map(({ email }) => ({ name: email, value: email })) ??
-        []
+        contactsList.map(({ email }) => ({ name: email, value: email })) ?? []
       );
     }
 
@@ -263,6 +260,7 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
     obj.emailtemplateId = selectedId as any;
     console.log("ItemToSave");
     console.log(obj);
+
     (obj.id > 0
       ? emailConfigSvc.putItemBySubURL(obj, `${obj.id}`)
       : emailConfigSvc.postItemBySubURL(obj, "Add")

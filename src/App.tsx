@@ -57,7 +57,7 @@ function App() {
             style={{ display: "flex", flexDirection: "row", maxWidth: "100%" }}
           >
             <SideBar collapsed={collapsed} />
-            <Container className="maincontent" style={{ maxWidth: "100%" }}>
+            <Container className="maincontent" style={{ maxWidth: collapsed ? "100%" : '89%' }}>
               <HeaderComponent
                 onExpandCollapseClick={(e: any) => setCollapsed(!collapsed)}
               />

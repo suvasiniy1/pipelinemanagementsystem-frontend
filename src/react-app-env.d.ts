@@ -5,6 +5,7 @@ declare global {
             ServicesBaseURL: string;
             DefaultStages:Array<string>;
             UseMockService:boolean;
+            CampaignSections:Array<string>;
         }
     }
 }

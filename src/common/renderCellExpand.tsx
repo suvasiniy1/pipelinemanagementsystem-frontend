@@ -4,6 +4,7 @@ import * as React from "react";
 import { Paper, Popper, Typography } from "@material-ui/core";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import { GridCellParams, GridRowModel } from "@mui/x-data-grid"
+import { Link } from "react-router-dom";
 
 // import { CellParams, isOverflown } from "@material-ui/data-grid";
 
@@ -102,7 +103,7 @@ const GridCellExpand = React.memo(function GridCellExpand(
               </div> :
               rowWithLink?.filter((i: any) => i.key == field)?.length > 0 && rowWithLink?.find((i: any) => i.key == field) ?
                 <div ref={cellValue} id={"cellValue_"+props.field}>
-                  {rowWithLink?.filter((i: any) => i.key == field)?.length > 0 ? <a href={`#${rowWithLink?.find((i: any) => i.key == field)?.val}`}>{props.row.renderRowInBold ? <strong>{value}</strong> : value}</a> : value}
+                  {rowWithLink?.filter((i: any) => i.key == field)?.length > 0 ? <Link to={rowWithLink?.find((i: any) => i.key == field)?.val}>{props.row.renderRowInBold ? <strong>{value}</strong> : value}</Link> : value}
                 </div> :
                    <div ref={cellValue} id={"cellValue_" + props.field} className={`cellValue ${rowWithColor?.filter((i: any) => i.key == field)?.length > 0 ? `badge badge-${props.row[rowWithColor?.find((i: any) => i.key == field)?.val]?.toLowerCase()}` : formatedItem && formatedItem?.customColor? `badge badge-${formatedItem?.customColor}` : ""} :`}>
                   {props.row.renderRowInBold ? <strong>{value}</strong> :  formatedItem ?  formatedItem?.customFormat :value}

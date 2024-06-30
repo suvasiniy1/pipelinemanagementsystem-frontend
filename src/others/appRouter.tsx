@@ -16,6 +16,8 @@ import Constants from "./constants";
 import ContactsList from "../components/emailCampaign/contacts/contactsList";
 import EmailsList from "../components/emailCampaign/emailConfiguration/emailsConfigurationList";
 import EmailConfigurationList from "../components/emailCampaign/emailConfiguration/emailsConfigurationList";
+import CampaignList from "../components/emailCampaign/campaign/campaignList";
+import CampaignDetails from "../components/emailCampaign/campaign/campaignDetails";
 
 export const AppRouter = () => {
 
@@ -45,6 +47,8 @@ export const AppRouter = () => {
           <Route path="/Template" element={<TemplatesList />} />
           <Route path="/Contact" element={<ContactsList />} />
           <Route path="/Email" element={<EmailConfigurationList />} />
+          <Route path="/Campaigns" element={<CampaignList />} />
+          <Route path="/CampaignDetails" element={<CampaignDetails />} />
         </Routes>
         <ToastContainer />
       </>

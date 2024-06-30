@@ -1,0 +1,30 @@
+[
+    {
+        "id":1,
+        "emailtemplateId":1,
+        "fromName":"Test1",
+        "fromAddress":"Test1",
+        "replytoaddress":"Test1",
+        "subject":"Test1",
+        "campaginId":1,
+        "toAddress":"Test1",
+        "sendNow":"Test1",
+        "status":"Test1",
+        "scheduleOption":"Test1",
+        "optionType":"Test1"
+    },
+    {
+        "id":2,
+        "emailtemplateId":1,
+        "fromName":"Test2",
+        "fromAddress":"Test2",
+        "replytoaddress":"Test2",
+        "subject":"Test2",
+        "campaginId":2,
+        "toAddress":"Test2",
+        "sendNow":"Test2",
+        "status":"Test2",
+        "scheduleOption":"Test2",
+        "optionType":"Test2"
+    }
+]

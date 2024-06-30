@@ -3,6 +3,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import Util from "../others/util";
 import ErrorFallback from "./errorFallBack";
 import Table from "./table";
+import { Spinner } from "react-bootstrap";
 
 type params = {
   isNotListingPage?: boolean;
@@ -172,7 +173,7 @@ const ItemCollection: React.FC<params> = (props) => {
   const [isSaveorUpdateClicked, setIsSaveorUpdateClicked] = useState(false);
   useEffect(() => {
     let rowData = props.rowData;
-    rowData.forEach(
+    rowData?.forEach(
       (item: any) => {
         item.updatedBy = Util.getUserNameById(item?.modifiedBy ?? item?.createdBy);
         item.updatedDate = item.modifiedDate ?? item.createdDate;
@@ -334,9 +335,16 @@ const ItemCollection: React.FC<params> = (props) => {
 
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
-      {/* {isLoading ? <Spinner /> : null} */}
-      {addorUpdateItem()}
-      <Table {...tableListProps} />
+      {isLoading ? (
+        <div className="alignCenter">
+          <Spinner />
+        </div>
+      ) : (
+        <>
+          {addorUpdateItem()}
+          <Table {...tableListProps} />
+        </>
+      )}
     </ErrorBoundary>
   );
 };

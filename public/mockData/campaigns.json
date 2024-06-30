@@ -1,0 +1,24 @@
+[
+  {
+    "id": 1,
+    "name": "Campaign1",
+    "color": "Red",
+    "owner": 1,
+    "startDate": "2024-6-29",
+    "endDate": "2024-6-30",
+    "goal": "SampleGoal1",
+    "audience": "Audience1",
+    "notes": "Notes1"
+  },
+  {
+    "id": 2,
+    "name": "Campaign2",
+    "color": "Blue",
+    "owner": 2,
+    "startDate": "2024-6-29",
+    "endDate": "2024-6-30",
+    "goal": "SampleGoal2",
+    "audience": "Audience2",
+    "notes": "Notes3"
+  }
+]

@@ -333,7 +333,7 @@ const GenerateElements: React.FC<props> = (props) => {
                 item.isRequired ? "required" : ""
               }`}
             >
-              {item.key}:126
+              {item.key}:
             </label>
             <div className={`col-sm-${item.elementSize ?? 6} errmessage`}>
               {getElement(item)}

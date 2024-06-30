@@ -8,6 +8,9 @@ import { Utility } from "../models/utility";
 
 export default class Util {
 
+  public static capitalizeFirstLetter=(string:any)=> {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
   public static UserProfile = () => {
     return LocalStorageUtil.getItemObject(Constants.USER_PROFILE) as UserProfile;
   }

@@ -158,6 +158,7 @@ const Table: React.FC<TableListProps> = (props) => {
   const [rowData, setRowData] = useState(props.rowData ?? []);
   const [columnMetaData, setColumnMetaRowData] = useState(props.columnMetaData);
   const [loadRowData, setLoadRowData] = useState(true);
+  const canDoActions = props.canDoActions;
   const propNameforSelector = props.propNameforSelector;
   const selectedItem = props.viewAddEditComponentProps.selectedItem;
   const setSelectedItem = props.viewAddEditComponentProps.setSelectedItem;
@@ -369,7 +370,7 @@ const Table: React.FC<TableListProps> = (props) => {
       },
     };
 
-    columnDefs.push(actions);
+    if(canDoActions) columnDefs.push(actions);
     return columnDefs;
   };
 
