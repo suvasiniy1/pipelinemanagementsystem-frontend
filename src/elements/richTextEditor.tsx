@@ -1,7 +1,7 @@
 import React from "react";
-import { CKEditor } from "ckeditor4-react";
 import { useFormContext } from "react-hook-form";
-import TextBox from "./TextBox";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 type params = {
   onChange: any;
@@ -31,12 +31,15 @@ const RitechTextEditorWithValidation = (props: params) => {
   return (
     <>
       <br hidden={hideSpace} />
-      <CKEditor
-        onChange={(e: any) => onChange(e.editor.getData())}
-        initData={value}
+      <ReactQuill onChange={(e:any)=>props.onChange(e)} value={value} />
+      <input
+        type="text"
+        {...register(item.value)}
+        style={{ display: "none" }}
       />
-      <input type="text" {...register(item.value)} style={{display:'none'}}/>
-      <p className="text-danger" id={`validationMsgfor_${item.value}`}>{(errors as any)?.[item.value]?.message}</p>
+      <p className="text-danger" id={`validationMsgfor_${item.value}`}>
+        {(errors as any)?.[item.value]?.message}
+      </p>
     </>
   );
 };
@@ -48,10 +51,7 @@ const RichTextEditor = (props: params) => {
       {isValidationOptional ? (
         <>
           <br hidden={hideSpace} />
-          <CKEditor
-            onChange={(e: any) => onChange(e.editor.getData())}
-            initData={value}
-          />
+          <ReactQuill onChange={(e:any)=>props.onChange(e)} value={value} />
         </>
       ) : (
         <RitechTextEditorWithValidation {...props} />

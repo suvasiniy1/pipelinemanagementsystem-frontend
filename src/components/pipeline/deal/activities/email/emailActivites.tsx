@@ -1,44 +1,177 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useMsal } from "@azure/msal-react";
 import { loginRequest } from "./authConfig";
-import { sendEmail } from "./emailService";
-import { AuthProvider } from "./authProvider";
+import { getSentEmails, sendEmail } from "./emailService"; // Assuming you have a function to fetch sent emails
+import { Spinner } from "react-bootstrap";
+import Accordion from "react-bootstrap/Accordion";
+import SentEmailsList from "./sentEmailsList";
+import EmailComposeDialog from "./emailComposeDialog";
+import { EmailCompose } from "../../../../../models/emailCompose";
+import { toast } from "react-toastify";
 
 function EmailActivities() {
   const { instance, accounts } = useMsal();
   const [emailSent, setEmailSent] = useState(false);
+  const [emailsList, setEmailsList] = useState<Array<any>>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState<any>(null);
+  const [dialogIsOpen, setDialogIsOpen] = useState(false);
+  const [selectedEmail, setSelectedEmail] = useState<any>();
+
+  useEffect(() => {
+    if (accounts.length > 0 && instance) {
+      fetchData();
+    }
+  }, [(instance as any)?.controller?.initialized, accounts]);
+
+  const fetchData = async () => {
+    if((instance as any)?.controller?.initialized){
+      try {
+        const accessTokenResponse = await instance.acquireTokenSilent({
+          scopes: ["Mail.Read"], // Adjust scopes as per your requirements
+          account: accounts[0],
+        });
+        // Fetch sent emails after acquiring token
+        const emails = await getSentEmails(accessTokenResponse.accessToken);
+        
+        setEmailsList(emails);
+      } catch (error) {
+        console.error("Error fetching emails:", error);
+      }
+    }
+  };
 
   const handleLogin = async () => {
     try {
-      await instance.loginPopup(loginRequest);
+      let res = await instance.loginPopup(loginRequest);
+      console.log("Login successful", res);
     } catch (error) {
       console.error("Login failed", error);
     }
   };
 
-  const handleSendEmail = async () => {
+  const handleSendEmail = async (emailObj:any) => {
+    
     try {
       const accessTokenResponse = await instance.acquireTokenSilent({
         scopes: ["Mail.Send"],
         account: accounts[0],
       });
-      await sendEmail(accessTokenResponse.accessToken);
+      // Send email logic here
+      await sendEmail(accessTokenResponse.accessToken, prepareEmailBody(emailObj));
       setEmailSent(true);
+      setDialogIsOpen(false);
+      toast.success("Email sent successfully");
+      fetchData();
     } catch (error) {
       console.error("Email sending failed", error);
+      setDialogIsOpen(false);
+      toast.success("Unable to sent email please re try after sometime");
     }
   };
 
+  const prepareEmailBody=(emailObj:any)=>{
+    return JSON.stringify({
+      message: {
+        subject: emailObj.subject,
+        body: {
+          contentType: "HTML",
+          content: emailObj.body,
+        },
+        toRecipients: [
+          {
+            emailAddress: {
+              address: emailObj.toAddress,
+            },
+          },
+        ]
+        // ccRecipients: [
+        //   {
+        //     emailAddress: {
+        //       address: emailObj.cc,
+        //     },
+        //   },
+        // ],
+        // bccRecipients: [
+        //   {
+        //     emailAddress: {
+        //       address: emailObj.bcc,
+        //     },
+        //   },
+        // ]
+      },
+    });
+
+  }
+
   return (
     <div>
-        {accounts.length === 0 ? (
-          <button onClick={handleLogin}>Login with Microsoft</button>
-        ) : (
-          <div>
-            <button onClick={handleSendEmail}>Send Email</button>
-            {emailSent && <p>Email Sent!</p>}
+      {isLoading ? (
+        <div className="alignCenter">
+          <Spinner />
+        </div>
+      ) : (
+        <>
+          <div className="activityfilter-row pb-3">
+            <div className="createnote-row">
+              {accounts.length === 0 ? (
+                <button
+                  type="button"
+                  onClick={handleLogin}
+                  className="btn btn-primary"
+                >
+                  Login
+                </button>
+              ) : (
+                <div>
+                  <button
+                    type="button"
+                    onClick={(e:any)=>{setSelectedEmail(new EmailCompose()); setDialogIsOpen(true)}}
+                    className="btn btn-primary"
+                  >
+                    Send Email
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
-        )}
+          <h3>April 2024</h3>
+          <div
+            className="activityfilter-accrow  mb-3"
+            hidden={emailsList.length == 0}
+          >
+            <Accordion className="activityfilter-acco">
+              {emailsList.map((email, index) => (
+                <SentEmailsList
+                  email={email}
+                  index={index}
+                  setShowDeleteDialog={undefined}
+                  setDialogIsOpen={setDialogIsOpen}
+                  selectedIndex={selectedIndex}
+                  setSelectedEmail={setSelectedEmail}
+                  setSelectedIndex={(e: any) => {
+                    setSelectedIndex(e);
+                  }}
+                />
+              ))}
+            </Accordion>
+          </div>
+          <div style={{ textAlign: "center" }} hidden={emailsList.length > 0}>
+            No emails are available to show
+          </div>
+        </>
+      )}
+      {dialogIsOpen && (
+        <EmailComposeDialog
+          fromAddress={accounts[0]}
+          dialogIsOpen={dialogIsOpen}
+          onCloseDialog={(e: any) => setSelectedEmail(null as any)}
+          selectedItem={selectedEmail ?? new EmailCompose()}
+          setSelectedItem={setSelectedEmail}
+          setDialogIsOpen={setDialogIsOpen}
+          onSave={(e: any) => {handleSendEmail(e)}}
+        />
+      )}
     </div>
   );
 }

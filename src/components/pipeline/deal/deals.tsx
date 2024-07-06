@@ -68,7 +68,8 @@ export const Deals = (props: params) => {
     useEffect(() => {
         loadPipeLines();
         utilSvc.getDropdownValues().then(res => {
-            let result = IsMockService() ? res?.data : res?.data?.utility
+            
+            let result = IsMockService() ? res?.data : res?.utility
             if (result) {
                 LocalStorageUtil.setItemObject(Constants.UTILITY, JSON.stringify(result));
             }

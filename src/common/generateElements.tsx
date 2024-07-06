@@ -326,16 +326,17 @@ const GenerateElements: React.FC<props> = (props) => {
         ) : item.isSideByItem ? null : (
           <div className="form-group row" key={index} hidden={item.hidden}>
             <label
+              style={{ textAlign: 'left' }}
               hidden={item.hideLabel}
               htmlFor="name"
               id={`labelFor_${item.value}`}
-              className={`col-sm-${item.labelSize ?? 6} col-form-label ${
+              className={`col-sm-${item.labelSize ?? 1} col-form-label ${
                 item.isRequired ? "required" : ""
               }`}
             >
               {item.key}:
             </label>
-            <div className={`col-sm-${item.elementSize ?? 6} errmessage`}>
+            <div className={`col-sm-${item.elementSize ?? 11} errmessage`}>
               {getElement(item)}
             </div>
           </div>
