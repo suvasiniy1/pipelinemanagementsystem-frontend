@@ -54,7 +54,8 @@ const EmailComposeDialog = (props: any) => {
       key: "Body",
       value: "body",
       type: ElementType.ckeditor,
-      isRequired:true
+      isRequired:true,
+      hideSpaceForEditor:true
     },
   ];
 
@@ -79,7 +80,7 @@ const EmailComposeDialog = (props: any) => {
     
     let toAddresses = Array.from(selectedItem.toRecipients ?? [], (x:any)=>x?.emailAddress?.address).join(";");
     let obj = {...selectedItem, "fromAddress":fromAddress?.username, "toAddress":toAddresses,
-      "body":selectedItem.body?.content, "subject":selectedItem.subject ? "Re: "+selectedItem.subject : null
+      "body":"", "subject":selectedItem.subject ? "Re: "+selectedItem.subject : null, "isReply": !Util.isNullOrUndefinedOrEmpty(selectedItem.subject)
     };
     setSelectedItem(obj);
     controlsList.forEach((c) => {
@@ -98,10 +99,9 @@ const EmailComposeDialog = (props: any) => {
     isValidationOptional: boolean = false
   ) => {
     if (!isValidationOptional) {
-      if(item.key==="Body"){
-        setSelectedItem({ ...selectedItem, "body": value })
-      }
-      else{
+      if (item.key === "Body") {
+        value = value==="<p><br></p>" ? null : value;
+        setSelectedItem({ ...selectedItem, body: value });
         setValue(item.value as never, value as never);
         if (value) unregister(item.value as never);
         else register(item.value as never);
@@ -113,7 +113,9 @@ const EmailComposeDialog = (props: any) => {
 
   const onSubmit = (item: any) => {
     
-    props.onSave(item);
+    let obj = Util.toClassObject(selectedItem, item);
+    
+    props.onSave(obj);
   };
 
   return (
@@ -126,7 +128,8 @@ const EmailComposeDialog = (props: any) => {
             onSave={handleSubmit(onSubmit)}
             closeDialog={oncloseDialog}
             onClose={oncloseDialog}
-          >
+          ><br/>
+
             <GenerateElements
               controlsList={controlsList}
               selectedItem={selectedItem}

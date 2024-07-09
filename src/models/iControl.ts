@@ -35,7 +35,8 @@ export interface IControl {
   label1?:string;
   label2?:string;
   element1Type?:ElementType;
-  element2Type?:ElementType
+  element2Type?:ElementType;
+  hideSpaceForEditor?:boolean | false;
 }
 
 export enum CustomActionPosition {

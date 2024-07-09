@@ -5,6 +5,6 @@ export class EmailCompose{
     bcc!:string;
     subject!:string;
     body!:string;
-    isNew!:boolean;
+    isReply!:boolean;
 
 }

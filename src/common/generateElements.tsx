@@ -111,6 +111,7 @@ const GenerateElements: React.FC<props> = (props) => {
             onChange={(e: any) => {
               onChange && onChange(e, item);
             }}
+            hideSpace={item.hideSpaceForEditor}
             value={selectedItem[item.value]}
           />
         );
@@ -336,7 +337,7 @@ const GenerateElements: React.FC<props> = (props) => {
             >
               {item.key}:
             </label>
-            <div className={`col-sm-${item.elementSize ?? 11} errmessage`}>
+            <div className={`col-sm-${item.elementSize ?? 11} errmessage`} style={{paddingBottom:"10px"}}>
               {getElement(item)}
             </div>
           </div>
