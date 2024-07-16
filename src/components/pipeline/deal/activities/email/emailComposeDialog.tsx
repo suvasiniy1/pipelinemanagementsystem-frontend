@@ -76,11 +76,24 @@ const EmailComposeDialog = (props: any) => {
     setDialogIsOpen(false);
   };
 
+  function addReToSubject(subject:any) {
+    // Trim whitespace from the beginning and end of the subject
+    subject = subject.trim();
+
+    // Check if subject already starts with "Re:"
+    if (!subject.startsWith("Re:")) {
+        // If not, prepend "Re:" to the subject
+        subject = `Re: ${subject}`;
+    }
+
+    return subject;
+}
+
   useEffect(()=>{
     
     let toAddresses = Array.from(selectedItem.toRecipients ?? [], (x:any)=>x?.emailAddress?.address).join(";");
     let obj = {...selectedItem, "fromAddress":fromAddress?.username, "toAddress":toAddresses,
-      "body":"", "subject":selectedItem.subject ? "Re: "+selectedItem.subject : null, "isReply": !Util.isNullOrUndefinedOrEmpty(selectedItem.subject)
+      "body":"", "subject":selectedItem.subject ? addReToSubject(selectedItem.subject) : null, "isReply": !Util.isNullOrUndefinedOrEmpty(selectedItem.subject)
     };
     setSelectedItem(obj);
     controlsList.forEach((c) => {
