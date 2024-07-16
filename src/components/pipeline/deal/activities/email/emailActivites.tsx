@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useMsal } from "@azure/msal-react";
 import { loginRequest } from "./authConfig";
-import { getSentEmails, sendEmail } from "./emailService"; // Assuming you have a function to fetch sent emails
+import { deleteEmail, getSentEmails, sendEmail } from "./emailService"; // Assuming you have a function to fetch sent emails
 import { Spinner } from "react-bootstrap";
 import Accordion from "react-bootstrap/Accordion";
 import SentEmailsList from "./sentEmailsList";
 import EmailComposeDialog from "./emailComposeDialog";
 import { EmailCompose } from "../../../../../models/emailCompose";
 import { toast } from "react-toastify";
+import { DeleteDialog } from "../../../../../common/deleteDialog";
 
 function EmailActivities() {
   const { instance, accounts } = useMsal();
@@ -17,6 +18,7 @@ function EmailActivities() {
   const [selectedIndex, setSelectedIndex] = useState<any>(null);
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
   const [selectedEmail, setSelectedEmail] = useState<any>();
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   useEffect(() => {
     if (accounts.length > 0 && instance) {
@@ -34,7 +36,7 @@ function EmailActivities() {
         });
         // Fetch sent emails after acquiring token
         const emails = await getSentEmails(accessTokenResponse.accessToken);
-
+        
         setEmailsList(emails);
         setIsLoading(false);
       } catch (error) {
@@ -54,7 +56,6 @@ function EmailActivities() {
   };
 
   const handleSendEmail = async (emailObj: any) => {
-    
     try {
       const accessTokenResponse = await instance.acquireTokenSilent({
         scopes: ["Mail.Send"],
@@ -63,7 +64,8 @@ function EmailActivities() {
       // Send email logic here
       await sendEmail(
         accessTokenResponse.accessToken,
-        prepareEmailBody(emailObj), emailObj.isReply ? selectedEmail.id : null
+        prepareEmailBody(emailObj),
+        emailObj.isReply ? selectedEmail.id : null
       );
       setEmailSent(true);
       setDialogIsOpen(false);
@@ -76,7 +78,28 @@ function EmailActivities() {
     }
   };
 
-  const prepareEmailBody = (emailObj: any) => {
+  const handleDeleteEmail= async () => {
+    try {
+      const accessTokenResponse = await instance.acquireTokenSilent({
+        scopes: ["Mail.Send",'mail.read', 'mail.readwrite'],
+        account: accounts[0],
+      });
+      // Send email logic here
+      await deleteEmail(
+        accessTokenResponse.accessToken,
+        selectedEmail.id
+      );
+      setShowDeleteDialog(false)
+      toast.success("Email deleted successfully");
+      fetchData();
+    } catch (error) {
+      console.error("Email deleting failed", error);
+      setDialogIsOpen(false);
+      toast.success("Unable to delete email please re try after sometime");
+    }
+  };
+
+  const prepareEmailBody = (emailObj: EmailCompose) => {
     return JSON.stringify({
       message: {
         subject: emailObj.subject,
@@ -155,13 +178,14 @@ function EmailActivities() {
                 <SentEmailsList
                   email={email}
                   index={index}
-                  setShowDeleteDialog={undefined}
+                  setShowDeleteDialog={setShowDeleteDialog}
                   setDialogIsOpen={setDialogIsOpen}
                   selectedIndex={selectedIndex}
                   setSelectedEmail={setSelectedEmail}
                   setSelectedIndex={(e: any) => {
                     setSelectedIndex(e);
                   }}
+                  emailsList={emailsList.filter(i=>i.conversationId==email.conversationId)}
                 />
               ))}
             </Accordion>
@@ -185,6 +209,17 @@ function EmailActivities() {
           onSave={(e: any) => {
             handleSendEmail(e);
           }}
+        />
+      )}
+      {showDeleteDialog && (
+        <DeleteDialog
+          itemType={"Email"}
+          itemName={""}
+          dialogIsOpen={showDeleteDialog}
+          closeDialog={(e: any) => setShowDeleteDialog(false)}
+          onConfirm={(e: any) =>{handleDeleteEmail()}}
+          isPromptOnly={false}
+          actionType={"Delete"}
         />
       )}
     </div>
