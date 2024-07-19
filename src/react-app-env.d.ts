@@ -6,6 +6,7 @@ declare global {
             DefaultStages:Array<string>;
             UseMockService:boolean;
             CampaignSections:Array<string>;
+            ClientId:string;
         }
     }
 }

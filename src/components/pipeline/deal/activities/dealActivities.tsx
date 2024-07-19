@@ -156,7 +156,7 @@ const DealActivities = (props: params) => {
                     </Tab>
                     <Tab eventKey="email" title="Email">
                         <AuthProvider>
-                        <EmailActivites/>
+                        <EmailActivites dealId={dealItem.dealID}/>
                         </AuthProvider>
                     </Tab>
                     <Tab eventKey="calls" title="Calls">

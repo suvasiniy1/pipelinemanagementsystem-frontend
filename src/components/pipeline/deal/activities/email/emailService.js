@@ -18,6 +18,7 @@ export const sendEmail = async (accessToken, body, emailId = null) => {
       }
     );
     console.log("Email sent:", response);
+    return response;
   } catch (error) {
     console.error("Error sending email:", error);
   }

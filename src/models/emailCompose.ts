@@ -11,14 +11,14 @@ export class EmailCompose {
 export class EmailThreadObject {
   id!: number;
   sender!: string;
-  senderEmail!:string;
+  senderEmail!: string;
   timestamp!: string;
   content!: string;
   replies!: Array<EmailThreadObject>;
   constructor(
     id: number = null as any,
     sender: string = null as any,
-    senderEmail:string= null as any,
+    senderEmail: string = null as any,
     timestamp: string = null as any,
     content: string = null as any,
     replies: Array<EmailThreadObject> = [] as any
@@ -29,5 +29,17 @@ export class EmailThreadObject {
     this.timestamp = timestamp;
     this.content = content;
     this.replies = replies;
+  }
+}
+
+export class DealEmail {
+  dealId!: number;
+  conversationId!: number;
+  constructor(
+    dealId: number = null as any,
+    conversationId: number = null as any
+  ) {
+    this.dealId = dealId;
+    this.conversationId = conversationId;
   }
 }

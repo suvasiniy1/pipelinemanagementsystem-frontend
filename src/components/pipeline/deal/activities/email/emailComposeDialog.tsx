@@ -91,7 +91,7 @@ const EmailComposeDialog = (props: any) => {
 
   useEffect(()=>{
     
-    let toAddresses = Array.from(selectedItem.toRecipients ?? [], (x:any)=>x?.emailAddress?.address).join(";");
+    let toAddresses = selectedItem?.sender?.emailAddress?.address;
     let obj = {...selectedItem, "fromAddress":fromAddress?.username, "toAddress":toAddresses,
       "body":"", "subject":selectedItem.subject ? addReToSubject(selectedItem.subject) : null, "isReply": !Util.isNullOrUndefinedOrEmpty(selectedItem.subject)
     };

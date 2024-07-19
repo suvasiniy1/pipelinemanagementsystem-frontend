@@ -6,11 +6,18 @@ import { Spinner } from "react-bootstrap";
 import Accordion from "react-bootstrap/Accordion";
 import SentEmailsList from "./sentEmailsList";
 import EmailComposeDialog from "./emailComposeDialog";
-import { EmailCompose } from "../../../../../models/emailCompose";
+import { DealEmail, EmailCompose } from "../../../../../models/emailCompose";
 import { toast } from "react-toastify";
 import { DeleteDialog } from "../../../../../common/deleteDialog";
+import Constants from "../../../../../others/constants";
+import LocalStorageUtil from "../../../../../others/LocalStorageUtil";
+import Util from "../../../../../others/util";
 
-function EmailActivities() {
+type params = {
+  dealId: any;
+};
+function EmailActivities(props: params) {
+  const { dealId, ...others } = props;
   const { instance, accounts } = useMsal();
   const [emailSent, setEmailSent] = useState(false);
   const [emailsList, setEmailsList] = useState<Array<any>>([]);
@@ -21,6 +28,7 @@ function EmailActivities() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   useEffect(() => {
+    
     if (accounts.length > 0 && instance) {
       fetchData();
     }
@@ -35,9 +43,42 @@ function EmailActivities() {
           account: accounts[0],
         });
         // Fetch sent emails after acquiring token
-        const emails = await getSentEmails(accessTokenResponse.accessToken);
+        var emails: Array<any> = await getSentEmails(
+          accessTokenResponse.accessToken
+        );
+
+        //Retrieving deal emails from localstorage
         
-        setEmailsList(emails);
+        var emailsResult: Array<any> = [];
+        emails.forEach((e) => {
+          let categories = e.categories[0]?.split(":") ?? [];
+          if (categories.length > 0) {
+            if (dealId == +categories[1]) {
+              emailsResult.push(e);
+            }
+          }
+        });
+
+        emails.forEach((e) => {
+          if (
+            emailsResult.find(
+              (er) =>
+                er.conversationId == e.conversationId &&
+                er.conversationIndex != e.conversationIndex
+            )
+          ) {
+            emailsResult.push(e);
+          }
+        });
+
+        emailsResult = Util.removeDuplicates(emailsResult, "conversationIndex");
+        setEmailsList(
+          emailsResult.sort(
+            (a: any, b: any) =>
+              new Date(b.sentDateTime).getTime() -
+              new Date(a.sentDateTime).getTime()
+          )
+        ); //Filtering emails which are against to deal
         setIsLoading(false);
       } catch (error) {
         console.error("Error fetching emails:", error);
@@ -62,11 +103,12 @@ function EmailActivities() {
         account: accounts[0],
       });
       // Send email logic here
-      await sendEmail(
+      let response: any = await sendEmail(
         accessTokenResponse.accessToken,
         prepareEmailBody(emailObj),
         emailObj.isReply ? selectedEmail.id : null
       );
+      
       setEmailSent(true);
       setDialogIsOpen(false);
       toast.success("Email sent successfully");
@@ -78,18 +120,15 @@ function EmailActivities() {
     }
   };
 
-  const handleDeleteEmail= async () => {
+  const handleDeleteEmail = async () => {
     try {
       const accessTokenResponse = await instance.acquireTokenSilent({
-        scopes: ["Mail.Send",'mail.read', 'mail.readwrite'],
+        scopes: ["Mail.Send", "mail.read", "mail.readwrite"],
         account: accounts[0],
       });
       // Send email logic here
-      await deleteEmail(
-        accessTokenResponse.accessToken,
-        selectedEmail.id
-      );
-      setShowDeleteDialog(false)
+      await deleteEmail(accessTokenResponse.accessToken, selectedEmail.id);
+      setShowDeleteDialog(false);
       toast.success("Email deleted successfully");
       fetchData();
     } catch (error) {
@@ -99,21 +138,29 @@ function EmailActivities() {
     }
   };
 
+  const prepareToRecipients = (emailObj: EmailCompose) => {
+    let emails: Array<any> = [];
+    emailObj.toAddress.split(";").forEach((i) => {
+      let obj: any = {
+        emailAddress: {
+          address: i,
+        },
+      };
+      emails.push(obj);
+    });
+    return emails;
+  };
+
   const prepareEmailBody = (emailObj: EmailCompose) => {
     return JSON.stringify({
       message: {
         subject: emailObj.subject,
+        categories: ["dealId: " + dealId],
         body: {
           contentType: "HTML",
           content: emailObj.body,
         },
-        toRecipients: [
-          {
-            emailAddress: {
-              address: emailObj.toAddress,
-            },
-          },
-        ]
+        toRecipients: prepareToRecipients(emailObj),
         // ccRecipients: [
         //   {
         //     emailAddress: {
@@ -151,17 +198,30 @@ function EmailActivities() {
                   Login
                 </button>
               ) : (
-                <div>
-                  <button
-                    type="button"
-                    onClick={(e: any) => {
-                      setSelectedEmail(new EmailCompose());
-                      setDialogIsOpen(true);
-                    }}
-                    className="btn btn-primary"
-                  >
-                    Send Email
-                  </button>
+                <div  className="d-flex">
+                  <div>
+                    <button
+                      type="button"
+                      onClick={(e: any) => {
+                        setSelectedEmail(new EmailCompose());
+                        setDialogIsOpen(true);
+                      }}
+                      className="btn btn-primary"
+                    >
+                      Send Email
+                    </button>
+                  </div>
+                  <div style={{paddingLeft:"10px"}}>
+                    <button
+                      type="button"
+                      onClick={(e: any) => {
+                        fetchData();
+                      }}
+                      className="btn btn-secondary"
+                    >
+                      Refresh
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -176,6 +236,7 @@ function EmailActivities() {
             <Accordion className="activityfilter-acco">
               {emailsList.map((email, index) => (
                 <SentEmailsList
+                  accounts={accounts}
                   email={email}
                   index={index}
                   setShowDeleteDialog={setShowDeleteDialog}
@@ -185,7 +246,9 @@ function EmailActivities() {
                   setSelectedIndex={(e: any) => {
                     setSelectedIndex(e);
                   }}
-                  emailsList={emailsList.filter(i=>i.conversationId==email.conversationId)}
+                  emailsList={emailsList.filter(
+                    (i) => i.conversationId == email.conversationId
+                  )}
                 />
               ))}
             </Accordion>
@@ -217,7 +280,9 @@ function EmailActivities() {
           itemName={""}
           dialogIsOpen={showDeleteDialog}
           closeDialog={(e: any) => setShowDeleteDialog(false)}
-          onConfirm={(e: any) =>{handleDeleteEmail()}}
+          onConfirm={(e: any) => {
+            handleDeleteEmail();
+          }}
           isPromptOnly={false}
           actionType={"Delete"}
         />

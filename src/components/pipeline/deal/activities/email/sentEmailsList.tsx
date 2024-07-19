@@ -11,6 +11,7 @@ import Comments from "../common/comment";
 import { useEffect, useRef } from "react";
 import EmailThread from "./emailThread";
 import { EmailThreadObject } from "../../../../../models/emailCompose";
+import Util from "../../../../../others/util";
 
 type params = {
   email: any;
@@ -21,12 +22,14 @@ type params = {
   setSelectedIndex: any;
   setSelectedEmail: any;
   emailsList: Array<any>;
+  accounts:Array<any>;
 };
 const SentEmailsList = (props: params) => {
-  ;
-  const { index, email, selectedIndex, emailsList, ...others } = props;
+  const { index, email, selectedIndex, emailsList, accounts, ...others } = props;
   const { subject, sender, toRecipients, sentDateTime, body } = email;
   const divRef = useRef();
+  
+  const accountEmail = accounts.length>0 ? accounts[0].username : null;
 
   useEffect(() => {
     if (divRef) {
@@ -34,7 +37,11 @@ const SentEmailsList = (props: params) => {
     }
   }, [props]);
 
-  const generateDynamicThreadObj = (input: any, index: number, threadEmails:Array<any>) => {
+  const generateDynamicThreadObj = (
+    input: any,
+    index: number,
+    threadEmails: Array<any>
+  ) => {
     let threadObj = new EmailThreadObject();
     let nestedObj = threadEmails?.find(
       (i) => new Date(i.sentDateTime) < new Date(input.sentDateTime)
@@ -51,14 +58,15 @@ const SentEmailsList = (props: params) => {
   };
 
   const getNestedEmails = () => {
-    ;
+    
     let threadEmails = emailsList?.filter(
       (i) => new Date(i.sentDateTime) < new Date(email.sentDateTime)
     );
+    threadEmails = Util.removeDuplicates(threadEmails, "parentFolderId");
     let threadObj = new EmailThreadObject();
     let emailThread;
 
-    if(threadEmails.length>0){
+    if (threadEmails.length > 0) {
       let obj = threadEmails[0];
       let nestedObj = threadEmails?.find(
         (i) => new Date(i.sentDateTime) < new Date(obj.sentDateTime)
@@ -71,7 +79,7 @@ const SentEmailsList = (props: params) => {
       threadObj.replies = nestedObj
         ? generateDynamicThreadObj(nestedObj, threadObj.id + 1, threadEmails)
         : [];
-  
+
       emailThread = [threadObj];
     }
     return emailThread ?? [];
@@ -119,7 +127,12 @@ const SentEmailsList = (props: params) => {
               </div>
             </div>
             <br />
-            <EmailThread emails={getNestedEmails()} isFirstNestedEmail={true} />
+            {/* <div hidden={accountEmail && email.sender?.emailAddress?.address!=accountEmail}>
+              <EmailThread
+                emails={getNestedEmails()}
+                isFirstNestedEmail={true}
+              />
+            </div> */}
           </Accordion.Body>
           <div className="accofooter">
             <FontAwesomeIcon icon={faCircleCheck} /> {subject}

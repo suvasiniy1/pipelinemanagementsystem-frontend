@@ -1,5 +1,5 @@
 import { IControl } from "../models/iControl";
-import * as Yup from 'yup';
+import * as Yup from "yup";
 import moment from "moment";
 import LocalStorageUtil from "./LocalStorageUtil";
 import Constants from "./constants";
@@ -7,104 +7,107 @@ import { UserProfile } from "../models/userProfile";
 import { Utility } from "../models/utility";
 
 export default class Util {
-
-  public static capitalizeFirstLetter=(string:any)=> {
+  public static capitalizeFirstLetter = (string: any) => {
     return string.charAt(0).toUpperCase() + string.slice(1);
-}
+  };
   public static UserProfile = () => {
-    return LocalStorageUtil.getItemObject(Constants.USER_PROFILE) as UserProfile;
-  }
+    return LocalStorageUtil.getItemObject(
+      Constants.USER_PROFILE
+    ) as UserProfile;
+  };
 
   public static convertTZ = (dateTime: any) => {
-    return moment(new Date(Util.toLocalTimeZone(dateTime))).format("MM/DD/YYYY hh:mm:ss a") as any;
-  }
+    return moment(new Date(Util.toLocalTimeZone(dateTime))).format(
+      "MM/DD/YYYY hh:mm:ss a"
+    ) as any;
+  };
 
-  public static toLocalTimeZone = (dateTime: any, timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone) => {
+  public static toLocalTimeZone = (
+    dateTime: any,
+    timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+  ) => {
     return new Date(dateTime).toLocaleString("en-US", { timeZone: timeZone });
-  }
+  };
 
   public static buildValidations = (controlsList: IControl[]) => {
     const validateObj = {};
-    controlsList?.filter(i => !i.hidden || Util.isNullOrUndefinedOrEmpty(i.hidden)).map((field:any) => {
-      if (field.isRequired && !field.disabled) {
-        if (field.min && !field.max) {
+    controlsList
+      ?.filter((i) => !i.hidden || Util.isNullOrUndefinedOrEmpty(i.hidden))
+      .map((field: any) => {
+        if (field.isRequired && !field.disabled) {
+          if (field.min && !field.max) {
+            Object.assign(validateObj, {
+              [field.value]: Yup.string()
+                .required(`${field.key} is required`)
+                .min(
+                  field.min,
+                  `${field.key} must be atleast ${field.min} chars`
+                )
+                .matches(field.regex1 ?? "", field.errMsg1)
+                .matches(field.regex2 ?? "", field.errMsg2)
+                .matches(field.regex3 ?? "", field.errMsg3)
+                .nullable(),
+            });
+          }
+          if (field.max && !field.min) {
+            Object.assign(validateObj, {
+              [field.value]: Yup.string()
+                .required(`${field.key} is required`)
+                .max(field.max, `${field.key} must be max ${field.max} chars`)
+                .matches(field.regex1 ?? "", field.errMsg1)
+                .matches(field.regex2 ?? "", field.errMsg2)
+                .matches(field.regex3 ?? "", field.errMsg3)
+                .nullable(),
+            });
+          }
+          if (!field.max && !field.min) {
+            Object.assign(validateObj, {
+              [field.value]: Yup.string()
+                .required(`${field.key} is required`)
+                .matches(field.regex1 ?? "", field.errMsg1)
+                .matches(field.regex2 ?? "", field.errMsg2)
+                .matches(field.regex3 ?? "", field.errMsg3)
+                .nullable(),
+            });
+          }
+          if (field.min && field.max) {
+            Object.assign(validateObj, {
+              [field.value]: Yup.string()
+                .required(`${field.key} is required`)
+                .min(
+                  field.min,
+                  `${field.key} must be atleast ${field.min} chars`
+                )
+                .max(field.max, `${field.key} must be max ${field.max} chars`)
+                .matches(field.regex1 ?? "", field.errMsg1)
+                .matches(field.regex2 ?? "", field.errMsg2)
+                .matches(field.regex3 ?? "", field.errMsg3)
+                .nullable(),
+            });
+          }
+        } else {
           Object.assign(validateObj, {
-            [field.value]: Yup
-              .string()
-              .required(`${field.key} is required`)
-              .min(field.min, `${field.key} must be atleast ${field.min} chars`)
-              .matches(field.regex1 ?? '', field.errMsg1)
-              .matches(field.regex2 ?? '', field.errMsg2)
-              .matches(field.regex3 ?? '', field.errMsg3)
-              .nullable(),
+            [field.value]: Yup.string().nullable(),
           });
         }
-        if (field.max && !field.min) {
-          Object.assign(validateObj, {
-            [field.value]: Yup
-              .string()
-              .required(`${field.key} is required`)
-              .max(field.max, `${field.key} must be max ${field.max} chars`)
-              .matches(field.regex1 ?? '', field.errMsg1)
-              .matches(field.regex2 ?? '', field.errMsg2)
-              .matches(field.regex3 ?? '', field.errMsg3)
-              .nullable(),
-          });
-        }
-        if (!field.max && !field.min) {
-          Object.assign(validateObj, {
-            [field.value]: Yup
-              .string()
-              .required(`${field.key} is required`)
-              .matches(field.regex1 ?? '', field.errMsg1)
-              .matches(field.regex2 ?? '', field.errMsg2)
-              .matches(field.regex3 ?? '', field.errMsg3)
-              .nullable(),
-          });
-        }
-        if (field.min && field.max) {
-          Object.assign(validateObj, {
-            [field.value]: Yup
-              .string()
-              .required(`${field.key} is required`)
-              .min(field.min, `${field.key} must be atleast ${field.min} chars`)
-              .max(field.max, `${field.key} must be max ${field.max} chars`)
-              .matches(field.regex1 ?? '', field.errMsg1)
-              .matches(field.regex2 ?? '', field.errMsg2)
-              .matches(field.regex3 ?? '', field.errMsg3)
-              .nullable(),
-          });
-        }
-
-      }
-      else {
-        Object.assign(validateObj, {
-          [field.value]: Yup
-            .string()
-            .nullable()
-        });
-      }
-    });
+      });
     return validateObj;
-  }
+  };
 
   public static isNullOrUndefined(list: any): boolean {
-    return (list === null ||
-      list === undefined);
+    return list === null || list === undefined;
   }
 
   public static isNullOrUndefinedOrEmpty(list: any): boolean {
-    return (list === null ||
-      list === undefined ||
-      list.length === 0
-    );
+    return list === null || list === undefined || list.length === 0;
   }
 
   public static isListNullOrUndefinedOrEmpty(list: any): boolean {
-    return (list === null ||
+    return (
+      list === null ||
       list === undefined ||
       list.length === 0 ||
-      (list.length === 1 && (list[0] === null || list[0] === ''))
+      (list.length === 1 && (list[0] === null || list[0] === ""))
     );
   }
 
@@ -120,7 +123,7 @@ export default class Util {
     let objJSONStr: string = JSON.stringify(obj);
     let parsedJSON = JSON.parse(objJSONStr);
     // let rtnClone: T = <T>Object.create(parsedJSON);
-    let rtnClone: T = <T>(parsedJSON);
+    let rtnClone: T = <T>parsedJSON;
     // console.log("Clone - obj: ", obj, " | objJSONStr: ", objJSONStr, " | JSON.parse(objJSON): ", parsedJSON, " | rtnClone: ", rtnClone);
     console.log("clone - obj: ", obj, " | rtnClone: ", rtnClone);
     return rtnClone;
@@ -128,28 +131,33 @@ export default class Util {
     // return {...obj};
   }
 
-  public static toClassObject(item: any, data: any) {//updates item props with data props
+  public static toClassObject(item: any, data: any) {
+    //updates item props with data props
     Object.keys(item).forEach((key: any) => {
-      if (data[key] != null) { item[key] = data[key] ? data[key] : null };
+      if (data[key] != null) {
+        item[key] = data[key] ? data[key] : null;
+      }
     });
     return item;
   }
 
-  public static sortList(list: Array<any>, sortBy: any = 'name', order = 'asc') {
-    return list = list.sort(this.compareValues(sortBy, order));
+  public static sortList(
+    list: Array<any>,
+    sortBy: any = "name",
+    order = "asc"
+  ) {
+    return (list = list.sort(this.compareValues(sortBy, order)));
   }
 
-  static compareValues(key:any, order:any) {
-    return function innerSort(a:any, b:any) {
+  static compareValues(key: any, order: any) {
+    return function innerSort(a: any, b: any) {
       if (!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) {
         // property doesn't exist on either object
         return 0;
       }
 
-      const varA = (typeof a[key] === 'string')
-        ? a[key].toUpperCase() : a[key];
-      const varB = (typeof b[key] === 'string')
-        ? b[key].toUpperCase() : b[key];
+      const varA = typeof a[key] === "string" ? a[key].toUpperCase() : a[key];
+      const varB = typeof b[key] === "string" ? b[key].toUpperCase() : b[key];
 
       let comparison = 0;
       if (varA > varB) {
@@ -157,24 +165,42 @@ export default class Util {
       } else if (varA < varB) {
         comparison = -1;
       }
-      return (
-        (order === 'desc') ? (comparison * -1) : comparison
-      );
+      return order === "desc" ? comparison * -1 : comparison;
     };
   }
 
-  static getUserNameById(userId:number){
-    let utility: Utility = JSON.parse(LocalStorageUtil.getItemObject(Constants.UTILITY) as any);
-    return utility.persons.find(u=>u.personID==userId)?.personName;
+  static getUserNameById(userId: number) {
+    let utility: Utility = JSON.parse(
+      LocalStorageUtil.getItemObject(Constants.UTILITY) as any
+    );
+    return utility.persons.find((u) => u.personID == userId)?.personName;
   }
 
   public static toDateFormat(date: any) {
-    return moment(date, "YYYY-MM-DD").format("YYYY-MM-DD")
+    return moment(date, "YYYY-MM-DD").format("YYYY-MM-DD");
   }
 
   public static capitalizeFirstChar(inputString: string): string {
     return inputString && inputString[0].toUpperCase() + inputString.slice(1);
-}
+  }
+
+  public static removeDuplicates(array: Array<any>, property: string) {
+    // Step 1: Create an empty object to keep track of unique items
+    let uniqueMap: any = {};
+
+    // Step 2: Use filter() and map() to iterate over each item in the array
+    let result = array.filter((item) => {
+      // Step 3: For each item, extract the value of the specified property
+      let key = item[property];
+
+      // Step 4: Check if the key exists in uniqueMap
+      // If it does, return false (filter out this item)
+      // If it doesn't, add this key to uniqueMap and return true
+      return uniqueMap.hasOwnProperty(key) ? false : (uniqueMap[key] = true);
+    });
+
+    return result;
+  }
 }
 
-export const IsMockService = ()=> window.config.UseMockService;
+export const IsMockService = () => window.config.UseMockService;
