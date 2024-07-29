@@ -37,6 +37,7 @@ export interface IControl {
   element1Type?:ElementType;
   element2Type?:ElementType;
   hideSpaceForEditor?:boolean | false;
+  showTimeSelect?:boolean | false;
 }
 
 export enum CustomActionPosition {

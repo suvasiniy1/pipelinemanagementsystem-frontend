@@ -1,17 +1,15 @@
-import React, { useState, useEffect } from "react";
 import { useMsal } from "@azure/msal-react";
-import { loginRequest } from "./authConfig";
-import { deleteEmail, getSentEmails, sendEmail } from "./emailService"; // Assuming you have a function to fetch sent emails
+import { useEffect, useState } from "react";
 import { Spinner } from "react-bootstrap";
 import Accordion from "react-bootstrap/Accordion";
-import SentEmailsList from "./sentEmailsList";
-import EmailComposeDialog from "./emailComposeDialog";
-import { DealEmail, EmailCompose } from "../../../../../models/emailCompose";
 import { toast } from "react-toastify";
 import { DeleteDialog } from "../../../../../common/deleteDialog";
-import Constants from "../../../../../others/constants";
-import LocalStorageUtil from "../../../../../others/LocalStorageUtil";
+import { EmailCompose } from "../../../../../models/emailCompose";
 import Util from "../../../../../others/util";
+import { loginRequest } from "./authConfig";
+import EmailComposeDialog from "./emailComposeDialog";
+import { deleteEmail, getSentEmails, sendEmail } from "./emailService"; // Assuming you have a function to fetch sent emails
+import SentEmailsList from "./sentEmailsList";
 
 type params = {
   dealId: any;

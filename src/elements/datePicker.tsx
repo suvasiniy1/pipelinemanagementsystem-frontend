@@ -21,13 +21,20 @@ export const DatePickerWithValidation = (props: params) => {
     return (
         <>
             <Picker
-                placeholderText="MM/DD/YYYY"
+                placeholderText="MM/DD/YYYY hh:mm:ss a"
                 showIcon
-                selected={selectedItem[item.value]}
+                dateFormat={"MM/d/yyyy h:mm aa"}
+                selected={selectedItem[item.value] ? new Date(selectedItem[item.value]) : selectedItem[item.value]}
                 className="form-control"
+                showTimeSelect={item.showTimeSelect}
                 disabled={disable}
                 {...register(item.value)}
-                onChange={(date) => onChange(date as any)}
+                onChange={(date) => 
+                    {
+                        
+                        onChange(date as any)
+                    }
+                }
             />
             <p className="text-danger" id={`validationMsgfor_${item.value}`}>{(errors as any)?.[item.value]?.message}</p>
         </>

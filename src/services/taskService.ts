@@ -16,7 +16,10 @@ export class TaskService extends BaseService<Tasks>{
     deleteTask(taskId:number){
         return this.delete(taskId)
     }
-    addTask(task:Tasks){
-        return this.postItemBySubURL(task, "AddTask");
+
+    addorUpdateTask(task:Tasks){
+        return task.taskId > 0
+        ? this.putItemBySubURL(task, IsMockService() ? "mockData/tasks.json" : `${task.taskId}`)
+        : this.postItemBySubURL(task, IsMockService() ? "mockData/tasks.json" : "AddTask");
     }
 }

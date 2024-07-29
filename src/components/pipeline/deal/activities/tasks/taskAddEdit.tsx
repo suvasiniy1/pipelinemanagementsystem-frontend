@@ -14,14 +14,26 @@ import LocalStorageUtil from "../../../../../others/LocalStorageUtil";
 import Constants from "../../../../../others/constants";
 import Util from "../../../../../others/util";
 import { TaskService } from "../../../../../services/taskService";
-
+import { useMsal } from "@azure/msal-react";
+import { Client } from "@microsoft/microsoft-graph-client";
+import { v4 as uuidv4 } from "uuid";
+import {
+  addCalendarEventToUser,
+  createTask,
+  createTasksList,
+  getListTasksList,
+  getTasksList,
+  getUserDetails,
+  updateTask,
+} from "../email/emailService";
+import { userSelect } from "@xstyled/styled-components";
 
 type params = {
   dealId: number;
   dialogIsOpen: any;
   setDialogIsOpen: any;
   onSaveTask?: any;
-  taskItem?:Tasks;
+  taskItem?: Tasks;
   onCloseDialog?: any;
 };
 
@@ -29,10 +41,16 @@ export const TaskAddEdit = (props: params) => {
   const { dialogIsOpen, setDialogIsOpen, dealId, taskItem, ...Others } = props;
   const [selectedItem, setSelectedItem] = useState(taskItem ?? new Tasks());
   const [isLoading, setIsLoading] = useState(false);
-  const typesList=["To Do", "Call", "Email"];
-  const prioritiesList = ["High", "Medium", "Low"]
-  const utility: Utility = JSON.parse(LocalStorageUtil.getItemObject(Constants.UTILITY) as any);
+  const typesList = ["To Do", "Call", "Email"];
+  const prioritiesList = ["High", "Normal", "Low"];
+  const utility: Utility = JSON.parse(
+    LocalStorageUtil.getItemObject(Constants.UTILITY) as any
+  );
   const taskSvc = new TaskService(ErrorBoundary);
+  const { instance, accounts } = useMsal();
+  const [taskItemObj, setTaskItemObj]=useState<any>({});
+  const [accessToken, setAccessToken]=useState();
+  const [userGuID, setUserGuID]=useState();
 
   const controlsList: Array<IControl> = [
     {
@@ -47,6 +65,7 @@ export const TaskAddEdit = (props: params) => {
       type: ElementType.datepicker,
       sidebyItem: "Reminder",
       isRequired: true,
+      showTimeSelect: true,
     },
     {
       key: "Reminder",
@@ -54,6 +73,7 @@ export const TaskAddEdit = (props: params) => {
       type: ElementType.datepicker,
       isRequired: true,
       isSideByItem: true,
+      showTimeSelect: true,
     },
     {
       key: "Type",
@@ -77,22 +97,48 @@ export const TaskAddEdit = (props: params) => {
       isSideByItem: true,
     },
     {
-        key: "Task Details",
-        value: "taskDetails",
-        type: ElementType.ckeditor,
-        isRequired: true,
-        elementSize:12,
-        hideLabel:true
-      }
+      key: "Task Details",
+      value: "taskDetails",
+      type: ElementType.ckeditor,
+      isRequired: true,
+      elementSize: 12,
+      hideLabel: true,
+    },
   ];
 
-  useEffect(()=>{
-    if(taskItem){
+  useEffect(() => {
+    
+    if (taskItem) {
       setValue("dueDate" as never, taskItem.dueDate as never);
       setValue("reminder" as never, taskItem.reminder as never);
       setValue("taskDetails" as never, taskItem.taskDetails as never);
+      setUserGuID(taskItem.userGUID as any);
     }
-  }, [taskItem])
+
+  }, [taskItem]);
+
+  useEffect(()=>{
+    
+   getAccessToken();
+  }, [])
+
+  useEffect(()=>{
+    if(accessToken && taskItem?.taskGUID){
+      getTaskDetails();
+    }
+    else{
+      setTaskItemObj({...taskItemObj, startDateTime:{dateTime: new Date(), timeZone: "India Standard Time"}})
+    }
+  }, [accessToken])
+
+  const getTaskDetails=async ()=>{
+    
+    let userGUID = await getUserDetails(accessToken, taskItem?.assignedTo);
+    setUserGuID(userGuID);
+    let tasksList = await getTasksList(accessToken, userGUID, taskItem?.taskListGUID);
+    
+    setTaskItemObj(tasksList?.value?.find((i:any)=>i.id===taskItem?.taskGUID));
+  }
 
   const oncloseDialog = () => {
     setDialogIsOpen(false);
@@ -109,9 +155,114 @@ export const TaskAddEdit = (props: params) => {
     resolver: yupResolver(getValidationsSchema(controlsList)),
   };
   const methods = useForm(formOptions);
-  const { handleSubmit, unregister, register, resetField, setValue, setError } = methods;
+  const { handleSubmit, unregister, register, resetField, setValue, setError } =
+    methods;
 
-  const onSubmit = (item:any) => {
+  const getAccessToken= async ()=>{
+      let res = await instance.acquireTokenSilent({
+        scopes: ["Calendars.ReadWrite.Shared"], // Adjust scopes as per your requirements
+        account: accounts[0]
+      });
+      
+      setAccessToken(res?.accessToken as any);
+  }
+
+  function getDurationInMinutes(startDate: any, endDate: any) {
+    // Convert dates to milliseconds
+    const startMillis = startDate.getTime();
+    const endMillis = endDate.getTime();
+
+    // Calculate difference in milliseconds
+    const diffMillis = Math.abs(endMillis - startMillis);
+
+    // Convert milliseconds to minutes
+    const durationMinutes = Math.ceil(diffMillis / (1000 * 60));
+
+    return durationMinutes;
+  }
+
+  const initiateactioninAzure = async (task: Tasks) => {
+
+
+    
+    let userGuId;
+    if(!userGuID){
+        userGuId = await getUserDetails(
+        accessToken,
+        task.assignedTo
+      )
+      setUserGuID(userGuId as any);
+    }
+    else{
+      userGuId = userGuID;
+    }
+
+    if (userGuId) {
+      if (task.todo === "To Do") {
+        let res = await performActionForTask(
+          task,
+          accessToken as any,
+          userGuId
+        );
+        return res;
+      }
+    }
+  };
+
+  const performActionForTask = async (
+    task: Tasks,
+    accessToken: string,
+    userId: any
+  ) => {
+    let taskListId = task.taskListGUID;
+    if(!taskListId){
+      let tasksList = await getListTasksList(accessToken, userId);
+      taskListId = tasksList?.value?.find(
+        (t: any) => t.displayName === "Y1 Capital Tasks"
+      )?.id;
+  
+      if(!taskListId) taskListId = await createTasksList(accessToken, userId);
+    }
+    if (taskListId) {
+      task.taskListGUID = taskListId;
+
+      const taskObj = {
+        id:taskItemObj?.id,
+        title: task.name,
+        body: {
+          content: task.taskDetails,
+          contentType: "html",
+        },
+        status:"inProgress",
+        startDateTime: task.startDate ?? {
+          dateTime: new Date(),
+          timeZone: "India Standard Time",
+        },
+        dueDateTime: {
+          dateTime: task.dueDate,
+          timeZone: "India Standard Time",
+        },
+        reminderDateTime: {
+          dateTime: task.reminder,
+          timeZone: "India Standard Time",
+        },
+        importance: task.priority.toLocaleLowerCase(),
+        isReminderOn: !Util.isNullOrUndefinedOrEmpty(task.reminder)
+      };
+
+      try {
+        const response = await (taskItemObj.id ? updateTask(accessToken, userId, taskListId, taskObj) : createTask(accessToken, userId, taskListId, taskObj));
+        if(response){
+          setTaskItemObj({...taskItemObj, id:response});
+        }
+        return response;
+      } catch (error) {
+        console.error("Error adding task:", error);
+      }
+    }
+  };
+
+  const onSubmit = (item: any) => {
     
     let addUpdateItem: Tasks = new Tasks();
     addUpdateItem.createdBy = Util.UserProfile()?.userId;
@@ -119,59 +270,96 @@ export const TaskAddEdit = (props: params) => {
     addUpdateItem.createdDate = new Date();
     Util.toClassObject(addUpdateItem, item);
     addUpdateItem.dealId = dealId;
-    addUpdateItem.taskId = taskItem?.taskId ?? 0 as any;
+    addUpdateItem.startDate = taskItemObj.startDateTime;
+    addUpdateItem.taskId = taskItemObj?.id ?? (0 as any);
     addUpdateItem.dueDate = new Date(addUpdateItem.dueDate);
     addUpdateItem.reminder = new Date(addUpdateItem.reminder);
     console.log("addUpdateItem" + { ...addUpdateItem });
 
-    if(new Date(addUpdateItem.reminder)<new Date()){
-        toast.warning("Reminder cannot be lesser than current date");
-        return;
+    if (new Date(addUpdateItem.reminder) < new Date()) {
+      toast.warning("Reminder cannot be lesser than current date");
+      return;
     }
-    if(new Date(addUpdateItem.reminder)>new Date(addUpdateItem.dueDate)){
-        toast.warning("Reminder cannot be greater than due date");
-        return;
+    if (new Date(addUpdateItem.reminder) > new Date(addUpdateItem.dueDate)) {
+      toast.warning("Reminder cannot be greater than due date");
+      return;
     }
 
-    (addUpdateItem.taskId > 0 ? taskSvc.putItemBySubURL(addUpdateItem, `${addUpdateItem.taskId}`) : taskSvc.postItemBySubURL(addUpdateItem, "AddTask")).then(res => {
-      setDialogIsOpen(false);
-      props.onSaveTask();  
-      if (res) {
-            toast.success(`Task ${addUpdateItem.taskId > 0 ? 'updated' : 'added'} successfully`);
+    initiateactioninAzure(addUpdateItem).then((res) => {
+      if(res){
+        
+        let tasks = JSON.parse(LocalStorageUtil.getItemObject("tasksList") as any) ?? [];
+        addUpdateItem.taskGUID=res;
+        addUpdateItem.taskId=tasks.length+1;
+        addUpdateItem.userGUID = userGuID as any;
+        let index = tasks.findIndex((i:any)=>i.taskGUID===res);
+        if(index!=-1){
+          tasks[index]=addUpdateItem;
         }
-        else {
-            toast.error("Unable to add Task");
+
+        else{
+          tasks.push(addUpdateItem);
         }
-    })
+
+     
+        LocalStorageUtil.setItemObject("tasksList", JSON.stringify(tasks));
+        setDialogIsOpen(false);
+        toast.success(taskItemObj.id ? "Task updated successfully" : "Task created successfully");
+        props.onSaveTask();
+        // addUpdateItem.taskGUID=res;
+        // taskSvc.addorUpdateTask(addUpdateItem).then((res) => {
+        //   debugger
+        //   setDialogIsOpen(false);
+        //   props.onSaveTask();
+        //   if (res) {
+        //     toast.success(
+        //       `Task ${addUpdateItem.taskId > 0 ? "updated" : "added"} successfully`
+        //     );
+        //   } else {
+        //     toast.error("Unable to add Task");
+        //   }
+        // });
+      }
+    });
+    return;
   };
 
   const getDropdownvalues = (item: any) => {
     if (item.key === "Type") {
-        return typesList.map(( i:any ) => ({ "name": i, "value": i })) ?? [];;
+      return typesList.map((i: any) => ({ name: i, value: i })) ?? [];
     }
     if (item.key === "Priority") {
-        return prioritiesList.map(( i:any ) => ({ "name": i, "value": i })) ?? [];;
+      return prioritiesList.map((i: any) => ({ name: i, value: i })) ?? [];
     }
     if (item.key === "Assigned To") {
-        return utility?.persons?.map(({ personName, personID }) => ({ "name": personName, "value": personID })) ?? [];
+      return (
+        [
+          {
+            personName: "Testtest@transforminglives.co.uk",
+            personID: "Testtest@transforminglives.co.uk",
+          },
+        ]?.map(({ personName, personID }) => ({
+          name: personName,
+          value: personID,
+        })) ?? []
+      );
     }
   };
 
   const onChange = (value: any, item: any) => {
-
-    setValue(item.value as never, value as never)
-    if(value) unregister(item.value as never);
+    setValue(item.value as never, value as never);
+    if (value) unregister(item.value as never);
     else register(item.value as never);
     resetField(item.value as never);
 
     if (item.key === "Due Date") {
-        setSelectedItem({ ...selectedItem, "dueDate": value });
+      setSelectedItem({ ...selectedItem, dueDate: value });
     }
     if (item.key === "Reminder") {
-        setSelectedItem({ ...selectedItem, "reminder": value });
+      setSelectedItem({ ...selectedItem, reminder: value });
     }
     if (item.key === "Task Details") {
-        setSelectedItem({ ...selectedItem, "taskDetails": value });
+      setSelectedItem({ ...selectedItem, taskDetails: value });
     }
   };
   return (

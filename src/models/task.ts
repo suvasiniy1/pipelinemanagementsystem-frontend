@@ -3,7 +3,8 @@ import { Comment } from "./comment"
 
 export class Tasks extends AuditItem{
     taskId!: number
-    name!: string
+    name!: string;
+    startDate!:Date;
     dueDate!: Date
     reminder!: Date
     todo!: string
@@ -13,4 +14,7 @@ export class Tasks extends AuditItem{
     dealId!: number
     userName!:string
     comments!:Array<Comment>
+    taskGUID!:string;
+    taskListGUID!:string;
+    userGUID!:string;
   }
