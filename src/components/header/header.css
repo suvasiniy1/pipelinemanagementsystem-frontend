@@ -53,9 +53,14 @@ transition: width 900ms !important;
 } */
 .rs-sidenav.sidenav{position: relative; display: flex; flex-direction: column; height: 100%; background-color: #fff; border-right: 1px solid #e6e6e6; box-shadow: 0 .9375rem 1.875rem 0 rgba(0,0,0,.02); transition: all .2s ease;}
 .rs-sidenav.sidenavExpand {width: 220px;}
-.sidenavhead {position: absolute; left: 0; top: 0; width: 100%; padding: 10px 20px 10px 10px; height: 58px; line-height: 38px; font-size: 30px; font-weight: 900; color: #ffffff;}
+.sidenavhead {background-color: #3f3f3f; position: absolute; left: 0; top: 0; width: 100%; padding: 10px 20px 10px 10px; height: 58px; line-height: 38px; font-size: 30px; font-weight: 900; color: #ffffff;}
 .sidenavhead img{width:auto; height: 100%;}
 .sidenavhead .sidehidelogo {display: none; position: absolute; left: 9px; top: 9px; width: 37px; height: auto;}
+.ps-sidebar-root .ps-sidebar-container{background-color: #fbfbfb;}
+.ps-menu-root .ps-menuitem-root .ps-menu-button{border-bottom: 1px solid #ddd;}
+.ps-menu-button .ps-menu-icon{font-size: 20px;}
+
+
 .rs-sidenav-collapse-in .sidenavhead .sideopenlogo,
 .sidenavCollapse .sidenavhead .sideopenlogo{display: none;}
 .rs-sidenav-collapse-in .sidenavhead .sidehidelogo,

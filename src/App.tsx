@@ -52,20 +52,17 @@ function App() {
     <>
       {shouldShowSidebar() ? (
         <>
-          <Container
-            className="mainlayout"
-            style={{ display: "flex", flexDirection: "row", maxWidth: "100%" }}
-          >
+          <div className="mainlayout">
             <SideBar collapsed={collapsed} />
-            <Container className="maincontent" style={{ maxWidth: collapsed ? "100%" : '89%' }}>
+            <div className="maincontent" style={{ maxWidth: collapsed ? "100%" : '89%' }}>
               <HeaderComponent
                 onExpandCollapseClick={(e: any) => setCollapsed(!collapsed)}
               />
               <Content className="maincontentinner">
                 <AppRouter />
               </Content>
-            </Container>
-          </Container>
+            </div>
+          </div>
         </>
       ) : (
         <Login />

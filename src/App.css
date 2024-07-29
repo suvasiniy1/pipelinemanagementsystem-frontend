@@ -112,7 +112,7 @@ html body, html input, html button, html select, html textarea{font-family: "Int
 html, body{overflow: hidden;}
 .maincontent{width: 100%;}
 .pdstage-mainarea {display: flex; flex-direction: column; height: 100%; overflow: hidden;}
-.mainlayout{height: 100vh;}
+.mainlayout{position: relative; display: flex; flex-direction: row; max-width: 100%; height: 100vh;}
 .maincontentinner{height: 100%; display: flex; flex-direction: column; overflow: hidden auto;}
 .maincontentinner .gdnJsS, .maincontentinner .dVEiRS{min-width: auto;}
 
@@ -577,7 +577,7 @@ button.fields-editbtn{visibility: hidden; line-height: 1.2; background-color: #f
   margin: 16px;
 }
 .pdstage-innercol .deEQJz{min-height: auto; }
-
+.react-datepicker__input-container .react-datepicker__calendar-icon{margin-top: 3px;}
 .spinner {
   position: fixed;
   z-index: 1031;

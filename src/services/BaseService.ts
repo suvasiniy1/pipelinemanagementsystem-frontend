@@ -163,6 +163,7 @@ export class BaseService<TItem extends AuditItem>{
         suppressToasterMessage: boolean = false,
         ignoreToastr: boolean = false,
         axiosCancel?: CancelTokenSource) {
+            
         console.log("postItemBySubURL - URL: ", `${baseURL}/${this.urlSuffix}/${urlSuffix2}`,
             " | item: ", JSON.stringify(item));
         item = this.updateAuditDetails(item);
@@ -173,11 +174,10 @@ export class BaseService<TItem extends AuditItem>{
                 method: 'POST',
                 url: IsMockService()? urlSuffix2 as any : `${baseURL}/${this.urlSuffix}/${urlSuffix2}`,
                 headers: {
-                    'Content-Type': 'application/json; charset=UTF-8',
-                    'Media-type': 'application/json',
-                    'Authorization': `Bearer ${getActiveUserToken()}`
+                    'Content-Type': 'application/json',
+                    'Authorization': IsMockService()? null : `Bearer ${getActiveUserToken()}`
                 },
-                data: item,
+                data: JSON.stringify(item),
                 cancelToken: axiosCancel?.token
             }).then((res: AxiosResponse) => {
                 console.log("postItemBySubURL - res: ", res);

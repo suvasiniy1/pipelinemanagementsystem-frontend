@@ -28,7 +28,7 @@ type params = {
 }
 const TaskDetails = (props: params) => {
     const { index, selectedIndex, ...others } = props;
-    const [task, setTask] = useState(props.task);
+    const [task, setTask] = useState<any>(props.task);
     const divRef = useRef();
     const userObj = LocalStorageUtil.getItemObject(Constants.USER_PROFILE) as UserProfile;
     const [showcomments, setShowComments] = useState(false);
@@ -37,6 +37,10 @@ const TaskDetails = (props: params) => {
     const [comment, setComment] = useState(new Comment());
     const [defaultComment, setDefaultComment]=useState(null);
     const commentRef = useRef();
+
+    useEffect(()=>{
+        setTask(props.task as any);
+    },[props])
 
     useEffect(() => {
         if (divRef) {
@@ -83,14 +87,14 @@ const TaskDetails = (props: params) => {
                 <div ref={divRef as any} style={{ maxHeight: "200px", overflow: 'auto' }}></div>
                 <div className="editstage-delete">
                     <button className="editstage-deletebtn" onClick={(e: any) => { props.setDialogIsOpen(true); props.setSelectedTaskItem(task as any) }}><FontAwesomeIcon icon={faEdit} /></button>
-                    <button className="editstage-deletebtn" onClick={(e: any) => { props.setShowDeleteDialog(true); props.setSelectedTaskId(task.taskId as any) }}><FontAwesomeIcon icon={faTrash} /></button>
+                    <button className="editstage-deletebtn" onClick={(e: any) => { props.setShowDeleteDialog(true); props.setSelectedTaskItem(task as any) ; props.setSelectedTaskId(task.taskId as any) }}><FontAwesomeIcon icon={faTrash} /></button>
                 </div>
                 <a href="javascript:void(0);"><span style={{ color: "#0091ae" }} onClick={(e: any) => { setShowComments(!showcomments) }}>{showcomments ? task?.comments?.length > 1 ? 'Hide Comments' : 'Hide Comment' : task.comments?.length > 0 ? task.comments?.length == 1 ? task.comments?.length + " Comment" : task.comments?.length + " Comments" : 'Add Comment'} </span></a>
                 <br />
                 <br />
                 <div hidden={!showcomments}>
                     {
-                        task.comments?.map((c, index) => (
+                        task.comments?.map((c: Comment, index: any) => (
                             <Comments comment={c}
                             loadComments={(e:any)=>gettask()} />
                         ))}
