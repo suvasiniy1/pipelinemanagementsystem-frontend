@@ -16,6 +16,7 @@
                     "stageID": 1,
                     "labelID": 1,
                     "probability": "100",
+                    "personName":"P1",
                     "pipelineName": "PipeLine1",
                     "stageName": "Stage1"
                 },
@@ -27,6 +28,7 @@
                     "stageID": 1,
                     "labelID": 1,
                     "probability": "100",
+                    "personName":"P2",
                     "pipelineName": "PipeLine1",
                     "stageName": "Stage1"
                 },
@@ -38,6 +40,7 @@
                     "stageID": 1,
                     "labelID": 1,
                     "probability": "100",
+                    "personName":"P3",
                     "pipelineName": "PipeLine1",
                     "stageName": "Stage1"
                 }
@@ -59,6 +62,7 @@
                     "stageID": 2,
                     "labelID": 1,
                     "probability": "100",
+                    "personName":"P1",
                     "pipelineName": "PipeLine1",
                     "stageName": "Stage1"
                 },
@@ -70,6 +74,7 @@
                     "stageID": 2,
                     "labelID": 1,
                     "probability": "100",
+                    "personName":"P2",
                     "pipelineName": "PipeLine1",
                     "stageName": "Stage1"
                 },
@@ -81,6 +86,7 @@
                     "stageID": 2,
                     "labelID": 1,
                     "probability": "100",
+                    "personName":"P3",
                     "pipelineName": "PipeLine1",
                     "stageName": "Stage1"
                 }

@@ -17,4 +17,5 @@ export class Tasks extends AuditItem{
     taskGUID!:string;
     taskListGUID!:string;
     userGUID!:string;
+    transactionId!:string;
   }

@@ -1,5 +1,6 @@
 import { Client } from "@microsoft/microsoft-graph-client";
 
+//#region Email
 export const sendEmail = async (accessToken, body, emailId = null) => {
   // Example function to send email using access token
   try {
@@ -67,6 +68,28 @@ export const deleteEmail = async (accessToken, emailId) => {
   }
 };
 
+export const getEventsList=async(accessToken, userId, task)=>{
+  try {
+    const response = await fetch(
+      `https://graph.microsoft.com/v1.0/users/${userId}/events`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        }
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Failed to fetch");
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
 export const addCalendarEventToUser=async(accessToken, userId, task)=>{
   try {
     const response = await fetch(
@@ -84,12 +107,62 @@ export const addCalendarEventToUser=async(accessToken, userId, task)=>{
       throw new Error("Failed to fetch");
     }
     const data = await response.json();
+    return data?.id;
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+export const updateCalendarEventToUser=async(accessToken, userId, task, eventId)=>{
+  
+  try {
+    const response = await fetch(
+      `https://graph.microsoft.com/v1.0/users/${userId}/events/${eventId}`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body:JSON.stringify(task)
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Failed to fetch");
+    }
+    
+    const data = await response.json();
+    return data?.id;
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+export const deleteCalendarEventToUser=async(accessToken, userId, eventId)=>{
+  try {
+    const response = await fetch(
+      `https://graph.microsoft.com/v1.0/users/${userId}/events/${eventId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        }
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Failed to fetch");
+    }
+    const data = await response.json();
     return data.value;
   } catch (error) {
     console.error("Error:", error);
   }
 }
 
+//#endregion
+
+//#region Tasks
 export const getListTasksList=async(accessToken, userId)=>{
   try {
     const response = await fetch(
@@ -226,6 +299,8 @@ export const deleteTask=async(accessToken, userId, taskListId, taskGuId)=>{
     console.error("Error:", error);
   }
 }
+
+//#endregion
 
 export const getUserDetails=async(accessToken, userEmail)=>{
   try {

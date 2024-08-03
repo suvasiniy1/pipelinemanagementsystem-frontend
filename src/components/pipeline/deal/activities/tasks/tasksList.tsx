@@ -13,7 +13,7 @@ import { DeleteDialog } from "../../../../../common/deleteDialog";
 import { useMsal } from "@azure/msal-react";
 import { loginRequest } from "../email/authConfig";
 import LocalStorageUtil from "../../../../../others/LocalStorageUtil";
-import { deleteTask, getUserDetails } from "../email/emailService";
+import { deleteCalendarEventToUser, deleteTask, getUserDetails } from "../email/emailService";
 
 type params = {
   dealId: number;
@@ -69,18 +69,25 @@ const TasksList = (props: params) => {
   const continueTodelete = async() => {
     
     let token = await getAccessToken();
-    let userGuId = await getUserDetails(
+    let userGuId = selectedTaskItem?.userGUID ?? await getUserDetails(
       token.accessToken,
       selectedTaskItem?.assignedTo
     )
-    let res = deleteTask(token.accessToken, userGuId, selectedTaskItem?.taskListGUID, selectedTaskItem?.taskGUID)
-    let index = tasksList.findIndex((i:any)=>selectedTaskItem?.taskGUID===i.taskGUID);
-    if(index!=-1){
-      tasksList.splice(index, 1);
-      toast.success("Task deleted successfully");
-      setShowDeleteDialog(false);
-      LocalStorageUtil.setItemObject("tasksList", JSON.stringify(tasksList));
+    let res = selectedTaskItem?.todo==="To Do" ? deleteTask(token.accessToken, userGuId, selectedTaskItem?.taskListGUID, selectedTaskItem?.taskGUID)
+    : selectedTaskItem?.todo==="Email" ? deleteCalendarEventToUser(token.accessToken, userGuId,selectedTaskItem?.taskGUID) : null;
+    if(res){
+      let index = tasksList.findIndex((i:any)=>selectedTaskItem?.taskGUID===i.taskGUID);
+      if(index!=-1){
+        tasksList.splice(index, 1);
+        toast.success("Task deleted successfully");
+        setShowDeleteDialog(false);
+        LocalStorageUtil.setItemObject("tasksList", JSON.stringify(tasksList));
+      }
     }
+    else{
+      toast.error("Unable to delete task");
+    }
+
  
 
     // taskSvc

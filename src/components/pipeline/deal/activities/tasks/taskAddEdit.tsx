@@ -1,9 +1,11 @@
+import { useMsal } from "@azure/msal-react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect, useState } from "react";
 import { Spinner } from "react-bootstrap";
 import { ErrorBoundary } from "react-error-boundary";
 import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
+import { v4 as uuidv4 } from "uuid";
 import * as Yup from "yup";
 import { AddEditDialog } from "../../../../../common/addEditDialog";
 import GenerateElements from "../../../../../common/generateElements";
@@ -14,19 +16,17 @@ import LocalStorageUtil from "../../../../../others/LocalStorageUtil";
 import Constants from "../../../../../others/constants";
 import Util from "../../../../../others/util";
 import { TaskService } from "../../../../../services/taskService";
-import { useMsal } from "@azure/msal-react";
-import { Client } from "@microsoft/microsoft-graph-client";
-import { v4 as uuidv4 } from "uuid";
 import {
   addCalendarEventToUser,
   createTask,
   createTasksList,
+  getEventsList,
   getListTasksList,
   getTasksList,
   getUserDetails,
-  updateTask,
+  updateCalendarEventToUser,
+  updateTask
 } from "../email/emailService";
-import { userSelect } from "@xstyled/styled-components";
 
 type params = {
   dealId: number;
@@ -48,9 +48,9 @@ export const TaskAddEdit = (props: params) => {
   );
   const taskSvc = new TaskService(ErrorBoundary);
   const { instance, accounts } = useMsal();
-  const [taskItemObj, setTaskItemObj]=useState<any>({});
-  const [accessToken, setAccessToken]=useState();
-  const [userGuID, setUserGuID]=useState();
+  const [taskItemObj, setTaskItemObj] = useState<any>({});
+  const [accessToken, setAccessToken] = useState();
+  const [userGuID, setUserGuID] = useState();
 
   const controlsList: Array<IControl> = [
     {
@@ -107,38 +107,59 @@ export const TaskAddEdit = (props: params) => {
   ];
 
   useEffect(() => {
-    
     if (taskItem) {
       setValue("dueDate" as never, taskItem.dueDate as never);
       setValue("reminder" as never, taskItem.reminder as never);
       setValue("taskDetails" as never, taskItem.taskDetails as never);
       setUserGuID(taskItem.userGUID as any);
     }
-
   }, [taskItem]);
 
-  useEffect(()=>{
-    
-   getAccessToken();
-  }, [])
+  useEffect(() => {
+    getAccessToken();
+  }, []);
 
-  useEffect(()=>{
-    if(accessToken && taskItem?.taskGUID){
-      getTaskDetails();
+  useEffect(() => {
+    if (accessToken && taskItem?.taskGUID) {
+      let res = taskItem.todo==="To Do" ?  getTaskDetails() : taskItem.todo==="Email" ? getEventDetails() : null;
+    } else {
+      setTaskItemObj({
+        ...taskItemObj,
+        startDateTime: {
+          dateTime: new Date(),
+          timeZone: "India Standard Time",
+        },
+      });
     }
-    else{
-      setTaskItemObj({...taskItemObj, startDateTime:{dateTime: new Date(), timeZone: "India Standard Time"}})
-    }
-  }, [accessToken])
+  }, [accessToken]);
 
-  const getTaskDetails=async ()=>{
+  const getEventDetails=async () => {
     
-    let userGUID = await getUserDetails(accessToken, taskItem?.assignedTo);
+    let userGUID = taskItem?.userGUID ?? await getUserDetails(accessToken, taskItem?.assignedTo);
     setUserGuID(userGuID);
-    let tasksList = await getTasksList(accessToken, userGUID, taskItem?.taskListGUID);
-    
-    setTaskItemObj(tasksList?.value?.find((i:any)=>i.id===taskItem?.taskGUID));
-  }
+    let tasksList = await getEventsList(
+      accessToken,
+      userGUID
+    );
+
+    setTaskItemObj(
+      tasksList?.value?.find((i: any) => i.id === taskItem?.taskGUID)
+    );
+  };
+
+  const getTaskDetails = async () => {
+    let userGUID = taskItem?.userGUID ?? await getUserDetails(accessToken, taskItem?.assignedTo);
+    setUserGuID(userGuID);
+    let tasksList = await getTasksList(
+      accessToken,
+      userGUID,
+      taskItem?.taskListGUID
+    );
+
+    setTaskItemObj(
+      tasksList?.value?.find((i: any) => i.id === taskItem?.taskGUID)
+    );
+  };
 
   const oncloseDialog = () => {
     setDialogIsOpen(false);
@@ -158,14 +179,14 @@ export const TaskAddEdit = (props: params) => {
   const { handleSubmit, unregister, register, resetField, setValue, setError } =
     methods;
 
-  const getAccessToken= async ()=>{
-      let res = await instance.acquireTokenSilent({
-        scopes: ["Calendars.ReadWrite.Shared"], // Adjust scopes as per your requirements
-        account: accounts[0]
-      });
-      
-      setAccessToken(res?.accessToken as any);
-  }
+  const getAccessToken = async () => {
+    let res = await instance.acquireTokenSilent({
+      scopes: ["Calendars.ReadWrite.Shared"], // Adjust scopes as per your requirements
+      account: accounts[0],
+    });
+
+    setAccessToken(res?.accessToken as any);
+  };
 
   function getDurationInMinutes(startDate: any, endDate: any) {
     // Convert dates to milliseconds
@@ -182,24 +203,27 @@ export const TaskAddEdit = (props: params) => {
   }
 
   const initiateactioninAzure = async (task: Tasks) => {
-
-
     
     let userGuId;
-    if(!userGuID){
-        userGuId = await getUserDetails(
-        accessToken,
-        task.assignedTo
-      )
+    if (!userGuID) {
+      userGuId = await getUserDetails(accessToken, task.assignedTo);
       setUserGuID(userGuId as any);
-    }
-    else{
+    } else {
       userGuId = userGuID;
     }
 
     if (userGuId) {
       if (task.todo === "To Do") {
         let res = await performActionForTask(
+          task,
+          accessToken as any,
+          userGuId
+        );
+        return res;
+      }
+      
+      if (task.todo === "Email") {
+        let res = await performActionForEmail(
           task,
           accessToken as any,
           userGuId
@@ -215,25 +239,25 @@ export const TaskAddEdit = (props: params) => {
     userId: any
   ) => {
     let taskListId = task.taskListGUID;
-    if(!taskListId){
+    if (!taskListId) {
       let tasksList = await getListTasksList(accessToken, userId);
       taskListId = tasksList?.value?.find(
         (t: any) => t.displayName === "Y1 Capital Tasks"
       )?.id;
-  
-      if(!taskListId) taskListId = await createTasksList(accessToken, userId);
+
+      if (!taskListId) taskListId = await createTasksList(accessToken, userId);
     }
     if (taskListId) {
       task.taskListGUID = taskListId;
 
       const taskObj = {
-        id:taskItemObj?.id,
+        id: taskItemObj?.id,
         title: task.name,
         body: {
           content: task.taskDetails,
           contentType: "html",
         },
-        status:"inProgress",
+        status: "inProgress",
         startDateTime: task.startDate ?? {
           dateTime: new Date(),
           timeZone: "India Standard Time",
@@ -247,13 +271,15 @@ export const TaskAddEdit = (props: params) => {
           timeZone: "India Standard Time",
         },
         importance: task.priority.toLocaleLowerCase(),
-        isReminderOn: !Util.isNullOrUndefinedOrEmpty(task.reminder)
+        isReminderOn: !Util.isNullOrUndefinedOrEmpty(task.reminder),
       };
 
       try {
-        const response = await (taskItemObj.id ? updateTask(accessToken, userId, taskListId, taskObj) : createTask(accessToken, userId, taskListId, taskObj));
-        if(response){
-          setTaskItemObj({...taskItemObj, id:response});
+        const response = await (taskItemObj.id
+          ? updateTask(accessToken, userId, taskListId, taskObj)
+          : createTask(accessToken, userId, taskListId, taskObj));
+        if (response) {
+          setTaskItemObj({ ...taskItemObj, id: response });
         }
         return response;
       } catch (error) {
@@ -262,15 +288,60 @@ export const TaskAddEdit = (props: params) => {
     }
   };
 
+  const performActionForEmail = async (
+    task: Tasks,
+    accessToken: string,
+    userId: any
+  ) => {
+    const taskObj = {
+      subject: task.name,
+      importance: "normal",
+      body: {
+        contentType: "HTML",
+        content: task.taskDetails,
+      },
+      start: task.startDate ?? {
+        dateTime: new Date(),
+        timeZone: "India Standard Time",
+      },
+      end: {
+        dateTime: task.dueDate,
+        timeZone: "India Standard Time",
+      },
+      attendees: [
+        {
+          emailAddress: {
+            address: task.assignedTo,
+            name: "Test",
+          },
+          type: "required",
+        },
+      ],
+      allowNewTimeProposals: true,
+      transactionId: taskItemObj.transactionId ?? uuidv4(),
+    };
+
+    try {
+      const response = await (taskItemObj.id
+        ? updateCalendarEventToUser(accessToken, userId, taskObj, taskItemObj.id)
+        : addCalendarEventToUser(accessToken, userId, taskObj));
+      if (response) {
+        setTaskItemObj({ ...taskItemObj, id: response });
+      }
+      return response;
+    } catch (error) {
+      console.error("Error adding task:", error);
+    }
+  };
+
   const onSubmit = (item: any) => {
-    
     let addUpdateItem: Tasks = new Tasks();
     addUpdateItem.createdBy = Util.UserProfile()?.userId;
     addUpdateItem.modifiedBy = Util.UserProfile()?.userId;
     addUpdateItem.createdDate = new Date();
     Util.toClassObject(addUpdateItem, item);
     addUpdateItem.dealId = dealId;
-    addUpdateItem.startDate = taskItemObj.startDateTime;
+    addUpdateItem.startDate = taskItemObj?.startDateTime;
     addUpdateItem.taskId = taskItemObj?.id ?? (0 as any);
     addUpdateItem.dueDate = new Date(addUpdateItem.dueDate);
     addUpdateItem.reminder = new Date(addUpdateItem.reminder);
@@ -286,25 +357,26 @@ export const TaskAddEdit = (props: params) => {
     }
 
     initiateactioninAzure(addUpdateItem).then((res) => {
-      if(res){
-        
-        let tasks = JSON.parse(LocalStorageUtil.getItemObject("tasksList") as any) ?? [];
-        addUpdateItem.taskGUID=res;
-        addUpdateItem.taskId=tasks.length+1;
+      if (res) {
+        let tasks =
+          JSON.parse(LocalStorageUtil.getItemObject("tasksList") as any) ?? [];
+        addUpdateItem.taskGUID = res;
+        addUpdateItem.taskId = tasks.length + 1;
         addUpdateItem.userGUID = userGuID as any;
-        let index = tasks.findIndex((i:any)=>i.taskGUID===res);
-        if(index!=-1){
-          tasks[index]=addUpdateItem;
-        }
-
-        else{
+        let index = tasks.findIndex((i: any) => i.taskGUID === res);
+        if (index != -1) {
+          tasks[index] = addUpdateItem;
+        } else {
           tasks.push(addUpdateItem);
         }
 
-     
         LocalStorageUtil.setItemObject("tasksList", JSON.stringify(tasks));
         setDialogIsOpen(false);
-        toast.success(taskItemObj.id ? "Task updated successfully" : "Task created successfully");
+        toast.success(
+          taskItemObj.id
+            ? "Task updated successfully"
+            : "Task created successfully"
+        );
         props.onSaveTask();
         // addUpdateItem.taskGUID=res;
         // taskSvc.addorUpdateTask(addUpdateItem).then((res) => {
@@ -335,7 +407,7 @@ export const TaskAddEdit = (props: params) => {
       return (
         [
           {
-            personName: "Testtest@transforminglives.co.uk",
+            personName: "Test",
             personID: "Testtest@transforminglives.co.uk",
           },
         ]?.map(({ personName, personID }) => ({
