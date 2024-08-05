@@ -15,7 +15,7 @@ html body, html input, html button, html select, html textarea{font-family: "Int
 .sign-in__wrapper {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   width: 100vw;
   background-position: center center;
@@ -23,18 +23,19 @@ html body, html input, html button, html select, html textarea{font-family: "Int
   background-size: cover;
   position: relative;
   padding: 30px 0;
+  height: 100vh; overflow: auto;
 }
-.signinwrapper-layout {height: calc(100vh - 145px); display: flex; align-items: center; padding-bottom: 30px;}
+.signinwrapper-layout {padding-bottom: 30px;}
 .signinwrapper-inner{display: flex; align-items: center; justify-content: center; flex-direction: column;}
 
-.sign-in__backdrop {
+.sign-in__backdrop {display: none;
   position: absolute;
   inset: 0;
   background-color: rgba(0, 0, 0, 0.3);
 }
 
 .sign-in__wrapper form {
-  width: 24rem;
+  width: 30rem;
   max-width: 90%;
   z-index: 1;
   animation: showSignInForm 1s;
@@ -79,21 +80,21 @@ html body, html input, html button, html select, html textarea{font-family: "Int
 }
 
 /* Login Screen */
-.logheader {position: relative; top:0; left:0; width: 350px; z-index: 1; margin-bottom: 40px;}
+.logheader {position: relative; top:0; left:0; max-width: 350px; z-index: 1; margin-bottom: 30px;}
 .logheader img{width: auto; max-width: 100%; height: auto;}
 .logformhead{display: flex; align-items: center; justify-content: center;}
 .logformheadimg{margin-right: 15px;}
 .logformheadimg img{margin: 0;}
 .logformhead .h4{margin: 0;}
 .loginformblock .form-group {margin-bottom: 10px;}
-.loginformblock .form-group .col-form-label{padding-bottom: 0;width: 100%;}
+.loginformblock .form-group .col-form-label{display: none; padding-bottom: 0;width: 100%;}
 .loginformblock .form-control{border-radius: 0;}
 .loginformblock .form-control:focus, .loginformblock .form-control:active {background: transparent; outline: 0; box-shadow: none;}
 
-.loginfooter{position: relative;  padding-bottom: 30px; width: 100%; z-index: 1;}
-.loginfooter-inner {background-color: #fff; border-radius: 5px; padding: 15px 30px;}
+.loginfooter{position: relative;  padding-bottom: 0; width: 100%; z-index: 1;}
+.loginfooter-inner {background-color: #fff; border-radius: 5px; padding: 15px 30px; display: flex; align-items: center; justify-content: space-between;}
 .loginfooter-row {display: flex; align-items: center; justify-content: space-between;}
-.loginfooter-btmlink {padding-top: 15px;}
+.loginfooter-btmlink {padding-top: 0;}
 .loginfooter-link {margin: 0; padding: 0; display: flex; align-items: center;}
 .loginfooter-link li{padding: 0 10px; position: relative;}
 .loginfooter-link li:first-child{padding-left: 0;}
@@ -109,7 +110,8 @@ html body, html input, html button, html select, html textarea{font-family: "Int
 
 
 /* Main Content */
-html, body{overflow: hidden;}
+html, body{overflow: hidden; height: 100%; min-height: 100%;}
+#root{display: flex; height: 100%;}
 .maincontent{width: 100%;}
 .pdstage-mainarea {display: flex; flex-direction: column; height: 100%; overflow: hidden;}
 .mainlayout{position: relative; display: flex; flex-direction: row; max-width: 100%; height: 100vh;}
@@ -756,10 +758,13 @@ button.fields-editbtn{visibility: hidden; line-height: 1.2; background-color: #f
 }
 
 @media (max-width: 767.98px) {
+  /* Login Screen */
   .sign-in__backdrop{display: none;}
   .sign-in__wrapper {overflow: auto; height: 100vh; justify-content: start;}
-  .signinwrapper-layout {height: auto;}
+  .signinwrapper-layout {height: auto; padding: 0 15px 30px;}
   .loginfooter{padding-bottom: 0;}
+  .loginfooter-inner{flex-direction: column;}
+  .loginfooter-btmlink {margin-top: 15px;}
 
 }
 @media (max-width: 480.98px) {
@@ -769,6 +774,8 @@ button.fields-editbtn{visibility: hidden; line-height: 1.2; background-color: #f
   .loginfooter-link li{padding: 0;}
   .loginfooter-link li:after{display: none;}
   .loginfooter{padding-bottom: 0;}
+  .sign-in__wrapper form{width: 100%; max-width: 100%;}
+  .oraccessquicklybtn .btn{width: 100px;}
 }
 
 
