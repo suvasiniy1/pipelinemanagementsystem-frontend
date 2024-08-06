@@ -220,16 +220,17 @@ export const Deals = (props: params) => {
                                             </Droppable>
 
                                         </DragDropContext>
-
-
+                                        
                                     </div>
-                                    <div style={{ textAlign: "center" }} hidden={isLoadingMore || pipeLines.length==0}>
-                                    <button type="button" className="btn btn-primary" onClick={(e: any) => loadMoreDeals()}>Load More</button>
+                                    <div className="loadingmore">
+                                        <div style={{ textAlign: "center" }} hidden={isLoadingMore || pipeLines.length==0}>
+                                        <button type="button" className="btn btn-primary" onClick={(e: any) => loadMoreDeals()}>Load More</button>
+                                        </div>
+                                        <div style={{ textAlign: "center" }} hidden={!isLoadingMore}>
+                                            Loading More...
+                                        </div>
                                     </div>
-                                    <div style={{ textAlign: "center" }} hidden={!isLoadingMore}>
-                                        Loading More...
-                                    </div>
-                                    <div style={{ textAlign: "center" }} hidden={pipeLines.length > 0}>
+                                    <div className="nopipelinesmsg" style={{ textAlign: "center" }} hidden={pipeLines.length > 0}>
                                         No pipelines are avilable to show
                                     </div>
                                 </div>
