@@ -54,7 +54,7 @@ function App() {
         <>
           <div className="mainlayout">
             <SideBar collapsed={collapsed} />
-            <div className="maincontent" style={{ maxWidth: collapsed ? "100%" : '89%' }}>
+            <div className="maincontent" style={{ maxWidth: collapsed ? "100%" : '90%' }}>
               <HeaderComponent
                 onExpandCollapseClick={(e: any) => setCollapsed(!collapsed)}
               />

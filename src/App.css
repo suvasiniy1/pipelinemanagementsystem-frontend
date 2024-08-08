@@ -110,7 +110,7 @@ html, body{overflow: hidden; height: 100%; min-height: 100%;}
 .maincontent{width: 100%;}
 .pdstage-mainarea {display: flex; flex-direction: column; height: 100%; overflow: hidden;}
 .mainlayout{position: relative; display: flex; flex-direction: row; max-width: 100%; height: 100vh;}
-.maincontentinner{height: 100%; display: flex; flex-direction: column; overflow: hidden auto;}
+.maincontentinner{width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden auto;}
 .maincontentinner .gdnJsS, .maincontentinner .dVEiRS{min-width: auto;}
 
 
@@ -275,7 +275,7 @@ color: #fff; cursor: pointer; flex-basis: 0; font: 450 12px / 18px "Inter",sans-
 .dealbystage-popuprow .pdstage-item {width: 33.333%;}
 /* End CSS Deal By Stage Popup */
 
-.pdlist-row{margin: 0 -12px;}
+.pdlist-row{}
 .pdlisttable-scroll{overflow-y: auto;}
 .pdlist-table{width: 100%;}
 .pdlist-table th, .pdlist-table td{min-width: 0 !important; padding: 6px 8px; border: 1px solid rgba(33,35,44,.12);}

@@ -342,7 +342,11 @@ const ItemCollection: React.FC<params> = (props) => {
       ) : (
         <>
           {addorUpdateItem()}
-          <Table {...tableListProps} />
+          <div className="contactlist-row">
+            <div className="container-fluid">             
+              <Table {...tableListProps} />          
+            </div>
+          </div>
         </>
       )}
     </ErrorBoundary>
