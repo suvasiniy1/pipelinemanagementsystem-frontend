@@ -171,7 +171,7 @@ export const DealDetails = () => {
                         </span>
                       </div>
                     </div>
-                    <div className="appdealblock-row">
+                    <div className="appdealblock-row mt-1">
                       <div className="appdeal-amount dflex">
                         Amount:{" "}
                         <span className="appdeal-amountnum">
@@ -179,7 +179,7 @@ export const DealDetails = () => {
                         </span>
                       </div>
                     </div>
-                    <div className="appdealblock-row">
+                    <div className="appdealblock-row mt-1">
                       <div className="appdeal-closedate dflex">
                         Close Date:{" "}
                         <div className="closedateinput">
@@ -193,7 +193,7 @@ export const DealDetails = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="appdealblock-row">
+                    <div className="appdealblock-row mt-1">
                       <div className="appdeal-closedate dflex">
                         Stage:
                         <div className="stageappointment">
@@ -214,7 +214,7 @@ export const DealDetails = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="appdealblock-row">
+                    <div className="appdealblock-row mt-2">
                       <ul className="appdealblock-iconlist">
                         <li>
                           <button className="dealicon">
@@ -288,7 +288,7 @@ export const DealDetails = () => {
                           </Dropdown.Item>
                         </Dropdown.Menu>
                       </Dropdown>
-                      <button className="summerysetting-btn">
+                      <button className="summerysetting-btn bgbtn">
                         <FontAwesomeIcon icon={faGear} />
                       </button>
                     </div>
