@@ -65,7 +65,6 @@ html body, html input, html button, html select, html textarea{font-family: "Int
   }
 }
 
-.form-control{height: 36px;}
 .sidebar {
   color: 1px solid red;
 }
@@ -111,7 +110,7 @@ html, body{overflow: hidden; height: 100%; min-height: 100%;}
 .maincontent{width: 100%;}
 .pdstage-mainarea {display: flex; flex-direction: column; height: 100%; overflow: hidden;}
 .mainlayout{position: relative; display: flex; flex-direction: row; max-width: 100%; height: 100vh;}
-.maincontentinner{height: 100%; display: flex; flex-direction: column; overflow: hidden auto;}
+.maincontentinner{width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden auto;}
 .maincontentinner .gdnJsS, .maincontentinner .dVEiRS{min-width: auto;}
 
 
@@ -276,7 +275,7 @@ color: #fff; cursor: pointer; flex-basis: 0; font: 450 12px / 18px "Inter",sans-
 .dealbystage-popuprow .pdstage-item {width: 33.333%;}
 /* End CSS Deal By Stage Popup */
 
-.pdlist-row{margin: 0 -12px;}
+.pdlist-row{}
 .pdlisttable-scroll{overflow-y: auto;}
 .pdlist-table{width: 100%;}
 .pdlist-table th, .pdlist-table td{min-width: 0 !important; padding: 6px 8px; border: 1px solid rgba(33,35,44,.12);}
@@ -442,17 +441,19 @@ color: #fff; cursor: pointer; flex-basis: 0; font: 450 12px / 18px "Inter",sans-
 .appblock-collapse{display: flex; align-items: center; font-weight: 600; padding: 5px 10px; border-radius: 4px; background-color: inherit; font-size: 14px;}
 .appblock-collapse:hover{background-color: rgb(33 35 44/5%);}
 .appblock-collapse svg{vertical-align: middle; margin-right: 5px;}
-.appdealblock-iconlist {margin: 0; padding: 0; display: flex; align-items: center; justify-content: center;}
-.appdealblock-iconlist li {width: 50px; display: flex; flex-direction: column;}
-.dealicon{background-color: #eaf0f6; border:1px solid #cbd6e2; color: #506e91; font-size: 16px; width: 32px; height:32px; border-radius: 32px;}
-.dealicon-name{padding-top: 5px; overflow: hidden; text-overflow: ellipsis; font-size: 14px;}
+.appdealblock-iconlist {margin: 0; padding: 0; display: flex; align-items: center; justify-content: space-evenly;}
+.appdealblock-iconlist li {width: 50px; display: flex; flex-direction: column; text-align: center;}
+.appdealblock-iconlist li .dealicon{margin: 0 auto;}
+.dealicon{background-color: #faf5eb; border:1px solid #e4cb9a; color: #3f3f3f; font-size: 16px; width: 40px; height:40px; border-radius: 40px;}
+.dealicon-name{padding-top: 5px; overflow: hidden; text-overflow: ellipsis; font-size: 13px;}
 
-.summerysetting-btn{padding: 1px; border-radius: 4px; height: 24px; width: 24px; background-color: inherit;}
+.summerysetting-btn{padding: 1px; border-radius: 4px; height: 26px; width: 26px; background-color: inherit;}
 .summerysetting-btn:hover{background-color: rgb(33 35 44/5%);}
+.bgbtn {background-color: #faf5eb; border: 1px solid #e4cb9a;color: #3f3f3f;}
 .appblock-titlelabel{flex-grow: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
 .appblock-collapse{}
 .appdealblock-data{padding: 0 8px 8px;}
-.dropdown-dealactionsbox button.btn, .dropdown-dealactionsbox button.btn:focus {background-color: #fff; border: 1px solid rgba(0, 0, 0, 0.175); color: #21232c; padding: 0; font-size: 14px; padding: 2px 8px; margin-right: 8px;}
+.dropdown-dealactionsbox button.btn, .dropdown-dealactionsbox button.btn:focus {background-color: #faf5eb; border: 1px solid #e4cb9a; color: #3f3f3f; padding: 0; font-size: 14px; padding: 2px 8px; margin-right: 8px;}
 .dropdown-dealactionsbox button.btn:hover{background-color: #fff;}
 
 .dealvalue-col{display: flex; max-width: 100%; -webkit-box-align: center; align-items: center; flex: 1 1 auto;}
