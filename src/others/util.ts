@@ -17,7 +17,7 @@ export default class Util {
   };
 
   public static convertTZ = (dateTime: any) => {
-    return moment(new Date(Util.toLocalTimeZone(dateTime))).format(
+    return moment(new Date(Util.toLocalTimeZone(dateTime+"Z"))).format(
       "MM/DD/YYYY hh:mm:ss a"
     ) as any;
   };

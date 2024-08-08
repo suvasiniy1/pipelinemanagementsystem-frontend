@@ -17,6 +17,10 @@ export class TaskService extends BaseService<Tasks>{
         return this.delete(taskId)
     }
 
+    deleteTasks(taskIds:Array<number>){
+        return this.postItemBySubURL(taskIds, "DeleteTaskList");
+    }
+
     addorUpdateTask(task:Tasks){
         return task.taskId > 0
         ? this.putItemBySubURL(task, IsMockService() ? "mockData/tasks.json" : `${task.taskId}`)
