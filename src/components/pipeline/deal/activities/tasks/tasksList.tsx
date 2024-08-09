@@ -183,7 +183,7 @@ const TasksList = (props: params) => {
             <button
               type="button"
               onClick={handleLogin}
-              className="btn btn-primary"
+              className="btn btn-y1app"
             >
               Login
             </button>
@@ -192,7 +192,7 @@ const TasksList = (props: params) => {
               <div className="activityfilter-row pb-3">
                 <div className="createnote-row">
                   <button
-                    className="btn btn-primary"
+                    className="btn btn-y1app"
                     type="button"
                     onClick={(e: any) => {
                       setSelectedTaskItem(null as any);

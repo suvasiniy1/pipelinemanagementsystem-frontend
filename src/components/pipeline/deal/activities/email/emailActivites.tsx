@@ -191,7 +191,7 @@ function EmailActivities(props: params) {
                 <button
                   type="button"
                   onClick={handleLogin}
-                  className="btn btn-primary"
+                  className="btn btn-y1app"
                 >
                   Login
                 </button>
@@ -204,7 +204,7 @@ function EmailActivities(props: params) {
                         setSelectedEmail(new EmailCompose());
                         setDialogIsOpen(true);
                       }}
-                      className="btn btn-primary"
+                      className="btn btn-y1app"
                     >
                       Send Email
                     </button>

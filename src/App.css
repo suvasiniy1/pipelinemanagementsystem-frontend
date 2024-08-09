@@ -10,7 +10,7 @@ html body, html input, html button, html select, html textarea{font-family: "Int
   list-style: none;
   box-sizing: border-box;
 }
-
+body a{color: #b68d40;}
 /* ---------- SIGN IN ---------- */
 .sign-in__wrapper {
   display: flex;
@@ -74,6 +74,9 @@ html body, html input, html button, html select, html textarea{font-family: "Int
   margin-top: 2%;
 }
 
+.btn-y1app, .btn-y1app:focus{border: 1px solid #e4cb9a; background-color: #cfa34c; color: #fff;}
+.btn-y1app:hover{border: 1px solid #3f3f3f; background-color: #3f3f3f; color: #fff;}
+
 /* Login Screen */
 .logheader {position: relative; top:0; left:0; max-width: 350px; z-index: 1; margin-bottom: 30px;}
 .logheader img{width: auto; max-width: 100%; height: auto;}
@@ -123,7 +126,7 @@ html, body{overflow: hidden; height: 100%; min-height: 100%;}
 .toolbutton-group .toolpipebtn.dropdown-toggle::after{display: none;}
 .toolbutton-group .tooltimebtn{border-radius: 0 4px 4px 0;}
 .toolbutton-group .tooldealbtn{border-left: 0; border-right: 0;}
-.toolbutton-group .activetoolbtn{border-color: #0d68c5; color:#0d68c5;}
+.toolbutton-group .activetoolbtn{border-color: #b68d40; color:#b68d40;}
 .toolbutton-group .toolpipebtn svg.fa-chart-simple{transform: rotate(180deg);}
 .toolbarview-actionsrow .btn-success{height: 32px; padding: 3px 10px;}
 .toolbarview-summery{display: flex;align-items: center; justify-content: end;}
@@ -188,13 +191,13 @@ select.selectfield {border: 1px solid #dee2e6; height: 37px; width: 100%; border
 
 .pipelinestage-selector {display: flex; flex-grow: 1; position: relative; flex-flow: row nowrap; height: 24px; min-width: 240px; table-layout: fixed; width: 100%;}
 .pipelinestage{display: flex; flex-grow: 1; position: relative;}
-.pipelinestage{align-items: center; background-color: #2d8647;
--webkit-clip-path: polygon(calc(100% - 6px) 0, 100% 50%, calc(100% - 6px) 100%, 2px 100%, 8px 50%, 2px 0);
-clip-path: polygon(calc(100% - 6px) 0, 100% 50%, calc(100% - 6px) 100%, 2px 100%, 8px 50%, 2px 0);
-color: #fff; cursor: pointer; flex-basis: 0; font: 450 12px / 18px "Inter",sans-serif; font-stretch: normal; font-style: normal; justify-content: center; letter-spacing: 0; margin-left: -6px; text-align: center;}
-.pipelinestage:first-of-type {margin-left: 0; border-radius: 4px 0 0 4px; -webkit-clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 50%, calc(100% - 6px) 100%, 0 100%); clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 50%, calc(100% - 6px) 100%, 0 100%);}
-.pipelinestage:last-of-type {border-radius: 0 4px 4px 0; -webkit-clip-path: polygon(100% 0, 100% 100%, 2px 100%, 8px 50%, 2px 0); clip-path: polygon(100% 0, 100% 100%, 2px 100%, 8px 50%, 2px 0);}
-.pipelinestage-current~.pipelinestage {background-color: rgba(33,35,44,.12); color: #65686f;}
+.pipelinestage{align-items: center; background-color: #2d8647; border-left: 3px solid #fff;
+/*-webkit-clip-path: polygon(calc(100% - 6px) 0, 100% 50%, calc(100% - 6px) 100%, 2px 100%, 8px 50%, 2px 0);
+clip-path: polygon(calc(100% - 6px) 0, 100% 50%, calc(100% - 6px) 100%, 2px 100%, 8px 50%, 2px 0);*/
+color: #fff; cursor: pointer; flex-basis: 0; font: 450 12px / 18px "Inter",sans-serif; font-stretch: normal; font-style: normal; justify-content: center; letter-spacing: 0; text-align: center; /* margin-left: -6px;*/}
+.pipelinestage:first-of-type {margin-left: 0; border-radius: 4px 0 0 4px; border-left:0; /*-webkit-clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 50%, calc(100% - 6px) 100%, 0 100%); clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 50%, calc(100% - 6px) 100%, 0 100%);*/}
+.pipelinestage:last-of-type {border-radius: 0 4px 4px 0; /*-webkit-clip-path: polygon(100% 0, 100% 100%, 2px 100%, 8px 50%, 2px 0); clip-path: polygon(100% 0, 100% 100%, 2px 100%, 8px 50%, 2px 0);*/}
+.pipelinestage-current~.pipelinestage {background-color: #e4cb9a; color: #21232c;}
 
 
 /* Campaigns Contact Page CSS*/
@@ -371,9 +374,10 @@ color: #fff; cursor: pointer; flex-basis: 0; font: 450 12px / 18px "Inter",sans-
 
 .editstage-delete{min-height: 48px; display: flex; align-items: center; /*border-top: 1px solid rgba(33,35,44,.12);margin:0 -16px;*/}
 .editstage-deleteinn{display: flex; -webkit-box-align: center; align-items: center; margin: 0 8px;}
-.editstage-deletebtn{display: flex; align-items: center; background-color: #f5f5f6; border-radius: 4px; border: none; cursor: pointer; display: inline-flex; font-size: 14px; padding: 8px;}
+.editstage-deletebtn{display: flex; align-items: center; background-color: #e4cb9a; border-radius: 4px; border: 1px solid #b68d40; cursor: pointer; display: inline-flex; font-size: 14px; padding: 8px; margin-left: 10px;}
 .editstage-deletebtn:hover{background-color: rgb(33 35 44/5%);}
-.editstage-deletebtn svg{margin-right: 5px;}
+.editstage-deletebtn svg{margin-right:0;}
+.editstage-deletebtn:first-child{margin-left: 0;}
 
 .editstage-newcol{background-color: #fff; border: none; box-shadow: none; min-width: 256px; display: flex; flex: 1 1 0%; -webkit-box-pack: center; justify-content: center; -webkit-box-align: center; align-items: center; flex-direction: column; position: relative; padding: 16px;}
 .addnewstagbox{min-width: 256px; display: flex; flex: 1 1 0%; -webkit-box-pack: center; justify-content: center; -webkit-box-align: center; align-items: center; flex-direction: column; position: relative; padding: 16px;}
@@ -414,7 +418,7 @@ color: #fff; cursor: pointer; flex-basis: 0; font: 450 12px / 18px "Inter",sans-
 .wonlost-btngroup{margin-right: 10px;}
 .wonlost-btngroup .wonbtn{height: 32px; padding: 3px 10px; margin-right: 5px;}
 .wonlost-btngroup .lostbtn{height: 32px; padding: 3px 10px;}
-.ellipsis-btn{border: 1px solid rgba(33,35,44,.24); background-color: #fff; border-radius: 4px; width: 32px; height: 32px; padding: 5px 5px;}
+.ellipsis-btn{background-color: #faf5eb; border: 1px solid #e4cb9a; border-radius: 4px; width: 32px; height: 32px; padding: 5px 5px;}
 
 
 .pdstage-detail{display: flex; align-content: flex-start; height: 100%; border-top: 1px solid rgba(33,35,44,.12); overflow: hidden auto;}
@@ -428,12 +432,12 @@ color: #fff; cursor: pointer; flex-basis: 0; font: 450 12px / 18px "Inter",sans-
 .appdealblock-row {padding: 4px 0;}
 .dflex{display: flex; align-items: center;}
 .appdeal-amountnum, .closedateinput, .stageappointment{padding-left: 5px;}
-.dropdown-scheduledbox button.btn{background-color: #fff; border: none; color: #0d68c5; padding: 0; font-weight: bold; font-size: 14px;}
-.dropdown-scheduledbox button.btn:hover{background-color: #fff; border: none; padding: 0; color: #0d68c5;}
+.dropdown-scheduledbox button.btn{background-color: #fff; border: none; color: #b68d40; padding: 0; font-weight: bold; font-size: 14px;}
+.dropdown-scheduledbox button.btn:hover{background-color: #fff; border: none; padding: 0; color: #b68d40;}
 .sidebardetailtopbar{display: flex; width: 100%; align-items: center; justify-content: space-between; padding: 14px 14px 0;}
-.appdealtopbartitle {color: #0d68c5; font-size: 14px; font-weight: bold;}
-.dropdown-actionsbox button.btn, .dropdown-actionsbox button.btn:focus {background-color: #fff; border: none; padding: 0; color: #0d68c5; font-weight: bold; font-size: 14px;}
-.dropdown-actionsbox button.btn:hover{background-color: #fff; border: none; padding: 0; color: #0d68c5;}
+.appdealtopbartitle {color: #b68d40; font-size: 14px; font-weight: bold;}
+.dropdown-actionsbox button.btn, .dropdown-actionsbox button.btn:focus {background-color: #fff; border: none; padding: 0; color: #b68d40; font-weight: bold; font-size: 14px;}
+.dropdown-actionsbox button.btn:hover{background-color: #fff; border: none; padding: 0; color: #b68d40;}
 
 .app-dealblock{border-bottom: 1px solid rgba(33,35,44,.12);}
 .app-dealblock-inner{padding: 8px;}
@@ -468,21 +472,21 @@ button.fields-editbtn{visibility: hidden; line-height: 1.2; background-color: #f
 .fields-listrow:hover .fields-editbtn{visibility: visible; background-color: #fff; border: 1px solid rgba(33, 35, 44, .24);}
 .fields-listrow:hover{background-color: #ececed;}
 .products-addbutton{display: flex; -webkit-box-align: center; align-items: center;}
-.products-addbutton .btn{font-size: 14px; line-height: 1.2; border: none; font-weight: 600;color: #0d68c5; fill: #0d68c5;}
+.products-addbutton .btn{font-size: 14px; line-height: 1.2; border: none; font-weight: 600;color: #b68d40; fill: #b68d40;}
 .products-addbutton .btn:hover{background-color: rgb(33 35 44/5%);}
 
 .dealvalue-row{display: flex; align-items: center;}
 .dealvalue-rowdata{display: flex; width: 100%;height: 32px;}
-.summery-addlabels{width: 100%; padding: 5px 4px; font-size: 14px; font-weight: 500; color: #0d68c5; text-align: left; border-radius: 4px; display: flex; justify-content: space-between; background-color: inherit; cursor: pointer;}
+.summery-addlabels{width: 100%; padding: 5px 4px; font-size: 14px; font-weight: 500; color: #b68d40; text-align: left; border-radius: 4px; display: flex; justify-content: space-between; background-color: inherit; cursor: pointer;}
 .summery-addlabels:hover{background-color: rgb(33 35 44/5%);}
 .summery-addlabels:hover .fields-editbtn{visibility: visible; background-color: #fff; border: 1px solid rgba(33, 35, 44, .24);}
 
-.appdeal-dtrow{display: flex; position: relative; flex-direction: column; padding-top: 8px; padding-bottom: 8px; padding-right: 90px; border-bottom: 1px solid rgba(33, 35, 44, .24);}
-.appdeal-dtvalue{padding-top: 8px;}
+.appdeal-dtrow{display: flex; flex-direction: column; padding-top: 8px; padding-bottom: 8px; border-bottom: 1px solid rgba(33, 35, 44, .24);}
+.appdeal-dtvalue{margin-top: 8px; position: relative; padding-right: 90px;}
 .appdeal-dtvalue:hover .fields-editbtn{visibility: visible; background-color: #fff; border: 1px solid rgba(33, 35, 44, .24);}
-.fields-btnedit{line-height: 1.2; background-color: #fff; padding: 4px 5px; color: #21232c; height: 24px; width: 24px; font-size: 12px; border: 1px solid rgba(33, 35, 44, .24); border-radius: 4px;box-shadow: 0 1px 2px 0 rgb(42 54 71/5%);}
+.fields-btnedit{line-height: 1.2; background-color: #faf5eb; padding: 4px 5px; color: #21232c; height: 24px; width: 24px; font-size: 12px; border: 1px solid #e4cb9a; border-radius: 4px;box-shadow: 0 1px 2px 0 rgb(42 54 71/5%);}
 .fields-btnedit:hover{border: 1px solid rgba(33, 35, 44, .24);}
-.fields-detailbtn{margin-left: 5px; background-color: #fff; border: 1px solid rgba(0, 0, 0, 0.175); color: #21232c; font-size: 14px; padding: 2px 8px;}
+.fields-detailbtn{margin-left: 5px; background-color: #faf5eb; border: 1px solid #e4cb9a; color: #21232c; font-size: 14px; padding: 2px 8px;}
 .fields-detailbtn:hover{border: 1px solid rgba(0, 0, 0, 0.175);}
 .appdeal-dtname .fa-circle-user {font-size: 24px; color: #2b74da;}
 .appdeal-dtdetail {opacity: 0; position: absolute; right: 0; z-index: 1; top: 50%; margin-top: -13px;}
@@ -497,12 +501,21 @@ button.fields-editbtn{visibility: hidden; line-height: 1.2; background-color: #f
 .timeline-tabslinks{display: flex; flex-wrap: wrap;}
 .tabbtn{display: flex; align-items: center; justify-content: center; min-height: 40px; position: relative; border-bottom: 2px solid transparent; padding: 6px 12px; background-color: inherit; color: #65686f; cursor: pointer; text-decoration: none; transition: color 1.s cubic-bezier(.5,0,.2,1); white-space: nowrap;}
 .tabbtn:hover{background-color: #f5f5f6; color: #21232c; border-color:rgba(33,35,44,.24);}
-.tabactive{background-color: #eff6ff; color: #0d68c5; border-color: #2b74da;}
+.tabactive{background-color: #eff6ff; color: #b68d40; border-color: #2b74da;}
 .tabbtn:first-child{border-radius: 4px 0 0 0;}
 .tabbtn svg{font-size: 16px; margin-right: 8px;}
 .timeline-tabscontent{position: relative; order: 2;} */
-.timelinetab-block .nav-link{color: #0d68c5;}
-.activity-subtab .nav-link{color: #0d68c5;}
+.timelinetab-block .nav-link{color: #b68d40;}
+.nav-tabs {
+  border-color: #e4cb9a;
+}
+.nav-tabs .nav-link, .activity-subtab .nav-link {
+  color: #3f3f3f;
+}
+.nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
+  border-color: #e4cb9a #e4cb9a #faf5eb;
+  background-color: #faf5eb;
+}
 .whiteshadowbox{background-color: #fff; margin-bottom: 16px; box-shadow: rgba(45, 62, 80, 0.12) 0px 1px 5px 0px; border-radius: 3px; padding: 24px;}
 .tabcard-header{display: flex; align-items: center; justify-content: space-between; padding-bottom: 24px;}
 .tabcard-header h2{font-size: 20px;line-height: 1.3;}
@@ -515,7 +528,7 @@ button.fields-editbtn{visibility: hidden; line-height: 1.2; background-color: #f
 .activityfilter-row{display: flex; align-items: center; justify-content: space-between;}
 .activityfilter-col1{display: flex;}
 .activityfilter-col1 label{margin-right: 5px;}
-.dropdown-collapseall button.btn, .dropdown-collapseall button.btn:focus {background-color: #fff; border: none; padding: 0; color: #0d68c5; font-weight: bold; font-size: 14px;}
+.dropdown-collapseall button.btn, .dropdown-collapseall button.btn:focus {background-color: #fff; border: none; padding: 0; color: #b68d40; font-weight: bold; font-size: 14px;}
 .accordion .accordion-item{}
 .accordion .accordion-item .accordion-header{border-bottom: 1px solid #eee;}
 .accordion .accordion-item .accordion-button{padding: 10px 15px; font-size: 14px; justify-content: space-between;}
@@ -528,17 +541,17 @@ button.fields-editbtn{visibility: hidden; line-height: 1.2; background-color: #f
 
 .accoheader-title {padding-left: 22px;}
 .accoheader-date {padding-right:0;}
-.activityfilter-acco .accordion-header button svg{margin-right: 5px; color: #0d68c5;}
-.accocolortext{color: #0d68c5; font-weight: bold; margin-left: 4px;}
+.activityfilter-acco .accordion-header button svg{margin-right: 5px; color: #b68d40;}
+.accocolortext{color: #b68d40; font-weight: bold; margin-left: 4px;}
 
 .activityfilter-col1 .dropdown-link{margin-left: 8px;}
-.dropdown-link button.btn, .dropdown-link button.btn:focus{background-color: inherit; border: none; padding:2px 0; color: #0d68c5; font-weight: bold; font-size: 14px;}
+.dropdown-link button.btn, .dropdown-link button.btn:focus{background-color: inherit; border: none; padding:2px 0; color: #b68d40; font-weight: bold; font-size: 14px;}
 .timelinesubtab h3{font-size: 16px; margin-bottom: 10px;}
 .accofooter{padding: 15px 15px 15px 40px;}
 
 .accofooterbtmrow{display: flex; align-items: center; justify-content: space-between; padding: 0 15px 15px 40px;}
 .accoaddcomment{}
-.addcomlink{color: #0d68c5; text-decoration: none; cursor: pointer;}
+.addcomlink{color: #b68d40; text-decoration: none; cursor: pointer;}
 .accoaddasso{}
 .accordion-collapse.collapse ~ .accofooterbtmrow {display: none;}
 .accordion-collapse.collapse.show ~ .accofooterbtmrow {display:flex;}
