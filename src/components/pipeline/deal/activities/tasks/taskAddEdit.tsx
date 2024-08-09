@@ -20,12 +20,13 @@ import {
   addCalendarEventToUser,
   createTask,
   createTasksList,
+  deleteTask,
   getEventsList,
   getListTasksList,
   getTasksList,
   getUserDetails,
   updateCalendarEventToUser,
-  updateTask
+  updateTask,
 } from "../email/emailService";
 
 type params = {
@@ -41,7 +42,7 @@ export const TaskAddEdit = (props: params) => {
   const { dialogIsOpen, setDialogIsOpen, dealId, taskItem, ...Others } = props;
   const [selectedItem, setSelectedItem] = useState(taskItem ?? new Tasks());
   const [isLoading, setIsLoading] = useState(false);
-  const typesList = ["To Do", "Call", "Email"];
+  const typesList = ["To Do", "Email"];
   const prioritiesList = ["High", "Normal", "Low"];
   const utility: Utility = JSON.parse(
     LocalStorageUtil.getItemObject(Constants.UTILITY) as any
@@ -121,7 +122,12 @@ export const TaskAddEdit = (props: params) => {
 
   useEffect(() => {
     if (accessToken && taskItem?.taskGUID) {
-      let res = taskItem.todo==="To Do" ?  getTaskDetails() : taskItem.todo==="Email" ? getEventDetails() : null;
+      let res =
+        taskItem.todo === "To Do"
+          ? getTaskDetails()
+          : taskItem.todo === "Email"
+          ? getEventDetails()
+          : null;
     } else {
       setTaskItemObj({
         ...taskItemObj,
@@ -133,14 +139,12 @@ export const TaskAddEdit = (props: params) => {
     }
   }, [accessToken]);
 
-  const getEventDetails=async () => {
-    
-    let userGUID = taskItem?.userGUID ?? await getUserDetails(accessToken, taskItem?.assignedTo);
+  const getEventDetails = async () => {
+    let userGUID =
+      taskItem?.userGUID ??
+      (await getUserDetails(accessToken, taskItem?.assignedTo));
     setUserGuID(userGuID);
-    let tasksList = await getEventsList(
-      accessToken,
-      userGUID
-    );
+    let tasksList = await getEventsList(accessToken, userGUID);
 
     setTaskItemObj(
       tasksList?.value?.find((i: any) => i.id === taskItem?.taskGUID)
@@ -148,7 +152,9 @@ export const TaskAddEdit = (props: params) => {
   };
 
   const getTaskDetails = async () => {
-    let userGUID = taskItem?.userGUID ?? await getUserDetails(accessToken, taskItem?.assignedTo);
+    let userGUID =
+      taskItem?.userGUID ??
+      (await getUserDetails(accessToken, taskItem?.assignedTo));
     setUserGuID(userGuID);
     let tasksList = await getTasksList(
       accessToken,
@@ -203,7 +209,6 @@ export const TaskAddEdit = (props: params) => {
   }
 
   const initiateactioninAzure = async (task: Tasks) => {
-    
     let userGuId;
     if (!userGuID) {
       userGuId = await getUserDetails(accessToken, task.assignedTo);
@@ -221,7 +226,7 @@ export const TaskAddEdit = (props: params) => {
         );
         return res;
       }
-      
+
       if (task.todo === "Email") {
         let res = await performActionForEmail(
           task,
@@ -275,13 +280,13 @@ export const TaskAddEdit = (props: params) => {
       };
 
       try {
-        const response = await (taskItemObj.id
+        const response = await (selectedItem.taskId>0
           ? updateTask(accessToken, userId, taskListId, taskObj)
           : createTask(accessToken, userId, taskListId, taskObj));
         if (response) {
           setTaskItemObj({ ...taskItemObj, id: response });
         }
-        return response;
+        return { taskId: response, taskListId: taskListId, "userId":userId };
       } catch (error) {
         console.error("Error adding task:", error);
       }
@@ -323,12 +328,17 @@ export const TaskAddEdit = (props: params) => {
 
     try {
       const response = await (taskItemObj.id
-        ? updateCalendarEventToUser(accessToken, userId, taskObj, taskItemObj.id)
+        ? updateCalendarEventToUser(
+            accessToken,
+            userId,
+            taskObj,
+            taskItemObj.id
+          )
         : addCalendarEventToUser(accessToken, userId, taskObj));
       if (response) {
         setTaskItemObj({ ...taskItemObj, id: response });
       }
-      return response;
+      return { taskId: response, taskListId: null, "userId":userId };
     } catch (error) {
       console.error("Error adding task:", error);
     }
@@ -342,7 +352,7 @@ export const TaskAddEdit = (props: params) => {
     Util.toClassObject(addUpdateItem, item);
     addUpdateItem.dealId = dealId;
     addUpdateItem.startDate = taskItemObj?.startDateTime;
-    addUpdateItem.taskId = taskItemObj?.id ?? (0 as any);
+    addUpdateItem.taskId = selectedItem?.taskId ?? (0 as any);
     addUpdateItem.dueDate = new Date(addUpdateItem.dueDate);
     addUpdateItem.reminder = new Date(addUpdateItem.reminder);
     console.log("addUpdateItem" + { ...addUpdateItem });
@@ -357,44 +367,56 @@ export const TaskAddEdit = (props: params) => {
     }
 
     initiateactioninAzure(addUpdateItem).then((res) => {
+      
       if (res) {
-        let tasks =
-          JSON.parse(LocalStorageUtil.getItemObject("tasksList") as any) ?? [];
-        addUpdateItem.taskGUID = res;
-        addUpdateItem.taskId = tasks.length + 1;
-        addUpdateItem.userGUID = userGuID as any;
-        let index = tasks.findIndex((i: any) => i.taskGUID === res);
-        if (index != -1) {
-          tasks[index] = addUpdateItem;
-        } else {
-          tasks.push(addUpdateItem);
-        }
-
-        LocalStorageUtil.setItemObject("tasksList", JSON.stringify(tasks));
-        setDialogIsOpen(false);
-        toast.success(
-          taskItemObj.id
-            ? "Task updated successfully"
-            : "Task created successfully"
-        );
-        props.onSaveTask();
-        // addUpdateItem.taskGUID=res;
-        // taskSvc.addorUpdateTask(addUpdateItem).then((res) => {
-        //   debugger
-        //   setDialogIsOpen(false);
-        //   props.onSaveTask();
-        //   if (res) {
-        //     toast.success(
-        //       `Task ${addUpdateItem.taskId > 0 ? "updated" : "added"} successfully`
-        //     );
-        //   } else {
-        //     toast.error("Unable to add Task");
-        //   }
-        // });
+        addUpdateItem.taskGUID = res.taskId;
+        addUpdateItem.taskListGUID = res.taskListId as any ?? "123";
+        addUpdateItem.userGUID = res.userId as any;
+        addUpdateItem.assignedTo = 1;//TODO
+        addUpdateItem.startDate = item.startDateTime;
+        console.log("taskItem obj before submission... "+ JSON.stringify(addUpdateItem));
+        taskSvc
+          .addorUpdateTask(addUpdateItem)
+          .then((res) => {
+            
+            setDialogIsOpen(false);
+            props.onSaveTask();
+            if (res) {
+              toast.success(
+                `Task ${
+                  addUpdateItem.taskId > 0 ? "updated" : "added"
+                } successfully`
+              );
+            } else {
+              if(addUpdateItem.todo==="To Do"){
+                handleTaskFailure(accessToken, userGuID, res)
+              }
+            }
+          })
+          .catch((err) => {
+            if(addUpdateItem.todo==="To Do"){
+              handleTaskFailure(accessToken, userGuID, res)
+            }
+          });
       }
     });
     return;
   };
+
+  function handleTaskFailure(
+    accessToken: any, 
+    userGuID: any, 
+    res: any
+  ) {
+    toast.error("Unable to add Task");
+    console.log("Failed to add task in database, so deleting it from Azure");
+    deleteTask(
+      accessToken,
+      userGuID,
+      res?.taskListId, 
+      res?.taskId
+    );
+  }
 
   const getDropdownvalues = (item: any) => {
     if (item.key === "Type") {

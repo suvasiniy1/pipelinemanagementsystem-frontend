@@ -29,7 +29,11 @@ const DealActivities = (props: params) => {
           id="noanim-tab-example"
           className="mb-5 activity-subtab"
         >
-          <Tab eventKey="activity_sub" title="Activity">
+          <Tab
+            eventKey="activity_sub"
+            title="Activity"
+            hidden={defaultActiveKey != "activity_sub"}
+          >
             <div className="activityfilter-row pb-3">
               <div className="activityfilter-col1">
                 <label>Filter by:</label>
@@ -160,21 +164,34 @@ const DealActivities = (props: params) => {
               </Accordion>
             </div>
           </Tab>
-          <Tab eventKey="notes" title="Notes">
-            <NotesList dealId={dealItem.dealID} />
+          <Tab
+            eventKey="notes"
+            title="Notes"
+          >
+            {defaultActiveKey == "notes" && (
+              <NotesList dealId={dealItem.dealID} />
+            )}
           </Tab>
-          <Tab eventKey="email" title="Email">
-            <AuthProvider>
-              <EmailActivites dealId={dealItem.dealID} />
-            </AuthProvider>
+          <Tab
+            eventKey="email"
+            title="Email"
+            hidden={defaultActiveKey != "email"}
+          >
+            {defaultActiveKey == "email" && (
+              <AuthProvider>
+                <EmailActivites dealId={dealItem.dealID} />
+              </AuthProvider>
+            )}
           </Tab>
           <Tab eventKey="calls" title="Calls">
-            <CallsActivites />
+            {defaultActiveKey == "calls" && <CallsActivites />}
           </Tab>
           <Tab eventKey="tasks" title="Tasks">
-            <AuthProvider>
-              <TasksList dealId={dealItem.dealID} />
-            </AuthProvider>
+            {defaultActiveKey == "tasks" && (
+              <AuthProvider>
+                <TasksList dealId={dealItem.dealID} />
+              </AuthProvider>
+            )}
           </Tab>
         </Tabs>
       </div>

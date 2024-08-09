@@ -1,19 +1,24 @@
-import React, { useEffect, useState } from "react";
-import { TaskAddEdit } from "./taskAddEdit";
-import { Accordion, Spinner } from "react-bootstrap";
-import DealNoteDetails from "../notes/noteDetails";
+import { useMsal } from "@azure/msal-react";
 import { AxiosError } from "axios";
-import { Tasks } from "../../../../../models/task";
-import TaskDetails from "./taskDetails";
-import { TaskService } from "../../../../../services/taskService";
+import { useEffect, useState } from "react";
+import { Accordion, Spinner } from "react-bootstrap";
 import { ErrorBoundary } from "react-error-boundary";
-import Util from "../../../../../others/util";
 import { toast } from "react-toastify";
 import { DeleteDialog } from "../../../../../common/deleteDialog";
-import { useMsal } from "@azure/msal-react";
+import { Tasks } from "../../../../../models/task";
+import Util from "../../../../../others/util";
+import { TaskService } from "../../../../../services/taskService";
 import { loginRequest } from "../email/authConfig";
-import LocalStorageUtil from "../../../../../others/LocalStorageUtil";
-import { deleteCalendarEventToUser, deleteTask, getUserDetails } from "../email/emailService";
+import {
+  deleteCalendarEventToUser,
+  deleteTask,
+  getEventsList,
+  getListTasksList,
+  getTasksList,
+  getUserDetails,
+} from "../email/emailService";
+import { TaskAddEdit } from "./taskAddEdit";
+import TaskDetails from "./taskDetails";
 
 type params = {
   dealId: number;
@@ -35,22 +40,29 @@ const TasksList = (props: params) => {
     loadTasks();
   }, []);
 
-  const loadTasks = () => {
-    
+  const loadTasks = async () => {
     setIsLoading(true);
-    let tasks = JSON.parse(LocalStorageUtil.getItemObject("tasksList") as any) ?? [];
-    setTasksList([...tasks] ?? []);
-    setIsLoading(false);
-    return;
-    setIsLoading(true);
+    let userGUIdsListForTodo:Array<string>=[];
+    let userGUIdsListForEmail:Array<string>=[];
     taskSvc
       .getTasks(dealId)
       .then((res) => {
         (res as Array<Tasks>).forEach((i) => {
           i.updatedDate = i.updatedDate ?? i.createdDate;
+          i.dueDate = Util.convertTZ(i.dueDate);
+          i.reminder = Util.convertTZ(i.reminder);
+          if(i.todo==="To Do"){
+            if(!userGUIdsListForTodo.find(u=>u==i.userGUID)){
+              userGUIdsListForTodo.push(i.userGUID);
+            }
+          }
+          if(i.todo==="Email"){
+            if(!userGUIdsListForEmail.find(u=>u==i.userGUID)){
+              userGUIdsListForEmail.push(i.userGUID);
+            }
+          }
         });
-        setTasksList(Util.sortList(res, "updatedDate", "desc"));
-        setIsLoading(false);
+        syncTaskswithAzure(userGUIdsListForTodo, userGUIdsListForEmail, res);
       })
       .catch((err) => {
         setTasksList([]);
@@ -59,46 +71,95 @@ const TasksList = (props: params) => {
       });
   };
 
-  const getAccessToken= async ()=>{
+  /*Here we will validate each task whether it is exist or not in azure based on todo then will initiate delete operation*/
+  
+  const syncTaskswithAzure=async(userGUIdsList:Array<string>, userGUIdsListForEmail:Array<string>, tasksList:Array<Tasks>)=>{
+    console.log("Syncing tasks and events with Azure");
+    let token = await getAccessToken();
+    let taskIdsTodelete:Array<number>=[];
+
+    const azureTasksByUser = new Map<string, Array<any>>();
+    const azureEventsByUser = new Map<string, Array<any>>();
+
+    await Promise.all(userGUIdsList.map(async (userId) => {//For todo list
+      let tasksListsByUser = await getListTasksList(token.accessToken, userId);
+      let listId = tasksListsByUser?.value?.find(
+        (t: any) => t.displayName === "Y1 Capital Tasks"
+      )?.id;
+
+      let tasksListForListId = await getTasksList(token.accessToken, userId, listId);
+      if(tasksListForListId?.value) azureTasksByUser.set(userId, tasksListForListId?.value);
+    }));
+
+    await Promise.all(userGUIdsListForEmail.map(async (userId) => {//For calendar events list
+      let eventsList = await getEventsList(token.accessToken, userId);
+      if(eventsList?.value) azureEventsByUser.set(userId, eventsList?.value);
+    }));
+
+    tasksList.forEach((t, index)=>{
+      let res:Array<any>=[];
+      if(t.todo==="To Do"){
+        res = azureTasksByUser.get(t.userGUID) as any;
+      }
+      if(t.todo==="Email"){
+        res = azureEventsByUser.get(t.userGUID) as any;
+      }
+
+      if(res && !res?.find(r=>r.id==t.taskGUID)){
+        taskIdsTodelete.push(t.taskId);
+        tasksList.splice(index, 1);
+      }
+    })
+    
+    setTasksList(Util.sortList(tasksList, "updatedDate", "desc"));
+    setIsLoading(false);
+
+    if(taskIdsTodelete.length>0){
+      console.log('Deleting tasks for given Ids '+JSON.stringify(taskIdsTodelete))
+      taskSvc.deleteTasks(taskIdsTodelete);
+    }
+  }
+
+  const getAccessToken = async () => {
     return await instance.acquireTokenSilent({
       scopes: ["Calendars.ReadWrite.Shared"], // Adjust scopes as per your requirements
-      account: accounts[0]
+      account: accounts[0],
     });
-}
+  };
 
-  const continueTodelete = async() => {
-    
+  const continueTodelete = async () => {
     let token = await getAccessToken();
-    let userGuId = selectedTaskItem?.userGUID ?? await getUserDetails(
-      token.accessToken,
-      selectedTaskItem?.assignedTo
-    )
-    let res = selectedTaskItem?.todo==="To Do" ? deleteTask(token.accessToken, userGuId, selectedTaskItem?.taskListGUID, selectedTaskItem?.taskGUID)
-    : selectedTaskItem?.todo==="Email" ? deleteCalendarEventToUser(token.accessToken, userGuId,selectedTaskItem?.taskGUID) : null;
-    if(res){
-      let index = tasksList.findIndex((i:any)=>selectedTaskItem?.taskGUID===i.taskGUID);
-      if(index!=-1){
-        tasksList.splice(index, 1);
-        toast.success("Task deleted successfully");
-        setShowDeleteDialog(false);
-        LocalStorageUtil.setItemObject("tasksList", JSON.stringify(tasksList));
-      }
-    }
-    else{
+    let userGuId =
+      selectedTaskItem?.userGUID ??
+      (await getUserDetails(token.accessToken, selectedTaskItem?.assignedTo));
+    let res =
+      selectedTaskItem?.todo === "To Do"
+        ? deleteTask(
+            token.accessToken,
+            userGuId,
+            selectedTaskItem?.taskListGUID,
+            selectedTaskItem?.taskGUID
+          )
+        : selectedTaskItem?.todo === "Email"
+        ? deleteCalendarEventToUser(
+            token.accessToken,
+            userGuId,
+            selectedTaskItem?.taskGUID
+          )
+        : null;
+    if (res) {
+      taskSvc
+        .deleteTask(selectedTaskId)
+        .then((res) => {
+          toast.success("Task deleted successfully");
+          setShowDeleteDialog(false);
+          setSelectedTaskId(0);
+          loadTasks();
+        })
+        .catch((err) => {});
+    } else {
       toast.error("Unable to delete task");
     }
-
- 
-
-    // taskSvc
-    //   .deleteTask(selectedTaskId)
-    //   .then((res) => {
-    //     toast.success("Task deleted successfully");
-    //     setShowDeleteDialog(false);
-    //     setSelectedTaskId(0);
-    //     loadTasks();
-    //   })
-    //   .catch((err) => {});
   };
 
   const handleLogin = async () => {
@@ -157,7 +218,6 @@ const TasksList = (props: params) => {
                           setDialogIsOpen(e);
                         }}
                         setShowDeleteDialog={(e: any) => {
-                          
                           setShowDeleteDialog(e);
                         }}
                         setSelectedTaskItem={(e: any) => {
