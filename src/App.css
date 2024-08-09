@@ -197,6 +197,9 @@ color: #fff; cursor: pointer; flex-basis: 0; font: 450 12px / 18px "Inter",sans-
 .pipelinestage-current~.pipelinestage {background-color: rgba(33,35,44,.12); color: #65686f;}
 
 
+/* Campaigns Contact Page CSS*/
+.contactlist-row {display: flex; flex-direction: column; height: 100%;}
+.contactlist-row .container-fluid {/*height: 100%; display: flex;*/}
 
 /* Pipedrive Box Code */
 .pdstage-area {overflow: hidden auto; height: calc(100% - 64px); display: grid;}
