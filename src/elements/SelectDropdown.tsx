@@ -19,7 +19,9 @@ export const SelectDropdownWithValidation = (props: params) => {
         <>
             <select className="form-control"
                 id={item.value}
+                key={"region"}
                 disabled={disable ?? item.disabled}
+                defaultValue={selectedItem[item.value]}
                 value={value ?? selectedItem[item.value]}
                 {...register(item.value)}
                 onChange={(e: any) => onItemChange(e.target.value)}
@@ -27,7 +29,7 @@ export const SelectDropdownWithValidation = (props: params) => {
                 <option value="" hidden={hideSelect}>Select</option>
                 {list?.map((item: any, index: number) => {
                     return (
-                        <option key={index} value={item.key}>{item.value}</option>
+                        <option key={index} value={item.value}>{item.name}</option>
                     );
                 })}
             </select>
@@ -39,24 +41,25 @@ export const SelectDropdownWithValidation = (props: params) => {
 const SelectDropdown = (props: params) => {
     console.log("Selectdropdown component rendered with props ", props);
 
-    const { item, selectedItem, onItemChange, list = [], disable, isValidationOptional, value, hideSelect, ...others } = props;
+    const { item, selectedItem, onItemChange, list, disable, isValidationOptional, value, hideSelect, ...others } = props;
 
     return (
         <>
             {
                 isValidationOptional ?
-                <select
-                className="form-control"
-                id={item.value}
+                <select className="form-control"
+                id={value}
                 key={"region"}
-                value={value ?? selectedItem[item.value]}
-                disabled={disable ?? item.disabled}
+                defaultValue={value}
                 onChange={(e: any) => onItemChange(e.target.value)}
             >
                 <option value="" hidden={hideSelect}>Select</option>
-                {list.map((item: any, index: number) => (
-                    <option key={index} value={item.key}>{item.value}</option>
-                ))}
+                {list?.map((item: any, index: number) => {
+                    return (
+                        <option key={index} value={item.value}>{item.name}</option>
+                    );
+                }
+                )}
             </select>
                     :
                     <>
@@ -66,5 +69,6 @@ const SelectDropdown = (props: params) => {
         </>
     )
 }
+
 
 export default SelectDropdown;
