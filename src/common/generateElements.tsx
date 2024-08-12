@@ -6,6 +6,7 @@ import TextBox from "../elements/TextBox";
 import { DATEPICKER } from "../elements/datePicker";
 import MultiSelectDropdown from "../elements/multiSelectDropdown";
 import RichTextEditor from "../elements/richTextEditor";
+import { useFormContext } from "react-hook-form";
 import {
   CustomActionPosition,
   ElementType,
@@ -15,6 +16,7 @@ import {
 type props = {
   controlsList: Array<any>;
   selectedItem: any;
+  visibilityGroups?: any[]; // Add visibilityGroups here
   onChange?: any;
   checked?: any;
   getListofItemsForDropdown?: (item: any) => {};
@@ -28,6 +30,7 @@ const GenerateElements: React.FC<props> = (props) => {
   const {
     controlsList,
     selectedItem,
+    visibilityGroups,
     onChange,
     checked,
     getListofItemsForDropdown,
@@ -36,7 +39,9 @@ const GenerateElements: React.FC<props> = (props) => {
     defaultSwitch,
     ...others
   } = props;
-
+  
+  const methods = useFormContext();
+  const { watch, setValue, register } = methods
   const [selectedOption, SetSelectedOption] = useState(defaultSwitch);
   const [resetSwitchableElement, setResetSwitchableElement]=useState(false);
   const handleOptionChange = (item: any) => {
@@ -66,16 +71,15 @@ const GenerateElements: React.FC<props> = (props) => {
           />
         );
       case ElementType.dropdown:
+        console.log('Rendering dropdown with list:', visibilityGroups); 
         return (
           <SelectDropdown
             item={item}
             selectedItem={selectedItem}
             disable={forceDisable ?? disable}
-            list={
-              getListofItemsForDropdown &&
-              (getListofItemsForDropdown(item) as any)
-            }
+            list={visibilityGroups || []}  // Pass the visibilityGroups here
             onItemChange={(e: any) => onChange(e, item)}
+            value={selectedItem[item.value]} 
           />
         );
       case ElementType.multiSelectDropdown:
@@ -113,6 +117,16 @@ const GenerateElements: React.FC<props> = (props) => {
             }}
             hideSpace={item.hideSpaceForEditor}
             value={selectedItem[item.value]}
+          />
+        );
+        case ElementType.checkbox:  // Add checkbox handling
+        return (
+          <input
+          type="checkbox"
+          checked={watch(item.value)} // Bind the checkbox state to react-hook-form
+          {...register(item.value)}
+          onChange={(e) => setValue(item.value, e.target.checked)} // Update form value on change
+          disabled={forceDisable ?? disable} // Handle disabling conditionally
           />
         );
       case ElementType.custom:
