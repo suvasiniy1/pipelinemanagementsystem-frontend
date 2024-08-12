@@ -13,6 +13,7 @@ import { User } from "../../models/user";
 import { toast } from "react-toastify";
 import { VisibilityGroup } from "../../models/visibilityGroup";
 import { UserFormValues } from '../../models/userFormValues';
+import { RxValue } from 'react-icons/rx';
 
 // Import statements...
 
@@ -32,16 +33,16 @@ const UsersAddEditDialog: React.FC<ViewEditProps> = (props) => {
     } = props;
 
     const userSvc = new UserService(ErrorBoundary);
-    const [visibilityGroups, setVisibilityGroups] = useState<Array<{ key: string; value: string }>>([]);
+    const [visibilityGroups, setVisibilityGroups] = useState<Array<{ name: string; value: string }>>([]);
     useEffect(() => {
         userSvc.getVisibilityGroups().then((groups: VisibilityGroup[]) => {
             const uniqueGroups = new Set();
             const groupOptions = groups.map((group: VisibilityGroup) => ({
-                key: group.visibilityGroupID.toString(),
-                value: group.visibilityGroupName,
+                value: group.visibilityGroupID.toString(),
+                name: group.visibilityGroupName,
             })).filter(group => {
-                const isDuplicate = uniqueGroups.has(group.key);
-                uniqueGroups.add(group.key);
+                const isDuplicate = uniqueGroups.has(group.name);
+                uniqueGroups.add(group.value);
                 return !isDuplicate;
             });
             console.log('Fetched visibility groups:', groupOptions); // Debugging
@@ -111,7 +112,7 @@ const UsersAddEditDialog: React.FC<ViewEditProps> = (props) => {
             elementSize: 12,
             type: ElementType.dropdown,
             options: visibilityGroups.map(group => ({
-                key: group.key,
+                key: group.name,
                 value: group.value
             })), // Bind the dropdown to fetched groups
         }
