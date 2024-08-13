@@ -55,6 +55,7 @@ export const AppRouter = () => {
         <Route path="/Email" element={<EmailConfigurationList />} />
         <Route path="/Campaigns" element={<CampaignList />} />
         <Route path="/CampaignDetails" element={<CampaignDetails />} />
+        <Route path="/users" element={<UsersList />}/>
       </Routes>
       <ToastContainer />
     </>

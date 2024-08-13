@@ -77,7 +77,10 @@ const GenerateElements: React.FC<props> = (props) => {
             item={item}
             selectedItem={selectedItem}
             disable={forceDisable ?? disable}
-            list={visibilityGroups || []}  // Pass the visibilityGroups here
+            list={
+              getListofItemsForDropdown &&
+              (getListofItemsForDropdown(item) as any)
+            }
             onItemChange={(e: any) => onChange(e, item)}
             value={selectedItem[item.value]} 
           />
