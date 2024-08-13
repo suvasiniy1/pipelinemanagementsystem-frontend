@@ -37,8 +37,13 @@ const TasksList = (props: params) => {
   const { instance, accounts } = useMsal();
 
   useEffect(() => {
-    loadTasks();
-  }, []);
+    if(accounts.length==0){
+      handleLogin();
+    }
+    else{
+      loadTasks();
+    }
+  }, [accounts]);
 
   const loadTasks = async () => {
     setIsLoading(true);
@@ -62,7 +67,8 @@ const TasksList = (props: params) => {
             }
           }
         });
-        syncTaskswithAzure(userGUIdsListForTodo, userGUIdsListForEmail, res);
+        if(accounts?.length>0) syncTaskswithAzure(userGUIdsListForTodo, userGUIdsListForEmail, res);
+        else setIsLoading(false);
       })
       .catch((err) => {
         setTasksList([]);
@@ -179,15 +185,6 @@ const TasksList = (props: params) => {
         </div>
       ) : (
         <div className="createnote-row">
-          {accounts.length === 0 ? (
-            <button
-              type="button"
-              onClick={handleLogin}
-              className="btn btn-primary"
-            >
-              Login
-            </button>
-          ) : (
             <>
               <div className="activityfilter-row pb-3">
                 <div className="createnote-row">
@@ -242,7 +239,6 @@ const TasksList = (props: params) => {
                 No tasks are avilable to show
               </div>
             </>
-          )}
         </div>
       )}
       {dialogIsOpen && (

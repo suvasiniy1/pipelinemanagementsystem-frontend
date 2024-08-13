@@ -6,6 +6,7 @@ import { AddEditDialog } from "../../../../../common/addEditDialog";
 import { ElementType, IControl } from "../../../../../models/iControl";
 import GenerateElements from "../../../../../common/generateElements";
 import { useEffect } from "react";
+import { useMsal } from "@azure/msal-react";
 
 const EmailComposeDialog = (props: any) => {
   const {
@@ -22,6 +23,7 @@ const EmailComposeDialog = (props: any) => {
     fromAddress,
     ...others
   } = props;
+  const { instance, accounts } = useMsal();
 
   const controlsList: Array<IControl> = [
     {

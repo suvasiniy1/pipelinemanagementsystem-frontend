@@ -378,9 +378,9 @@ export const TaskAddEdit = (props: params) => {
         taskSvc
           .addorUpdateTask(addUpdateItem)
           .then((res) => {
-            
+            console.log("response received post addorUpdateTask "+ JSON.stringify(res));
             setDialogIsOpen(false);
-            props.onSaveTask();
+            if(props.onSaveTask) props.onSaveTask();
             if (res) {
               toast.success(
                 `Task ${
@@ -394,6 +394,7 @@ export const TaskAddEdit = (props: params) => {
             }
           })
           .catch((err) => {
+            console.log("error is "+err);
             if(addUpdateItem.todo==="To Do"){
               handleTaskFailure(accessToken, userGuID, res)
             }

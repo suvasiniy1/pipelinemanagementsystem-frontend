@@ -19,7 +19,7 @@ function EmailActivities(props: params) {
   const { instance, accounts } = useMsal();
   const [emailSent, setEmailSent] = useState(false);
   const [emailsList, setEmailsList] = useState<Array<any>>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedIndex, setSelectedIndex] = useState<any>(null);
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
   const [selectedEmail, setSelectedEmail] = useState<any>();
@@ -27,9 +27,14 @@ function EmailActivities(props: params) {
 
   useEffect(() => {
     
+    if(accounts.length==0){
+      handleLogin();
+    }
+
     if (accounts.length > 0 && instance) {
       fetchData();
     }
+
   }, [(instance as any)?.controller?.initialized, accounts]);
 
   const fetchData = async () => {
@@ -103,7 +108,7 @@ function EmailActivities(props: params) {
       // Send email logic here
       let response: any = await sendEmail(
         accessTokenResponse.accessToken,
-        prepareEmailBody(emailObj),
+        prepareEmailBody(emailObj, dealId),
         emailObj.isReply ? selectedEmail.id : null
       );
       
@@ -136,47 +141,6 @@ function EmailActivities(props: params) {
     }
   };
 
-  const prepareToRecipients = (emailObj: EmailCompose) => {
-    let emails: Array<any> = [];
-    emailObj.toAddress.split(";").forEach((i) => {
-      let obj: any = {
-        emailAddress: {
-          address: i,
-        },
-      };
-      emails.push(obj);
-    });
-    return emails;
-  };
-
-  const prepareEmailBody = (emailObj: EmailCompose) => {
-    return JSON.stringify({
-      message: {
-        subject: emailObj.subject,
-        categories: ["dealId: " + dealId],
-        body: {
-          contentType: "HTML",
-          content: emailObj.body,
-        },
-        toRecipients: prepareToRecipients(emailObj),
-        // ccRecipients: [
-        //   {
-        //     emailAddress: {
-        //       address: emailObj.cc,
-        //     },
-        //   },
-        // ],
-        // bccRecipients: [
-        //   {
-        //     emailAddress: {
-        //       address: emailObj.bcc,
-        //     },
-        //   },
-        // ]
-      },
-    });
-  };
-
   return (
     <div>
       <>
@@ -187,15 +151,6 @@ function EmailActivities(props: params) {
             </div>
           ) : (
             <div className="createnote-row">
-              {accounts.length === 0 ? (
-                <button
-                  type="button"
-                  onClick={handleLogin}
-                  className="btn btn-primary"
-                >
-                  Login
-                </button>
-              ) : (
                 <div  className="d-flex">
                   <div>
                     <button
@@ -221,7 +176,6 @@ function EmailActivities(props: params) {
                     </button>
                   </div>
                 </div>
-              )}
             </div>
           )}
         </div>
@@ -290,3 +244,45 @@ function EmailActivities(props: params) {
 }
 
 export default EmailActivities;
+
+
+export const prepareToRecipients = (emailObj: EmailCompose) => {
+  let emails: Array<any> = [];
+  emailObj.toAddress.split(";").forEach((i) => {
+    let obj: any = {
+      emailAddress: {
+        address: i,
+      },
+    };
+    emails.push(obj);
+  });
+  return emails;
+};
+
+export const prepareEmailBody = (emailObj: EmailCompose, dealId:number) => {
+  return JSON.stringify({
+    message: {
+      subject: emailObj.subject,
+      categories: ["dealId: " + dealId],
+      body: {
+        contentType: "HTML",
+        content: emailObj.body,
+      },
+      toRecipients: prepareToRecipients(emailObj),
+      // ccRecipients: [
+      //   {
+      //     emailAddress: {
+      //       address: emailObj.cc,
+      //     },
+      //   },
+      // ],
+      // bccRecipients: [
+      //   {
+      //     emailAddress: {
+      //       address: emailObj.bcc,
+      //     },
+      //   },
+      // ]
+    },
+  });
+};
