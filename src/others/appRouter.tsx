@@ -16,6 +16,7 @@ import EmailConfigurationList from "../components/emailCampaign/emailConfigurati
 import CampaignList from "../components/emailCampaign/campaign/campaignList";
 import CampaignDetails from "../components/emailCampaign/campaign/campaignDetails";
 import { AuthProvider } from "../components/pipeline/deal/activities/email/authProvider";
+import UsersList from "../components/userManagement/userList"; 
 
 export const AppRouter = () => {
   useEffect(() => {

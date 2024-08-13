@@ -189,7 +189,7 @@ const TasksList = (props: params) => {
               <div className="activityfilter-row pb-3">
                 <div className="createnote-row">
                   <button
-                    className="btn btn-primary"
+                    className="btn btn-y1app"
                     type="button"
                     onClick={(e: any) => {
                       setSelectedTaskItem(null as any);

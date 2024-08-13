@@ -309,13 +309,13 @@ export const DealDetails = () => {
                             ) ?? []
                           }
                         />
-                      </div>
-                      {/* <div className="appdeal-dtdetail">
-                        <button className="btn fields-btnedit">
-                          <FontAwesomeIcon icon={faPencil} />
-                        </button>
-                        <button className="btn fields-detailbtn">Detail</button>
-                      </div> */}
+                        <div className="appdeal-dtdetail">
+                          <button className="btn fields-btnedit">
+                            <FontAwesomeIcon icon={faPencil} />
+                          </button>
+                          <button className="btn fields-detailbtn">Detail</button>
+                        </div>
+                      </div>                      
                     </div>
                   </div>
                 </div>

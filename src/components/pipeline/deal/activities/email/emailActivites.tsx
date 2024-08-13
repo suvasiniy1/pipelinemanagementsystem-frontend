@@ -159,7 +159,7 @@ function EmailActivities(props: params) {
                         setSelectedEmail(new EmailCompose());
                         setDialogIsOpen(true);
                       }}
-                      className="btn btn-primary"
+                      className="btn btn-y1app"
                     >
                       Send Email
                     </button>

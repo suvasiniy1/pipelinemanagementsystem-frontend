@@ -64,7 +64,7 @@ const NotesList = (props: params) => {
 
             <div className='activityfilter-row pb-3'>
               <div className='createnote-row'>
-                <button className='btn btn-primary' type='button' onClick={(e: any) => setDialogIsOpen(true)}>Create Note</button>
+                <button className='btn btn-y1app' type='button' onClick={(e: any) => setDialogIsOpen(true)}>Create Note</button>
               </div>
             </div>
             <h3>April 2024</h3>

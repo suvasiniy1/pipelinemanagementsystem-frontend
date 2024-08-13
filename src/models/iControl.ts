@@ -38,6 +38,8 @@ export interface IControl {
   element2Type?:ElementType;
   hideSpaceForEditor?:boolean | false;
   showTimeSelect?:boolean | false;
+  options?: { key: string; value: string }[];
+  defaultValue?: any;
 }
 
 export enum CustomActionPosition {
@@ -55,5 +57,6 @@ export enum ElementType {
   "number" = "number",
   "custom" = "custom",
   "datepicker" = "datepicker",
-  "ckeditor" = "ckeditor"
+  "ckeditor" = "ckeditor",
+  "checkbox" = "checkbox"  
 }

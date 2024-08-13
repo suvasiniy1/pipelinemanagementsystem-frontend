@@ -145,7 +145,7 @@ export const SideBar = (props: params) => {
             </SubMenu>
             <MenuItem
               icon={<IoSettings />}
-              component={<Link to="/Settings" />}
+              component={<Link to="/users" />}
               onClick={(e: any) => setSelectedNavItem("Settings")}
             >
               Settings
