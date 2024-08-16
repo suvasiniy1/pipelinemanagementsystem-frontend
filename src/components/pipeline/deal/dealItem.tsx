@@ -42,7 +42,7 @@ export const DealItem = (props: params) => {
         <div className="pdstage-item">
           <div className='pdstage-box'>
             <a className='pdstage-boxlink'>
-              <div className="pdstage-title">{deal?.pipelineName}
+              <div className="pdstage-title">{deal?.treatmentName}
               </div>
               <div>
                 <Dropdown className='dropdownbox-toolgripdot' style={{ cursor: 'pointer' }}>
