@@ -153,6 +153,8 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
     contactSvc.getContacts().then((res) => {
       setContactsList(res);
       setIsLoading(false);
+    }).catch(err=>{
+      
     });
   }, []);
 
