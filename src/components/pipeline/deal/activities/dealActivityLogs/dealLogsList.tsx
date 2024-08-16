@@ -8,9 +8,11 @@ import { DealAuditLog } from "../../../../../models/dealAutidLog";
 
 type params = {
   dealItem: Deal;
+  dealId:number;
 };
 
 const DealLogsList = (props: params) => {
+    const {dealItem, dealId, ...others}=props;
   const dealAuditLogSvc = new DealAuditLogService(ErrorBoundary);
   const [dealAuditLogsList, setDealAuditLogsList] = useState<
     Array<DealAuditLog>
@@ -20,7 +22,7 @@ const DealLogsList = (props: params) => {
 
   useEffect(() => {
     dealAuditLogSvc
-      .getDealLogs(2) //hardcoded for temporarly due to issue http://20.26.122.140/PLMS/api/Deal/2
+      .getDealLogs(dealId) //hardcoded for temporarly due to issue http://20.26.122.140/PLMS/api/Deal/2
       .then((res) => {
         setDealAuditLogsList(res ?? []);
         setIsLoading(false);

@@ -26,12 +26,13 @@ import { IsMockService } from "../../../../others/util";
 
 type params = {
   dealItem: Deal;
+  dealId:number;
   stages: Array<Stage>;
   setDealItem: any;
   onDealModified: any;
 };
 const DealOverView = (props: params) => {
-  const { dealItem, stages, setDealItem, onDealModified, ...others } = props;
+  const { dealItem, dealId, stages, setDealItem, onDealModified, ...others } = props;
   const { createdDate, pipelineName, stageName } = dealItem;
   const recentActivitesFilters: Array<any> = ["All Activities"].map(
     (item: any) => ({ name: item, value: item })
@@ -44,11 +45,11 @@ const DealOverView = (props: params) => {
 
   useEffect(() => {
     notesSvc
-      .getNotes(dealItem.dealID)
+      .getNotes(dealId)
       .then((res) => {
         setNotesList(
           IsMockService()
-            ? (res as Array<Notes>).filter((n) => n.dealID == dealItem.dealID)
+            ? (res as Array<Notes>).filter((n) => n.dealID == dealId)
             : res
         );
       })
@@ -240,7 +241,7 @@ const DealOverView = (props: params) => {
                   className="timelinesubtab activitiestab"
                 >
                   {selectedTab === "activities" && (
-                    <DealActivities dealItem={dealItem} />
+                    <DealActivities dealItem={dealItem} dealId={dealId}/>
                   )}
                 </Tab>
               </Tabs>

@@ -11,9 +11,10 @@ import TasksList from "./tasks/tasksList";
 
 type params = {
   dealItem: Deal;
+  dealId:number;
 };
 const DealActivities = (props: params) => {
-  const { dealItem, ...others } = props;
+  const { dealItem, dealId, ...others } = props;
   const [defaultActiveKey, setdefaultActiveKey] = useState("activity_sub");
 
   return (
@@ -49,7 +50,7 @@ const DealActivities = (props: params) => {
               </div>
             </div> */}
               {defaultActiveKey === "activity_sub" && (
-                <DealLogsList dealItem={dealItem}/>
+                <DealLogsList dealItem={dealItem} dealId={dealId}/>
               )}
             </Tab>
             <Tab eventKey="notes" title="Notes">
