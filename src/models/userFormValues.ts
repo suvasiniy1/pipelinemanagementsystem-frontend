@@ -3,7 +3,8 @@ export interface UserFormValues {
     email: string;
     passwordHash: string;
     confirmPassword: string;
-    role: string;
+    phoneNumber:string;
+    roleID: number; // Make this field nullable
     isActive: boolean;
-    visibilityGroupID: number;
+    organizationID: number; // Make this field nullable
 }

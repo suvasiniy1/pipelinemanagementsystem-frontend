@@ -16,7 +16,6 @@ import {
 type props = {
   controlsList: Array<any>;
   selectedItem: any;
-  visibilityGroups?: any[]; // Add visibilityGroups here
   onChange?: any;
   checked?: any;
   getListofItemsForDropdown?: (item: any) => {};
@@ -30,7 +29,6 @@ const GenerateElements: React.FC<props> = (props) => {
   const {
     controlsList,
     selectedItem,
-    visibilityGroups,
     onChange,
     checked,
     getListofItemsForDropdown,
@@ -71,7 +69,6 @@ const GenerateElements: React.FC<props> = (props) => {
           />
         );
       case ElementType.dropdown:
-        console.log('Rendering dropdown with list:', visibilityGroups); 
         return (
           <SelectDropdown
             item={item}
