@@ -27,7 +27,7 @@ export const Profile = () => {
             </span>
         </Dropdown.Toggle>
         <Dropdown.Menu>
-            <Dropdown.Item>Profile</Dropdown.Item>
+            <Dropdown.Item onClick={() => navigate("/profile")}>Profile</Dropdown.Item>
             <Dropdown.Item>My Project</Dropdown.Item>
             <Dropdown.Item>Message</Dropdown.Item>
             <Dropdown.Item>Notification</Dropdown.Item>

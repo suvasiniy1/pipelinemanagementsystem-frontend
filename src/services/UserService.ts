@@ -13,9 +13,10 @@ export class UserService extends BaseService<User> {
     return this.getItems(axiosCancel, 'ManageUser/GetUsers');
   }
 
+ 
   getUserById(userId: number, axiosCancel?: CancelTokenSource) {
-    return this.getItems(axiosCancel, IsMockService() ? 'mockData/users.json' : `User/${userId}`);
-  }
+    return this.getItems(axiosCancel, IsMockService() ? 'mockData/users.json' : `ManageUser/${userId}`);
+}
 
   deleteUser(userId: number) {
     return this.delete(userId, `User/${userId}`);
