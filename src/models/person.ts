@@ -1,4 +1,6 @@
-export class Person {
+import { AuditItem } from "./base/AuditNamedItem";
+
+export class Person extends AuditItem {
     personID!: number
     personName!: string
     phone!: string
@@ -11,8 +13,5 @@ export class Person {
     clinicID!: number
     sourceID!: number
     visibilityGroupID!: number
-    createdDate!: string
-    createdBy!: number
-    modifiedDate: any
-    modifiedBy!: number
+    userName!: string
   }

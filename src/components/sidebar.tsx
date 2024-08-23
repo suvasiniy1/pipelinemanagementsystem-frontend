@@ -109,6 +109,13 @@ export const SideBar = (props: params) => {
               <b hidden={selectedNavItem != "Activities"}>Activities</b>
               <p hidden={selectedNavItem == "Activities"}>Activities</p>
             </MenuItem>
+            <MenuItem
+              icon={<RiContactsBookFill />}
+              component={<Link to="/Person" />}
+              onClick={(e: any) => setSelectedNavItem("Person")}
+            >
+             Persons
+            </MenuItem>
             <SubMenu icon={<MdCampaign />} defaultOpen={compaignSubMenu.includes(selectedNavItem)} label="Campaigns">
               <MenuItem
                 icon={<HiTemplate />}
