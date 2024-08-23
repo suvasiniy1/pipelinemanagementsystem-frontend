@@ -350,6 +350,7 @@ export const DealDetails = () => {
               ) : null)}
             <DealOverView
               dealItem={dealItem}
+              dealId={dealId}
               stages={stages}
               setDealItem={setDealItem}
               onDealModified={(e: any) => onDealModified(e)}

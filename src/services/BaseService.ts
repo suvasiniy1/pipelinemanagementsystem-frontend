@@ -66,6 +66,30 @@ export class BaseService<TItem extends AuditItem>{
         return promise;
     }
 
+    getItemsByRelativeURL(url: string, axiosCancel?: CancelTokenSource, isTokenOptional: boolean = false) {
+        console.log("GET - URL: ", `${baseURL}/${this.urlSuffix}/${url}`, " | Token: ", getActiveUserToken());
+        var promise = new Promise<any>((resolve, reject) => {
+            axios({
+                method: 'GET',
+                url:  url,
+                headers: {
+                    'Content-Type': 'application/json; charset=UTF-8',
+                    'Media-type': 'application/json',
+                    'Authorization': `${!isTokenOptional ? 'Bearer ' + getActiveUserToken() : null}`
+                },
+                cancelToken: axiosCancel?.token
+            }).then((res: AxiosResponse) => {
+                console.log("getItemsBySubURL - res: ", res);
+                resolve(res?.data);
+            }).catch((err: AxiosError) => {
+                console.log("getItemsBySubURL - Exception Occurred - err: ", err,
+                    " | Code: ", err.code, " | err.message", err.message,);
+                reject(err);
+            })
+        });
+        return promise;
+    }
+
     getItem(id: number, mockDataUrl?:string, axiosCancel?: CancelTokenSource) {
 
         var promise = new Promise<any>((resolve, reject) => {

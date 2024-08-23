@@ -46,16 +46,25 @@ export const TemplateGrid = (props: params) => {
       res.forEach((i) => {
         let obj = {
           ...i,
-          header: JSON.parse(i.header as any),
-          body: JSON.parse(i.body as any),
-          footer: JSON.parse(i.footer as any),
+          header: IsJson(i.header) ? JSON.parse(i.header as any) : i.header,
+          body: IsJson(i.body) ? JSON.parse(i.body as any) : i.body,
+          footer: IsJson(i.footer) ? JSON.parse(i.footer as any) : i.footer,
         };
         itemList.push(obj);
-      });
+      }); 
       setRowData([...itemList]);
       setIsLoading(false);
     });
   }, []);
+
+  function IsJson(str:any) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
 
   return (
     <>

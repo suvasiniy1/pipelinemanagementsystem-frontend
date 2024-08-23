@@ -18,8 +18,6 @@ import CampaignDetails from "../components/emailCampaign/campaign/campaignDetail
 import { AuthProvider } from "../components/pipeline/deal/activities/email/authProvider";
 import UsersList from "../components/userManagement/userList"; 
 import PersonList from "../components/person/personList";
-import ProfilePage from "../components/profiles/ProfilePage";
-import { Profile } from "../components/other/Profile"; // The component you provided
 
 export const AppRouter = () => {
   useEffect(() => {
@@ -60,7 +58,6 @@ export const AppRouter = () => {
         <Route path="/CampaignDetails" element={<CampaignDetails />} />
         <Route path="/users" element={<UsersList />}/>
         <Route path="/Person" element={<PersonList />}/>
-        <Route path="/Profile" element={<ProfilePage />} />
       </Routes>
       <ToastContainer />
     </>

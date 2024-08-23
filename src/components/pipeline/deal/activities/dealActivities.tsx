@@ -1,40 +1,34 @@
-import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
-import Accordion from "react-bootstrap/Accordion";
-import Dropdown from "react-bootstrap/Dropdown";
 import Tab from "react-bootstrap/Tab";
 import Tabs from "react-bootstrap/Tabs";
 import { Deal } from "../../../../models/deal";
 import CallsActivites from "./call/callsActivites";
+import DealLogsList from "./dealActivityLogs/dealLogsList";
+import { AuthProvider } from "./email/authProvider";
 import EmailActivites from "./email/emailActivites";
 import NotesList from "./notes/notesList";
 import TasksList from "./tasks/tasksList";
-import { AuthProvider } from "./email/authProvider";
 
 type params = {
   dealItem: Deal;
+  dealId:number;
 };
 const DealActivities = (props: params) => {
-  const { dealItem, ...others } = props;
+  const { dealItem, dealId, ...others } = props;
   const [defaultActiveKey, setdefaultActiveKey] = useState("activity_sub");
 
   return (
     <>
-      <div className="timeline-tabscontent">
-        <Tabs
-          defaultActiveKey={defaultActiveKey}
-          transition={false}
-          onSelect={(e: any) => setdefaultActiveKey(e)}
-          id="noanim-tab-example"
-          className="mb-5 activity-subtab"
-        >
-          <Tab
-            eventKey="activity_sub"
-            title="Activity"
-            hidden={defaultActiveKey != "activity_sub"}
+        <div className="timeline-tabscontent">
+          <Tabs
+            defaultActiveKey={defaultActiveKey}
+            transition={false}
+            onSelect={(e: any) => setdefaultActiveKey(e)}
+            id="noanim-tab-example"
+            className="mb-5 activity-subtab"
           >
-            <div className="activityfilter-row pb-3">
+            <Tab eventKey="activity_sub" title="Activity">
+              {/* <div className="activityfilter-row pb-3">
               <div className="activityfilter-col1">
                 <label>Filter by:</label>
                 <select className="">
@@ -54,147 +48,39 @@ const DealActivities = (props: params) => {
                   </Dropdown.Menu>
                 </Dropdown>
               </div>
-            </div>
-            <h3>Upcoming</h3>
-            <div className="activityfilter-accrow mb-3">
-              <Accordion className="activityfilter-acco">
-                <Accordion.Item eventKey="0">
-                  <Accordion.Header>
-                    <span className="accoheader-title">
-                      <strong>Task</strong> assigned to sudhakar balla
-                    </span>
-                    <span className="accoheader-date">
-                      Apr 11, 2024 at 2:03 PM GMT+5:30
-                    </span>
-                  </Accordion.Header>
-                  <Accordion.Body>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                    do eiusmod tempor incididunt ut labore et dolore magna
-                    aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-                    ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                    Duis aute irure dolor in reprehenderit in voluptate velit
-                    esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-                    occaecat cupidatat non proident, sunt in culpa qui officia
-                    deserunt mollit anim id est laborum.
-                  </Accordion.Body>
-                  <div className="accofooter">
-                    <FontAwesomeIcon icon={faCircleCheck} /> First call
-                  </div>
-                </Accordion.Item>
-              </Accordion>
-            </div>
-            <h3>April 2024</h3>
-            <div className="activityfilter-accrow  mb-3">
-              <Accordion className="activityfilter-acco">
-                <Accordion.Item eventKey="0">
-                  <Accordion.Header>
-                    <span className="accoheader-title">
-                      <strong>Note</strong> by sudhakar balla
-                    </span>
-                    <span className="accoheader-date">
-                      Apr 11, 2024 at 2:03 PM GMT+5:30
-                    </span>
-                  </Accordion.Header>
-                  <Accordion.Body>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                    do eiusmod tempor incididunt ut labore et dolore magna
-                    aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-                    ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                    Duis aute irure dolor in reprehenderit in voluptate velit
-                    esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-                    occaecat cupidatat non proident, sunt in culpa qui officia
-                    deserunt mollit anim id est laborum.
-                  </Accordion.Body>
-                  <div className="accofooter">First note created</div>
-                </Accordion.Item>
-              </Accordion>
-            </div>
-            <h3>Upcoming</h3>
-            <div className="activityfilter-accrow mb-3">
-              <Accordion className="activityfilter-acco">
-                <Accordion.Item eventKey="0">
-                  <Accordion.Header>
-                    <span className="accoheader-title">
-                      <strong>Task</strong> assigned to sudhakar balla
-                    </span>
-                    <span className="accoheader-date">
-                      Apr 11, 2024 at 2:03 PM GMT+5:30
-                    </span>
-                  </Accordion.Header>
-                  <Accordion.Body>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                    do eiusmod tempor incididunt ut labore et dolore magna
-                    aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-                    ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                    Duis aute irure dolor in reprehenderit in voluptate velit
-                    esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-                    occaecat cupidatat non proident, sunt in culpa qui officia
-                    deserunt mollit anim id est laborum.
-                  </Accordion.Body>
-                  <div className="accofooter">
-                    <FontAwesomeIcon icon={faCircleCheck} /> First call
-                  </div>
-                </Accordion.Item>
-              </Accordion>
-            </div>
-            <h3>April 2024</h3>
-            <div className="activityfilter-accrow  mb-3">
-              <Accordion className="activityfilter-acco">
-                <Accordion.Item eventKey="0">
-                  <Accordion.Header>
-                    <span className="accoheader-title">
-                      <strong>Note</strong> by sudhakar balla
-                    </span>
-                    <span className="accoheader-date">
-                      Apr 11, 2024 at 2:03 PM GMT+5:30
-                    </span>
-                  </Accordion.Header>
-                  <Accordion.Body>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                    do eiusmod tempor incididunt ut labore et dolore magna
-                    aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-                    ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                    Duis aute irure dolor in reprehenderit in voluptate velit
-                    esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-                    occaecat cupidatat non proident, sunt in culpa qui officia
-                    deserunt mollit anim id est laborum.
-                  </Accordion.Body>
-                  <div className="accofooter">First note created</div>
-                </Accordion.Item>
-              </Accordion>
-            </div>
-          </Tab>
-          <Tab
-            eventKey="notes"
-            title="Notes"
-          >
-            {defaultActiveKey == "notes" && (
-              <NotesList dealId={dealItem.dealID} />
-            )}
-          </Tab>
-          <Tab
-            eventKey="email"
-            title="Email"
-            hidden={defaultActiveKey != "email"}
-          >
-            {defaultActiveKey == "email" && (
-              <AuthProvider>
-                <EmailActivites dealId={dealItem.dealID} />
-              </AuthProvider>
-            )}
-          </Tab>
-          <Tab eventKey="calls" title="Calls">
-            {defaultActiveKey == "calls" && <CallsActivites />}
-          </Tab>
-          <Tab eventKey="tasks" title="Tasks">
-            {defaultActiveKey == "tasks" && (
-              <AuthProvider>
-                <TasksList dealId={dealItem.dealID} />
-              </AuthProvider>
-            )}
-          </Tab>
-        </Tabs>
-      </div>
+            </div> */}
+              {defaultActiveKey === "activity_sub" && (
+                <DealLogsList dealItem={dealItem} dealId={dealId}/>
+              )}
+            </Tab>
+            <Tab eventKey="notes" title="Notes">
+              {defaultActiveKey == "notes" && (
+                <NotesList dealId={dealItem.dealID} />
+              )}
+            </Tab>
+            <Tab
+              eventKey="email"
+              title="Email"
+              hidden={defaultActiveKey != "email"}
+            >
+              {defaultActiveKey == "email" && (
+                <AuthProvider>
+                  <EmailActivites dealId={dealItem.dealID} />
+                </AuthProvider>
+              )}
+            </Tab>
+            <Tab eventKey="calls" title="Calls">
+              {defaultActiveKey == "calls" && <CallsActivites />}
+            </Tab>
+            <Tab eventKey="tasks" title="Tasks">
+              {defaultActiveKey == "tasks" && (
+                <AuthProvider>
+                  <TasksList dealId={dealItem.dealID} />
+                </AuthProvider>
+              )}
+            </Tab>
+          </Tabs>
+        </div>
     </>
   );
 };
