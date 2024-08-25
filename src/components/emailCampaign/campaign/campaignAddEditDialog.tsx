@@ -161,7 +161,6 @@ const CampaignAddEditDialog: React.FC<ViewEditProps> = (props) => {
         toast.success(
           `Campaign ${obj.id > 0 ? "updated" : "created"}  successfully`
         );
-        props.onSave();
         setDialogIsOpen(false);
       })
       .catch((err) => {

@@ -7,6 +7,7 @@ declare global {
             UseMockService:boolean;
             CampaignSections:Array<string>;
             ClientId:string;
+            DateFormat:string;
         }
     }
 }

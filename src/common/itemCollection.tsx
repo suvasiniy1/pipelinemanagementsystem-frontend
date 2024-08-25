@@ -172,7 +172,7 @@ const ItemCollection: React.FC<params> = (props) => {
 
   const [isSaveorUpdateClicked, setIsSaveorUpdateClicked] = useState(false);
   useEffect(() => {
-    let rowData = props.rowData;
+    let rowData = props.rowData ?? [];
     rowData?.forEach(
       (item: any) => {
         item.updatedBy = Util.getUserNameById(item?.modifiedBy ?? item?.createdBy);
@@ -309,7 +309,7 @@ const ItemCollection: React.FC<params> = (props) => {
   const addorUpdateItem = () => {
     return (
       <>
-        <div className="pipe-toolbar pt-3 pb-3">
+        <div className="pipe-toolbar pt-3 pb-3" hidden={!canAdd}>
           <div className="container-fluid">
             <div className="row toolbarview-row">
               <div className="col-sm-5 toolbarview-actions">

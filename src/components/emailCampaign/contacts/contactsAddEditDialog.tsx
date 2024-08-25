@@ -92,12 +92,17 @@ const ContactsAddEditDialog: React.FC<ViewEditProps> = (props) => {
     obj = Util.toClassObject(obj,item);
     obj.createdBy = Util.UserProfile()?.userId;
     obj.id = obj.id ?? 0;
+    if(obj.id>0){
+      obj.createdDate = selectedItem?.createdDate;
+      obj.modifiedBy = Util.UserProfile()?.userId;
+      obj.modifiedDate = new Date();
+    }
     (obj.id>0 ? contactSvc.putItemBySubURL(obj, `${obj.id}`) : contactSvc.postItem(obj)).then(res=>{
         
         if(res){
             toast.success(`Contact ${obj.id>0 ? 'updated' : 'created'} successfully`);
-            props.onSave();
         }
+        setLoadRowData(true);
         setDialogIsOpen(false);
     }).catch(err=>{
         toast.success(`Unable to ${obj.id>0 ? 'update' : 'save'} contact `);

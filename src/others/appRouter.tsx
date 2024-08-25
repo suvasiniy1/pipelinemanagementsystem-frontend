@@ -19,6 +19,7 @@ import { AuthProvider } from "../components/pipeline/deal/activities/email/authP
 import UsersList from "../components/userManagement/userList"; 
 import PersonList from "../components/person/personList";
 import ReportingDashboard from "../components/reporting/reportingDashboard";
+import EnquiryFormList from "../components/enquiryForm/enquiryFormsList";
 
 export const AppRouter = () => {
   useEffect(() => {
@@ -60,6 +61,7 @@ export const AppRouter = () => {
         <Route path="/users" element={<UsersList />}/>
         <Route path="/Person" element={<PersonList />}/>
         <Route path="/Reporting" element={<ReportingDashboard />}/>
+        <Route path="/Enquiries" element={<EnquiryFormList />}/>
       </Routes>
       <ToastContainer />
     </>
