@@ -309,13 +309,13 @@ const ItemCollection: React.FC<params> = (props) => {
   const addorUpdateItem = () => {
     return (
       <>
-        <div className="pipe-toolbar pt-3 pb-3" hidden={!canAdd}>
+        <div className="pipe-toolbar pt-3 pb-3">
           <div className="container-fluid">
             <div className="row toolbarview-row">
               <div className="col-sm-5 toolbarview-actions">
                 <h4>{itemName+" List"}</h4>
               </div>
-              <div className="col-sm-7 toolbarview-summery">
+              <div className="col-sm-7 toolbarview-summery" hidden={!canAdd}>
                 <div className="toolbarview-actionsrow">
                   <button
                     type="button"

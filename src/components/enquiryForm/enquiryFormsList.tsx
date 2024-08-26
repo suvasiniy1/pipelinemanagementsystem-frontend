@@ -20,7 +20,8 @@ const EnquiryFormList = () => {
 
     return (
         <ItemCollection
-            itemName={"EnquiryForm"}
+        
+            itemName={"Enquiries"}
             canDoActions={false}
             canAdd={false}
             itemType={EnquiryForm}
