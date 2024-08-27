@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import ItemCollection from "../../common/itemCollection";
 import { Person } from "../../models/person";
@@ -19,42 +18,13 @@ const PersonList = () => {
         { columnName: "sourceName", columnHeaderName: "Source", width: 150 },
     ];
 
-    const personSvc = new personService(ErrorBoundary);
-    const [rowData, setRowData] = useState<Array<Person>>([]);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        loadData();
-    }, []);
-
-    const loadData = () => {
-        setIsLoading(true);
-        personSvc.getPersons().then((res: Array<Person>) => {
-            console.log("Fetched Persons: ", res); // Log the data
-            if (res) {
-                const transformedData = res.map(rowTransform);
-                setRowData([...transformedData]);
-            }
-            setIsLoading(false);
-        }).catch((err) => {
-            setRowData([]);
-            setIsLoading(false);
-        });
-    };
-    const rowTransform = (item: Person, index: number) => {
-        return { ...item, id: item.personID > 0 ? item.personID : index }; // Ensure a unique id
-    };
-
     return (
         <ItemCollection
             itemName={"Person"}
-            rowData={rowData}
-            isLoading={isLoading}
             itemType={Person}
             columnMetaData={columnMetaData}
             viewAddEditComponent={PersonAddEditDialog}
-            onSave={(e: any) => loadData()}
-            postDelete={(e: any) => loadData()}
+            itemsBySubURL={"GetAllPersonDetails"}
             api={new personService(ErrorBoundary)}
         />
     );
