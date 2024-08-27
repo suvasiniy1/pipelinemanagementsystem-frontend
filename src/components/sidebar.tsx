@@ -3,7 +3,7 @@ import { FaDollarSign } from "react-icons/fa";
 import { HiTemplate } from "react-icons/hi";
 import { IoSettings } from "react-icons/io5";
 import { MdCampaign, MdEmail, MdLocalOffer } from "react-icons/md";
-import { RiAdminFill, RiContactsBookFill, RiDashboard2Fill } from "react-icons/ri";
+import { RiAdminFill, RiContactsBookFill, RiDashboard2Fill, RiMenuSearchFill } from "react-icons/ri";
 import { RxActivityLog } from "react-icons/rx";
 import { Menu, MenuItem, Sidebar, SubMenu } from "react-pro-sidebar";
 import { Link } from "react-router-dom";
@@ -172,7 +172,7 @@ export const SideBar = (props: params) => {
               Reporting
             </MenuItem>
             <MenuItem
-              icon={<RiDashboard2Fill />}
+              icon={<RiMenuSearchFill />}
               component={<Link to="/Enquiries" />}
               onClick={(e: any) => setSelectedNavItem("Enquiries")}
             >
