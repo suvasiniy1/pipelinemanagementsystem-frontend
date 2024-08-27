@@ -15,5 +15,14 @@ export class User extends AuditItem {
     roleName!:string;
     lastLogin?: Date;
     confirmPassword!: string; 
-  
+  // New properties with default values
+  country: string = "UK";
+  state: string | null = null; // State is set to null by default
+  language: string = "English";
+  timeZone: string = "(GMT +00:00) United Kingdom Time";
+  profilePicture?: string; // Optional property
+  constructor() {
+      super();
+      // Any additional initialization logic can go here
+  }
 }
