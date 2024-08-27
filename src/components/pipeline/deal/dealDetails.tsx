@@ -169,7 +169,7 @@ export const DealDetails = () => {
               <div className="app-dealblock">
                 <div className="app-dealblock-inner">
                   <div className="appdealblock-title">
-                    <h3>{dealItem?.treatmentName}</h3>
+                    <h3>{dealItem?.pipelineName}</h3>
                     <div className="appdealblock-titleedit">
                       <FontAwesomeIcon icon={faPencil} />
                     </div>
@@ -179,7 +179,7 @@ export const DealDetails = () => {
                       <div className="appdeal-amount dflex">
                         Deal:{" "}
                         <span className="appdeal-amountnum">
-                          {dealItem.title}
+                          ${dealItem.title}
                         </span>
                       </div>
                     </div>
@@ -313,9 +313,38 @@ export const DealDetails = () => {
                           <button className="btn fields-btnedit">
                             <FontAwesomeIcon icon={faPencil} />
                           </button>
-                          <button className="btn fields-detailbtn">Detail</button>
+                          <button className="btn fields-detailbtn">
+                            Detail
+                          </button>
                         </div>
-                      </div>                      
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="appdealblock-row mt-1">
+                    <div className="appdeal-amount dflex">
+                      Phone:{" "}
+                      <span className="appdeal-amountnum">
+                        {dealItem.phone}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="appdealblock-row mt-1">
+                    <div className="appdeal-amount dflex">
+                      Email:{" "}
+                      <span className="appdeal-amountnum">
+                        {dealItem.email}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="appdealblock-row mt-1">
+                    <div className="appdeal-amount dflex">
+                      Person Name:{" "}
+                      <span className="appdeal-amountnum">
+                        {dealItem.personName}
+                      </span>
                     </div>
                   </div>
                 </div>
