@@ -10,6 +10,9 @@ import { loginRequest } from "./authConfig";
 import EmailComposeDialog from "./emailComposeDialog";
 import { deleteEmail, getSentEmails, sendEmail } from "./emailService"; // Assuming you have a function to fetch sent emails
 import SentEmailsList from "./sentEmailsList";
+import { DealAuditLogService } from "../../../../../services/dealAuditLogService";
+import { ErrorBoundary } from "react-error-boundary";
+import { PostAuditLog } from "../../../../../models/dealAutidLog";
 
 type params = {
   dealId: any;
@@ -24,6 +27,7 @@ function EmailActivities(props: params) {
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
   const [selectedEmail, setSelectedEmail] = useState<any>();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const auditLogsvc = new DealAuditLogService(ErrorBoundary);
 
   useEffect(() => {
     
@@ -115,6 +119,10 @@ function EmailActivities(props: params) {
       setEmailSent(true);
       setDialogIsOpen(false);
       toast.success("Email sent successfully");
+      let auditLogObj = {...new PostAuditLog(), eventType:"email Send", dealId:dealId}
+      auditLogObj.createdBy = Util.UserProfile()?.userId;
+      auditLogObj.eventDescription = "A new email was sent for the deal";
+      await auditLogsvc.postAuditLog(auditLogObj);
       fetchData();
     } catch (error) {
       console.error("Email sending failed", error);

@@ -321,6 +321,15 @@ export const DealDetails = () => {
                     </div>
                   </div>
 
+                  <div className="appdealblock-head">
+                    <div className="appblock-headcolleft">
+                      <button className="appblock-collapse">
+                        <span className="appblock-titlelabel">
+                          <FontAwesomeIcon icon={faAngleDown} /> About Person
+                        </span>
+                      </button>
+                    </div>
+                  </div>
                   <div className="appdealblock-row mt-1">
                     <div className="appdeal-amount dflex">
                       Phone:{" "}

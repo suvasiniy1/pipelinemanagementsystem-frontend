@@ -28,6 +28,8 @@ import {
   updateCalendarEventToUser,
   updateTask,
 } from "../email/emailService";
+import { PostAuditLog } from "../../../../../models/dealAutidLog";
+import { DealAuditLogService } from "../../../../../services/dealAuditLogService";
 
 type params = {
   dealId: number;
@@ -52,6 +54,7 @@ export const TaskAddEdit = (props: params) => {
   const [taskItemObj, setTaskItemObj] = useState<any>({});
   const [accessToken, setAccessToken] = useState();
   const [userGuID, setUserGuID] = useState();
+  const auditLogsvc = new DealAuditLogService(ErrorBoundary);
 
   const controlsList: Array<IControl> = [
     {
@@ -387,6 +390,17 @@ export const TaskAddEdit = (props: params) => {
                   addUpdateItem.taskId > 0 ? "updated" : "added"
                 } successfully`
               );
+              let auditLogObj = {
+                ...new PostAuditLog(),
+                eventType: "Task created",
+                dealId: dealId,
+              };
+              auditLogObj.createdBy = Util.UserProfile()?.userId;
+              auditLogObj.eventDescription =
+                addUpdateItem.taskId > 0
+                  ? "Task was updated for the deal"
+                  : "A new task was crated for the deal";
+              auditLogsvc.postAuditLog(auditLogObj);
             } else {
               if(addUpdateItem.todo==="To Do"){
                 handleTaskFailure(accessToken, userGuID, res)
@@ -442,6 +456,7 @@ export const TaskAddEdit = (props: params) => {
   };
 
   const onChange = (value: any, item: any) => {
+    
     setValue(item.value as never, value as never);
     if (value) unregister(item.value as never);
     else register(item.value as never);
