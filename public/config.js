@@ -1,5 +1,5 @@
 window.config = {
-    ServicesBaseURL: "http://20.26.122.140/PLMS/api",
+    ServicesBaseURL: "http://localhost:5127/api",
     DefaultStages:["Qualified", "Conact Made", "Demo Scheduled", "Proposal Made", "Negotiations Started"],
     UseMockService:false,
     CampaignSections:["Assets", "Tasks"],
