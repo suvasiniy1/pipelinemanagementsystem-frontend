@@ -23,6 +23,7 @@ import { Stage } from "../../../../models/stage";
 import { NotesService } from "../../../../services/notesService";
 import DealActivities from "../activities/dealActivities";
 import { IsMockService } from "../../../../others/util";
+import { DealService } from "../../../../services/dealService";
 
 type params = {
   dealItem: Deal;
@@ -39,6 +40,7 @@ const DealOverView = (props: params) => {
   );
   const [activityFilter, setActivityFilter] = useState("All Activities");
   const notesSvc = new NotesService(ErrorBoundary);
+  const dealSvc = new DealService(ErrorBoundary); // Instantiate DealService
   const [notesList, setNotesList] = useState<Array<Notes>>([]);
   const [error, setError] = useState<AxiosError>();
   const [selectedTab, setSelectedTab] = useState("Overview");
@@ -57,6 +59,50 @@ const DealOverView = (props: params) => {
         setError(err);
       });
   }, []);
+// Function to update the deal status
+
+const updateDealStatus = async (status: string) => {
+  try {
+    const isClosed = status === 'Won' || status === 'Lost';
+
+    const statusIdMap: { [key: string]: number } = {
+      "Open": 1,
+      "Won": 2,
+      "Lost": 3,
+      "Closed": 4,
+    };
+
+    const updatedDeal = {
+      ...dealItem,
+      StatusID: statusIdMap[status], 
+      isClosed,
+      ModifiedDate: new Date(),
+    };
+
+    const response = await dealSvc.updateAllDeals([updatedDeal]);
+
+    if (response) {
+
+      setTimeout(() => {
+        setDealItem({ ...dealItem, ...updatedDeal });
+        alert(`Deal marked as ${status}`);
+       // onDealModified(status);
+      }, 100); 
+    }
+  } catch (error) {
+    console.error('Failed to update deal status', error);
+    alert('Failed to update deal status');
+  }
+};
+
+
+const handleWonClick = () => {
+  updateDealStatus('Won');
+};
+
+const handleLostClick = () => {
+  updateDealStatus('Lost');
+};
 
   return (
     <>
@@ -90,12 +136,12 @@ const DealOverView = (props: params) => {
                                                     <button className="follower-button"><span className="followerlabel">1 follower</span><FontAwesomeIcon icon={faSortDown} /></button>
                                                      */}
                     <div className="wonlost-btngroup">
-                      <button className="btn btn-success wonbtn">
+                      <button className="btn btn-success wonbtn" onClick={handleWonClick}>
                         <span className="label">
                           <FontAwesomeIcon icon={faThumbsUp} />
                         </span>
                       </button>
-                      <button className="btn btn-danger lostbtn">
+                      <button className="btn btn-danger lostbtn" onClick={handleLostClick}>
                         <span className="label">
                           <FontAwesomeIcon icon={faThumbsDown} />
                         </span>

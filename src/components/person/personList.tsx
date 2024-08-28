@@ -17,6 +17,13 @@ const PersonList = () => {
         { columnName: "labelName", columnHeaderName: "Label", width: 150 },
         { columnName: "userName", columnHeaderName: "Username", width: 150 },
         { columnName: "sourceName", columnHeaderName: "Source", width: 150 },
+        { columnName: "openDeals", columnHeaderName: "Open Deal", width: 150 },
+        {
+            columnName: "closedDeals",
+            columnHeaderName: "Closed Deals",
+            width: 150,
+            renderCell: (value: number) => value !== undefined && value !== null ? value : 0 
+        }
     ];
 
     const personSvc = new personService(ErrorBoundary);
@@ -42,9 +49,12 @@ const PersonList = () => {
         });
     };
     const rowTransform = (item: Person, index: number) => {
-        return { ...item, id: item.personID > 0 ? item.personID : index }; // Ensure a unique id
+        return { ...item, id: item.personID > 0 ? item.personID : index,
+            openDeals: item.openDeals !== undefined ? item.openDeals : 0,
+            closedDeals: item.closedDeals !== undefined ? item.closedDeals : 0
+         }; // Ensure a unique id
     };
-
+    console.log("Final rowData passed to ItemCollection: ", rowData);
     return (
         <ItemCollection
             itemName={"Person"}

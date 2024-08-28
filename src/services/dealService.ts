@@ -19,4 +19,7 @@ export class DealService extends BaseService<Deal>{
     deleteDeal(dealId:number){
         return this.delete(dealId, "Deal");
     }
+    updateAllDeals(deals: Partial<Deal>[], axiosCancel?: CancelTokenSource) {
+        return this.putItemBySubURL(deals, 'UpdateAllDeals', axiosCancel);
+    }
 }

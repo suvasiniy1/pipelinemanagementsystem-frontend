@@ -33,7 +33,8 @@ export class Deal extends AuditItem {
     enquiryDetails!: string
     pipelineTypeName!: string
     visibilityGroupName!: string
-
+    status?: string;  // Add this if it's not already there
+    isClosed!: boolean;  // Add this if it's not already there
     // constructor(dealID: number = null as any,
     //     contactPersonID: number = null as any,
     //     organizationID: number = null as any,
