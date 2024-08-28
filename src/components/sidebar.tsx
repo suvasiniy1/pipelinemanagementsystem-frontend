@@ -171,6 +171,13 @@ export const SideBar = (props: params) => {
             >
               Reporting
             </MenuItem>
+            <MenuItem
+              icon={<RiDashboard2Fill />}
+              component={<Link to="/Enquiries" />}
+              onClick={(e: any) => setSelectedNavItem("Enquiries")}
+            >
+              Enquiries
+            </MenuItem>
           </Menu>
         </Sidebar>
       </>

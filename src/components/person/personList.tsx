@@ -58,13 +58,10 @@ const PersonList = () => {
     return (
         <ItemCollection
             itemName={"Person"}
-            rowData={rowData}
-            isLoading={isLoading}
             itemType={Person}
             columnMetaData={columnMetaData}
             viewAddEditComponent={PersonAddEditDialog}
-            onSave={(e: any) => loadData()}
-            postDelete={(e: any) => loadData()}
+            itemsBySubURL={"GetAllPersonDetails"}
             api={new personService(ErrorBoundary)}
         />
     );

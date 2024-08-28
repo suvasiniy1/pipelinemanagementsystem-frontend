@@ -21,6 +21,8 @@ import Util from "../others/util";
 import renderCellExpand from "./renderCellExpand";
 import { DeleteDialog } from "./deleteDialog";
 import { toast } from "react-toastify";
+import { Spinner } from "react-bootstrap";
+import moment from "moment";
 
 const useStyles = makeStyles((theme) => ({
   dataGrid: {
@@ -157,6 +159,7 @@ const Table: React.FC<TableListProps> = (props) => {
   
   const [rowData, setRowData] = useState(props.rowData ?? []);
   const [columnMetaData, setColumnMetaRowData] = useState(props.columnMetaData);
+  
   const [loadRowData, setLoadRowData] = useState(true);
   const canDoActions = props.canDoActions;
   const propNameforSelector = props.propNameforSelector;
@@ -175,8 +178,38 @@ const Table: React.FC<TableListProps> = (props) => {
 
   useEffect(() => {
     setColumnMetaRowData(props.columnMetaData);
-    setRowData(props.rowData);
   }, [props]);
+
+  useEffect(()=>{
+    
+    setIsLoading(true);
+      (props.itemsBySubURL ? props.serviceAPI.getItemsBySubURL(props.itemsBySubURL) : props.serviceAPI.getItems()).then((res:Array<any>)=>{
+        
+        console.log("res  "+ JSON.stringify(res));
+        res.forEach((r, index)=>{
+          r.id= r.id?? index+1;
+          return r;
+        })
+        res = processRowData(res);
+        var transformedRowData = res?.map((r:any)=>{
+          return props.rowTransformFn(r);
+        });
+        setRowData(transformedRowData);
+        setIsLoading(false);
+        setLoadRowData(false);
+      }).catch((err:any)=>{
+        setIsLoading(false);
+        toast.error("Unable to retreive list");
+      })
+  },[loadRowData])
+
+  const processRowData=(rowData:Array<any>)=>{
+    rowData.forEach(r=>{
+      r.modifiedBy = Util.getUserNameById(r.updatedBy ?? r.createdBy);
+      r.modifiedDate = moment(r.updatedDate ?? r.createdDate).format(window.config.DateFormat)
+    });
+    return rowData;
+  }
 
   const getSelectedItemfromCellValues = (cellValues: any) => {
     let newSelectedItem = { ...selectedItem };
@@ -227,6 +260,7 @@ const Table: React.FC<TableListProps> = (props) => {
       .delete(selectedItem.id, userProfile.userId)
       .then((res: any) => {
         toast.success(itemType + " deleted successfully");
+        
         if (props.postDelete) {
           props.postDelete();
         }
@@ -404,6 +438,11 @@ const Table: React.FC<TableListProps> = (props) => {
           actionType={actionType}
         />
       )}
+            {isLoading ? (
+        <div className="alignCenter">
+          <Spinner />
+        </div>
+      ) : (
       <DataGrid
         rows={rowData}
         className={classes.dataGrid}
@@ -418,6 +457,7 @@ const Table: React.FC<TableListProps> = (props) => {
         pageSizeOptions={[5]}
         disableRowSelectionOnClick
       />
+      )}
     </Grid>
   );
 };

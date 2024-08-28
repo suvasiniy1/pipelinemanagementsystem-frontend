@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import ItemCollection from "../../common/itemCollection";
 import { User } from "../../models/user";
@@ -18,28 +17,6 @@ const UsersList = () => {
         { columnName: "lastLogin", columnHeaderName: "Last Login", width: 150 },
     ];
 
-    const userSvc = new UserService(ErrorBoundary);
-    const [rowData, setRowData] = useState<Array<User>>([]);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        loadData();
-    }, []);
-
-    const loadData = () => {
-        setIsLoading(true);
-        userSvc.getUsers().then((res: Array<User>) => {
-            console.log("Fetched Users: ", res); // Log the data
-            if (res) {
-                const transformedData = res.map(rowTransform);
-                setRowData([...transformedData]);
-            }
-            setIsLoading(false);
-        }).catch((err) => {
-            setRowData([]);
-            setIsLoading(false);
-        });
-    };
     const rowTransform = (item: User, index: number) => {
         return { ...item, id: item.userId > 0 ? item.userId : index }; // Ensure a unique id
     };
@@ -47,13 +24,11 @@ const UsersList = () => {
     return (
         <ItemCollection
             itemName={"User"}
-            rowData={rowData}
-            isLoading={isLoading}
             itemType={User}
             columnMetaData={columnMetaData}
             viewAddEditComponent={UsersAddEditDialog}
-            onSave={(e: any) => loadData()}
-            postDelete={(e: any) => loadData()}
+            itemsBySubURL={"GetUsers"}
+            rowTransformFn={rowTransform}
             api={new UserService(ErrorBoundary)}
         />
     );
