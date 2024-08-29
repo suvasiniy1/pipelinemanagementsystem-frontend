@@ -62,6 +62,10 @@ export const DealDetails = () => {
   const navigator = useNavigate();
   const { instance, accounts } = useMsal();
 
+  useEffect(()=>{
+
+  },[dealItem])
+
   useEffect(() => {
     Promise.all([dealSvc.getDealsById(dealId), stagesSvc.getStages(pipeLineId)])
       .then((res) => {
@@ -196,6 +200,7 @@ export const DealDetails = () => {
                         Close Date:{" "}
                         <div className="closedateinput">
                           <DATEPICKER
+                            onChange={(e:any)=>setDealItem({...dealItem, operationDate:e})}
                             isValidationOptional={true}
                             selectedItem={dealItem}
                             value={moment(dealItem.operationDate).format(
@@ -299,6 +304,7 @@ export const DealDetails = () => {
                       <div className="appdeal-dtvalue">
                         <SelectDropdown
                           isValidationOptional={true}
+                          onItemChange={(e:any)=>setDealItem({...dealItem, contactPersonID:e})}
                           value={"" + dealItem.contactPersonID}
                           list={
                             utility?.persons.map(
