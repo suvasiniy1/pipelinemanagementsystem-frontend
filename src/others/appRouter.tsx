@@ -17,7 +17,10 @@ import CampaignList from "../components/emailCampaign/campaign/campaignList";
 import CampaignDetails from "../components/emailCampaign/campaign/campaignDetails";
 import { AuthProvider } from "../components/pipeline/deal/activities/email/authProvider";
 import UsersList from "../components/userManagement/userList"; 
+import PersonList from "../components/person/personList";
 import ReportingDashboard from "../components/reporting/reportingDashboard";
+import ProfilePage from "../components/profiles/ProfilePage";
+import EnquiryFormList from "../components/enquiryForm/enquiryFormsList";
 
 export const AppRouter = () => {
   useEffect(() => {
@@ -57,7 +60,10 @@ export const AppRouter = () => {
         <Route path="/Campaigns" element={<CampaignList />} />
         <Route path="/CampaignDetails" element={<CampaignDetails />} />
         <Route path="/users" element={<UsersList />}/>
+        <Route path="/Person" element={<PersonList />}/>
+        <Route path="/profile" element={<ProfilePage/>} />
         <Route path="/Reporting" element={<ReportingDashboard />}/>
+        <Route path="/Enquiries" element={<EnquiryFormList />}/>
       </Routes>
       <ToastContainer />
     </>

@@ -177,7 +177,6 @@ const TemplatesAddEditDialog: React.FC<ViewEditProps> = (props) => {
         toast.success(
           `Template ${obj.id > 0 ? "updated" : "created"}  successfully`
         );
-        props.onSave();
         setDialogIsOpen(false);
       })
       .catch((err) => {

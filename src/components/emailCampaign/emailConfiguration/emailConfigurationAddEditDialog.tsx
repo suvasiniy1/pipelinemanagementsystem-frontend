@@ -154,7 +154,7 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
       setContactsList(res);
       setIsLoading(false);
     }).catch(err=>{
-      
+
     });
   }, []);
 
@@ -271,7 +271,6 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
         toast.success(
           `Template ${obj.id > 0 ? "updated" : "created"}  successfully`
         );
-        props.onSave();
         setDialogIsOpen(false);
       })
       .catch((err) => {

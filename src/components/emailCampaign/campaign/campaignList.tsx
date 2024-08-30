@@ -24,22 +24,6 @@ const CampaignList = () => {
     },
   ];
 
-  const templateSvc = new CampaignService(ErrorBoundary);
-  const [rowData, setRowData] = useState<Array<Campaign>>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = () => {
-    setIsLoading(true);
-    templateSvc.getCampaigns().then((res) => {
-      setRowData(res);
-      setIsLoading(false);
-    });
-  };
-
   const rowTransform = (item: Campaign) => {
     return {
       ...item,
@@ -52,15 +36,10 @@ const CampaignList = () => {
   return (
     <ItemCollection
       itemName={"Campaign"}
-      rowData={rowData?.map((i) => {
-        return rowTransform(i);
-      })}
-      isLoading={isLoading}
       itemType={Campaign}
       columnMetaData={columnMetaData}
       viewAddEditComponent={CampaignAddEditDialog}
-      onSave={(e: any) => loadData()}
-      postDelete={(e: any) => loadData()}
+      rowTransformFn={rowTransform}
       api={new CampaignService(ErrorBoundary)}
     />
   );

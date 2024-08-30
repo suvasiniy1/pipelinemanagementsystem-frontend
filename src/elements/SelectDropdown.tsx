@@ -39,7 +39,7 @@ export const SelectDropdownWithValidation = (props: params) => {
 }
 
 const SelectDropdown = (props: params) => {
-    console.log("Selectdropdown component rendered with props ", props);
+    
 
     const { item, selectedItem, onItemChange, list, disable, isValidationOptional, value, hideSelect, ...others } = props;
 

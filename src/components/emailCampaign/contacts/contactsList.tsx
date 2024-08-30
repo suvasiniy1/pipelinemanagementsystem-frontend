@@ -12,44 +12,40 @@ const ContactsList = () => {
     { columnName: "email", columnHeaderName: "Email Address", width: 150 },
     { columnName: "phone", columnHeaderName: "Phone Number", width: 150 },
     {
-      columnName: "updatedBy",
+      columnName: "modifiedBy",
       columnHeaderName: "Last Modified By",
       width: 150,
     },
     {
-      columnName: "updatedDate",
+      columnName: "modifiedDate",
       columnHeaderName: "Last Modified Date",
       width: 150,
     },
   ];
 
-  const contactSvc = new ContacteService(ErrorBoundary);
-  const [rowData, setRowData] = useState<Array<Contact>>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // useEffect(() => {
+  //   loadData();
+  // }, []);
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  // const loadData = () => {
+  //   setIsLoading(true);
+  //   contactSvc
+  //     .getContacts()
+  //     .then((res: Array<Contact>) => {
+  //       if (res) {
+  //         res.forEach((r) => {
+  //           r = rowTransform(r);
+  //         });
+  //         setRowData([...res]);
+  //       }
 
-  const loadData = () => {
-    setIsLoading(true);
-    contactSvc
-      .getContacts()
-      .then((res: Array<Contact>) => {
-        if (res) {
-          res.forEach((r) => {
-            r = rowTransform(r);
-          });
-          setRowData([...res]);
-        }
-
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        setRowData([]);
-        setIsLoading(false);
-      });
-  };
+  //       setIsLoading(false);
+  //     })
+  //     .catch((err) => {
+  //       setRowData([]);
+  //       setIsLoading(false);
+  //     });
+  // };
 
   const rowTransform = (item: Contact) => {
     ;
@@ -60,13 +56,10 @@ const ContactsList = () => {
   return (
     <ItemCollection
       itemName={"Contact"}
-      rowData={rowData}
-      isLoading={isLoading}
       itemType={Contact}
+      rowTransformFn={rowTransform}
       columnMetaData={columnMetaData}
       viewAddEditComponent={ContactsAddEditDialog}
-      onSave={(e: any) => loadData()}
-      postDelete={(e: any) => loadData()}
       api={new ContacteService(ErrorBoundary)}
     />
   );

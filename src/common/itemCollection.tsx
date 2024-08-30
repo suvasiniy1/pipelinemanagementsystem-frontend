@@ -172,7 +172,7 @@ const ItemCollection: React.FC<params> = (props) => {
 
   const [isSaveorUpdateClicked, setIsSaveorUpdateClicked] = useState(false);
   useEffect(() => {
-    let rowData = props.rowData;
+    let rowData = props.rowData ?? [];
     rowData?.forEach(
       (item: any) => {
         item.updatedBy = Util.getUserNameById(item?.modifiedBy ?? item?.createdBy);
@@ -315,7 +315,7 @@ const ItemCollection: React.FC<params> = (props) => {
               <div className="col-sm-5 toolbarview-actions">
                 <h4>{itemName+" List"}</h4>
               </div>
-              <div className="col-sm-7 toolbarview-summery">
+              <div className="col-sm-7 toolbarview-summery" hidden={!canAdd}>
                 <div className="toolbarview-actionsrow">
                   <button
                     type="button"

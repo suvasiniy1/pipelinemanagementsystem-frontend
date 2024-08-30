@@ -3,7 +3,7 @@ import { FaDollarSign } from "react-icons/fa";
 import { HiTemplate } from "react-icons/hi";
 import { IoSettings } from "react-icons/io5";
 import { MdCampaign, MdEmail, MdLocalOffer } from "react-icons/md";
-import { RiAdminFill, RiContactsBookFill, RiDashboard2Fill } from "react-icons/ri";
+import { RiAdminFill, RiContactsBookFill, RiDashboard2Fill, RiMenuSearchFill } from "react-icons/ri";
 import { RxActivityLog } from "react-icons/rx";
 import { Menu, MenuItem, Sidebar, SubMenu } from "react-pro-sidebar";
 import { Link } from "react-router-dom";
@@ -109,6 +109,13 @@ export const SideBar = (props: params) => {
               <b hidden={selectedNavItem != "Activities"}>Activities</b>
               <p hidden={selectedNavItem == "Activities"}>Activities</p>
             </MenuItem>
+            <MenuItem
+              icon={<RiContactsBookFill />}
+              component={<Link to="/Person" />}
+              onClick={(e: any) => setSelectedNavItem("Person")}
+            >
+             Persons
+            </MenuItem>
             <SubMenu icon={<MdCampaign />} defaultOpen={compaignSubMenu.includes(selectedNavItem)} label="Campaigns">
               <MenuItem
                 icon={<HiTemplate />}
@@ -163,6 +170,13 @@ export const SideBar = (props: params) => {
               onClick={(e: any) => setSelectedNavItem("Reporting")}
             >
               Reporting
+            </MenuItem>
+            <MenuItem
+              icon={<RiMenuSearchFill />}
+              component={<Link to="/Enquiries" />}
+              onClick={(e: any) => setSelectedNavItem("Enquiries")}
+            >
+              Enquiries
             </MenuItem>
           </Menu>
         </Sidebar>

@@ -1,12 +1,12 @@
-export class Organization {
+import { AuditItem } from "./base/AuditNamedItem";
+export class Organization extends AuditItem{
     organizationID!: number
     name!: string
     labelID!: number
     ownerID!: number
     address!: string
     visibilityGroupID!: number
-    createdDate!: string
-    createdBy!: number
-    modifiedDate: any
-    modifiedBy!: number
   }
+
+  
+

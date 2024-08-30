@@ -62,6 +62,10 @@ export const DealDetails = () => {
   const navigator = useNavigate();
   const { instance, accounts } = useMsal();
 
+  useEffect(()=>{
+
+  },[dealItem])
+
   useEffect(() => {
     Promise.all([dealSvc.getDealsById(dealId), stagesSvc.getStages(pipeLineId)])
       .then((res) => {
@@ -196,6 +200,7 @@ export const DealDetails = () => {
                         Close Date:{" "}
                         <div className="closedateinput">
                           <DATEPICKER
+                            onChange={(e:any)=>setDealItem({...dealItem, operationDate:e})}
                             isValidationOptional={true}
                             selectedItem={dealItem}
                             value={moment(dealItem.operationDate).format(
@@ -299,6 +304,7 @@ export const DealDetails = () => {
                       <div className="appdeal-dtvalue">
                         <SelectDropdown
                           isValidationOptional={true}
+                          onItemChange={(e:any)=>setDealItem({...dealItem, contactPersonID:e})}
                           value={"" + dealItem.contactPersonID}
                           list={
                             utility?.persons.map(
@@ -313,9 +319,47 @@ export const DealDetails = () => {
                           <button className="btn fields-btnedit">
                             <FontAwesomeIcon icon={faPencil} />
                           </button>
-                          <button className="btn fields-detailbtn">Detail</button>
+                          <button className="btn fields-detailbtn">
+                            Detail
+                          </button>
                         </div>
-                      </div>                      
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="appdealblock-head">
+                    <div className="appblock-headcolleft">
+                      <button className="appblock-collapse">
+                        <span className="appblock-titlelabel">
+                          <FontAwesomeIcon icon={faAngleDown} /> About Person
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                  <div className="appdealblock-row mt-1">
+                    <div className="appdeal-amount dflex">
+                      Phone:{" "}
+                      <span className="appdeal-amountnum">
+                        {dealItem.phone}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="appdealblock-row mt-1">
+                    <div className="appdeal-amount dflex">
+                      Email:{" "}
+                      <span className="appdeal-amountnum">
+                        {dealItem.email}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="appdealblock-row mt-1">
+                    <div className="appdeal-amount dflex">
+                      Person Name:{" "}
+                      <span className="appdeal-amountnum">
+                        {dealItem.personName}
+                      </span>
                     </div>
                   </div>
                 </div>
