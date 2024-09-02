@@ -489,6 +489,7 @@ export const TaskAddEdit = (props: params) => {
                   <Spinner />
                 </div>
               )}
+              <br />
               <div className="modelformfiledrow row">
                 <div>
                   <div className="modelformbox ps-2 pe-2">
@@ -504,7 +505,7 @@ export const TaskAddEdit = (props: params) => {
                         }
                       />
                     }
-                    <br />
+                    
                   </div>
                 </div>
               </div>

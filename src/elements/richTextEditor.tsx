@@ -52,6 +52,7 @@ const RichTextEditor = (props: params) => {
         <>
           <br hidden={hideSpace} />
           <ReactQuill onChange={(e:any)=>props.onChange(e)} value={value} />
+          <br hidden={hideSpace} />
         </>
       ) : (
         <RitechTextEditorWithValidation {...props} />

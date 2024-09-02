@@ -197,6 +197,7 @@ const TemplatesAddEditDialog: React.FC<ViewEditProps> = (props) => {
             closeDialog={oncloseDialog}
             onClose={oncloseDialog}
           >
+            
             <>
               {isLoading ? (
                 <div className="alignCenter">
@@ -300,7 +301,7 @@ const TemplatesAddEditDialog: React.FC<ViewEditProps> = (props) => {
                         </div>
                       </>
                     }
-                    <br />
+                    
                   </div>
                   <div className="col-6">
                     <TemplatePreview selectedItem={selectedItem} setHieghtWidth={false}/>

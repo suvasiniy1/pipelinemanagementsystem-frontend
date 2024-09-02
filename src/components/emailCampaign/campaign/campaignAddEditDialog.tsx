@@ -216,7 +216,7 @@ const CampaignAddEditDialog: React.FC<ViewEditProps> = (props) => {
                         />
                       </>
                     }
-                    <br />
+                    
                   </div>
                 </div>
               )}

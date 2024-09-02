@@ -189,16 +189,16 @@ select.selectfield {border: 1px solid #dee2e6; height: 37px; width: 100%; border
 
 
 
-.pipelinestage-selector {display: flex; flex-grow: 1; position: relative; flex-flow: row nowrap; height: 24px; min-width: 240px; table-layout: fixed; width: 100%;}
+.pipelinestage-selector {display: flex; flex-grow: 1; position: relative; flex-flow: row nowrap; height: 6px; min-width: 240px; table-layout: fixed; width: 100%;}
 .pipelinestage{display: flex; flex-grow: 1; position: relative;}
-.pipelinestage{align-items: center; background-color: #2d8647; border-left: 3px solid #fff;
-/*-webkit-clip-path: polygon(calc(100% - 6px) 0, 100% 50%, calc(100% - 6px) 100%, 2px 100%, 8px 50%, 2px 0);
-clip-path: polygon(calc(100% - 6px) 0, 100% 50%, calc(100% - 6px) 100%, 2px 100%, 8px 50%, 2px 0);*/
-color: #fff; cursor: pointer; flex-basis: 0; font: 450 12px / 18px "Inter",sans-serif; font-stretch: normal; font-style: normal; justify-content: center; letter-spacing: 0; text-align: center; /* margin-left: -6px;*/}
-.pipelinestage:first-of-type {margin-left: 0; border-radius: 4px 0 0 4px; border-left:0; /*-webkit-clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 50%, calc(100% - 6px) 100%, 0 100%); clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 50%, calc(100% - 6px) 100%, 0 100%);*/}
-.pipelinestage:last-of-type {border-radius: 0 4px 4px 0; /*-webkit-clip-path: polygon(100% 0, 100% 100%, 2px 100%, 8px 50%, 2px 0); clip-path: polygon(100% 0, 100% 100%, 2px 100%, 8px 50%, 2px 0);*/}
+.pipelinestage{align-items: center; background-color: #6ca87d; color: #fff; cursor: pointer; flex-basis: 0; font: 450 12px / 18px "Inter",sans-serif; font-stretch: normal; font-style: normal; justify-content: center; letter-spacing: 0; text-align: center;}
 .pipelinestage-current~.pipelinestage {background-color: #e4cb9a; color: #21232c;}
-
+.pipelinestage:after {content: ''; position: absolute; left: 0; top: 50%; width: 20px; height: 20px; background-color: #2d8647; border-radius: 50%; margin-top: -10px;}
+.pipelinestage-current~.pipelinestage:after{background-color: #c7b89c;}
+.pipelinestage:first-of-type {margin-left: 0; border-radius: 4px 0 0 4px; border-left:0;}
+.pipelinestage:last-of-type {border-radius: 0 4px 4px 0;}
+.pipelinestage label {position: absolute; left: 0; top: 15px; color: #2d8647;}
+.pipelinestage-current~.pipelinestage > label{color: #21232c;}
 
 /* Campaigns Contact Page CSS*/
 .contactlist-row {display: flex; flex-direction: column; height: 100%;}

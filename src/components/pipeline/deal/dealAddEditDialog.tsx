@@ -126,7 +126,7 @@ export const DealAddEditDialog = (props: params) => {
             <div className="col-sm-6 pipelinestage-selector pipelinestage-active" aria-disabled={isLoading}>
                 {
                     stages.map((sItem, sIndex) => (
-                        <label key={sIndex} className={'pipelinestage ' + (sItem.stageID == selectedItem.stageID ? 'pipelinestage-current' : '')} aria-label={sItem.stageName} title={sItem.stageName} onClick={(e: any) => setSelectedItem({ ...selectedItem, "stageID": sItem.stageID })}></label>
+                        <div key={sIndex} className={'pipelinestage ' + (sItem.stageID == selectedItem.stageID ? 'pipelinestage-current' : '')} aria-label={sItem.stageName} title={sItem.stageName} onClick={(e: any) => setSelectedItem({ ...selectedItem, "stageID": sItem.stageID })}></div>
                     ))
                 }
             </div>

@@ -108,10 +108,10 @@ const DealOverView = (props: params) => {
                     </div>
                   </div>
                 </div>
-                <div className="stageday-bar pt-3">
+                <div className="stageday-bar pt-4 pb-4">
                   <div className="pipelinestage-selector pipelinestage-active">
                     {stages.map((sItem, sIndex) => (
-                      <label
+                      <div
                         key={sIndex}
                         className={
                           "pipelinestage " +
@@ -126,8 +126,8 @@ const DealOverView = (props: params) => {
                           onDealModified(sItem.stageID);
                         }}
                       >
-                        {sItem.stageName}
-                      </label>
+                        <label>{sItem.stageName}</label>
+                      </div>
                     ))}
                   </div>
                 </div>
