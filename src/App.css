@@ -823,3 +823,6 @@ min-width: 375px !important;
   overflow-y: auto;
   width: 100%;
 }
+.MuiTablePagination-selectLabel{
+  display: none !important;
+}

@@ -4,7 +4,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
 import PluseIcon from "@material-ui/icons/Add";
 import {
-  DataGrid,
+  DataGrid, gridClasses,
   GridCellParams,
   GridColDef,
   GridColumnHeaderParams,
@@ -23,59 +23,39 @@ import { DeleteDialog } from "./deleteDialog";
 import { toast } from "react-toastify";
 import { Spinner } from "react-bootstrap";
 import moment from "moment";
+import { alpha, styled } from '@mui/material/styles';
 
-const useStyles = makeStyles((theme) => ({
-  dataGrid: {
-    color: "inherit",
-    "& .MuiDataGrid-root .MuiDataGrid-columnHeader:focus, .MuiDataGrid-root .MuiDataGrid-cell:focus":
-      {
-        outline: "solid blue 1px",
-      },
-    "& .MuiDataGrid-renderingZone": {
-      "& .MuiDataGrid-row": {
-        "&:nth-child(2n)": { backgroundColor: "#fafafa" },
-      },
-      "& .MuiDataGrid-row:hover": {
-        backgroundColor: "#DCE9FD !important",
-      },
-      "& .MuiDataGrid-columnHeader:focus": {
-        outline: "solid #DCE9FD 1px",
-      },
-      "& .MuiDataGrid-columnHeader--sortable:focus": {
-        outline: "solid #DCE9FD 1px",
-      },
-      "& .MuiDataGrid-cell:focus": {
-        outline: "solid #01579b 1px",
+const ODD_OPACITY = 0.2;
+
+const StripedDataGrid = styled(DataGrid)(({ theme }) => ({
+  [`& .${gridClasses.row}.even`]: {
+    backgroundColor: theme.palette.grey[200],
+    '&:hover': {
+      backgroundColor: alpha(theme.palette.primary.main, ODD_OPACITY),
+      '@media (hover: none)': {
+        backgroundColor: 'transparent',
       },
     },
-  },
-  content: {
-    flexGrow: 1,
-    height: "100vh",
-    overflow: "auto",
-  },
-  appBarSpacer: theme.mixins.toolbar,
-  container: {
-    paddingTop: theme.spacing(4),
-    paddingBottom: theme.spacing(4),
-  },
-  paper: {
-    padding: theme.spacing(2),
-    display: "flex",
-    overflow: "auto",
-    flexDirection: "column",
-    elevation: 3,
-  },
-  rootNew: {
-    "& .super-app-theme--header": {
-      backgroundColor: "rgba(255, 7, 0, 0.55)",
-    },
-  },
-  root: {
-    "& .wrapHeader .MuiDataGrid-colCellTitle": {
-      overflow: "hidden",
-      lineHeight: "20px",
-      whiteSpace: "break-spaces",
+    '&.Mui-selected': {
+      backgroundColor: alpha(
+        theme.palette.primary.main,
+        ODD_OPACITY + theme.palette.action.selectedOpacity,
+      ),
+      '&:hover': {
+        backgroundColor: alpha(
+          theme.palette.primary.main,
+          ODD_OPACITY +
+            theme.palette.action.selectedOpacity +
+            theme.palette.action.hoverOpacity,
+        ),
+        // Reset on touch devices, it doesn't add specificity
+        '@media (hover: none)': {
+          backgroundColor: alpha(
+            theme.palette.primary.main,
+            ODD_OPACITY + theme.palette.action.selectedOpacity,
+          ),
+        },
+      },
     },
   },
 }));
@@ -170,7 +150,6 @@ const Table: React.FC<TableListProps> = (props) => {
   const [actionType, setActionType] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const userProfile = Util.UserProfile();
-  const classes = useStyles();
   const itemType = props.itemName;
   const [propNameforDelete, setPropNameforDelete] = useState(
     props.propNameforDelete ? props.propNameforDelete : "name"
@@ -443,10 +422,12 @@ const Table: React.FC<TableListProps> = (props) => {
           <Spinner />
         </div>
       ) : (
-      <DataGrid
-        rows={rowData}
-        className={classes.dataGrid}
+      <StripedDataGrid
+        rows={rowData} 
         columns={columnsMetaData as any}
+        getRowClassName={(params) =>
+          params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd'
+        }
         initialState={{
           pagination: {
             paginationModel: {
@@ -454,7 +435,8 @@ const Table: React.FC<TableListProps> = (props) => {
             },
           },
         }}
-        pageSizeOptions={[5]}
+        pagination={true}
+        pageSizeOptions={[5, 10, 20, 50]}
         disableRowSelectionOnClick
       />
       )}
