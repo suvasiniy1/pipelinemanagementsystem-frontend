@@ -14,4 +14,6 @@ export class Person extends AuditItem {
     sourceID!: number
     visibilityGroupID!: number
     userName!: string
+    openDeals!: number
+    closedDeals!: number 
   }
