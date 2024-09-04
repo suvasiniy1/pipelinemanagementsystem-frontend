@@ -30,7 +30,7 @@ const TemplatePreview = (props: params) => {
 
   return (
     <div
-      className="preview-pane"
+      className="sampleemailpreview preview-pane"
       style={{
         width: setHieghtWidth ? "200px" : "",
         height: setHieghtWidth ? "200px" : "",
@@ -43,7 +43,6 @@ const TemplatePreview = (props: params) => {
           style={{ textAlign: selectedItem?.header?.position }}
           ref={headerRef as any}
         ></div>
-        <br />
         <div
           className="email-body"
           style={{ textAlign: selectedItem?.body?.position }}
@@ -51,7 +50,6 @@ const TemplatePreview = (props: params) => {
         >
           Body
         </div>
-        <br />
         <div
           className="email-footer"
           style={{ textAlign: selectedItem?.footer?.position }}

@@ -178,7 +178,7 @@ max-width: 360px; position: absolute; left: 0; top: 100%; z-index:2;
 .modal-header .modal-title{padding-right: 15px; font-size: 16px; font-weight: bold;}
 .modalpopup .modalfoot{background-color: #faf5eb; border-top: 1px solid #e4cb9a; padding: 8px 16px 8px 16px; border-radius: 0 0 4px 4px;}
 .modalfoot .modalfootbar{display: flex; align-items: center;}
-.modalpopup .modalbody {padding-top: 0; padding-bottom: 0;}
+/* .modalpopup .modalbody {padding-top: 0; padding-bottom: 0;} */
 .modelfootcountcol{display: flex;}
 .modelformleft .col-sm-6{width: 100%;}
 .modelformright {border-left: 1px solid rgba(33, 35, 44, .12);}
@@ -529,15 +529,16 @@ button.fields-editbtn{visibility: hidden; line-height: 1.2; background-color: #f
 .activityfilter-col1{display: flex; align-items: center;}
 .activityfilter-col1 label{margin-right: 5px; width: 100px;}
 .dropdown-collapseall button.btn, .dropdown-collapseall button.btn:focus {background-color: #fff; border: none; padding: 0; color: #b68d40; font-weight: bold; font-size: 14px;}
-.accordion .accordion-item{}
-.accordion .accordion-item .accordion-header{border-bottom: 1px solid #eee;}
+.accordion .accordion-item{border-color: #e4cb9a;}
+.accordion .accordion-item .accordion-header{}
+.accordion .accordion-item .accordion-header button:not(.collapsed) {border-bottom: 1px solid #e4cb9a;}
 .accordion .accordion-item .accordion-button{padding: 10px 15px; font-size: 14px; justify-content: space-between;}
 .accordion .accordion-item .accordion-button:focus{border: 0; outline: 0; box-shadow:none;}
-.accordion .accordion-item .accordion-button:not(.collapsed){background-color: #ddd;}
+.accordion .accordion-item .accordion-button:not(.collapsed){background-color: #faf5eb; box-shadow:none}
 .accoheader-title label {margin-right: 5px;}
 .accordion .accordion-item .accordion-button:after{position: absolute; left: 10px; top: 10px; z-index: 1; transform: rotate(0deg);}
 .accordion .accordion-item .accordion-button.collapsed:after{transform: rotate(-90deg);}
-
+.accordion-collapse {background-color: #fff;}
 
 .accoheader-title {padding-left: 22px;}
 .accoheader-date {padding-right:0;}
@@ -559,6 +560,19 @@ button.fields-editbtn{visibility: hidden; line-height: 1.2; background-color: #f
 
 
 /* Deal Detail Page CSS End */
+
+/* Campaigns CSS Start */
+
+/* EmailTemplate */
+.sampleemailpreview {height: 100%; border: 1px solid #e4cb9a; border-radius: 4px;}
+.sampleemailpreview .email-preview{height: 100%; display: flex; flex-direction: column; justify-content: space-between;}
+.email-header{padding: 15px; background-color: #cfdceb;}
+.email-body{padding: 15px; height: 100%;}
+.email-footer{padding: 15px; background-color: #dbe1e8;}
+
+/* Campaigns CSS End */
+
+
 
 
 .dMOlvw{
@@ -728,7 +742,7 @@ button.fields-editbtn{visibility: hidden; line-height: 1.2; background-color: #f
 
 @media (min-width: 576px) {
   .modal-dialog {
-    max-width: 500px;
+    max-width: 100%; padding: 0 20px;
     margin: 1.75rem auto; }
 
   .modal-dialog-scrollable {
@@ -736,17 +750,17 @@ button.fields-editbtn{visibility: hidden; line-height: 1.2; background-color: #f
     .modal-dialog-scrollable .modal-content {
       max-height: calc(100vh - 3.5rem); }
 
-  .modal-dialog-centered {
-    min-height: calc(100% - 3.5rem); }
+  .modal-dialog-centered {height: calc(100% - 3.5rem);
+    min-height: calc(100% - 3.5rem);}
     .modal-dialog-centered::before {
-      height: calc(100vh - 3.5rem); }
+      height: calc(100vh - 3.5rem); min-height: calc(100% - 3.5rem);}
 
   .modal-sm {
     max-width: 300px; } }
 @media (min-width: 992px) {
   .modal-lg,
   .modal-xl {
-    max-width: 800px; } }
+    max-width: 940px; } }
 @media (min-width: 1200px) {
   .modal-xl {
     max-width: 1140px;

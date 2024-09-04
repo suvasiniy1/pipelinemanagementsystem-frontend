@@ -205,7 +205,7 @@ const TemplatesAddEditDialog: React.FC<ViewEditProps> = (props) => {
                 </div>
               ) : (
                 <div className="row d-flex" hidden={isLoading}>
-                  <div className="col-6">
+                  <div className="col-6 addemailconf1-col6">
                     {
                       <>
                         <GenerateElements
@@ -227,7 +227,7 @@ const TemplatesAddEditDialog: React.FC<ViewEditProps> = (props) => {
                                 >
                                   <button
                                     className="accordion-button"
-                                    style={{ paddingLeft: "10px" }}
+                                    style={{ paddingLeft: "40px" }}
                                     type="button"
                                     data-bs-toggle="collapse"
                                     data-bs-target={"#collapse" + index}
@@ -303,7 +303,7 @@ const TemplatesAddEditDialog: React.FC<ViewEditProps> = (props) => {
                     }
                     
                   </div>
-                  <div className="col-6">
+                  <div className="col-6 addemailconf2-col6">
                     <TemplatePreview selectedItem={selectedItem} setHieghtWidth={false}/>
                   </div>
                 </div>
