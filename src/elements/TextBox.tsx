@@ -46,7 +46,7 @@ const TextBox: React.FC<props> = (props) => {
                 onBlur={(e)=>onChange(e.target.value)}
         />
         <p className="text-danger" id={`validationMsgfor_${item.value}`}>{(errors as any)?.[item.value]?.message}</p>
-            <div hidden={!item.type ||  item.type==ElementType.number || (!Util.isNullOrUndefinedOrEmpty(item.showEyeIcon) && !item.showEyeIcon)}>
+            <div hidden={item.type!=ElementType.password}>
             <IconButton className="toggleEye" color="primary" aria-label="upload picture" component="span" hidden={revealSecret} onClick={() => setRevealSecret(!revealSecret)}>
                 <VisibilityOnIcon style={{marginRight:'5px', display:'inline-block'}}/>
             </IconButton>

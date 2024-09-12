@@ -12,6 +12,8 @@ import {
   ElementType,
   IControl,
 } from "../models/iControl";
+import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 type props = {
   controlsList: Array<any>;
@@ -21,11 +23,13 @@ type props = {
   getListofItemsForDropdown?: (item: any) => {};
   disable?: boolean;
   getCustomElement?: any;
-  onSwitchableOptionChange?:any;
-  getSelectedList?:any;
-  defaultSwitch?:any
+  onSwitchableOptionChange?: any;
+  getSelectedList?: any;
+  defaultSwitch?: any;
+  onElementDelete?:any;
 };
 const GenerateElements: React.FC<props> = (props) => {
+  
   const {
     controlsList,
     selectedItem,
@@ -35,15 +39,15 @@ const GenerateElements: React.FC<props> = (props) => {
     disable,
     getCustomElement,
     defaultSwitch,
+    onElementDelete,
     ...others
   } = props;
-  
+
   const methods = useFormContext();
-  const { watch, setValue, register } = methods
+  const { watch, setValue, register } = methods;
   const [selectedOption, SetSelectedOption] = useState(defaultSwitch);
-  const [resetSwitchableElement, setResetSwitchableElement]=useState(false);
+  const [resetSwitchableElement, setResetSwitchableElement] = useState(false);
   const handleOptionChange = (item: any) => {
-    
     setResetSwitchableElement(true);
     SetSelectedOption(item);
     props.onSwitchableOptionChange(item);
@@ -52,7 +56,11 @@ const GenerateElements: React.FC<props> = (props) => {
     });
   };
 
-  const getElement = (item: IControl, elementType?: ElementType, forceDisable?:any) => {
+  const getElement = (
+    item: IControl,
+    elementType?: ElementType,
+    forceDisable?: any
+  ) => {
     let itemType = item?.isSwitchableElement ? elementType : item?.type;
     switch (itemType) {
       case ElementType.textarea:
@@ -79,7 +87,7 @@ const GenerateElements: React.FC<props> = (props) => {
               (getListofItemsForDropdown(item) as any)
             }
             onItemChange={(e: any) => onChange(e, item)}
-            value={selectedItem[item.value]} 
+            value={selectedItem[item.value]}
           />
         );
       case ElementType.multiSelectDropdown:
@@ -119,14 +127,14 @@ const GenerateElements: React.FC<props> = (props) => {
             value={selectedItem[item.value]}
           />
         );
-        case ElementType.checkbox:  // Add checkbox handling
+      case ElementType.checkbox: // Add checkbox handling
         return (
           <input
-          type="checkbox"
-          checked={watch(item.value)} // Bind the checkbox state to react-hook-form
-          {...register(item.value)}
-          onChange={(e) => setValue(item.value, e.target.checked)} // Update form value on change
-          disabled={forceDisable ?? disable} // Handle disabling conditionally
+            type="checkbox"
+            checked={watch(item.value)} // Bind the checkbox state to react-hook-form
+            {...register(item.value)}
+            onChange={(e) => setValue(item.value, e.target.checked)} // Update form value on change
+            disabled={forceDisable ?? disable} // Handle disabling conditionally
           />
         );
       case ElementType.custom:
@@ -163,7 +171,6 @@ const GenerateElements: React.FC<props> = (props) => {
   };
 
   const switchableElementLabels = (item: IControl) => {
-    
     const labels = () => {
       return (
         <>
@@ -174,7 +181,7 @@ const GenerateElements: React.FC<props> = (props) => {
                 type="radio"
                 value={item?.label1}
                 checked={selectedOption === item?.label1 || !selectedOption}
-                onChange={(e:any)=>handleOptionChange(item.label1)}
+                onChange={(e: any) => handleOptionChange(item.label1)}
               />
               {item?.label1}
             </label>
@@ -185,7 +192,7 @@ const GenerateElements: React.FC<props> = (props) => {
                 type="radio"
                 value={item.label2}
                 checked={selectedOption === item.label2}
-                onChange={(e:any)=>handleOptionChange(item.label2)}
+                onChange={(e: any) => handleOptionChange(item.label2)}
               />
               {item.label2}
             </label>
@@ -206,7 +213,6 @@ const GenerateElements: React.FC<props> = (props) => {
   };
 
   const switchableElement = (item: IControl) => {
-    
     return (
       <>
         <div className="form-group row">
@@ -246,9 +252,19 @@ const GenerateElements: React.FC<props> = (props) => {
                   <div
                     className={`col-sm-${
                       item.elementSize ? item.elementSize : 6
-                    } errmessage`}
+                    } errmessage d-flex`}
                   >
                     {getElement(item)}
+                    <div hidden={!item.showDelete} className="pl-4">
+                      <button
+                        className="editstage-deletebtn"
+                        onClick={(e: any) => {
+                          onElementDelete(index);
+                        }}
+                      >
+                        <FontAwesomeIcon icon={faTrash} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -319,8 +335,7 @@ const GenerateElements: React.FC<props> = (props) => {
                         : ""
                     }`}
                   >
-                    {controlsList.find((c) => c.key === item.sidebyItem)?.key}
-                    :
+                    {controlsList.find((c) => c.key === item.sidebyItem)?.key}:
                   </label>
                 </div>
               )}
@@ -331,17 +346,22 @@ const GenerateElements: React.FC<props> = (props) => {
               <div className="col-6">
                 {controlsList.find((c) => c.key === item.sidebyItem)
                   ?.isSwitchableElement
-                  ? resetSwitchableElement ? null : switchableElement(controlsList.find((c) => c.key === item.sidebyItem))
+                  ? resetSwitchableElement
+                    ? null
+                    : switchableElement(
+                        controlsList.find((c) => c.key === item.sidebyItem)
+                      )
                   : getElement(
                       controlsList.find((c) => c.key === item.sidebyItem)
                     )}
               </div>
+              <div>Delete</div>
             </div>
           </>
         ) : item.isSideByItem ? null : (
           <div className="form-group row" key={index} hidden={item.hidden}>
             <label
-              style={{ textAlign: 'left' }}
+              style={{ textAlign: "left" }}
               hidden={item.hideLabel}
               htmlFor="name"
               id={`labelFor_${item.value}`}
@@ -351,9 +371,13 @@ const GenerateElements: React.FC<props> = (props) => {
             >
               {item.key}:
             </label>
-            <div className={`col-sm-${item.elementSize ?? 11} errmessage`} style={{paddingBottom:"10px"}}>
+            <div
+              className={`col-sm-${item.elementSize ?? 11} errmessage`}
+              style={{ paddingBottom: "10px" }}
+            >
               {getElement(item)}
             </div>
+            <div>Delete</div>
           </div>
         )
       )}

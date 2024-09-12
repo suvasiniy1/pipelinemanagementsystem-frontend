@@ -40,6 +40,7 @@ export interface IControl {
   showTimeSelect?:boolean | false;
   options?: { key: string; value: string }[];
   defaultValue?: any;
+  showDelete?:boolean | false;
 }
 
 export enum CustomActionPosition {
@@ -48,15 +49,15 @@ export enum CustomActionPosition {
 }
 
 export enum ElementType {
-  "textbox" = "textbox",
-  "textarea" = "textarea",
-  "dropdown" = "dropdown",
-  "multiSelectDropdown" = "multiSelectDropdown",
-  "slider" = "slider",
-  "password" = "password",
-  "number" = "number",
-  "custom" = "custom",
-  "datepicker" = "datepicker",
-  "ckeditor" = "ckeditor",
-  "checkbox" = "checkbox"  
+  "textbox" = "Text Box",
+  "textarea" = "Text Area",
+  "dropdown" = "Dropdown",
+  "multiSelectDropdown" = "Multiselect Dropdown",
+  "slider" = "Slider",
+  "password" = "Password Field",
+  "number" = "Number Field",
+  "custom" = "Custom",
+  "datepicker" = "Datepicker",
+  "ckeditor" = "RichText Editor",
+  "checkbox" = "Checkbox"  
 }
