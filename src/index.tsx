@@ -21,7 +21,7 @@ const app = () => {
 }
 
 root.render(
-<BrowserRouter>
+  <BrowserRouter>
     <App/>
   </BrowserRouter>,
 );

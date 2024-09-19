@@ -3,6 +3,8 @@ import Box from "@mui/material/Box";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
 import PluseIcon from "@material-ui/icons/Add";
+import { GridRowSelectionModel } from '@mui/x-data-grid';
+
 import {
   DataGrid, gridClasses,
   GridCellParams,
@@ -73,6 +75,7 @@ export interface TableColumnMetadata {
   sort?: string;
   componentName?: string;
   type?: string;
+  renderCell?: (params: GridCellParams) => JSX.Element;
 }
 
 export interface TableListProps {
@@ -115,6 +118,8 @@ export interface TableListProps {
   customActions?: any;
   propNameforDelete?: string;
   serviceAPI: any;
+  checkboxSelection?: boolean;
+  onSelectionModelChange?: (newSelection: GridRowSelectionModel ) => void;
 }
 
 export interface ViewEditProps {
@@ -136,10 +141,12 @@ export interface ViewEditProps {
 }
 
 const Table: React.FC<TableListProps> = (props) => {
-  
   const [rowData, setRowData] = useState(props.rowData ?? []);
   const [columnMetaData, setColumnMetaRowData] = useState(props.columnMetaData);
-  
+  const [selectedRows, setSelectedRows] = useState<GridRowSelectionModel>([]);
+  const checkboxSelection = props.checkboxSelection;
+  const onSelectionModelChange= props.onSelectionModelChange;
+
   const [loadRowData, setLoadRowData] = useState(true);
   const canDoActions = props.canDoActions;
   const propNameforSelector = props.propNameforSelector;
@@ -287,7 +294,7 @@ const Table: React.FC<TableListProps> = (props) => {
           height: 500,
           width: metaDataIter.width,
           flex: metaDataIter.flex !== null ? metaDataIter.flex : 1,
-          renderCell: renderCellExpand,
+          renderCell: metaDataIter.renderCell,
           renderHeader: (params: GridColumnHeaderParams) => {
             // console.log("renderHeader: ", params);
             // dataGridAPIRef = params.api;
@@ -417,6 +424,18 @@ const Table: React.FC<TableListProps> = (props) => {
           actionType={actionType}
         />
       )}
+      {/* Conditionally render Send Group Email button */}
+      {selectedRows.length > 0 && (
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => console.log('Send Group Email clicked with selected rows:', selectedRows)}
+          startIcon={<PluseIcon />}
+          style={{ marginBottom: "16px" }}
+        >
+          Send Group Email
+        </Button>
+      )}
             {isLoading ? (
         <div className="alignCenter">
           <Spinner />
@@ -425,6 +444,10 @@ const Table: React.FC<TableListProps> = (props) => {
       <StripedDataGrid
         rows={rowData} 
         columns={columnsMetaData as any}
+        checkboxSelection={true} // Enable checkbox selection
+  onRowSelectionModelChange={(newSelection: GridRowSelectionModel) => {
+    setSelectedRows(newSelection); // Update the selected rows
+  }}
         getRowClassName={(params) =>
           params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd'
         }

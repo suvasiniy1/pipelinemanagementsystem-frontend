@@ -21,6 +21,9 @@ export class User extends AuditItem {
   language: string = "English";
   timeZone: string = "(GMT +00:00) United Kingdom Time";
   profilePicture?: string; // Optional property
+    // Add SecurityStamp and ConcurrencyStamp fields
+    SecurityStamp: string = "";  // Default empty string or any other appropriate value
+    ConcurrencyStamp: string = "";  // Default empty string or any other appropriate value
   constructor() {
       super();
       // Any additional initialization logic can go here

@@ -37,4 +37,28 @@ export class LoginService{
         });
         return promise;
     }
+     // Add this method to verify the 2FA code
+     verifyTwoFactorCode(item: { userId: number; verificationCode: string; email: string }, axiosCancel?: CancelTokenSource) {
+        return new Promise<any>((resolve, reject) => {
+            axios({
+                method: 'POST',
+                url: `${baseURL}/Login/VerifyTwoFactorCode`, // Ensure this matches the backend endpoint
+                headers: {
+                    'Content-Type': 'application/json; charset=UTF-8',
+                    'Authorization': `Bearer ${getActiveUserToken()}`
+                },
+                data: item,
+                cancelToken: axiosCancel?.token
+            }).then((res: AxiosResponse) => {
+                if (res?.data) {
+                    resolve(res.data);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err: AxiosError) => {
+                console.log("Exception Occurred - res: ", err, " | Code: ", err.code, " | err.message", err.message,);
+                resolve(err?.response?.data);
+            });
+        });
+    }
 }

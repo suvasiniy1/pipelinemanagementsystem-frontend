@@ -4,6 +4,7 @@ import Util from "../others/util";
 import ErrorFallback from "./errorFallBack";
 import Table from "./table";
 import { Spinner } from "react-bootstrap";
+import { GridRowSelectionModel } from '@mui/x-data-grid';
 
 type params = {
   isNotListingPage?: boolean;
@@ -46,6 +47,8 @@ type params = {
   propNameforDelete?: string;
   displayTableHeaderasSingler?: boolean;
   onSave?:any;
+  onSelectionModelChange?: (newSelection: GridRowSelectionModel) => void; // Add this
+  checkboxSelection?: boolean; // Ensure checkboxSelection is handled
 };
 
 const ItemCollection: React.FC<params> = (props) => {
@@ -75,6 +78,7 @@ const ItemCollection: React.FC<params> = (props) => {
     viewAddEditComponent,
     api,
     displayTableHeaderasSingler,
+    
   } = props;
   const [canAdd, setCanAdd] = useState(
     props.canAdd != null ? props.canAdd : true

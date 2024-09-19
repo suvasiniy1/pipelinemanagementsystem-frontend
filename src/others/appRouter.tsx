@@ -21,6 +21,7 @@ import PersonList from "../components/person/personList";
 import ReportingDashboard from "../components/reporting/reportingDashboard";
 import ProfilePage from "../components/profiles/ProfilePage";
 import EnquiryFormList from "../components/enquiryForm/enquiryFormsList";
+import ConfirmEmail from "../components/ConfirmEmail";
 
 export const AppRouter = () => {
   useEffect(() => {
@@ -64,6 +65,7 @@ export const AppRouter = () => {
         <Route path="/profile" element={<ProfilePage/>} />
         <Route path="/Reporting" element={<ReportingDashboard />}/>
         <Route path="/Enquiries" element={<EnquiryFormList />}/>
+        <Route path="/confirm-email" element={<ConfirmEmail />} />
       </Routes>
       <ToastContainer />
     </>

@@ -1,6 +1,8 @@
 import { AuditItem } from "./base/AuditNamedItem";
 export class Role extends AuditItem{
-    roleId!: number;  // Update to match API response
-    roleName!: string;
+    id!: number;   // Updated to match the backend
+    name!: string; // Updated to match the backend
+    normalizedName!: string;
+    concurrencyStamp!: string;
    
 }
