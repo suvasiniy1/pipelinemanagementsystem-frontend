@@ -3,7 +3,12 @@ import { FaDollarSign } from "react-icons/fa";
 import { HiTemplate } from "react-icons/hi";
 import { IoSettings } from "react-icons/io5";
 import { MdCampaign, MdEmail, MdLocalOffer } from "react-icons/md";
-import { RiAdminFill, RiContactsBookFill, RiDashboard2Fill, RiMenuSearchFill } from "react-icons/ri";
+import {
+  RiAdminFill,
+  RiContactsBookFill,
+  RiDashboard2Fill,
+  RiMenuSearchFill,
+} from "react-icons/ri";
 import { RxActivityLog } from "react-icons/rx";
 import { Menu, MenuItem, Sidebar, SubMenu } from "react-pro-sidebar";
 import { Link } from "react-router-dom";
@@ -11,6 +16,7 @@ import { Header } from "rsuite";
 import "rsuite/dist/styles/rsuite-default.css";
 import jpg from "../../src/resources/images/logo.jpg";
 import png from "../../src/resources/images/y1.png";
+import Util from "../others/util";
 
 type params = {
   collapsed: boolean;
@@ -84,8 +90,9 @@ export const SideBar = (props: params) => {
             {<img className="sideopenlogo" src={jpg} />}
             {<img className="sidehidelogo" src={png} />}
           </Header>
-          <Menu style={{paddingTop:"60px"}}>
+          <Menu style={{ paddingTop: "60px" }}>
             <MenuItem
+              hidden={!Util.isAuthorized("Stages")}
               icon={<FaDollarSign />}
               component={<Link to="/Stages" />}
               onClick={(e: any) => setSelectedNavItem("Stages")}
@@ -95,6 +102,7 @@ export const SideBar = (props: params) => {
             </MenuItem>
             <MenuItem
               icon={<MdLocalOffer />}
+              hidden={!Util.isAuthorized("pipeline")}
               component={<Link to="/pipeline" />}
               onClick={(e: any) => setSelectedNavItem("pipeline")}
             >
@@ -103,6 +111,7 @@ export const SideBar = (props: params) => {
             </MenuItem>
             <MenuItem
               icon={<RxActivityLog />}
+              hidden={!Util.isAuthorized("Activities")}
               component={<Link to="/Activities" />}
               onClick={(e: any) => setSelectedNavItem("Activities")}
             >
@@ -111,47 +120,58 @@ export const SideBar = (props: params) => {
             </MenuItem>
             <MenuItem
               icon={<RiContactsBookFill />}
+              hidden={!Util.isAuthorized("Person")}
               component={<Link to="/Person" />}
               onClick={(e: any) => setSelectedNavItem("Person")}
             >
-             Persons
+              Persons
             </MenuItem>
-            <SubMenu icon={<MdCampaign />} defaultOpen={compaignSubMenu.includes(selectedNavItem)} label="Campaigns">
+            <SubMenu
+              icon={<MdCampaign />}
+              hidden={!Util.isAuthorized("Template")}
+              defaultOpen={compaignSubMenu.includes(selectedNavItem)}
+              label="Campaigns"
+            >
               <MenuItem
                 icon={<HiTemplate />}
+                hidden={!Util.isAuthorized("Template")}
                 component={<Link to="/Template" />}
                 onClick={(e: any) => setSelectedNavItem("Template")}
               >
-              <b hidden={selectedNavItem != "Template"}>Template</b>
-              <p hidden={selectedNavItem == "Template"}>Template</p>
+                <b hidden={selectedNavItem != "Template"}>Template</b>
+                <p hidden={selectedNavItem == "Template"}>Template</p>
               </MenuItem>
               <MenuItem
                 icon={<RiContactsBookFill />}
+                hidden={!Util.isAuthorized("Contact")}
                 component={<Link to="/Contact" />}
                 onClick={(e: any) => setSelectedNavItem("Contact")}
               >
-              <b hidden={selectedNavItem != "Contact"}>Contact</b>
-              <p hidden={selectedNavItem == "Contact"}>Contact</p>
+                <b hidden={selectedNavItem != "Contact"}>Contact</b>
+                <p hidden={selectedNavItem == "Contact"}>Contact</p>
               </MenuItem>
               <MenuItem
                 icon={<MdEmail />}
+                hidden={!Util.isAuthorized("Email")}
                 component={<Link to="/Email" />}
                 onClick={(e: any) => setSelectedNavItem("Email")}
               >
-              <b hidden={selectedNavItem != "Email"}>Email</b>
-              <p hidden={selectedNavItem == "Email"}>Email</p>
+                <b hidden={selectedNavItem != "Email"}>Email</b>
+                <p hidden={selectedNavItem == "Email"}>Email</p>
               </MenuItem>
               <MenuItem
                 icon={<MdCampaign />}
+                hidden={!Util.isAuthorized("Campaigns")}
                 component={<Link to="/Campaigns" />}
                 onClick={(e: any) => setSelectedNavItem("Campaign")}
               >
-              <b hidden={selectedNavItem != "Campaign"}>Campaign</b>
-              <p hidden={selectedNavItem == "Campaign"}>Campaign</p>
+                <b hidden={selectedNavItem != "Campaign"}>Campaign</b>
+                <p hidden={selectedNavItem == "Campaign"}>Campaign</p>
               </MenuItem>
             </SubMenu>
             <MenuItem
               icon={<IoSettings />}
+              hidden={!Util.isAuthorized("users")}
               component={<Link to="/users" />}
               onClick={(e: any) => setSelectedNavItem("Settings")}
             >
@@ -159,6 +179,7 @@ export const SideBar = (props: params) => {
             </MenuItem>
             <MenuItem
               icon={<RiAdminFill />}
+              hidden={!Util.isAuthorized("Admin")}
               component={<Link to="/Admin" />}
               onClick={(e: any) => setSelectedNavItem("Admin")}
             >
@@ -166,6 +187,7 @@ export const SideBar = (props: params) => {
             </MenuItem>
             <MenuItem
               icon={<RiDashboard2Fill />}
+              hidden={!Util.isAuthorized("Reporting")}
               component={<Link to="/Reporting" />}
               onClick={(e: any) => setSelectedNavItem("Reporting")}
             >
@@ -173,6 +195,7 @@ export const SideBar = (props: params) => {
             </MenuItem>
             <MenuItem
               icon={<RiMenuSearchFill />}
+              hidden={!Util.isAuthorized("Enquiries")}
               component={<Link to="/Enquiries" />}
               onClick={(e: any) => setSelectedNavItem("Enquiries")}
             >

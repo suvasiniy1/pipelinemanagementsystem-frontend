@@ -7,6 +7,18 @@ import { UserProfile } from "../models/userProfile";
 import { Utility } from "../models/utility";
 
 export default class Util {
+
+  static navItemsList:Array<any>=[];
+
+  public static loadNavItemsForUser=(role:number)=>{
+    Util.navItemsList = window.config.NavItemsForUser.find(i=>i.Role==role)?.NavItems ?? [];
+  }
+
+  public static isAuthorized=(item:string)=>{
+    
+    return Util.navItemsList.some(i=>i===item);
+  }
+
   public static capitalizeFirstLetter = (string: any) => {
     return string.charAt(0).toUpperCase() + string.slice(1);
   };

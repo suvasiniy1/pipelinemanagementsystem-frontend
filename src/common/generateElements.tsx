@@ -259,7 +259,7 @@ const GenerateElements: React.FC<props> = (props) => {
                       <button
                         className="editstage-deletebtn"
                         onClick={(e: any) => {
-                          onElementDelete(index);
+                          if(props.onElementDelete) onElementDelete(index);
                         }}
                       >
                         <FontAwesomeIcon icon={faTrash} />

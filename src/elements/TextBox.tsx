@@ -4,7 +4,7 @@ import VisibilityOnIcon from '@material-ui/icons/Visibility';
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import { useState } from "react";
 import Util from "../others/util";
-import { ElementType } from "../models/iControl";
+import { ElementType, ElementTypeMap, SwappedElementTypeMap } from "../models/iControl";
 
 type props={
 item:any;
@@ -29,7 +29,7 @@ const TextBox: React.FC<props> = (props) => {
 
     return (
         <>
-        <input  type={item.type && !revealSecret ? item.type : revealSecret ? "text" : item.type ?? "text"}
+        <input  type={item.type && !revealSecret ? SwappedElementTypeMap.get(item.type) : revealSecret ? "text" : SwappedElementTypeMap.get(item.type) ?? "text"}
                 id={item.value}
                 min={item.min}
                 max={item.max}

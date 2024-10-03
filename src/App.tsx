@@ -11,15 +11,28 @@ import { Container } from "react-bootstrap";
 import { Content } from "rsuite";
 import { HeaderComponent } from "./components/header/header";
 import { AppRouter } from "./others/appRouter";
+import NotAuthorized from "./others/notAuthorized";
+import Util from "./others/util";
 
 function App() {
+  
+  Util.loadNavItemsForUser(LocalStorageUtil.getItem(Constants.USER_Role) as any);
   const navigate = useNavigate();
   const location = useLocation();
-  const [collapsed, setCollapsed] = useState<any>(LocalStorageUtil.getItem(Constants.ISSIDEBAR_EXPANDED) as any ==="false" ?? false);
+  const [collapsed, setCollapsed] = useState<any>(
+    (LocalStorageUtil.getItem(Constants.ISSIDEBAR_EXPANDED) as any) ===
+      "false" ?? false
+  );
   const shouldShowSidebar = () => {
     const { pathname } = location;
     return !["/login", "/signup"].includes(pathname);
   };
+
+  const IsNotAuthorized = (): boolean => {
+    
+    const location = useLocation();
+    return !Util.isAuthorized(location.pathname.replace(/^\/+/, ''));
+}
 
   useEffect(() => {
     let currentDateTime = moment(new Date()).format("MM/DD/YYYY hh:mm:ss a");
@@ -41,20 +54,20 @@ function App() {
     }
   }, []);
 
-  useEffect(()=>{
-    LocalStorageUtil.setItem(
-      Constants.ISSIDEBAR_EXPANDED,
-      !collapsed as any
-    );
-  },[collapsed])
+  useEffect(() => {
+    LocalStorageUtil.setItem(Constants.ISSIDEBAR_EXPANDED, !collapsed as any);
+  }, [collapsed]);
 
   return (
     <>
-      {shouldShowSidebar() ? (
+      {shouldShowSidebar() ? IsNotAuthorized()? <NotAuthorized/> : (
         <>
           <div className="mainlayout">
             <SideBar collapsed={collapsed} />
-            <div className="maincontent" style={{ maxWidth: collapsed ? "100%" : '90%' }}>
+            <div
+              className="maincontent"
+              style={{ maxWidth: collapsed ? "100%" : "90%" }}
+            >
               <HeaderComponent
                 onExpandCollapseClick={(e: any) => setCollapsed(!collapsed)}
               />

@@ -61,7 +61,7 @@ const DealDetailsCustomFields = (props: params) => {
             selectedItem={dealItem}
             onChange={(value: any, item: any) => onChange(value, item)}
             getSelectedList={(e: any) => getSelectedList(e)}
-            onElementDelete={onElementDelete}
+            onElementDelete={(e: any) =>onElementDelete(e)}
           />
         }
       </div>

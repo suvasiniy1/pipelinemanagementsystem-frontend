@@ -79,6 +79,7 @@ const Login = () => {
     }
 
     if (obj.userName.toLocaleLowerCase() !== "developer") {
+      
       if(IsMockService()){
         LocalStorageUtil.setItem(Constants.USER_LOGGED_IN, "true");
         navigate("/pipeline");
@@ -93,6 +94,7 @@ const Login = () => {
             LocalStorageUtil.setItem(Constants.User_Name, res?.user);
             LocalStorageUtil.setItem(Constants.TOKEN_EXPIRATION_TIME, Util.convertTZ(res?.expires));
             LocalStorageUtil.setItemObject(Constants.USER_PROFILE, res as any);
+            LocalStorageUtil.setItem(Constants.USER_Role, res?.role as any);
             navigate("/pipeline");
   
           }
