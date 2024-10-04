@@ -39,6 +39,8 @@ const ForgotPassword = (props: params) => {
       tabIndex: 2,
       isControlInNewLine: true,
       isRequired: true,
+      regex1:/^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      errMsg1:"Please enter a valid email address"
     },
   ]);
 
