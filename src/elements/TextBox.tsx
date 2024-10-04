@@ -46,14 +46,14 @@ const TextBox: React.FC<props> = (props) => {
                 onBlur={(e)=>onChange(e.target.value)}
         />
         <p className="text-danger" id={`validationMsgfor_${item.value}`}>{(errors as any)?.[item.value]?.message}</p>
-            <div hidden={item.type!=ElementType.password}>
+            {/* <div hidden={item.type!=ElementType.password}>
             <IconButton className="toggleEye" color="primary" aria-label="upload picture" component="span" hidden={revealSecret} onClick={() => setRevealSecret(!revealSecret)}>
                 <VisibilityOnIcon style={{marginRight:'5px', display:'inline-block'}}/>
             </IconButton>
             <IconButton className="toggleEye" color="primary" aria-label="upload picture" component="span" hidden={!revealSecret} onClick={() => setRevealSecret(!revealSecret)}>
                 <VisibilityOffIcon />
             </IconButton>
-            </div>
+            </div> */}
 
         </>
     )

@@ -17,6 +17,7 @@ window.config = {
       Role: 1,
       NavItems: [
         "Stages",
+        "deal",
         "pipeline",
         "Activities",
         "Person",
@@ -34,6 +35,7 @@ window.config = {
       Role: 2,
       NavItems: [
         "Stages",
+        "deal",
         "pipeline",
         "Activities",
       ],
@@ -42,6 +44,7 @@ window.config = {
       Role: 3,
       NavItems: [
         "Stages",
+        "deal",
         "pipeline",
         "Reporting",
         "Enquiries",

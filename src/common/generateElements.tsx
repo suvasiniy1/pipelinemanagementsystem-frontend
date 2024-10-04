@@ -252,10 +252,10 @@ const GenerateElements: React.FC<props> = (props) => {
                   <div
                     className={`col-sm-${
                       item.elementSize ? item.elementSize : 6
-                    } errmessage d-flex`}
+                    } errmessage ${item.showDelete ? "d-flex" : ""}`}
                   >
                     {getElement(item)}
-                    <div hidden={!item.showDelete} className="pl-4">
+                    <div hidden={!item.showDelete} className="pl-8">
                       <button
                         className="editstage-deletebtn"
                         onClick={(e: any) => {

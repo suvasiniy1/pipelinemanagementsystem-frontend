@@ -870,3 +870,9 @@ min-width: 375px !important;
 .notAuthorizedBtn:hover {
   background-color: #c82333;
 }
+
+.toggleEye{
+  right: 25px;
+  top:6px;
+  padding: 0 !important;
+}

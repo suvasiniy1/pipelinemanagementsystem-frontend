@@ -13,6 +13,7 @@ import { HeaderComponent } from "./components/header/header";
 import { AppRouter } from "./others/appRouter";
 import NotAuthorized from "./others/notAuthorized";
 import Util from "./others/util";
+import ChangePassword from "./components/profiles/changePassword";
 
 function App() {
   
@@ -28,9 +29,12 @@ function App() {
     return !["/login", "/signup"].includes(pathname);
   };
 
-  const IsNotAuthorized = (): boolean => {
+  const IsChangePassword= (): boolean => {
     
-    const location = useLocation();
+    return location.pathname==="/changePassword";
+}
+
+  const IsNotAuthorized = (): boolean => {
     return !Util.isAuthorized(location.pathname.replace(/^\/+/, ''));
 }
 
@@ -41,7 +45,7 @@ function App() {
     ) as any;
     let isSessionExpired =
       Date.parse(currentDateTime) > Date.parse(tokenExpirationTime);
-    if (isSessionExpired) {
+    if (isSessionExpired && !IsChangePassword()) {
       console.log(
         "Session has expired as token is expired... " + tokenExpirationTime
       );
@@ -49,7 +53,7 @@ function App() {
       navigate("/login");
       return;
     }
-    if (LocalStorageUtil.getItem(Constants.USER_LOGGED_IN) != "true") {
+    if (LocalStorageUtil.getItem(Constants.USER_LOGGED_IN) != "true" && !IsChangePassword()) {
       navigate("/login");
     }
   }, []);
@@ -60,7 +64,7 @@ function App() {
 
   return (
     <>
-      {shouldShowSidebar() ? IsNotAuthorized()? <NotAuthorized/> : (
+      {IsChangePassword()? <ChangePassword/> : shouldShowSidebar() ? IsNotAuthorized()? <NotAuthorized/> : (
         <>
           <div className="mainlayout">
             <SideBar collapsed={collapsed} />
