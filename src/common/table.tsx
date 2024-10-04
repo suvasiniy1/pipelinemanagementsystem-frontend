@@ -27,6 +27,7 @@ import { Spinner } from "react-bootstrap";
 import moment from "moment";
 import { alpha, styled } from '@mui/material/styles';
 
+
 const ODD_OPACITY = 0.2;
 
 const StripedDataGrid = styled(DataGrid)(({ theme }) => ({
@@ -276,7 +277,17 @@ const Table: React.FC<TableListProps> = (props) => {
     setActionType("Delete" as any);
     event.stopPropagation();
   };
-
+  useEffect(() => {
+    if (props.rowData) {
+      setRowData(props.rowData);
+    }
+  }, [props.rowData]);
+  const handleSelectionChange = (newSelection: GridRowSelectionModel) => {
+    setSelectedRows(newSelection);
+    if (onSelectionModelChange) {
+      onSelectionModelChange(newSelection);
+    }
+  };
   const generateGridColDef = (): GridColDef[] => {
     let index = 0;
     let columnDefs: GridColDef[] = columnMetaData.map(
@@ -424,18 +435,6 @@ const Table: React.FC<TableListProps> = (props) => {
           actionType={actionType}
         />
       )}
-      {/* Conditionally render Send Group Email button */}
-      {selectedRows.length > 0 && (
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => console.log('Send Group Email clicked with selected rows:', selectedRows)}
-          startIcon={<PluseIcon />}
-          style={{ marginBottom: "16px" }}
-        >
-          Send Group Email
-        </Button>
-      )}
             {isLoading ? (
         <div className="alignCenter">
           <Spinner />
@@ -444,10 +443,8 @@ const Table: React.FC<TableListProps> = (props) => {
       <StripedDataGrid
         rows={rowData} 
         columns={columnsMetaData as any}
-        checkboxSelection={true} // Enable checkbox selection
-  onRowSelectionModelChange={(newSelection: GridRowSelectionModel) => {
-    setSelectedRows(newSelection); // Update the selected rows
-  }}
+        checkboxSelection={checkboxSelection} // Enable checkbox selection
+        onRowSelectionModelChange={handleSelectionChange}
         getRowClassName={(params) =>
           params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd'
         }

@@ -12,7 +12,10 @@ export class TaskService extends BaseService<Tasks>{
     getTasks(dealId:number, axiosCancel?: CancelTokenSource){
         return this.getItems(axiosCancel, IsMockService() ? 'mockData/tasks.json' : `Tasks/GetTasksByDeal/${dealId}`)
     }
-
+ 
+    getAllTasks(): Promise<Array<Tasks>> {
+        return this.getItems(undefined, "Tasks/GetAllTask"); // Adjust the URL as necessary
+    }
     deleteTask(taskId:number){
         return this.delete(taskId)
     }

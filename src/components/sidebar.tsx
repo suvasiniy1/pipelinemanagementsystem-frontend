@@ -103,11 +103,11 @@ export const SideBar = (props: params) => {
             </MenuItem>
             <MenuItem
               icon={<RxActivityLog />}
-              component={<Link to="/Activities" />}
-              onClick={(e: any) => setSelectedNavItem("Activities")}
+              component={<Link to="/taskActivities" />}
+              onClick={(e: any) => setSelectedNavItem("taskActivities")}
             >
-              <b hidden={selectedNavItem != "Activities"}>Activities</b>
-              <p hidden={selectedNavItem == "Activities"}>Activities</p>
+              <b hidden={selectedNavItem != "taskActivities"}>Activities</b>
+              <p hidden={selectedNavItem == "taskActivities"}>Activities</p>
             </MenuItem>
             <MenuItem
               icon={<RiContactsBookFill />}

@@ -44,6 +44,7 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
   const [activeStep, setActiveStep] = React.useState(0);
   const [skipped, setSkipped] = React.useState(new Set<any>());
   const [selectedId, setSelectedId] = useState();
+  const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
   const [scheduleOptionType, setScheduleOptionType] = useState("Send Now");
   const contactSvc = new ContacteService(ErrorBoundary);
   const [contactsList, setContactsList] = useState<Array<Contact>>([]);
@@ -362,7 +363,11 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
     }
     return list;
   };
-
+// Handle template selection
+const handleTemplateSelect = (template: any) => {
+  setSelectedTemplate(template);
+  setSelectedId(template.id); // Update the selectedId with the template's id
+};
   return (
     <>
       {
@@ -405,9 +410,10 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
                   <br />
                   {activeStep == 0 ? (
                     <TemplateGrid
-                      setSelectedId={setSelectedId}
-                      selectedId={selectedId as any}
-                    />
+                    setSelectedId={setSelectedId}
+                    selectedId={selectedId as any}
+                    onTemplateSelect={handleTemplateSelect} // Pass the handler
+                  />
                   ) : (
                     <GenerateElements
                       controlsList={controlsList1}

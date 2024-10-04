@@ -10,6 +10,11 @@ import EditIcon from '@mui/icons-material/Edit';
 import { toast } from 'react-toastify';
 import PersonAddEditDialog from "../person/personAddEditDialog";
 import React from 'react';
+import PluseIcon from '@material-ui/icons/Add'; // Add this for button icon
+import GroupEmailDialog from '../GroupEmailDialog'; 
+import { TemplateGrid } from '../emailCampaign/emailConfiguration/templateGrid';
+import { EmailTemplate, EmailItemProps } from '../../models/emailTemplate';
+import { EmailTemplateService } from '../../services/emailTemplateService'; 
 
 const PersonList = () => {
   const MemoizedPersonAddEditDialog = React.memo(PersonAddEditDialog);
@@ -18,6 +23,9 @@ const PersonList = () => {
   const [rowData, setRowData] = useState<Array<Person>>([]);
   const [loadRowData, setLoadRowData] = useState<boolean>(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [groupEmailDialogOpen, setGroupEmailDialogOpen] = useState(false); 
+  const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplate | null>(null);
+  const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   // State for tracking which row and field is being edited
   const [editRowId, setEditRowId] = useState<number | null>(null);
   const [editFieldName, setEditFieldName] = useState<string>(''); 
@@ -28,19 +36,32 @@ const PersonList = () => {
   //const [forceRefreshKey, setForceRefreshKey] = useState(0);
 
   const personSvc = useMemo(() => new personService(ErrorBoundary), []);
+  const templateSvc = useMemo(() => new EmailTemplateService(ErrorBoundary), []);
 
   const handleSelectionChange = useCallback(
     (newSelection: GridRowSelectionModel) => {
-      console.log("handleSelectionChange triggered", newSelection);
-      if (JSON.stringify(newSelection) !== JSON.stringify(selectedRows)) {
-        setSelectedRows(newSelection);
-      }
+      setSelectedRows(newSelection); // Updates the state in PersonList
     },
-    [selectedRows]
+    []
   );
-  
-  
-
+  // Define the types for props
+  type GroupEmailDialogProps = {
+    open: boolean;
+    onClose: () => void;
+    selectedRecipients: string[]; // Array of email strings
+    selectedTemplate: any; // Add the selectedTemplate prop
+  };
+// Fetch templates on mount
+useEffect(() => {
+  templateSvc.getEmailTemplates()
+    .then((res: Array<EmailTemplate>) => {
+      setTemplates(res); // Set the templates state
+    })
+    .catch((err) => {
+      console.error("Error loading templates:", err);
+      toast.error("Failed to load templates.");
+    });
+}, [templateSvc]);
   const toggleSelectAll = () => {
     console.log("Select All Toggled");
     if (selectAllChecked) {
@@ -364,21 +385,17 @@ const handleSave = async () => {
 
  
   const loadData = () => {
-    console.log("loadData called");
-    personSvc.getPersons()
-      .then((res: Array<Person>) => {
-        console.log("API Response received");
-        const transformedData = res.map(rowTransform);
-        setRowData((prevRowData) => {
-          if (JSON.stringify(transformedData) !== JSON.stringify(prevRowData)) {
-            return transformedData;
-          }
-          return prevRowData; // No change, return the previous state
-        });
-      })
-      .catch((err) => {
-        console.error("Error loading data:", err);
+    personSvc.getPersons().then((res: Array<Person>) => {
+      const transformedData = res.map(rowTransform);
+      setRowData((prevRowData) => {
+        if (JSON.stringify(transformedData) !== JSON.stringify(prevRowData)) {
+          return transformedData;
+        }
+        return prevRowData; // No change, return the previous state
       });
+    }).catch((err) => {
+      console.error("Error loading data:", err);
+    });
   };
   const rowTransform = (item: Person, index: number) => {
     return {
@@ -392,6 +409,21 @@ const handleSave = async () => {
     loadData();
   }, []); // Only run on mount
 
+   // Open the Group Email Dialog
+  const openGroupEmailDialog = () => {
+    setGroupEmailDialogOpen(true);
+  };
+
+  // Close the Group Email Dialog
+  const closeGroupEmailDialog = () => {
+    setGroupEmailDialogOpen(false);
+  };
+
+  // Handle template selection
+  const handleTemplateSelect = (template: EmailTemplate) => {
+    setSelectedTemplate(template); // Use the correct type here
+  };
+
   return (
     <>
     <ItemCollection
@@ -404,10 +436,20 @@ const handleSave = async () => {
       api={new personService(ErrorBoundary)}
       rowData={rowData}
       onSelectionModelChange={handleSelectionChange}
-      checkboxSelection
+      enableCheckboxSelection={true} 
      // isLoading={isLoading}  
     />  
-
+   <GroupEmailDialog
+    open={groupEmailDialogOpen}
+    onClose={closeGroupEmailDialog}
+    selectedRecipients={selectedRows.map(id => {
+      const person = rowData.find(row => row.personID === id);
+      return person ? person.email : '';
+    })}
+    selectedTemplate={selectedTemplate} // Correctly typed
+    templates={templates} // Pass the list of templates here
+    onTemplateSelect={handleTemplateSelect} // Pass the handler here
+  />
    {/* The Popover for inline editing */}
    <Popover
   open={Boolean(anchorEl)}

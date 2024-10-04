@@ -111,7 +111,10 @@ const Login = () => {
     });
   };
 
-  const handlePassword = () => { };
+
+  const handlePassword = () => {
+    navigate("/forgot-password"); // Redirect to the Forgot Password page
+  };
 
   function delay(ms: any) {
     return new Promise((resolve) => setTimeout(resolve, ms));

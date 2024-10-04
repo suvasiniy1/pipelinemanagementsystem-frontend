@@ -22,6 +22,8 @@ import ReportingDashboard from "../components/reporting/reportingDashboard";
 import ProfilePage from "../components/profiles/ProfilePage";
 import EnquiryFormList from "../components/enquiryForm/enquiryFormsList";
 import ConfirmEmail from "../components/ConfirmEmail";
+import ActivityTaskList from "../components/taskActivities/activityTaskList"
+
 
 export const AppRouter = () => {
   useEffect(() => {
@@ -41,7 +43,7 @@ export const AppRouter = () => {
       <Routes>
         <Route path="/pipeline" element={<Deals />} />
         <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={ <Login />} />
         <Route path="/pipeline/edit" element={<Stages stages={[]} />} />
         <Route path="/pipeline/add" element={<Stages stages={[]} />} />
         <Route path="/leads" element={<Leads />} />
@@ -66,6 +68,8 @@ export const AppRouter = () => {
         <Route path="/Reporting" element={<ReportingDashboard />}/>
         <Route path="/Enquiries" element={<EnquiryFormList />}/>
         <Route path="/confirm-email" element={<ConfirmEmail />} />
+        <Route path="/taskActivities" element={<ActivityTaskList />} />
+ 
       </Routes>
       <ToastContainer />
     </>
