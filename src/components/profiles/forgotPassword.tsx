@@ -1,29 +1,42 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import "react-toastify/dist/ReactToastify.css";
 import * as Yup from "yup";
 import { AddEditDialog } from "../../common/addEditDialog";
 import GenerateElements from "../../common/generateElements";
-import { ElementType, IControl } from "../../models/iControl";
+import { IControl } from "../../models/iControl";
 import LocalStorageUtil from "../../others/LocalStorageUtil";
 import Constants from "../../others/constants";
 import Util from "../../others/util";
 import { UserCredentails } from "../login";
+import { ForgotPasswordService } from "../../services/forgotPasswordService";
+import { toast } from "react-toastify";
+
+// Define the type of form data
+interface ForgotPasswordFormData {
+  email: string;
+  userName: string;
+}
 
 type params = {
   dialogIsOpen: boolean;
   setDialogIsOpen: any;
 };
+
 const ForgotPassword = (props: params) => {
-  const { dialogIsOpen, setDialogIsOpen, ...others } = props;
+  const { dialogIsOpen, setDialogIsOpen } = props;
   const [selectedItem, setSelectedItem] = useState(
     new UserCredentails(
       (LocalStorageUtil.getItem(Constants.User_Name) as any) ?? null
     )
   );
-  const [isErrorChangingPassword, setIsErrorChangingPassword] = useState<any>();
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+
+  const forgotPasswordService = new ForgotPasswordService((err: any) => {
+    setError(err.message || 'Something went wrong.');
+  });
 
   const [controlsList, setControlsList] = useState<Array<IControl>>([
     {
@@ -39,33 +52,53 @@ const ForgotPassword = (props: params) => {
       tabIndex: 2,
       isControlInNewLine: true,
       isRequired: true,
-      regex1:/^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-      errMsg1:"Please enter a valid email address"
+      regex1: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      errMsg1: "Please enter a valid email address",
     },
   ]);
 
+  // Updated validation schema to type the form correctly
   const validationsSchema = Yup.object().shape({
-    ...Util.buildValidations(controlsList),
+    email: Yup.string().email("Invalid email format").required("Email is required"),
+    userName: Yup.string().required("User Name is required"),
   });
 
   const formOptions = { resolver: yupResolver(validationsSchema) };
-  const methods = useForm(formOptions);
+  const methods = useForm<ForgotPasswordFormData>(formOptions); // Type useForm with ForgotPasswordFormData
   const { handleSubmit, getValues, setValue } = methods;
 
-  const onSubmitClick = async (item: any) => {};
+  // onSubmit function that will call the forgot password service
+  const onSubmit = async () => {
+    setLoading(true);
+    setError('');
+    setMessage('');
 
-  const onChange = (value: any, item: any) => {
-    let obj = { ...selectedItem };
-    if (item.value == "passwordHash") obj.passwordHash = value;
-    if (item.value == "confirmPasswordHash") obj.confirmPasswordHash = value;
-    setSelectedItem(obj);
+    const formData = getValues(); // Now TypeScript knows formData contains 'email' and 'userName'
+    const email = formData.email;
+
+    try {
+      const response = await forgotPasswordService.sendResetLink(email);
+      if (response) {
+       // setMessage('Password reset link has been sent to your email.');
+        toast.success("Password reset link has been sent to your email.");
+      }
+    } catch (err: any) {
+      setError(err?.response?.data || 'Something went wrong.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const oncloseDialog = () => {
     setDialogIsOpen(false);
   };
 
-  const onSubmit = () => {};
+  const onChange = (value: any, item: any) => {
+    let obj = { ...selectedItem };
+    if (item.value === "email") obj.email = value;
+    setSelectedItem(obj);
+  };
+
   return (
     <FormProvider {...methods}>
       <AddEditDialog
@@ -76,6 +109,8 @@ const ForgotPassword = (props: params) => {
         customSaveChangesButtonName="Submit"
         onSave={handleSubmit(onSubmit)}
       >
+        {message && <p style={{ color: 'green' }}>{message}</p>}
+        {error && <p style={{ color: 'red' }}>{error}</p>}
         {
           <GenerateElements
             controlsList={controlsList}

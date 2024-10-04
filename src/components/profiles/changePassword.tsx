@@ -2,7 +2,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useState } from "react";
 import { Button, Form, Spinner } from "react-bootstrap";
 import { FormProvider, useForm } from "react-hook-form";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import * as Yup from "yup";
 import GenerateElements from "../../common/generateElements";
@@ -14,6 +14,8 @@ import { UserCredentails } from "../login";
 import jpg from "../../resources/images/Y1Logo.jpg";
 import BackgroundImage from "../../resources/images/background.png";
 import Logo from "../../resources/images/logo.png";
+import { ForgotPasswordService } from "../../services/forgotPasswordService";
+import { useNavigate, useLocation } from "react-router-dom"; // To get token and username from URL
 
 const ChangePassword = () => {
   const [selectedItem, setSelectedItem] = useState(
@@ -23,6 +25,20 @@ const ChangePassword = () => {
   );
   const [isErrorChangingPassword, setIsErrorChangingPassword] = useState<any>();
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Capture token and username from URL query params
+  const queryParams = new URLSearchParams(location.search);
+  const token = queryParams.get('tk');
+  const username = queryParams.get('username');
+  console.log('tk:', token, 'Username:', username);
+
+  const forgotPasswordService = new ForgotPasswordService((error: any) => {
+    setIsErrorChangingPassword(error.message || 'Something went wrong.');
+  });
 
   const [controlsList, setControlsList] = useState<Array<IControl>>([
     {
@@ -34,7 +50,7 @@ const ChangePassword = () => {
       elementSize: 12,
       type: ElementType.password,
       showEyeIcon: false,
-      isRequired:true
+      isRequired: true,
     },
     {
       key: "Confirm Password",
@@ -45,24 +61,64 @@ const ChangePassword = () => {
       elementSize: 12,
       type: ElementType.password,
       showEyeIcon: false,
-      isRequired:true
+      isRequired: true,
     },
   ]);
 
   const validationsSchema = Yup.object().shape({
-    ...Util.buildValidations(controlsList),
+    passwordHash: Yup.string()
+      .required("Password is required")
+      .min(6, "Password must be at least 6 characters long")
+      .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+      .matches(/\d/, "Password must contain at least one number"),
+    confirmPasswordHash: Yup.string()
+      .oneOf([Yup.ref("passwordHash")], "Passwords must match")
+      .required("Confirm Password is required"),
   });
 
   const formOptions = { resolver: yupResolver(validationsSchema) };
   const methods = useForm(formOptions);
   const { handleSubmit, getValues, setValue } = methods;
 
-  const onSubmitClick = async (item: any) => {};
+  const onSubmitClick = async () => {
+    setLoading(true);
+    setMessage('');
+    const formData = getValues(); // Get values from the form
+    const password = formData.passwordHash;
+    const confirmPassword = formData.confirmPasswordHash;
+
+    // Ensure passwords match
+    if (password !== confirmPassword) {
+      setIsErrorChangingPassword('Passwords do not match');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await forgotPasswordService.resetPassword(
+        token!, // Token from URL
+        username!, // Username from URL
+        password
+      );
+
+      if (response) {
+        toast.success("Password has been reset successfully.");
+    
+        setTimeout(() => {
+          navigate("/login");
+        }, 3000); // Redirect to login after success
+      } 
+    } catch (error) {
+      setIsErrorChangingPassword("Something went wrong while resetting the password.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const onChange = (value: any, item: any) => {
     let obj = { ...selectedItem };
-    if (item.value == "passwordHash") obj.passwordHash = value;
-    if (item.value == "confirmPasswordHash") obj.confirmPasswordHash = value;
+    if (item.value === "passwordHash") obj.passwordHash = value;
+    if (item.value === "confirmPasswordHash") obj.confirmPasswordHash = value;
     setSelectedItem(obj);
   };
 
@@ -78,7 +134,7 @@ const ChangePassword = () => {
               {/* Overlay */}
               <div className="sign-in__backdrop"></div>
               <div className="logheader">
-                {<img className="lohheaderlogo" src={jpg} />}
+                {<img className="lohheaderlogo" src={jpg} alt="Y1 Logo" />}
               </div>
               {/* Form */}
               <Form
@@ -112,7 +168,7 @@ const ChangePassword = () => {
                     onChange={(value: any, item: any) => onChange(value, item)}
                   />
                 }
-                <br/>
+                <br />
                 {!loading ? (
                   <Button className="w-100" variant="primary" type="submit">
                     Submit
