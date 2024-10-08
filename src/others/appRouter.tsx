@@ -68,7 +68,7 @@ export const AppRouter = () => {
         <Route path="/Reporting" element={<ReportingDashboard />}/>
         <Route path="/Enquiries" element={<EnquiryFormList />}/>
         <Route path="/confirm-email" element={<ConfirmEmail />} />
-        <Route path="/taskActivities" element={<ActivityTaskList />} />
+        <Route path="/Activities" element={<ActivityTaskList />} />
  
       </Routes>
       <ToastContainer />

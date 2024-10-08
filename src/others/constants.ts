@@ -10,4 +10,5 @@ export default class Constants{
     public static readonly SIDEBAR_CLASS:string="SideBarClass";
     public static readonly ISSIDEBAR_EXPANDED:string="IsSideBarExpanded";
     public static readonly DEAL_EMAILS:string="DealEmails";
+    public static readonly USER_Role : string = "UserRole";
 }

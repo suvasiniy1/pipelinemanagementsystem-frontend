@@ -37,6 +37,7 @@ import { sendEmail } from "./activities/email/emailService";
 import NotesAddEdit from "./activities/notes/notesAddEdit";
 import { TaskAddEdit } from "./activities/tasks/taskAddEdit";
 import DealOverView from "./overview/dealOverView";
+import DealDetailsCustomFields from "./dealDetailsCustomFields";
 
 export const DealDetails = () => {
   const [dealId, setDealId] = useState(
@@ -62,9 +63,8 @@ export const DealDetails = () => {
   const navigator = useNavigate();
   const { instance, accounts } = useMsal();
 
-  useEffect(()=>{
 
-  },[dealItem])
+  useEffect(() => {}, [dealItem]);
 
   useEffect(() => {
     Promise.all([dealSvc.getDealsById(dealId), stagesSvc.getStages(pipeLineId)])
@@ -200,7 +200,9 @@ export const DealDetails = () => {
                         Close Date:{" "}
                         <div className="closedateinput">
                           <DATEPICKER
-                            onChange={(e:any)=>setDealItem({...dealItem, operationDate:e})}
+                            onChange={(e: any) =>
+                              setDealItem({ ...dealItem, operationDate: e })
+                            }
                             isValidationOptional={true}
                             selectedItem={dealItem}
                             value={moment(dealItem.operationDate).format(
@@ -304,7 +306,9 @@ export const DealDetails = () => {
                       <div className="appdeal-dtvalue">
                         <SelectDropdown
                           isValidationOptional={true}
-                          onItemChange={(e:any)=>setDealItem({...dealItem, contactPersonID:e})}
+                          onItemChange={(e: any) =>
+                            setDealItem({ ...dealItem, contactPersonID: e })
+                          }
                           value={"" + dealItem.contactPersonID}
                           list={
                             utility?.persons.map(
@@ -325,6 +329,10 @@ export const DealDetails = () => {
                         </div>
                       </div>
                     </div>
+                  </div>
+
+                  <div className=" appdeal-dtrow">
+                         <DealDetailsCustomFields dealItem={dealItem} setDealItem={setDealItem}/>  
                   </div>
 
                   <div className="appdealblock-head">

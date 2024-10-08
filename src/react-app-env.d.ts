@@ -8,6 +8,7 @@ declare global {
             CampaignSections:Array<string>;
             ClientId:string;
             DateFormat:string;
+            NavItemsForUser:Array<any>;
         }
     }
 }

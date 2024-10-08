@@ -27,19 +27,20 @@ export interface IControl {
   labelSize?: number;
   showEyeIcon?: boolean;
   sidebyItem?: string;
-  isSidebyItemHavingCustomLabels?:boolean | false;
+  isSidebyItemHavingCustomLabels?: boolean | false;
   isSideByItem?: boolean;
   hideLabel?: boolean;
-  displayName?:string;
-  isSwitchableElement?:boolean;
-  label1?:string;
-  label2?:string;
-  element1Type?:ElementType;
-  element2Type?:ElementType;
-  hideSpaceForEditor?:boolean | false;
-  showTimeSelect?:boolean | false;
+  displayName?: string;
+  isSwitchableElement?: boolean;
+  label1?: string;
+  label2?: string;
+  element1Type?: ElementType;
+  element2Type?: ElementType;
+  hideSpaceForEditor?: boolean | false;
+  showTimeSelect?: boolean | false;
   options?: { key: string; value: string }[];
   defaultValue?: any;
+  showDelete?: boolean | false;
 }
 
 export enum CustomActionPosition {
@@ -48,15 +49,33 @@ export enum CustomActionPosition {
 }
 
 export enum ElementType {
-  "textbox" = "textbox",
-  "textarea" = "textarea",
-  "dropdown" = "dropdown",
-  "multiSelectDropdown" = "multiSelectDropdown",
-  "slider" = "slider",
-  "password" = "password",
-  "number" = "number",
-  "custom" = "custom",
-  "datepicker" = "datepicker",
-  "ckeditor" = "ckeditor",
-  "checkbox" = "checkbox"  
+  "textbox" = "Text Box",
+  "textarea" = "Text Area",
+  "dropdown" = "Dropdown",
+  "multiSelectDropdown" = "Multiselect Dropdown",
+  "slider" = "Slider",
+  "password" = "Password Field",
+  "number" = "Number Field",
+  "custom" = "Custom",
+  "datepicker" = "Datepicker",
+  "ckeditor" = "RichText Editor",
+  "checkbox" = "Checkbox",
 }
+
+export const ElementTypeMap = new Map<string, string>([
+  ["textbox", "Text Box"],
+  ["textarea", "Text Area"],
+  ["dropdown", "Dropdown"],
+  ["multiSelectDropdown", "Multiselect Dropdown"],
+  ["slider", "Slider"],
+  ["password", "Password Field"],
+  ["number", "Number Field"],
+  ["custom", "Custom"],
+  ["datepicker", "Datepicker"],
+  ["ckeditor", "RichText Editor"],
+  ["checkbox", "Checkbox"],
+]);
+
+export const SwappedElementTypeMap = new Map<string, string>(
+  Array.from(ElementTypeMap.entries()).map(([key, value]) => [value, key])
+);

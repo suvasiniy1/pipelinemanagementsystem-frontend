@@ -10,16 +10,6 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 
-const app = () => {
- return <Router>
-    {
-      isUserLoggedIn() === true ? (
-        <App />
-      ) : <Login />
-    }
-  </Router>
-}
-
 root.render(
   <BrowserRouter>
     <App/>
