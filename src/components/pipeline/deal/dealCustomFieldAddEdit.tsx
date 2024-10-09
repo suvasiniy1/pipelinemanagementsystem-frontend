@@ -62,9 +62,12 @@ const DealCustomFieldAddEdit = (props: params) => {
       
       let obj: any = {};
       obj.key = item.fieldName;
-      obj.value = "value" + prev.length + 1;
+      obj.value = "value" + (prev.length + 1);
       obj.isControlInNewLine = true;
       obj.showDelete=true;
+      obj.showSave=true;
+      obj.isRequired=true;
+      obj.elementSize=9;
       obj.type = item.fieldType == "textbox" ? null : item.fieldType;
       prev.push(obj);
       return prev;
