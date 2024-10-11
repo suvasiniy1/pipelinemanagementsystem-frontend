@@ -67,7 +67,7 @@ const GenerateElements: React.FC<props> = (props) => {
     switch (itemType) {
       case ElementType.textarea:
         return (
-          <TextArea item={item} selectedItem={selectedItem} disable={disable} />
+          <TextArea item={item} selectedItem={selectedItem} disable={disable}   onChange={(e: any) => onChange && onChange(e, item)}/>
         );
       case ElementType.slider:
         return (

@@ -48,7 +48,11 @@ const DealDetailsCustomFields = (props: params) => {
     setValue,
   } = methods;
 
-  const onChange = (value: any, item: any) => {};
+  const onChange = (value: any, item: any) => {
+    debugger
+    let index = customFields.findIndex((i:any)=>i.key===item.key);
+    setValue(("value" + index+1) as never, value as never);
+  };
 
   const getSelectedList = (e: any) => {
     return [];
@@ -102,26 +106,35 @@ const DealDetailsCustomFields = (props: params) => {
     let customField = customFields[selectedFieldIndex] as any;
     let id = originalCustomFields.find((o) => o.customField === customField.key)
       ?.id as any;
-    customFieldsService
-      .delete(id)
-      .then((res) => {
-        if (res) {
-          toast.success("Custom field deleted successfully");
-          clearErrors();
-          controlsList.splice(selectedFieldIndex, 1);
-          setCustomFields([...controlsList]);
-          loadCustomFields();
-        }
-      })
-      .catch((err) => {
-        toast.success("Unable to delete custom field");
-      });
+    if (id > 0) {
+      customFieldsService
+        .delete(id)
+        .then((res) => {
+          if (res) {
+            setValue(
+              ("value" + (selectedFieldIndex + 1)) as never,
+             null as never
+            );
+            toast.success("Custom field deleted successfully");
+            clearErrors();
+            controlsList.splice(selectedFieldIndex, 1);
+            setCustomFields([...controlsList]);
+            loadCustomFields();
+          }
+        })
+        .catch((err) => {
+          toast.error("Unable to delete custom field");
+        });
+    } else {
+      controlsList.splice(selectedFieldIndex, 1);
+      setCustomFields([...controlsList]);
+      clearErrors();
+    }
   };
 
   const saveCustomFields = () => {
     trigger().then((valid) => {
       if (valid) {
-        
         let customFieldsList: Array<DealCustomFields> = [];
         customFields.forEach((field: any, index) => {
           let obj = new DealCustomFields();
@@ -146,7 +159,7 @@ const DealDetailsCustomFields = (props: params) => {
             }
           })
           .catch((err) => {
-            toast.success("Unable to add custom field");
+            toast.error("Unable to add custom field, please verify");
             setIsLoading(false);
           });
       }
@@ -188,7 +201,7 @@ const DealDetailsCustomFields = (props: params) => {
             {
               <GenerateElements
                 controlsList={customFields}
-                selectedItem={dealItem}
+                selectedItem={new DealCustomFields()}
                 onChange={(value: any, item: any) => onChange(value, item)}
                 getSelectedList={(e: any) => getSelectedList(e)}
                 onElementDelete={(e: any) => {
