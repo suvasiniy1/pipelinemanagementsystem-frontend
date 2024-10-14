@@ -10,14 +10,8 @@ import GroupEmailDialog from '../GroupEmailDialog';
 import { EmailTemplate } from '../../models/emailTemplate';
 import { EmailTemplateService } from '../../services/emailTemplateService'; 
 import { TaskAddEdit } from '../pipeline/deal/activities/tasks/taskAddEdit';
-import { loginRequest } from "../pipeline/deal/activities/email/authConfig"; // MSAL login request configuration
-import { useMsal } from "@azure/msal-react";
-import { InteractionRequiredAuthError } from "@azure/msal-browser";
 
 const TasksList = () => {
-    const { instance, accounts } = useMsal();
-    const [accessToken, setAccessToken] = useState<string | null>(null);
-    const [isTokenLoading, setIsTokenLoading] = useState(true); // To manage token loading state
     const [selectedRows, setSelectedRows] = useState<GridRowSelectionModel>([]);
     const [selectAllChecked, setSelectAllChecked] = useState(false);
     const [rowData, setRowData] = useState<Array<Tasks>>([]);
@@ -30,65 +24,15 @@ const TasksList = () => {
     const taskService = useMemo(() => new TaskService(ErrorBoundary), []);
     const templateSvc = useMemo(() => new EmailTemplateService(ErrorBoundary), []);
 
-    useEffect(() => {
-      if (accounts.length === 0) {
-        instance.loginPopup(loginRequest).catch(e => {
-          console.error(e);
-        });
-      }
-    }, [accounts, instance]);
-
-    // Handle user login
-    const handleLogin = async (): Promise<void> => {
-        try {
-            const tokenResponse = await instance.acquireTokenSilent({
-                scopes: loginRequest.scopes,
-                account: accounts[0], // Ensure there’s an active account
-            });
-            setAccessToken(tokenResponse.accessToken);
-            console.log("Token acquired: ", tokenResponse.accessToken);
-        } catch (error: any) {
-            if (error.name === "InteractionRequiredAuthError") {
-                await instance.loginPopup(loginRequest); // Trigger popup login if needed
-                handleLogin(); // Retry login after interactive login
-            } else {
-                console.error("Login Error: ", error);
-            }
-        } finally {
-            setIsTokenLoading(false); // Set loading state to false after token acquisition attempt
-        }
-    };
-
-    // Get access token (now with explicit return type)
-    const getAccessToken = async () => {
-      try {
-        const tokenResponse = await instance.acquireTokenSilent({
-          scopes: loginRequest.scopes,
-          account: accounts[0],
-        });
-        console.log('Access token acquired:', tokenResponse.accessToken);
-        return tokenResponse.accessToken;
-      } catch (err: any) { // Explicitly typing err as 'any' to resolve the error
-        if (err.name === 'InteractionRequiredAuthError') {
-          try {
-            const tokenResponse = await instance.loginPopup(loginRequest);
-            return tokenResponse.accessToken;
-          } catch (loginError) {
-            console.error('Login failed: ', loginError);
-          }
-        } else {
-          console.error('Token acquisition failed: ', err);
-        }
-      }
-    };
     // Load task data from the API
     const loadTasksData = async (): Promise<void> => {
-      setIsLoading(true); // Show loading spinner
+      setIsLoading(true);
       try {
-        await getAccessToken(); // Call token acquisition (but do not pass token to API)
-        taskService.getAllTasks() // Remove the token argument
+        taskService.getAllTasks()
           .then((res: Array<Tasks>) => {
+            console.log("API Response:", res);
             const transformedData = res.map(rowTransform);
+            console.log("Transformed Data:", transformedData);
             setRowData(transformedData);
           })
           .catch((err) => {
@@ -98,22 +42,25 @@ const TasksList = () => {
       } catch (error) {
         toast.error("Failed to fetch data. Please try again.");
       } finally {
-        setIsLoading(false); // Hide loading spinner
+        setIsLoading(false);
       }
     };
 
     // Row transformation function
     const rowTransform = (item: Tasks, index: number) => {
-        return {
-            ...item,
-            id: item.taskId > 0 ? item.taskId : index,
-        };
-    };
+      return {
+          ...item,
+          id: item.taskId > 0 ? item.taskId : index,
+          email: item.email || 'No email available', // Ensure email is populated
+      };
+  };
 
     // Handle row selection change
     const handleSelectionChange = (newSelection: GridRowSelectionModel) => {
-        setSelectedRows(newSelection);
-    };
+      console.log("Selection Changed: ", newSelection); // Add this
+      setSelectedRows(newSelection);
+      console.log("Updated Selected Rows: ", selectedRows); // Log after setting the selected rows
+  };
 
     // Toggle all rows selection
     const toggleSelectAll = () => {
@@ -153,19 +100,10 @@ const TasksList = () => {
             });
     }, [templateSvc]);
 
-    // Trigger login or load tasks on component mount
+    // Load tasks on component mount
     useEffect(() => {
-        if (accounts.length === 0) {
-            handleLogin(); // Trigger login if no accounts are available
-        } else {
-            loadTasksData(); // Load tasks if already logged in
-        }
-    }, [accounts]);
-
-    // Render if token is still being loaded
-    if (isTokenLoading) {
-        return <div>Loading...</div>;
-    }
+        loadTasksData(); // Load tasks directly
+    }, []);
 
     // Column metadata
     const columnMetaData = [
@@ -177,12 +115,12 @@ const TasksList = () => {
             sortable: false,
             disableColumnMenu: true,
             renderHeader: () => (
-                <Checkbox
-                    indeterminate={selectedRows.length > 0 && selectedRows.length < rowData.length}
-                    checked={selectedRows.length === rowData.length && rowData.length > 0}
-                    onChange={toggleSelectAll}
-                    inputProps={{ 'aria-label': 'select all rows' }}
-                />
+              <Checkbox
+              indeterminate={selectedRows.length > 0 && selectedRows.length < rowData.length}
+              checked={selectedRows.length === rowData.length && rowData.length > 0}
+              onChange={() => setSelectedRows(selectedRows.length === rowData.length ? [] : rowData.map(row => row.taskId))} // Select All or Deselect All
+              inputProps={{ 'aria-label': 'select all rows' }}
+          />
             )
         },
         { columnName: "name", columnHeaderName: "Subject", width: 150 },
@@ -204,7 +142,7 @@ const TasksList = () => {
                 itemsBySubURL={"GetAllTask"} // Correct URL endpoint for getting tasks
                 rowTransformFn={rowTransform}
                 api={taskService} // Task service to interact with API
-                enableCheckboxSelection={true}
+                enableCheckboxSelection={true} // This enables the selection mechanism
                 onSelectionModelChange={handleSelectionChange} // Use the selection change handler
                 rowData={rowData} // Pass row data
                 isLoading={isLoading} // Show loading spinner if data is loading
@@ -213,9 +151,9 @@ const TasksList = () => {
                 open={groupEmailDialogOpen}
                 onClose={closeGroupEmailDialog}
                 selectedRecipients={selectedRows.map(id => {
-                    const task = rowData.find(row => row.taskId === id);
-                    return task ? task.email : '';
-                })}
+                  const person = rowData.find(row => row.taskId === id); // Ensure the ID is correctly matched
+                  return person ? person.email : '';
+              })}
                 selectedTemplate={selectedTemplate}
                 templates={templates}
                 onTemplateSelect={handleTemplateSelect}
