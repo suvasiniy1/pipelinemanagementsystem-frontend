@@ -24,7 +24,8 @@ const DealDetailsCustomFields = (props: params) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [customFields, setCustomFields] = useState([]);
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
-  const [selectedFieldIndex, setSelectedFieldIndex] = useState<any>();
+  const [selectedFieldIndex, setSelectedFieldIndex] = useState<any>(-1);
+  const [isCustomFieldModified, setIsCustomFieldModified]=useState(false);
   const [originalCustomFields, setOriginalCustomFields] = useState<
     Array<DealCustomFields>
   >([]);
@@ -46,17 +47,32 @@ const DealDetailsCustomFields = (props: params) => {
     clearErrors,
     getValues,
     setValue,
+    register,
   } = methods;
 
   const onChange = (value: any, item: any) => {
-    debugger
+    
+    let hasValueModified=false;
     let index = customFields.findIndex((i:any)=>i.key===item.key);
     setValue(("value" + index+1) as never, value as never);
+    originalCustomFields.forEach((originalItem, index) => {
+      if (hasValueModified) return;
+      hasValueModified =
+        originalItem.customSelectValues !=
+        getValues(("value" + index+1) as never);
+    });
+    setIsCustomFieldModified(originalCustomFields.length!=customFields.length || hasValueModified)
   };
 
   const getSelectedList = (e: any) => {
     return [];
   };
+
+  useEffect(()=>{
+    if(!dialogIsOpen){
+      setSelectedFieldIndex(-1 as any);
+    }
+  }, [dialogIsOpen])
 
   useEffect(() => {
     loadCustomFields();
@@ -70,15 +86,13 @@ const DealDetailsCustomFields = (props: params) => {
         let customFieldsList: Array<any> = [];
         res.customFields.forEach((i: DealCustomFields) => {
           setValue(
-            ("value" + (customFieldsList.length + 1)) as never,
+            ("value" + (customFieldsList.length+1)) as never,
             i.customSelectValues as never
           );
           let obj: any = {};
           obj.key = i.customField;
-          obj.value = "value" + (customFieldsList.length + 1);
-          obj.isControlInNewLine = true;
-          obj.showDelete = true;
-          obj.isRequired = true;
+          obj.value = "value" + (customFieldsList.length+1);
+          obj.isControlInNewLine = obj.showDelete = obj.showEdit = obj.isRequired = true;
           obj.elementSize = 9;
           obj.type =
             i.customFieldValue == "textbox" ? null : i.customFieldValue;
@@ -98,6 +112,7 @@ const DealDetailsCustomFields = (props: params) => {
     setFormOptions({
       resolver: yupResolver(getValidationsSchema(customFields)),
     });
+    setIsCustomFieldModified(originalCustomFields.length!=customFields.length);
   }, [customFields.length]);
 
   const deleteCustomField = () => {
@@ -154,7 +169,7 @@ const DealDetailsCustomFields = (props: params) => {
           .then((res) => {
             setIsLoading(false);
             if (res) {
-              toast.success("Deal custom field addedd successfully");
+              toast.success("Deal custom fields added/updated successfully");
               loadCustomFields();
             }
           })
@@ -168,6 +183,7 @@ const DealDetailsCustomFields = (props: params) => {
   };
 
   const canAddNewField = async () => {
+    
     trigger().then((valid) => {
       if (!valid) {
         toast.warn("Please fill all the fields before adding new one");
@@ -179,6 +195,22 @@ const DealDetailsCustomFields = (props: params) => {
   const hideDeleteDialog = () => {
     setShowDeleteDialog(false);
   };
+
+  const canSave=(selectedFieldIndex:number)=>{
+    let hasValueModified=false;
+    originalCustomFields.forEach((originalItem, index)=>{
+      if(hasValueModified) return;
+      let currentItem = customFields[index] as any;
+      hasValueModified = (originalItem.customSelectValues !=currentItem.value) ||  originalItem.customFieldValue !=currentItem.customFieldValue
+    })
+    setIsCustomFieldModified(originalCustomFields.length!=customFields.length || hasValueModified);
+    setValue(
+      ("value" + (selectedFieldIndex+1)) as never,
+      null as never
+    );
+    register(("value" + (selectedFieldIndex+1)) as never);
+
+  }
 
   return (
     <FormProvider {...methods}>
@@ -207,6 +239,10 @@ const DealDetailsCustomFields = (props: params) => {
                 onElementDelete={(e: any) => {
                   setSelectedFieldIndex(e);
                   setShowDeleteDialog(true);
+                }}
+                onElementEdit={(e: any) => {
+                  setSelectedFieldIndex(e);
+                  setDialogIsOpen(true);
                 }}
               />
             }
@@ -242,10 +278,12 @@ const DealDetailsCustomFields = (props: params) => {
 
       {dialogIsOpen && (
         <DealCustomFieldAddEdit
+          selectedFieldIndex={selectedFieldIndex}
           customFields={customFields}
           setCustomFields={setCustomFields}
           dialogIsOpen={dialogIsOpen}
           setDialogIsOpen={setDialogIsOpen}
+          onFieldsSubmit={(e:any)=>canSave(e)}
         />
       )}
 

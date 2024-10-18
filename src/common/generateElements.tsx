@@ -27,7 +27,7 @@ type props = {
   getSelectedList?: any;
   defaultSwitch?: any;
   onElementDelete?:any;
-  onElementSave?:any;
+  onElementEdit?:any;
 };
 const GenerateElements: React.FC<props> = (props) => {
   
@@ -41,7 +41,7 @@ const GenerateElements: React.FC<props> = (props) => {
     getCustomElement,
     defaultSwitch,
     onElementDelete,
-    onElementSave,
+    onElementEdit,
     ...others
   } = props;
 
@@ -259,19 +259,19 @@ const GenerateElements: React.FC<props> = (props) => {
                     {getElement(item)}
                   </div>
                   <div className="col-sm-2 d-flex">
-                    {/* <div
-                      hidden={!item.showSave}
+                    <div
+                      hidden={!item.showEdit}
                       className="col-sm-10"
                     >
                       <button
                         className="editstage-deletebtn"
                         onClick={(e: any) => {
-                          if (props.onElementSave) onElementSave(index);
+                          if (props.onElementEdit) onElementEdit(index);
                         }}
                       >
-                        <FontAwesomeIcon icon={faCheck} />
+                        <FontAwesomeIcon icon={faEdit} />
                       </button>
-                    </div> */}
+                    </div>
                     <div hidden={!item.showDelete} className="col-sm-2">
                       <button
                         className="editstage-deletebtn"

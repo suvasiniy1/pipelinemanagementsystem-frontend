@@ -152,7 +152,7 @@ const Login = () => {
   }
 
   const onChange = (value: any, item: any) => {
-    debugger
+    
     let obj = { ...selectedItem };
     if (item.value == "userName") obj.userName = value;
     if (item.value == "passwordHash") obj.passwordHash = value;
