@@ -53,6 +53,7 @@ const Login = () => {
     )
   );
   const [disablePassword, setDisablePassword] = useState<boolean>(true);
+  const [disableLogin, setDisableLogin]=useState<boolean>(true);
   const [rememberMe, setRememberMe] = useState(false);
   const loginSvc = new LoginService(ErrorBoundary);
   const navigate = useNavigate();
@@ -71,7 +72,7 @@ const Login = () => {
     {
       key: "Password",
       value: "passwordHash",
-      disabled: false,
+      disabled: true,
       tabIndex: 2,
       placeHolder: "Password",
       isControlInNewLine: true,
@@ -151,15 +152,20 @@ const Login = () => {
   }
 
   const onChange = (value: any, item: any) => {
+    debugger
     let obj = { ...selectedItem };
     if (item.value == "userName") obj.userName = value;
     if (item.value == "passwordHash") obj.passwordHash = value;
 
     setSelectedItem(obj);
-    setDisablePassword(Util.isNullOrUndefinedOrEmpty(obj.userName));
+    setDisableLogin(Util.isNullOrUndefinedOrEmpty(obj.userName) || Util.isNullOrUndefinedOrEmpty(obj.passwordHash));
+
     let cntrlList = [...controlsList];
     cntrlList[1].isRequired = obj.userName !== "developer";
+    cntrlList[1].disabled=Util.isNullOrUndefinedOrEmpty(obj.userName);
     setControlsList([...cntrlList]);
+    setValue("userName" as never, obj.userName as never);
+    setValue("passwordHash" as never, obj.passwordHash as never);
   };
 
   useEffect(() => {
@@ -197,7 +203,7 @@ const Login = () => {
                   </div>
                   <div className="h4">Sign In</div>
                 </div>
-                <div className="logformsubtext p-2 text-center">
+                <div className="logformsubtext p-2 text-center" hidden={loading}>
                   Please log in to continue.
                 </div>
 
@@ -233,7 +239,7 @@ const Login = () => {
                   />
                 </Form.Group>
                 {!loading ? (
-                  <Button className="w-100" variant="primary" type="submit">
+                  <Button className="w-100" variant="primary" type="submit" disabled={!selectedItem?.userName || !selectedItem?.passwordHash}>
                     Log In
                   </Button>
                 ) : (
