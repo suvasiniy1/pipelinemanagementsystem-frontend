@@ -12,7 +12,7 @@ import {
   ElementType,
   IControl,
 } from "../models/iControl";
-import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faEdit, faSave, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 type props = {
@@ -27,6 +27,7 @@ type props = {
   getSelectedList?: any;
   defaultSwitch?: any;
   onElementDelete?:any;
+  onElementSave?:any;
 };
 const GenerateElements: React.FC<props> = (props) => {
   
@@ -40,6 +41,7 @@ const GenerateElements: React.FC<props> = (props) => {
     getCustomElement,
     defaultSwitch,
     onElementDelete,
+    onElementSave,
     ...others
   } = props;
 
@@ -248,18 +250,33 @@ const GenerateElements: React.FC<props> = (props) => {
                     {item.key}:
                   </label>
                 </div>
-                <div className="form-group row">
+                <div className="form-group row d-flex">
                   <div
                     className={`col-sm-${
                       item.elementSize ? item.elementSize : 6
-                    } errmessage ${item.showDelete ? "d-flex" : ""}`}
+                    } errmessage`}
                   >
                     {getElement(item)}
-                    <div hidden={!item.showDelete} className="pl-8">
+                  </div>
+                  <div className="col-sm-2 d-flex">
+                    {/* <div
+                      hidden={!item.showSave}
+                      className="col-sm-10"
+                    >
                       <button
                         className="editstage-deletebtn"
                         onClick={(e: any) => {
-                          if(props.onElementDelete) onElementDelete(index);
+                          if (props.onElementSave) onElementSave(index);
+                        }}
+                      >
+                        <FontAwesomeIcon icon={faCheck} />
+                      </button>
+                    </div> */}
+                    <div hidden={!item.showDelete} className="col-sm-2">
+                      <button
+                        className="editstage-deletebtn"
+                        onClick={(e: any) => {
+                          if (props.onElementDelete) onElementDelete(index);
                         }}
                       >
                         <FontAwesomeIcon icon={faTrash} />
