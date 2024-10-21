@@ -28,6 +28,12 @@ export const DealItem = (props: params) => {
   const navigator = useNavigate();
 
 
+  const handleLinkClick = (e:any) => {
+    e.preventDefault(); // Prevents the default anchor behavior
+    // Navigate programmatically
+    navigator(`/deal?id=${deal?.dealID}&pipeLineId=${deal?.pipelineID}`)
+  };
+
   return (
     <>
       <div
@@ -56,7 +62,7 @@ export const DealItem = (props: params) => {
                 </Dropdown>
               </div>
               <div className="pdstage-description">
-                <div className="pdstage-descitem"><a href="" onClick={(e: any) => navigator(`/deal?id=${deal?.dealID}&pipeLineId=${deal?.pipelineID}`)}>{deal?.personName}</a></div>
+                <div className="pdstage-descitem"><a href="" onClick={(e: any) => handleLinkClick(e)}>{deal?.personName}</a></div>
               </div>
               <div className="pdstage-status-row">
                 <div className="pdstage-avatar">

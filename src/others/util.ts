@@ -185,7 +185,7 @@ export default class Util {
     let utility: Utility = JSON.parse(
       LocalStorageUtil.getItemObject(Constants.UTILITY) as any
     );
-    return utility.persons.find((u) => u.personID == userId)?.personName;
+    return utility?.persons?.find((u) => u.personID == userId)?.personName;
   }
 
   public static toDateFormat(date: any) {

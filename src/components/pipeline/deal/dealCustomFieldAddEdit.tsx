@@ -5,12 +5,16 @@ import { AddEditDialog } from "../../../common/addEditDialog";
 import GenerateElements from "../../../common/generateElements";
 import { ElementType, IControl } from "../../../models/iControl";
 import Util from "../../../others/util";
+import { toast } from "react-toastify";
+import { useEffect } from "react";
 
 type params = {
   customFields: Array<IControl>;
   setCustomFields: any;
   dialogIsOpen: boolean;
   setDialogIsOpen: any;
+  selectedFieldIndex: any;
+  onFieldsSubmit:any;
 };
 const DealCustomFieldAddEdit = (props: params) => {
   const {
@@ -18,6 +22,8 @@ const DealCustomFieldAddEdit = (props: params) => {
     setCustomFields,
     dialogIsOpen,
     setDialogIsOpen,
+    selectedFieldIndex,
+    onFieldsSubmit,
     ...others
   } = props;
   const selectedItem = {};
@@ -48,7 +54,7 @@ const DealCustomFieldAddEdit = (props: params) => {
     resolver: yupResolver(getValidationsSchema(controlsList)),
   };
   const methods = useForm(formOptions);
-  const { handleSubmit, unregister } = methods;
+  const { handleSubmit, unregister, setValue } = methods;
 
   const onChange = (value: any, item: any) => {};
 
@@ -56,23 +62,49 @@ const DealCustomFieldAddEdit = (props: params) => {
     setDialogIsOpen(false);
   };
 
+  useEffect(() => {
+    
+    if (selectedFieldIndex >= 0) {
+      let selectedFieldItem = customFields[selectedFieldIndex];
+      if (selectedFieldItem) {
+        setValue("fieldName" as never, selectedFieldItem.key as never);
+        setValue("fieldType" as never, selectedFieldItem.type as never);
+      }
+    }
+  }, [selectedFieldIndex]);
+
   const onSubmit = (item: any) => {
+    let isDuplicateFound = false;
     
     setCustomFields((prev: Array<IControl>) => {
-      
+      isDuplicateFound = prev.some(
+        (i, index) => i.key === item.fieldName && selectedFieldIndex != index
+      );
+      if (isDuplicateFound && selectedFieldIndex == -1) {
+        toast.warn(
+          "Custom field with same Name has already been added, please try different Name"
+        );
+        return prev;
+      }
+
       let obj: any = {};
       obj.key = item.fieldName;
-      obj.value = "value" + (prev.length + 1);
+      obj.value = "value" + (selectedFieldIndex == -1 ? prev.length + 1 : selectedFieldIndex+1);
       obj.isControlInNewLine = true;
-      obj.showDelete=true;
-      obj.showSave=true;
-      obj.isRequired=true;
-      obj.elementSize=9;
+      obj.showDelete = true;
+      obj.showEdit = true;
+      obj.isRequired = true;
+      obj.elementSize = 9;
       obj.type = item.fieldType == "textbox" ? null : item.fieldType;
-      prev.push(obj);
+      if (selectedFieldIndex == -1) {
+        prev.push(obj);
+      } else {
+        prev[selectedFieldIndex] = obj;
+      }
       return prev;
     });
-    setDialogIsOpen(false);
+    if (!isDuplicateFound) setDialogIsOpen(false);
+    if(selectedFieldIndex != -1) props.onFieldsSubmit(selectedFieldIndex);
   };
 
   const getDropdownValues = (item: any) => {
@@ -100,6 +132,9 @@ const DealCustomFieldAddEdit = (props: params) => {
         closeDialog={oncloseDialog}
         onClose={oncloseDialog}
         onSave={handleSubmit(onSubmit)}
+        customSaveChangesButtonName={
+          selectedFieldIndex >= 0 ? "Update" : "Save"
+        }
       >
         {
           <GenerateElements

@@ -43,7 +43,7 @@ const TextBox: React.FC<props> = (props) => {
                 autoFocus={item.isFocus}
                 defaultValue={value ? value : selectedItem[item.value]}
                 {...register(item.value)}
-                onBlur={(e)=>onChange(e.target.value)}
+                onChange={(e)=>onChange(e.target.value)}
         />
         <p className="text-danger" id={`validationMsgfor_${item.value}`}>{(errors as any)?.[item.value]?.message}</p>
             {/* <div hidden={item.type!=ElementType.password}>

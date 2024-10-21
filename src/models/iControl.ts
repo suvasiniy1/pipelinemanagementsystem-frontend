@@ -41,7 +41,7 @@ export interface IControl {
   options?: { key: string; value: string }[];
   defaultValue?: any;
   showDelete?: boolean | false;
-  showSave?:boolean | false;
+  showEdit?:boolean | false;
 }
 
 export enum CustomActionPosition {

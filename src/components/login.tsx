@@ -57,6 +57,7 @@ const Login = () => {
     )
   );
   const [disablePassword, setDisablePassword] = useState<boolean>(true);
+  const [disableLogin, setDisableLogin]=useState<boolean>(true);
   const [rememberMe, setRememberMe] = useState(false);
   const loginSvc = new LoginService(ErrorBoundary);
   const navigate = useNavigate();
@@ -76,7 +77,7 @@ const Login = () => {
     {
       key: "Password",
       value: "passwordHash",
-      disabled: false,
+      disabled: true,
       tabIndex: 2,
       placeHolder: "Password",
       isControlInNewLine: true,
@@ -168,15 +169,20 @@ const Login = () => {
   }
 
   const onChange = (value: any, item: any) => {
+    
     let obj = { ...selectedItem };
     if (item.value == "userName") obj.userName = value;
     if (item.value == "passwordHash") obj.passwordHash = value;
 
     setSelectedItem(obj);
-    setDisablePassword(Util.isNullOrUndefinedOrEmpty(obj.userName));
+    setDisableLogin(Util.isNullOrUndefinedOrEmpty(obj.userName) || Util.isNullOrUndefinedOrEmpty(obj.passwordHash));
+
     let cntrlList = [...controlsList];
     cntrlList[1].isRequired = obj.userName !== "developer";
+    cntrlList[1].disabled=Util.isNullOrUndefinedOrEmpty(obj.userName);
     setControlsList([...cntrlList]);
+    setValue("userName" as never, obj.userName as never);
+    setValue("passwordHash" as never, obj.passwordHash as never);
   };
 
   const handleVerifyClick = async () => {
@@ -246,6 +252,8 @@ const Login = () => {
                   </div>
                   <div className="h4">Sign In</div>
                 </div>
+                <div className="logformsubtext p-2 text-center" hidden={loading}>
+                  Please log in to continue.
                 <div className="logformsubtext p-2 text-center">
                   {twoFactorRequired
                     ? "Enter the 2FA code sent to your email"
@@ -262,6 +270,62 @@ const Login = () => {
                   <div hidden={!loading}>
                     <Spinner />
                   </div>
+                </div>
+                {
+                  <GenerateElements
+                    controlsList={controlsList}
+                    selectedItem={selectedItem}
+                    disable={loading}
+                    onChange={(value: any, item: any) => onChange(value, item)}
+                  />
+                }
+                <Form.Group className="mb-2" controlId="checkbox">
+                  <Form.Check
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e: any) => setRememberMe(!rememberMe)}
+                    disabled={Util.isNullOrUndefinedOrEmpty(
+                      selectedItem.userName
+                    )}
+                    tabIndex={3}
+                    label="Remember me"
+                  />
+                </Form.Group>
+                {!loading ? (
+                  <Button className="w-100" variant="primary" type="submit" disabled={!selectedItem?.userName || !selectedItem?.passwordHash}>
+                    Log In
+                  </Button>
+                ) : (
+                  loading && (
+                    <Button
+                      className="w-100"
+                      variant="primary"
+                      type="submit"
+                      disabled
+                    >
+                      Logging In...
+                    </Button>
+                  )
+                )}
+                <div className="d-grid justify-content-end">
+                  <Button
+                    className="text-muted px-0"
+                    variant="link"
+                    onClick={(e: any) => setShowForGotPasswordDiglog(true)}
+                  >
+                    Forgot password?
+                  </Button>
+                </div>
+                <div className="oraccessquickly text-center mt-3 mb-3">
+                  <span>or access quickly</span>
+                </div>
+                <div className="oraccessquicklybtn">
+                  <a className="btn" href="#">
+                    Google
+                  </a>
+                  <a className="btn" href="#">
+                    SSO
+                  </a>
                 </div>
                 {twoFactorRequired ? (
                   // If 2FA is required, show the verification code form

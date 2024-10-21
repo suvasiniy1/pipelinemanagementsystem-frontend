@@ -5,6 +5,7 @@ type params = {
     selectedItem: any;
     onChange?: any;
     disable?: boolean;
+    value?:any;
     isValidationOptional?: boolean
 }
 
@@ -15,7 +16,7 @@ const generatePlaceHolder = (item: any) => {
 
 const TextAreaWithValidations = (props: params) => {
     console.log("TextArea component rendered with props " + props);
-    const { item, selectedItem, onChange, disable, ...others } = props;
+    const { item, selectedItem, onChange, disable, value, ...others } = props;
 
     const { register, formState: { errors } } = useFormContext();
 
@@ -27,11 +28,10 @@ const TextAreaWithValidations = (props: params) => {
                 placeholder={generatePlaceHolder(item)}
                 className="form-control"
                 autoComplete="off"
-                defaultValue={selectedItem[item.value]}
+                defaultValue={value ? value : selectedItem[item.value]}
                 {...register(item.value)}
-                onBlur={onChange}
                 disabled={disable ?? item.disabled}
-                onChange={(event: any) => { }}
+                onChange={(e)=>onChange(e.target.value)}
             />
             <p className="text-danger" id={`validationMsgfor_${item.value}`}>{(errors as any)?.[item.value]?.message}</p>
         </>
