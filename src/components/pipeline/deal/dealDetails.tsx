@@ -62,7 +62,7 @@ export const DealDetails = () => {
   );
   const navigator = useNavigate();
   const { instance, accounts } = useMsal();
-
+  const location = useLocation();
 
   useEffect(() => {}, [dealItem]);
 
@@ -85,6 +85,43 @@ export const DealDetails = () => {
         setError(err);
       });
   }, []);
+  const fetchDealData = async (dealId: number, pipelineId: number) => {
+    setIsLoading(true);
+    try {
+      // Fetch the deal data and stages concurrently
+      const [dealData, stagesData] = await Promise.all([
+        dealSvc.getDealsById(dealId),
+        stagesSvc.getStages(pipelineId),
+      ]);
+
+      if (dealData && stagesData) {
+        setDealItem(
+          IsMockService()
+            ? dealData.find((d: Deal) => d.dealID == dealId)
+            : dealData
+        );
+        let sortedStages = Util.sortList(stagesData.stageDtos, "stageOrder");
+        setStages(sortedStages);
+      }
+    } catch (err) {
+      setError(err as AxiosError);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Use the useLocation hook instead of the global location object
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const newDealId = searchParams.get("id");
+    const newPipelineId = searchParams.get("pipeLineId");
+
+    if (newDealId && newPipelineId) {
+      fetchDealData(Number(newDealId), Number(newPipelineId)); // Fetch new deal data based on new params
+    }
+  }, [location.search]); // Listen for changes to the URL search params
+
+
 
   const onDealModified = (stageId: number) => {
     dealSvc

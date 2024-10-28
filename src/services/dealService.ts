@@ -22,4 +22,8 @@ export class DealService extends BaseService<Deal>{
     updateAllDeals(deals: Partial<Deal>[], axiosCancel?: CancelTokenSource) {
         return this.putItemBySubURL(deals, 'UpdateAllDeals', axiosCancel);
     }
+    searchDeals(searchTerm: string, axiosCancel?: CancelTokenSource) {
+        const apiUrl = IsMockService() ? 'mockData/searchDeals.json' : 'Deal/Search';
+        return this.getItems(axiosCancel, `${apiUrl}?searchTerm=${searchTerm}`);
+    }
 }

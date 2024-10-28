@@ -252,80 +252,10 @@ const Login = () => {
                   </div>
                   <div className="h4">Sign In</div>
                 </div>
-                <div className="logformsubtext p-2 text-center" hidden={loading}>
-                  Please log in to continue.
                 <div className="logformsubtext p-2 text-center">
                   {twoFactorRequired
                     ? "Enter the 2FA code sent to your email"
                     : "Please log in to continue."}
-                </div>
-
-                <div style={{ textAlign: "center" }}>
-                  <span
-                    className="text-danger"
-                    hidden={!isIncorrectCredentails}
-                  >
-                    {isIncorrectCredentails}
-                  </span>
-                  <div hidden={!loading}>
-                    <Spinner />
-                  </div>
-                </div>
-                {
-                  <GenerateElements
-                    controlsList={controlsList}
-                    selectedItem={selectedItem}
-                    disable={loading}
-                    onChange={(value: any, item: any) => onChange(value, item)}
-                  />
-                }
-                <Form.Group className="mb-2" controlId="checkbox">
-                  <Form.Check
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e: any) => setRememberMe(!rememberMe)}
-                    disabled={Util.isNullOrUndefinedOrEmpty(
-                      selectedItem.userName
-                    )}
-                    tabIndex={3}
-                    label="Remember me"
-                  />
-                </Form.Group>
-                {!loading ? (
-                  <Button className="w-100" variant="primary" type="submit" disabled={!selectedItem?.userName || !selectedItem?.passwordHash}>
-                    Log In
-                  </Button>
-                ) : (
-                  loading && (
-                    <Button
-                      className="w-100"
-                      variant="primary"
-                      type="submit"
-                      disabled
-                    >
-                      Logging In...
-                    </Button>
-                  )
-                )}
-                <div className="d-grid justify-content-end">
-                  <Button
-                    className="text-muted px-0"
-                    variant="link"
-                    onClick={(e: any) => setShowForGotPasswordDiglog(true)}
-                  >
-                    Forgot password?
-                  </Button>
-                </div>
-                <div className="oraccessquickly text-center mt-3 mb-3">
-                  <span>or access quickly</span>
-                </div>
-                <div className="oraccessquicklybtn">
-                  <a className="btn" href="#">
-                    Google
-                  </a>
-                  <a className="btn" href="#">
-                    SSO
-                  </a>
                 </div>
                 {twoFactorRequired ? (
                   // If 2FA is required, show the verification code form
