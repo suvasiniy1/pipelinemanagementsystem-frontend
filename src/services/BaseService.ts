@@ -205,7 +205,7 @@ export class BaseService<TItem extends AuditItem>{
                 cancelToken: axiosCancel?.token
             }).then((res: AxiosResponse) => {
                 console.log("postItemBySubURL - res: ", res);
-                
+                resolve(res.data);
                 if (res.data?.success) {
                     resolve(res.data?.result);
 

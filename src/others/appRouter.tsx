@@ -23,6 +23,7 @@ import ProfilePage from "../components/profiles/ProfilePage";
 import EnquiryFormList from "../components/enquiryForm/enquiryFormsList";
 import ConfirmEmail from "../components/ConfirmEmail";
 import ActivityTaskList from "../components/taskActivities/activityTaskList"
+import ChangePassword from '../components/profiles/changePassword';
 
 
 export const AppRouter = () => {
@@ -41,6 +42,7 @@ export const AppRouter = () => {
   return (
     <>
       <Routes>
+        <Route path="/changePassword" element={<ChangePassword />} />
         <Route path="/pipeline" element={<Deals />} />
         <Route path="/" element={<Home />} />
         <Route path="/login" element={ <Login />} />

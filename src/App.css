@@ -876,3 +876,104 @@ min-width: 375px !important;
   top:6px;
   padding: 0 !important;
 }
+.headsearchrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50px; /* Set this height based on your header size */
+  padding: 0; /* Remove any padding */
+  margin: 0;  /* Remove any margin */
+}
+
+.headsearch .ui.icon.headinput {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+.headsearch input.form-control {
+  height: 100%;
+  padding: 8px 12px;  /* Adjust the padding as needed */
+  box-sizing: border-box;
+}
+.view-deals-button {
+  background-color: #007bff;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  margin-left: 10px; /* Adds space between label and button */
+  
+}
+
+.view-deals-button:hover {
+  background-color: #8399bb;
+}
+.stages-progress-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pipeline-stage-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pipeline-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  font-size: 0.85em;
+}
+
+.pipeline-stage label {
+  margin-bottom: 4px;
+  font-weight: normal;
+  color: #333;
+}
+
+.pipeline-stage.current-stage label {
+  font-weight: bold;
+  color: green;
+}
+
+.stage-separator {
+  height: 4px;
+  width: 20px;
+  background-color: #e0e0e0;
+}
+
+.pipeline-stage.completed .stage-separator {
+  background-color: green;
+}
+
+.pipeline-stage:last-child .stage-separator {
+  display: none;
+}
+/* Add borders to the DataGrid cells for a table-like appearance */
+/* Styles for making the DataGrid look more like a table */
+.custom-data-grid .MuiDataGrid-cell,
+.custom-data-grid .MuiDataGrid-columnHeader {
+    border-right: 1px solid rgba(224, 224, 224, 1); /* Vertical borders */
+}
+
+.custom-data-grid .MuiDataGrid-columnHeader {
+    font-weight: bold; /* Make headers bold */
+}
+
+.custom-data-grid .MuiDataGrid-row {
+    border-bottom: 1px solid rgba(224, 224, 224, 1); /* Horizontal row borders */
+}
+
+.custom-data-grid .MuiDataGrid-root {
+    background-color: white; /* Ensure grid background is white */
+}
+

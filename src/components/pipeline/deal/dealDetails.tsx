@@ -38,6 +38,8 @@ import NotesAddEdit from "./activities/notes/notesAddEdit";
 import { TaskAddEdit } from "./activities/tasks/taskAddEdit";
 import DealOverView from "./overview/dealOverView";
 import DealDetailsCustomFields from "./dealDetailsCustomFields";
+import DealsDialog from "./DealsDialog";
+
 
 export const DealDetails = () => {
   const [dealId, setDealId] = useState(
@@ -48,7 +50,7 @@ export const DealDetails = () => {
   );
   const dealSvc = new DealService(ErrorBoundary);
   const [error, setError] = useState<AxiosError>();
-  const [dealItem, setDealItem] = useState<Deal>(new Deal());
+  const [dealItem, setDealItem] = useState<Deal>({ ...new Deal(), openDealsCount: 0 });
   const [isLoading, setIsLoading] = useState(true);
   const stagesSvc = new StageService(ErrorBoundary);
   const [stages, setStages] = useState<Array<Stage>>([]);
@@ -63,6 +65,12 @@ export const DealDetails = () => {
   const navigator = useNavigate();
   const { instance, accounts } = useMsal();
   const location = useLocation();
+  const [isDealsModalOpen, setIsDealsModalOpen] = useState(false);
+  const [relatedDeals, setRelatedDeals] = useState([]);
+
+  const [openDealsCount, setOpenDealsCount] = useState(dealItem.openDealsCount || 0);
+  const [dealsData, setDealsData] = useState<Deal[]>([]); 
+  
 
   useEffect(() => {}, [dealItem]);
 
@@ -109,6 +117,33 @@ export const DealDetails = () => {
       setIsLoading(false);
     }
   };
+  interface SimplifiedDeal {
+    id: number;
+    treatmentName: string;
+    personName: string;
+    ownerName: string;
+}
+ // Fetch deals data when opening the dialog
+ const openMoveDealDialog = async () => {
+  try {
+      const relatedDealsData: Deal[] = await dealSvc.getDealsByPersonId(dealItem.contactPersonID);
+
+      // Map relatedDealsData to ensure every deal has required fields for DataGrid
+      const formattedData: Deal[] = relatedDealsData.map((deal) => ({
+          ...deal, // spread all original properties
+          id: deal.dealID, // if `dealID` is the unique identifier expected by DataGrid
+          treatmentName: deal.treatmentName || 'No Title', // default title if missing
+          personName: deal.personName || 'No Contact', // default contact person if missing
+          ownerName: deal.ownerName || 'No Owner', // default owner if missing
+      }));
+
+      setDealsData(formattedData);
+      setIsDealsModalOpen(true);
+  } catch (error) {
+      console.error("Error fetching related deals:", error);
+  }
+};
+const closeMoveDealDialog = () => setIsDealsModalOpen(false);
 
   // Use the useLocation hook instead of the global location object
   useEffect(() => {
@@ -121,7 +156,7 @@ export const DealDetails = () => {
     }
   }, [location.search]); // Listen for changes to the URL search params
 
-
+ 
 
   const onDealModified = (stageId: number) => {
     dealSvc
@@ -400,11 +435,13 @@ export const DealDetails = () => {
                   </div>
 
                   <div className="appdealblock-row mt-1">
-                    <div className="appdeal-amount dflex">
-                      Person Name:{" "}
-                      <span className="appdeal-amountnum">
-                        {dealItem.personName}
-                      </span>
+                    <div className="appdeal-amount dflex" style={{display: "flex",justifyContent: "space-between",alignItems: "flex-start", width: "100%" }}>
+                    <span style={{ display: "flex", alignItems: "center" }}>
+                    Person Name: <span className="appdeal-amountnum" style={{ marginLeft: "5px" }}>{dealItem.personName}</span>
+                    </span>
+                      <button onClick={openMoveDealDialog}  className="view-deals-button">
+                    View Deals ({dealItem.openDealsCount || 0})
+                  </button>
                     </div>
                   </div>
                 </div>
@@ -437,6 +474,19 @@ export const DealDetails = () => {
                   setDialogIsOpen={setDialogIsOpen}
                 />
               ) : null)}
+              {/* Deals Dialog */}
+              <DealsDialog
+  show={isDealsModalOpen}
+  onClose={closeMoveDealDialog}
+  dealsData={dealsData.map((deal, index) => ({
+    id: deal.dealID || index, // use index if dealID is not available
+    treatmentName: deal.treatmentName || 'No Title', // ensure title has a value
+    personName: deal.personName || 'No Contact', // default if undefined
+    ownerName: deal.ownerName || 'No Owner', // default if undefined
+  }))}
+  stages={stages} // Pass the stages array
+  currentStageId={dealItem.stageID} // Pass the current stage ID of the deal
+/>
             <DealOverView
               dealItem={dealItem}
               dealId={dealId}
@@ -447,6 +497,7 @@ export const DealDetails = () => {
           </div>
         </div>
       )}
+     
     </>
   );
 };

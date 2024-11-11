@@ -15,6 +15,9 @@ export class DealService extends BaseService<Deal>{
     getDealsById(dealId:number, axiosCancel?: CancelTokenSource){
         return this.getItems(axiosCancel, IsMockService() ?  'mockData/deals.json' : 'Deal/'+dealId)
     }
+    getDealsByPersonId(personId: number, axiosCancel?: CancelTokenSource) { // Add this method
+        return this.getItems(axiosCancel, IsMockService() ? 'mockData/dealsByPerson.json' : `Deal/GetDealsByPersonId/${personId}`);
+    }
 
     deleteDeal(dealId:number){
         return this.delete(dealId, "Deal");

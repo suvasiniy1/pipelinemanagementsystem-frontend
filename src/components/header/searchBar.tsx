@@ -51,6 +51,13 @@ export const SearchBar = () => {
         console.log('Filtered Results:', filteredResults);
     }, [filteredResults]);
 
+    useEffect(() => {
+        return () => {
+            setSearchResults([]);
+            setFilteredResults([]);
+        };
+    }, [navigate]);
+
     // Handle search input change and filter results as the user types
     interface SearchResult {
         contactPerson?: string;
@@ -98,24 +105,18 @@ export const SearchBar = () => {
 
     // Function to handle navigation to a specific item
     const navigateToItem = (item: { dealID?: string, pipelineID?: string, personID?: string }) => {
-        console.log("Item selected:", item);
+        console.log("Navigating to deal:", item.dealID, "in pipeline:", item.pipelineID);
     
         if (item.dealID && item.pipelineID) {
-            console.log(`Navigating to deal with id: ${item.dealID}, pipelineId: ${item.pipelineID}`);
-    
-            // Use `navigate` without full reload
-            navigate(`/deal?id=${item.dealID}&pipeLineId=${item.pipelineID}`, { replace: false });
-    
+            navigate(`/deal?id=${item.dealID}&pipeLineId=${item.pipelineID}`);
         } else if (item.personID) {
-            console.log(`Navigating to person with id: ${item.personID}`);
-    
-            navigate(`/person?id=${item.personID}`, { replace: false });
+            navigate(`/person?id=${item.personID}`, { replace: true });
         } else {
             console.error("No valid dealID or personID found for navigation.");
         }
-        // Clear the search input and filtered results
-    setSearchValue("");
-    setFilteredResults([]);
+    
+        setSearchValue(""); // Clear search state
+        setFilteredResults([]);
     };
 
     return (
@@ -188,20 +189,19 @@ export const SearchBar = () => {
                     >
                          <ul style={{ listStyleType: 'none', margin: 0, padding: 0 }}>
                             {filteredResults.map((item, index) => (
-                                <li 
-                                    key={index} 
-                                    onClick={() => navigateToItem(item)} 
-                                    style={{ 
-                                        padding: '10px', 
-                                        cursor: 'pointer', 
-                                        borderBottom: '1px solid #eee' 
-                                    }}
-                                >
-                                     {/* Display contact person, email, or other relevant fields */}
-                                     {item.contactPerson && <span>{item.contactPerson}</span>}
-                                    {item.email && <span> ({item.email})</span>}
-                                    {item.treatmentName && <span> - {item.treatmentName}</span>}
-                                </li>
+                               <li 
+                               key={item.dealID}  // Use dealID as the key if it's unique
+                               onClick={() => navigateToItem(item)} 
+                               style={{ 
+                                   padding: '10px', 
+                                   cursor: 'pointer', 
+                                   borderBottom: '1px solid #eee' 
+                               }}
+                           >
+                               {item.contactPerson && <span>{item.contactPerson}</span>}
+                               {item.email && <span> ({item.email})</span>}
+                               {item.treatmentName && <span> - {item.treatmentName}</span>}
+                           </li>
                             ))}
                         </ul>
                     </div>

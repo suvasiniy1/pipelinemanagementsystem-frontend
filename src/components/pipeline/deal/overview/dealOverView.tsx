@@ -7,7 +7,7 @@ import {
   faThumbsUp,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 import moment from "moment";
 import { useEffect, useState } from "react";
 import Accordion from "react-bootstrap/Accordion";
@@ -24,6 +24,7 @@ import { NotesService } from "../../../../services/notesService";
 import DealActivities from "../activities/dealActivities";
 import { IsMockService } from "../../../../others/util";
 import { DealService } from "../../../../services/dealService";
+import { useLocation } from "react-router-dom";
 
 type params = {
   dealItem: Deal;
@@ -38,27 +39,70 @@ const DealOverView = (props: params) => {
   const recentActivitesFilters: Array<any> = ["All Activities"].map(
     (item: any) => ({ name: item, value: item })
   );
+  const location = useLocation(); 
+  const [pipelineId, setPipelineId] = useState<number | null>(null);
   const [activityFilter, setActivityFilter] = useState("All Activities");
   const notesSvc = new NotesService(ErrorBoundary);
   const dealSvc = new DealService(ErrorBoundary); // Instantiate DealService
   const [notesList, setNotesList] = useState<Array<Notes>>([]);
   const [error, setError] = useState<AxiosError>();
   const [selectedTab, setSelectedTab] = useState("Overview");
-
+  const [callHistory, setCallHistory] = useState<Array<any>>([]);
   useEffect(() => {
-    notesSvc
-      .getNotes(dealId)
+    const queryParams = new URLSearchParams(location.search);
+    const newDealId = Number(queryParams.get("id"));
+    const newPipelineId = Number(queryParams.get("pipeLineId"));
+
+    if (newDealId !== dealId) {
+      setDealItem((prevItem: Deal) => ({ ...prevItem, dealId: newDealId }));
+    }
+    if (newPipelineId !== pipelineId) {
+      setPipelineId(newPipelineId);
+    }
+  }, [location.search]);
+  // Fetch notes when dealId changes
+  useEffect(() => {
+    if (!dealId) return;
+
+    notesSvc.getNotes(dealId)
       .then((res) => {
         setNotesList(
           IsMockService()
-            ? (res as Array<Notes>).filter((n) => n.dealID == dealId)
+            ? (res as Array<Notes>).filter((n) => n.dealID === dealId)
             : res
         );
       })
-      .catch((err) => {
-        setError(err);
-      });
-  }, []);
+      .catch((err) => setError(err));
+  }, [dealId,notesSvc]);
+
+  useEffect(() => {
+    if (!dealId) return;
+
+    const axiosCancelSource = axios.CancelToken.source();
+
+    const fetchCallHistory = async () => {
+      try {
+        const response = await dealSvc.getDealsById(dealId, axiosCancelSource);
+        if (response) {
+          setDealItem(response);
+          setCallHistory(response.callHistory || []);
+        } else {
+          console.warn("API Response does not contain expected data.");
+        }
+      } catch (error) {
+        if (!axios.isCancel(error)) {
+          console.error("Error fetching call history:", error);
+        }
+      }
+    };
+
+    fetchCallHistory();
+
+    return () => {
+      axiosCancelSource.cancel("Request canceled due to component unmount or dealId change");
+    };
+  }, [dealId, setDealItem, dealSvc]);
+
 // Function to update the deal status
 
 const updateDealStatus = async (status: string) => {
@@ -279,6 +323,40 @@ const handleLostClick = () => {
                         </div>
                       </div>
                     </div>
+                      {/* Call History Panel */}
+                      <div className="whiteshadowbox datahighlightsbox">
+                    <div className="tabcard-header">
+                      <h2>History</h2>
+                    </div>
+                    <div className="tabcard-content">
+                    <Accordion className="activityfilter-acco">
+                     {callHistory && callHistory.length > 0 ? (
+                      callHistory.map((call, index) => (
+                      <Accordion.Item eventKey={`call-${index}`} key={index}>
+                        <Accordion.Header>
+                            <span className="accoheader-title">
+                                Call ID: {call.id} - {call.status === 'completed' ? 'Completed' : 'Missed'}
+                            </span>
+                            <span className="accoheader-date">
+                                {moment(`${call.callDate} ${call.callTime}`).format("MM-DD-YYYY hh:mm:ss a")}
+                            </span>
+                        </Accordion.Header>
+                        <Accordion.Body>
+                            <p><strong>Call From:</strong> {call.contactName} {call.contactNumber}</p>
+                            <p><strong>Received On:</strong> {call.justCallNumber}</p>
+                            <p><strong>Assigned To:</strong> {call.agentName}</p>
+                            {call.status === 'missed' && (
+                                <p><strong>Missed Call Reason:</strong> {call.missedCallReason}</p>
+                            )}
+                        </Accordion.Body>
+                      </Accordion.Item>
+                     ))
+                   ) : (
+                   <p>No call history available.</p>
+                 )}
+                 </Accordion>
+                 </div>
+                </div>
                   </div>
                 </Tab>
                 <Tab

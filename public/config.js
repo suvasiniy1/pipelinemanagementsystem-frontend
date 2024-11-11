@@ -1,5 +1,5 @@
 window.config = {
-    //ServicesBaseURL: "http://localhost:5127/api",
+   // ServicesBaseURL: "http://localhost:5127/api",
     ServicesBaseURL: "http://20.26.122.140/PLMS/api",
     DefaultStages: [
       "Qualified",
@@ -12,6 +12,7 @@ window.config = {
     CampaignSections: ["Assets", "Tasks"],
     ClientId: "58f8d840-1215-4e4f-8901-da06f1dba5ac",
     DateFormat: "MM/DD/YYYY",
+    FrontendBaseURL: "http://localhost:3000/PLMSUI",  // Add this for frontend base URL
     NavItemsForUser: [
       {
         Role: 1,
