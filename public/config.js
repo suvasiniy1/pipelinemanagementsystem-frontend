@@ -20,6 +20,7 @@ window.config = {
           "Stages",
           "deal",
           "pipeline",
+          "pipeline/edit",
           "Activities",
           "Person",
           "Template",

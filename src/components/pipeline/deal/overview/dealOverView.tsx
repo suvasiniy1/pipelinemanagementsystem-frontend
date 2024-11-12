@@ -47,7 +47,7 @@ const DealOverView = (props: params) => {
   const [notesList, setNotesList] = useState<Array<Notes>>([]);
   const [error, setError] = useState<AxiosError>();
   const [selectedTab, setSelectedTab] = useState("Overview");
-  const [callHistory, setCallHistory] = useState<Array<any>>([]);
+
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     const newDealId = Number(queryParams.get("id"));
@@ -73,35 +73,9 @@ const DealOverView = (props: params) => {
         );
       })
       .catch((err) => setError(err));
-  }, [dealId,notesSvc]);
+  }, [dealId]);
 
-  useEffect(() => {
-    if (!dealId) return;
-
-    const axiosCancelSource = axios.CancelToken.source();
-
-    const fetchCallHistory = async () => {
-      try {
-        const response = await dealSvc.getDealsById(dealId, axiosCancelSource);
-        if (response) {
-          setDealItem(response);
-          setCallHistory(response.callHistory || []);
-        } else {
-          console.warn("API Response does not contain expected data.");
-        }
-      } catch (error) {
-        if (!axios.isCancel(error)) {
-          console.error("Error fetching call history:", error);
-        }
-      }
-    };
-
-    fetchCallHistory();
-
-    return () => {
-      axiosCancelSource.cancel("Request canceled due to component unmount or dealId change");
-    };
-  }, [dealId, setDealItem, dealSvc]);
+  
 
 // Function to update the deal status
 
@@ -323,40 +297,6 @@ const handleLostClick = () => {
                         </div>
                       </div>
                     </div>
-                      {/* Call History Panel */}
-                      <div className="whiteshadowbox datahighlightsbox">
-                    <div className="tabcard-header">
-                      <h2>History</h2>
-                    </div>
-                    <div className="tabcard-content">
-                    <Accordion className="activityfilter-acco">
-                     {callHistory && callHistory.length > 0 ? (
-                      callHistory.map((call, index) => (
-                      <Accordion.Item eventKey={`call-${index}`} key={index}>
-                        <Accordion.Header>
-                            <span className="accoheader-title">
-                                Call ID: {call.id} - {call.status === 'completed' ? 'Completed' : 'Missed'}
-                            </span>
-                            <span className="accoheader-date">
-                                {moment(`${call.callDate} ${call.callTime}`).format("MM-DD-YYYY hh:mm:ss a")}
-                            </span>
-                        </Accordion.Header>
-                        <Accordion.Body>
-                            <p><strong>Call From:</strong> {call.contactName} {call.contactNumber}</p>
-                            <p><strong>Received On:</strong> {call.justCallNumber}</p>
-                            <p><strong>Assigned To:</strong> {call.agentName}</p>
-                            {call.status === 'missed' && (
-                                <p><strong>Missed Call Reason:</strong> {call.missedCallReason}</p>
-                            )}
-                        </Accordion.Body>
-                      </Accordion.Item>
-                     ))
-                   ) : (
-                   <p>No call history available.</p>
-                 )}
-                 </Accordion>
-                 </div>
-                </div>
                   </div>
                 </Tab>
                 <Tab
