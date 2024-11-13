@@ -876,3 +876,56 @@ min-width: 375px !important;
   top:6px;
   padding: 0 !important;
 }
+
+/*Dealfilteraddedit style*/
+
+.filter-editor {
+  /* max-width: 500px; */
+  padding: 20px;
+  /* border: 1px solid #ddd; */
+  border-radius: 8px;
+  font-family: Arial, sans-serif;
+}
+
+.condition-group {
+  margin-bottom: 20px;
+}
+
+.condition-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.filter-details {
+  margin-bottom: 20px;
+}
+
+.filter-details label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.filter-details input, .filter-details select {
+  width: 100%;
+  padding: 5px;
+  margin-top: 5px;
+}
+
+.filter-actions button {
+  margin-right: 10px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.filter-actions button:nth-child(1) {
+  background-color: #f0f0f0;
+}
+
+.filter-actions button:nth-child(2) {
+  background-color: #4CAF50;
+  color: white;
+}
