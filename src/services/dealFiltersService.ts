@@ -8,10 +8,10 @@ export class DealFiltersService extends BaseService<DealFilter>{
     }
 
     getDealFilters(axiosCancel?: CancelTokenSource){
-        return this.getItems(axiosCancel, 'DealFilter/GetDealfilters')
+        return this.getItemsBySubURL('GetDealfilters', axiosCancel)
     }
 
     saveDealFilters(dealFilters:DealFilter, axiosCancel?: CancelTokenSource){
-        return this.getItems(axiosCancel, 'DealFilter/SaveDealFilter')
+        return this.postItemBySubURL(dealFilters, 'SaveDealfilters')
     }
 }

@@ -321,7 +321,7 @@ const DealFilterAddEditDialog = (props: params) => {
   }, [allConditions.length, anyConditions.length]);
 
   const onSubmit = (obj: any) => {
-    debugger;
+    
     // let filtersList =
     //   JSON.parse(localStorage.getItem("dealFilters") as any) ?? [];
     // let dealFilter = { ...obj, isPublic: obj.visibility === "Public" };
@@ -333,6 +333,8 @@ const DealFilterAddEditDialog = (props: params) => {
     dealFilter.modifiedBy = Util.UserProfile()?.userId;
     dealFilter.createdDate = new Date();
     dealFilter.conditions = [];
+    dealFilter.name = obj.name;
+    dealFilter.filterType="test";
 
     if(allConditions.length>0){
       dealFilter.conditions.push(buildConditionsArray("AND", obj.allConditions));
@@ -341,6 +343,7 @@ const DealFilterAddEditDialog = (props: params) => {
       dealFilter.conditions.push(buildConditionsArray("OR", obj.anyConditions));
     }
 
+    
     dealFiltersSvc.saveDealFilters(dealFilter).then(res=>{
       if(res){
         toast.success("Deal filter created successfully");

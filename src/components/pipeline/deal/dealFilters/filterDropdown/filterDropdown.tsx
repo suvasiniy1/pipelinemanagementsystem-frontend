@@ -19,7 +19,7 @@ const FilterDropdown = (props: params) => {
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  debugger;
+  
   const [filters, setFilters] = useState<Array<DealFilter>>(
     JSON.parse(localStorage.getItem("dealFilters") as any) ?? []
   );
