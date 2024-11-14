@@ -47,7 +47,7 @@ export class BaseService<TItem extends AuditItem>{
         var promise = new Promise<any>((resolve, reject) => {
             axios({
                 method: 'GET',
-                url:  IsMockService()? urlSuffix2 as any : `${baseURL}/${this.urlSuffix}/${urlSuffix2}`,
+                url:  `${baseURL}/${this.urlSuffix}/${urlSuffix2}`,
                 headers: {
                     'Content-Type': 'application/json; charset=UTF-8',
                     'Media-type': 'application/json',

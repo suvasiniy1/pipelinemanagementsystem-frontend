@@ -5,6 +5,8 @@ import DealFilterAddEditDialog from "../dealFilterAddEditDialog";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { DealFilter } from "../../../../../models/dealFilters";
 import { Spinner } from "react-bootstrap";
+import { DealFiltersService } from "../../../../../services/dealFiltersService";
+import { ErrorBoundary } from "react-error-boundary";
 
 type params = {
   showPipeLineFilters: any;
@@ -19,10 +21,8 @@ const FilterDropdown = (props: params) => {
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
-  const [filters, setFilters] = useState<Array<DealFilter>>(
-    JSON.parse(localStorage.getItem("dealFilters") as any) ?? []
-  );
+  const dealFiltersSvc = new DealFiltersService(ErrorBoundary);
+  const [filters, setFilters] = useState<Array<DealFilter>>([]);
 
   // // Filters Array
   // const filters = [
@@ -47,6 +47,23 @@ const FilterDropdown = (props: params) => {
       setSelectedFilter(new DealFilter());
     }
   }, [dialogIsOpen]);
+
+  useEffect(()=>{
+    loadDealFilters();
+  },[])
+
+  const loadDealFilters=()=>{
+    setIsLoading(true);
+    dealFiltersSvc.getDealFilters().then(res=>{
+      
+      if(res){
+        setFilters(res);
+        setIsLoading(false);
+      }
+    }).catch(err=>{
+      setIsLoading(false);
+    })
+  }
 
   const loadFilters = () => {
     setFilters(JSON.parse(localStorage.getItem("dealFilters") as any) ?? []);
