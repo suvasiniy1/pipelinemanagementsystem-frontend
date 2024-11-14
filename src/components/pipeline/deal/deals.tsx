@@ -54,11 +54,11 @@ export const Deals = (props: params) => {
     const [totalDeals, setTotalDeals] = useState<Array<Deal>>([]);
     const [selectedStageName, setSelectedStageName] = useState("");
     const [isLoadingMore, setIsLoadingMore]=useState(false);
-    const defaultPageSize = 4;
+    const defaultPageSize = 10;
     const [pipeLineId, setPipeLineId] = useState(new URLSearchParams(useLocation().search).get("pipelineID") as any);
     const userProfile = Util.UserProfile();
     const utilSvc = new UtilService(ErrorBoundary);
-    const [pageSize, setPageSize] = useState(4);
+    const [pageSize, setPageSize] = useState(10);
 
     // useEffect(() => {
     //     
@@ -96,7 +96,7 @@ export const Deals = (props: params) => {
         });
     }
 
-    const loadStages = (selectedPipeLineId: number, skipLoading: boolean = false, pagesize: number = 4, fromDealModify:boolean=false) => {
+    const loadStages = (selectedPipeLineId: number, skipLoading: boolean = false, pagesize: number = 10, fromDealModify:boolean=false) => {
         
         if(!skipLoading) setIsLoading(true);
         if (selectedPipeLineId > 0) stagesSvc.getStages(selectedPipeLineId, 1, pagesize ?? pageSize).then(items => {
