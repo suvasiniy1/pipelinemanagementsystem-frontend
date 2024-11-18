@@ -1,13 +1,15 @@
 import { AuditItem } from "./base/AuditNamedItem"
 
 export class DealFilter extends AuditItem {
-    id!: number
-    name!: string
-    filterType!: string
-    isEditable: boolean = false
-    isFavourite: boolean = false
-    isPublic: boolean = false
-    conditions: Rule[] = []
+    id!: number;
+    name!: string;
+    filterType!: string;
+    isEditable: boolean = false;
+    isFavourite: boolean = false;
+    isPublic!: boolean;
+    conditions: Rule[] = [];
+    allConditions:Array<any>=[];
+    anyConditions:Array<any>=[];
   }
   
   export class Rule {
@@ -23,6 +25,6 @@ export class DealFilter extends AuditItem {
     operator!: string
     object!: string
     value!: string
-    extraValue!: string
+    extraValue: string="Test"
   }
   

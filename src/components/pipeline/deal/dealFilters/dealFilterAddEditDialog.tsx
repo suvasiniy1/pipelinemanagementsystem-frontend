@@ -6,7 +6,7 @@ import Util from "../../../../others/util";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
 import { Rule, ConditionCSV, DealFilter } from "../../../../models/dealFilters";
-import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
+import RemoveCircleIcon from "@material-ui/icons/RemoveCircle";
 import { DealFiltersService } from "../../../../services/dealFiltersService";
 import { ErrorBoundary } from "react-error-boundary";
 
@@ -72,14 +72,28 @@ const filterTypeOptions = [
 
 // Condition schema
 const conditionSchema = Yup.object().shape({
-  field: Yup.string().required("Field is required"),
-  attribute: Yup.string().required("Attribute is required"),
+  object: Yup.string().required("Field is required"),
+  field: Yup.string().required("Attribute is required"),
   operator: Yup.string().required("Operator is required"),
   value: Yup.string().required("Value is required"),
 });
 
 // Main form schema
-const formSchema = Yup.object().shape({
+const formSchema1 = Yup.object().shape({
+  name: Yup.string().required("Filter name is required"),
+  visibility: Yup.string().required("Visibility is required"),
+
+  // Validate 'ALL' conditions
+  allConditions: Yup.array()
+    .of(conditionSchema)
+    .min(1, "At least one condition is required in ALL conditions"),
+
+  // // Validate 'ANY' conditions
+  // anyConditions: Yup.array()
+  //   .of(conditionSchema)
+});
+
+const formSchema2 = Yup.object().shape({
   name: Yup.string().required("Filter name is required"),
   visibility: Yup.string().required("Visibility is required"),
 
@@ -91,13 +105,14 @@ const formSchema = Yup.object().shape({
   // Validate 'ANY' conditions
   anyConditions: Yup.array()
     .of(conditionSchema)
-    .min(1, "At least one condition is required in ANY conditions"),
+    .min(1, "At least one condition is required in ALL conditions"),
 });
+
 
 // Define types for conditions and props
 interface Condition {
+  object: string;
   field: string;
-  attribute: string;
   operator: string;
   value: any;
 }
@@ -123,21 +138,29 @@ const FilterCondition: React.FC<FilterConditionProps> = ({
   const {
     register,
     formState: { errors },
+    setValue
   } = useFormContext();
   // Access specific errors for each condition
   const errorPath = `${conditionType}[${index as any}]`;
-  const fieldError = (errors[conditionType] as any)?.[index]?.field;
-  const attributeError = (errors[conditionType] as any)?.[index]?.attribute;
+  const fieldError = (errors[conditionType] as any)?.[index]?.object;
+  const attributeError = (errors[conditionType] as any)?.[index]?.field;
   const operatorError = (errors[conditionType] as any)?.[index]?.operator;
   const valueError = (errors[conditionType] as any)?.[index]?.value;
+
+  useEffect(() => {
+    setValue(`${conditionType}.${index}.object`, condition.object);
+    setValue(`${conditionType}.${index}.field`, condition.field);
+    setValue(`${conditionType}.${index}.operator`, condition.operator);
+    setValue(`${conditionType}.${index}.value`, condition.value);
+  }, [condition, setValue, index, conditionType]);
 
   return (
     <div className="condition-row">
       <div className="col-3">
         <select
           className="form-control"
-          defaultValue={`${conditionType}.${index}.field`}
-          {...register(`${conditionType}.${index}.field`)}
+          defaultValue={`${conditionType}.${index}.object`}
+          {...register(`${conditionType}.${index}.object`)}
         >
           <option value="">Select</option>
           {filterTypeOptions.map((option) => (
@@ -151,8 +174,8 @@ const FilterCondition: React.FC<FilterConditionProps> = ({
       <div className="col-3">
         <select
           className="form-control"
-          defaultValue={`${conditionType}.${index}.attribute`}
-          {...register(`${conditionType}.${index}.attribute`)}
+          defaultValue={`${conditionType}.${index}.field`}
+          {...register(`${conditionType}.${index}.field`)}
         >
           <option value="">Select</option>
           {fieldOptions.map((option) => (
@@ -220,7 +243,7 @@ type params = {
 // Main FilterEditor Component
 const DealFilterAddEditDialog = (props: params) => {
   // State for conditions in both ALL and ANY sections
-
+  
   const {
     dialogIsOpen,
     setDialogIsOpen,
@@ -236,13 +259,18 @@ const DealFilterAddEditDialog = (props: params) => {
     props.selectedFilter ?? new DealFilter()
   );
 
+  const [allConditions, setAllConditions] = useState<Condition[]>([
+    { object: "", field: "", operator: "", value: null as any },
+  ]);
+  const [anyConditions, setAnyConditions] = useState<Condition[]>([]);
+
   const [formOptions, setFormOptions] = useState({
-    resolver: yupResolver(formSchema),
+    resolver: yupResolver(anyConditions.length>0 ? formSchema2 : formSchema1),
     defaultValues: {
       name: "",
       visibility: "",
       allConditions: [
-        { field: "", attribute: "", operator: "", value: null as any },
+        { object: "", field: "", operator: "", value: null as any },
       ],
       anyConditions: [],
     },
@@ -259,17 +287,28 @@ const DealFilterAddEditDialog = (props: params) => {
   useEffect(() => {
     let obj = {
       ...selectedFilter,
-      visibility: Util.isNullOrUndefinedOrEmpty(selectedFilter.isPublic)? null : selectedFilter.isPublic ? "Public" : "Private",
+      visibility: Util.isNullOrUndefinedOrEmpty(selectedFilter.isPublic)
+        ? null
+        : selectedFilter.isPublic
+        ? "Public"
+        : "Private",
     };
+
+    if (selectedFilter.id > 0) {
+      obj.allConditions = obj.conditions.find((i) => i.glue === "AND")
+        ?.conditionList as any;
+      setAllConditions(obj.allConditions ?? []);
+      obj.anyConditions = obj.conditions.find((i) => i.glue === "OR")
+        ?.conditionList as any;
+      setAnyConditions(obj.anyConditions ?? []);
+    }
+
     if (dialogIsOpen) {
       reset(obj); // Set the form values to the binding object when the dialog opens
     }
   }, [dialogIsOpen, reset]);
 
-  const [allConditions, setAllConditions] = useState<Condition[]>([
-    { field: "", attribute: "", operator: "", value: null as any },
-  ]);
-  const [anyConditions, setAnyConditions] = useState<Condition[]>([]);
+
   const [filterName, setFilterName] = useState<string>("");
   const [visibility, setVisibility] = useState<string>("");
 
@@ -279,7 +318,7 @@ const DealFilterAddEditDialog = (props: params) => {
   ) => {
     setConditions((prev) => [
       ...prev,
-      { field: "", attribute: "", operator: "", value: null as any },
+      { object: "", field: "", operator: "", value: null as any },
     ]);
   };
 
@@ -296,8 +335,10 @@ const DealFilterAddEditDialog = (props: params) => {
 
   const handleDeleteCondition = (
     index: number,
-    setConditions: React.Dispatch<React.SetStateAction<Condition[]>>
+    setConditions: React.Dispatch<React.SetStateAction<Condition[]>>,
+    isAllConditions:boolean
   ) => {
+    
     setConditions((prev) => prev.filter((_, i) => i !== index));
   };
 
@@ -308,12 +349,12 @@ const DealFilterAddEditDialog = (props: params) => {
 
   useEffect(() => {
     setFormOptions({
-      resolver: yupResolver(formSchema),
+      resolver: yupResolver(anyConditions.length>0 ? formSchema2 : formSchema1),
       defaultValues: {
         name: "",
         visibility: "",
         allConditions: [
-          { field: "", attribute: "", operator: "", value: null as any },
+          { object: "", field: "", operator: "", value: null as any },
         ],
         anyConditions: [],
       },
@@ -321,47 +362,54 @@ const DealFilterAddEditDialog = (props: params) => {
   }, [allConditions.length, anyConditions.length]);
 
   const onSubmit = (obj: any) => {
-    
     // let filtersList =
     //   JSON.parse(localStorage.getItem("dealFilters") as any) ?? [];
     // let dealFilter = { ...obj, isPublic: obj.visibility === "Public" };
     // filtersList.push(dealFilter);
     // localStorage.setItem("dealFilters", JSON.stringify(filtersList));
     let dealFilter = new DealFilter();
+    dealFilter.id = selectedFilter.id;
     dealFilter.isPublic = obj.visibility === "Public";
     dealFilter.createdBy = Util.UserProfile()?.userId;
     dealFilter.modifiedBy = Util.UserProfile()?.userId;
     dealFilter.createdDate = new Date();
     dealFilter.conditions = [];
     dealFilter.name = obj.name;
-    dealFilter.filterType="test";
+    dealFilter.filterType = "test";
 
-    if(allConditions.length>0){
-      dealFilter.conditions.push(buildConditionsArray("AND", obj.allConditions));
+    if (allConditions.length > 0) {
+      dealFilter.conditions.push(
+        buildConditionsArray("AND", allConditions, obj.allConditions)
+      );
     }
-    if(anyConditions.length>0){
-      dealFilter.conditions.push(buildConditionsArray("OR", obj.anyConditions));
+    if (anyConditions.length > 0) {
+      dealFilter.conditions.push(buildConditionsArray("OR", anyConditions, obj.anyConditions));
     }
 
-    
-    dealFiltersSvc.saveDealFilters(dealFilter).then(res=>{
-      if(res){
-        toast.success("Deal filter created successfully");
+    dealFiltersSvc.saveDealFilters(dealFilter).then((res) => {
+      if (res) {
+        toast.success(
+          `Deal filter ${
+            selectedFilter.id > 0 ? " updated " : " created "
+          } successfully`
+        );
         props.onSaveChanges();
       }
     });
   };
 
-  const buildConditionsArray = (glue: string, list: Array<any>) => {
+  const buildConditionsArray = (glue: string, list: Array<any>, objList: Array<any>) => {
     let condition = new Rule();
     condition.glue = glue;
     condition.conditionList = [];
-    list.forEach((ac) => {
+    list.forEach((ac, index) => {
+      let objItem = objList[index];
       let conditionCSV = new ConditionCSV();
-      conditionCSV.object = ac.attribute;
-      conditionCSV.value = ac.field;
-      conditionCSV.operator = ac.operator;
-      conditionCSV.extraValue = ac.value;
+      conditionCSV = { ...objItem };
+      // conditionCSV.object = ac.attribute;
+      // conditionCSV.value = ac.field;
+      // conditionCSV.operator = ac.operator;
+      conditionCSV.extraValue = objItem.value;
       condition.conditionList.push(conditionCSV);
     });
     return condition;
@@ -380,8 +428,17 @@ const DealFilterAddEditDialog = (props: params) => {
           <>
             <div className="filter-editor">
               {/* ALL conditions section */}
-              <h6 className="pb-2">Show deals that match ALL of these conditions:</h6>
-              <div className="condition-group" style={{ backgroundColor: '#f7f7f7', padding: '20px', borderRadius: '8px' }}>
+              <h6 className="pb-2">
+                Show deals that match ALL of these conditions:
+              </h6>
+              <div
+                className="condition-group"
+                style={{
+                  backgroundColor: "#f7f7f7",
+                  padding: "20px",
+                  borderRadius: "8px",
+                }}
+              >
                 {allConditions.map((condition, index) => (
                   <FilterCondition
                     key={`all-${index}`}
@@ -390,7 +447,7 @@ const DealFilterAddEditDialog = (props: params) => {
                       handleConditionChange(index, key, value, setAllConditions)
                     }
                     onDelete={() =>
-                      handleDeleteCondition(index, setAllConditions)
+                      handleDeleteCondition(index, setAllConditions, true)
                     }
                     index={index}
                     conditionType={"allConditions"}
@@ -462,7 +519,11 @@ const DealFilterAddEditDialog = (props: params) => {
               <h6 className="pb-2">And match ANY of these conditions:</h6>
               <div
                 className="condition-group"
-                style={{ backgroundColor: '#f7f7f7', padding: '20px', borderRadius: '8px' }}
+                style={{
+                  backgroundColor: "#f7f7f7",
+                  padding: "20px",
+                  borderRadius: "8px",
+                }}
                 hidden={anyConditions.length == 0}
               >
                 {anyConditions.map((condition, index) => (
@@ -473,7 +534,7 @@ const DealFilterAddEditDialog = (props: params) => {
                       handleConditionChange(index, key, value, setAnyConditions)
                     }
                     onDelete={() =>
-                      handleDeleteCondition(index, setAnyConditions)
+                      handleDeleteCondition(index, setAnyConditions, false)
                     }
                     index={index}
                     conditionType={"anyConditions"}
@@ -490,7 +551,7 @@ const DealFilterAddEditDialog = (props: params) => {
                 </button>
               </div>
 
-              <br/>
+              <br />
               {/* Filter details */}
               <div className="col-12 filter-details d-flex">
                 <div className="col-5">
@@ -511,9 +572,7 @@ const DealFilterAddEditDialog = (props: params) => {
                     )}
                   </label>
                 </div>
-                <div className="col-2">
-
-                </div>
+                <div className="col-2"></div>
                 <div className="col-5">
                   <label>
                     Visibility:

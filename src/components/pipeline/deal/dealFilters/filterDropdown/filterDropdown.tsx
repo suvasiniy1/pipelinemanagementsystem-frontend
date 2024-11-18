@@ -3,10 +3,17 @@ import "./filterDropdown.css"; // Import the CSS file
 import OutsideClickHandler from "react-outside-click-handler";
 import DealFilterAddEditDialog from "../dealFilterAddEditDialog";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faCheck,
+  faDeleteLeft,
+  faEdit,
+} from "@fortawesome/free-solid-svg-icons";
 import { DealFilter } from "../../../../../models/dealFilters";
 import { Spinner } from "react-bootstrap";
 import { DealFiltersService } from "../../../../../services/dealFiltersService";
 import { ErrorBoundary } from "react-error-boundary";
+import { DeleteDialog } from "../../../../../common/deleteDialog";
+import { toast } from "react-toastify";
 
 type params = {
   showPipeLineFilters: any;
@@ -18,6 +25,7 @@ const FilterDropdown = (props: params) => {
   const [selectedFilter, setSelectedFilter] = useState<DealFilter>(
     new DealFilter()
   );
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -48,26 +56,44 @@ const FilterDropdown = (props: params) => {
     }
   }, [dialogIsOpen]);
 
-  useEffect(()=>{
+  useEffect(() => {
     loadDealFilters();
-  },[])
+  }, []);
 
-  const loadDealFilters=()=>{
+  const loadDealFilters = () => {
     setIsLoading(true);
-    dealFiltersSvc.getDealFilters().then(res=>{
-      
-      if(res){
-        setFilters(res);
+    dealFiltersSvc
+      .getDealFilters()
+      .then((res) => {
+        if (res) {
+          setFilters(res);
+          setIsLoading(false);
+        }
+      })
+      .catch((err) => {
         setIsLoading(false);
-      }
-    }).catch(err=>{
-      setIsLoading(false);
-    })
-  }
+      });
+  };
 
-  const loadFilters = () => {
-    setFilters(JSON.parse(localStorage.getItem("dealFilters") as any) ?? []);
-    setIsLoading(false);
+  const hideDeleteDialog = () => {
+    setShowDeleteDialog(false);
+  };
+
+  const onDeleteConfirm = () => {
+    setShowDeleteDialog(false);
+    setIsLoading(true);
+    dealFiltersSvc
+      .delete(selectedFilter.id)
+      .then((res) => {
+        setSelectedFilter(new DealFilter());
+        if (res) {
+          toast.success("Deal filter deleted successfully");
+          loadDealFilters();
+        }
+      })
+      .catch((err) => {
+        toast.error("Unable to delete deal filter");
+      });
   };
 
   return isLoading ? (
@@ -89,23 +115,28 @@ const FilterDropdown = (props: params) => {
               // onMouseLeave={(e: any) => handlePipeLineEdit()}
             >
               {filters?.map((item, index) => (
-                <li
-                  key={index}
-                  onClick={(e: any) => {
-                    setDialogIsOpen(true);
-                    setSelectedFilter(item);
-                  }}
-                >
+                <li key={index}>
                   <button className="pipeselectlink" type="button">
                     {item.name}{" "}
-                    {/* <span
-                  hidden={
-                    selectedItem?.pipelineID != item.pipelineID ||
-                    item.canEdit
-                  }
-                >
-                  <FontAwesomeIcon icon={faCheck} />
-                </span> */}
+                    <span
+                      className="pl-4"
+                      onClick={(e: any) => {
+                        setDialogIsOpen(true);
+                        setSelectedFilter(item);
+                      }}
+                      style={{paddingLeft:10, paddingRight:10}}
+                    >
+                      <FontAwesomeIcon className="pl-4" icon={faEdit} />
+                    </span>
+                    <span
+                      className="pl-4"
+                      onClick={(e: any) => {
+                        setSelectedFilter(item);
+                        setShowDeleteDialog(true);
+                      }}
+                    >
+                      <FontAwesomeIcon icon={faDeleteLeft} />
+                    </span>
                   </button>
                   {/* <span className="pipeselect-editlink" hidden={!item.canEdit}>
                 <FontAwesomeIcon icon={faPencil} />
@@ -126,11 +157,22 @@ const FilterDropdown = (props: params) => {
           dialogIsOpen={dialogIsOpen}
           setDialogIsOpen={setDialogIsOpen}
           onSaveChanges={(e: any) => {
-            loadFilters();
+            loadDealFilters();
             setDialogIsOpen(false);
           }}
           selectedFilter={selectedFilter as any}
           setSelectedFilter={setSelectedFilter}
+        />
+      )}
+      {showDeleteDialog && (
+        <DeleteDialog
+          itemType={"Deal Filter"}
+          itemName={"Deal Filter"}
+          dialogIsOpen={showDeleteDialog}
+          closeDialog={hideDeleteDialog}
+          onConfirm={onDeleteConfirm}
+          isPromptOnly={false}
+          actionType={"Delete"}
         />
       )}
     </>
