@@ -21,6 +21,7 @@ import ForgotPassword from "./profiles/forgotPassword";
 
 export class UserCredentails {
   public userName!: string;
+  public password!:string;
   public passwordHash!: string;
   public confirmPasswordHash!: string;
   public email!: string;
@@ -97,6 +98,7 @@ const Login = () => {
 
   const onSubmitClick = async (item: any) => {
     let obj = Util.toClassObject(new UserCredentails(), item);
+    obj.password = obj.passwordHash;
     setLoading(true);
 
     // Only use the username and password
