@@ -29,6 +29,8 @@ window.config = {
         "Admin",
         "Reporting",
         "Enquiries",
+        "Clinic",
+        "Source"
       ],
     },
     {
@@ -37,7 +39,7 @@ window.config = {
         "Stages",
         "deal",
         "pipeline",
-        "Activities",
+        "Activities"
       ],
     },
     {
@@ -47,7 +49,7 @@ window.config = {
         "deal",
         "pipeline",
         "Reporting",
-        "Enquiries",
+        "Enquiries"
       ],
     },
   ],
