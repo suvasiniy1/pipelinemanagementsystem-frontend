@@ -359,14 +359,17 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
                   </div>
                 </div>
               </div>
-
+              {/* Scrollable Content Panel */}
+              <div className="pdstage-detailarea">
+  <div className="sidebardetail-col">
+      <div className="app-detail-content">
               <div className="app-dealblock">
                 <div className="app-dealblock-inner">
                   <div className="appdealblock-head">
                     <div className="appblock-headcolleft">
                       <button className="appblock-collapse">
                         <span className="appblock-titlelabel">
-                          <FontAwesomeIcon icon={faAngleDown} /> About this deal
+                          <FontAwesomeIcon icon={faAngleDown} /> Transfer Ownership
                         </span>
                       </button>
                     </div>
@@ -396,13 +399,36 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
                             <FontAwesomeIcon icon={faPencil} />
                           </button>
                           <button className="btn fields-detailbtn">
-                            Detail
+                          Detail
                           </button>
                         </div>
                       </div>
                     </div>
                   </div>
-
+                  <div className="appdealblock-head">
+                    <div className="appblock-headcolleft">
+                      <button className="appblock-collapse">
+                        <span className="appblock-titlelabel">
+                          <FontAwesomeIcon icon={faAngleDown} /> About this deal
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="details-panel">
+                  <div className="details-row">
+                    <div className="details-label">Clinic -</div>
+                     <div className="details-value">{dealItem.clinicName || "-"}</div>
+                    </div>
+                    <div className="details-row">
+                  <div className="details-label">Source -</div>
+                  <div className="details-value">{dealItem.sourceName || "-"}</div>
+                     </div>
+                     <div className="details-row">
+                  <div className="details-label">Treatment -</div>
+                  <div className="details-value">{dealItem.treatmentName || "-"}</div>
+                     </div>
+                     </div>
                   <div className=" appdeal-dtrow">
                          <DealDetailsCustomFields dealItem={dealItem} setDealItem={setDealItem}/>  
                   </div>
@@ -416,35 +442,38 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
                       </button>
                     </div>
                   </div>
-                  <div className="appdealblock-row mt-1">
-                    <div className="appdeal-amount dflex">
-                      Phone:{" "}
-                      <span className="appdeal-amountnum">
-                        {dealItem.phone}
-                      </span>
+                   {/* Content */}
+    <div className="details-panel">
+                  <div className="details-row">
+                    <div className="details-label">Phone -</div>
+                     <div className="details-value">{dealItem.phone || "-"}</div>
                     </div>
-                  </div>
-
-                  <div className="appdealblock-row mt-1">
-                    <div className="appdeal-amount dflex">
-                      Email:{" "}
-                      <span className="appdeal-amountnum">
-                        {dealItem.email}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="appdealblock-row mt-1">
-                    <div className="appdeal-amount dflex" style={{display: "flex",justifyContent: "space-between",alignItems: "flex-start", width: "100%" }}>
-                    <span style={{ display: "flex", alignItems: "center" }}>
-                    Person Name: <span className="appdeal-amountnum" style={{ marginLeft: "5px" }}>{dealItem.personName}</span>
-                    </span>
-                      <button onClick={openMoveDealDialog}  className="view-deals-button">
-                    View Deals ({dealItem.openDealsCount || 0})
-                  </button>
-                    </div>
-                  </div>
+                    <div className="details-row">
+                  <div className="details-label">Email -</div>
+                  <div className="details-value">{dealItem.email || "-"}</div>
+                     </div>
+                     <div className="details-row">
+  <div className="details-label">Person Name -</div>
+  <div className="details-value" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+    {dealItem.personName || "-"}
+    <a
+      href="#"
+      onClick={openMoveDealDialog}
+      style={{ fontSize: "0.9em", color: "#007bff", textDecoration: "underline" }}
+    >
+      View Deals ({dealItem.openDealsCount || 0})
+    </a>
+  </div>
+</div>
+  </div>
+                  <div className="details-row">
+                    <div className="details-label">Source -</div>
+                  <div className="details-value">{dealItem.sourceName || "-"}</div>
+                     </div>
                 </div>
+              </div>
+              </div>
+              </div>
               </div>
             </div>
             {dialogIsOpen &&
