@@ -23,6 +23,7 @@ import ProfilePage from "../components/profiles/ProfilePage";
 import EnquiryFormList from "../components/enquiryForm/enquiryFormsList";
 import ClinicList from "../components/clinic/clinicList";
 import SourceList from "../components/source/sourceList";
+import TreatMentList from "../components/treatment/treatmentList";
 
 export const AppRouter = () => {
   useEffect(() => {
@@ -68,6 +69,7 @@ export const AppRouter = () => {
         <Route path="/Enquiries" element={<EnquiryFormList />}/>
         <Route path="/Clinic" element={<ClinicList />}/>
         <Route path="/Source" element={<SourceList />}/>
+        <Route path="/Treatment" element={<TreatMentList />}/>
       </Routes>
       <ToastContainer />
     </>

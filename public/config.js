@@ -30,7 +30,8 @@ window.config = {
         "Reporting",
         "Enquiries",
         "Clinic",
-        "Source"
+        "Source",
+        "Treatment"
       ],
     },
     {

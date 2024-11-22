@@ -8,11 +8,11 @@ import { AddEditDialog } from "../../common/addEditDialog";
 import GenerateElements from "../../common/generateElements";
 import { ViewEditProps } from "../../common/table";
 import { IControl } from "../../models/iControl";
+import { Treatment } from "../../models/treatment";
 import Util from "../../others/util";
-import { Clinic } from "../../models/clinic";
-import { ClinicService } from "../../services/clinicService";
+import { TreatmentService } from "../../services/treatmenetService";
 
-const ClinicAddEditDialog: React.FC<ViewEditProps> = (props) => {
+const TreatmentAddEditDialog: React.FC<ViewEditProps> = (props) => {
   const {
     header,
     onSave,
@@ -27,12 +27,19 @@ const ClinicAddEditDialog: React.FC<ViewEditProps> = (props) => {
     ...others
   } = props;
 
-  const clinicSvc = new ClinicService(ErrorBoundary);
+  const treatmentSvc = new TreatmentService(ErrorBoundary);
 
   const controlsList: Array<IControl> = [
     {
       key: "Name",
-      value: "clinicName",
+      value: "treatmentName",
+      isRequired: true,
+      isControlInNewLine:true,
+      elementSize:12
+    },
+    {
+      key: "Category",
+      value: "category",
       isRequired: true,
       isControlInNewLine:true,
       elementSize:12
@@ -61,24 +68,24 @@ const ClinicAddEditDialog: React.FC<ViewEditProps> = (props) => {
   }
 
   const onSubmit = (item: any) => {
-    let obj: Clinic = { ...selectedItem };
+    let obj: Treatment = { ...selectedItem };
     obj = Util.toClassObject(obj,item);
     obj.createdBy = Util.UserProfile()?.userId;
-    obj.clinicID = obj.clinicID ?? 0;
-    if(obj.clinicID>0){
+    obj.treatmentID = obj.treatmentID ?? 0;
+    if(obj.treatmentID>0){
       obj.createdDate = selectedItem?.createdDate;
       obj.modifiedBy = Util.UserProfile()?.userId;
       obj.modifiedDate = new Date();
     }
-    (obj.clinicID>0 ? clinicSvc.putItemBySubURL(obj, `${obj.clinicID}`) : clinicSvc.postItemBySubURL(obj, "SaveClinicDetails")).then(res=>{
+    (obj.treatmentID>0 ? treatmentSvc.putItemBySubURL(obj, `${obj.treatmentID}`) : treatmentSvc.postItemBySubURL(obj, "SaveTreatmentDetails")).then(res=>{
         
         if(res){
-            toast.success(`Clinic ${obj.clinicID>0 ? 'updated' : 'created'} successfully`);
+            toast.success(`Treatment ${obj.treatmentID>0 ? 'updated' : 'created'} successfully`);
         }
         setLoadRowData(true);
         setDialogIsOpen(false);
     }).catch(err=>{
-        toast.error(`Unable to ${obj.clinicID>0 ? 'update' : 'save'} Clinic `);
+        toast.error(`Unable to ${obj.treatmentID>0 ? 'update' : 'save'} Treatment `);
     })
 
   };
@@ -89,7 +96,7 @@ const ClinicAddEditDialog: React.FC<ViewEditProps> = (props) => {
         <FormProvider {...methods}>
           <AddEditDialog
             dialogIsOpen={dialogIsOpen}
-            header={`${selectedItem.clinicID>0 ? 'Edit' : 'Add'} Clinic`}
+            header={`${selectedItem.treatmentID>0 ? 'Edit' : 'Add'} Treatment`}
             dialogSize={"m"}
             onSave={handleSubmit(onSubmit)}
             closeDialog={oncloseDialog}
@@ -121,4 +128,4 @@ const ClinicAddEditDialog: React.FC<ViewEditProps> = (props) => {
   );
 };
 
-export default ClinicAddEditDialog;
+export default TreatmentAddEditDialog;

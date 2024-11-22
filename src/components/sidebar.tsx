@@ -204,6 +204,15 @@ export const SideBar = (props: params) => {
                 <b hidden={selectedNavItem != "Source"}>Source</b>
                 <p hidden={selectedNavItem == "Source"}>Source</p>
               </MenuItem>
+              <MenuItem
+                icon={<FaSourcetree />}
+                hidden={!Util.isAuthorized("Treatment")}
+                component={<Link to="/Treatment" />}
+                onClick={(e: any) => setSelectedNavItem("Treatment")}
+              >
+                <b hidden={selectedNavItem != "Treatment"}>Treatment</b>
+                <p hidden={selectedNavItem == "Treatment"}>Treatment</p>
+              </MenuItem>
               </SubMenu>
             <MenuItem
               icon={<RiDashboard2Fill />}

@@ -78,7 +78,7 @@ const SourceAddEditDialog: React.FC<ViewEditProps> = (props) => {
         setLoadRowData(true);
         setDialogIsOpen(false);
     }).catch(err=>{
-        toast.success(`Unable to ${obj.sourceID>0 ? 'update' : 'save'} Source `);
+        toast.error(`Unable to ${obj.sourceID>0 ? 'update' : 'save'} Source `);
     })
 
   };
