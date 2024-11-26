@@ -4,6 +4,11 @@ import Util from "../others/util";
 import ErrorFallback from "./errorFallBack";
 import Table from "./table";
 import { Spinner } from "react-bootstrap";
+import { GridRowSelectionModel } from '@mui/x-data-grid';
+import PluseIcon from '@material-ui/icons/Add';  // Add icon
+import GroupEmailDialog from '../components/GroupEmailDialog';
+import { EmailTemplateService } from '../services/emailTemplateService'; // Import the EmailTemplateService
+import { EmailTemplate } from '../models/emailTemplate'; // Import EmailTemplate model
 
 type params = {
   isNotListingPage?: boolean;
@@ -46,6 +51,9 @@ type params = {
   propNameforDelete?: string;
   displayTableHeaderasSingler?: boolean;
   onSave?:any;
+  onSelectionModelChange?: (newSelection: GridRowSelectionModel) => void; // Add this
+  checkboxSelection?: boolean; // Ensure checkboxSelection is handled
+  enableCheckboxSelection?: boolean; 
 };
 
 const ItemCollection: React.FC<params> = (props) => {
@@ -67,6 +75,7 @@ const ItemCollection: React.FC<params> = (props) => {
   const [selectedItemUser, setSelectedItemUser] = useState(
    Util.clone(props.selectedItem ?? new props.itemType())
   );
+
   const {
     itemName,
     customTableHeader,
@@ -75,6 +84,8 @@ const ItemCollection: React.FC<params> = (props) => {
     viewAddEditComponent,
     api,
     displayTableHeaderasSingler,
+    enableCheckboxSelection = false,
+    
   } = props;
   const [canAdd, setCanAdd] = useState(
     props.canAdd != null ? props.canAdd : true
@@ -95,6 +106,7 @@ const ItemCollection: React.FC<params> = (props) => {
   const [pageSize, setPagesize] = useState(
     props.pageSize ? props.pageSize : null
   );
+  const [selectedRows, setSelectedRows] = useState<GridRowSelectionModel>([]);
   const [rowData, setRowData] = useState(props.rowData ? props.rowData : null);
   const [isLoading, setIsloading] = useState(
     props.isLoading ? props.isLoading : false
@@ -171,6 +183,20 @@ const ItemCollection: React.FC<params> = (props) => {
   );
 
   const [isSaveorUpdateClicked, setIsSaveorUpdateClicked] = useState(false);
+  const [templates, setTemplates] = useState<EmailTemplate[]>([]);
+  const [groupEmailDialogOpen, setGroupEmailDialogOpen] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplate | null>(null);
+  useEffect(() => {
+    // Fetch templates using the EmailTemplateService
+    const templateService = new EmailTemplateService(ErrorBoundary);
+    templateService.getEmailTemplates()
+      .then((res: EmailTemplate[]) => {
+        setTemplates(res);
+      })
+      .catch(err => {
+        console.error('Error fetching templates:', err);
+      });
+  }, []);
   useEffect(() => {
     let rowData = props.rowData ?? [];
     rowData?.forEach(
@@ -199,6 +225,23 @@ const ItemCollection: React.FC<params> = (props) => {
     setIsloading(props.isLoading as any);
   }, [props.isLoading]);
 
+  useEffect(() => {
+    console.log("Selected Rows Updated: ", selectedRows);
+  }, [selectedRows]);
+
+  const handleSelectionChange = (newSelection: GridRowSelectionModel) => {
+    console.log("Selection Changed in ItemCollection: ", newSelection);
+    setSelectedRows(newSelection);  // Update the state with new selection
+  };
+  // Function to set the selected template
+  const handleTemplateSelect = (template: EmailTemplate) => {
+    setSelectedTemplate(template); // Update state with selected template data
+  };
+  const openGroupEmailDialog = () => {
+    setGroupEmailDialogOpen(true);
+  };
+
+
   const baseRowTransformFn = (item: any) => {
     return {
       ...item,
@@ -223,6 +266,9 @@ const ItemCollection: React.FC<params> = (props) => {
     itemName: itemName,
     itemType: itemType,
     rowData: rowData,
+    onSelectionModelChange: handleSelectionChange,
+   // checkboxSelection: true,
+    checkboxSelection: enableCheckboxSelection,
     renderRightActions: renderRightActions,
     renderIndications: renderIndications,
     renderFooter: renderFooter,
@@ -306,6 +352,22 @@ const ItemCollection: React.FC<params> = (props) => {
 //     return promise;
 //   };
 
+
+// Conditionally Render the Send Group Email Button
+const renderSendGroupEmailButton = () => (
+  selectedRows.length > 0 && (
+    <div style={{ textAlign: 'right', marginBottom: '16px' }}>
+      <button
+        type="button"
+        className="btn btn-success"
+        onClick={openGroupEmailDialog} 
+        style={{ marginRight: "16px" }}
+      >
+        + Send Group Email
+      </button>
+    </div>
+  )
+);
   const addorUpdateItem = () => {
     return (
       <>
@@ -317,6 +379,8 @@ const ItemCollection: React.FC<params> = (props) => {
               </div>
               <div className="col-sm-7 toolbarview-summery" hidden={!canAdd}>
                 <div className="toolbarview-actionsrow">
+                  {renderSendGroupEmailButton()}
+                  
                   <button
                     type="button"
                     className="btn btn-success"
@@ -344,8 +408,20 @@ const ItemCollection: React.FC<params> = (props) => {
           {addorUpdateItem()}
           <div className="contactlist-row">
             <div className="container-fluid">             
-              <Table {...tableListProps} />          
+              <Table {...tableListProps} />   
+                     
             </div>
+            <GroupEmailDialog 
+              open={groupEmailDialogOpen} 
+              onClose={() => setGroupEmailDialogOpen(false)}
+              selectedRecipients={selectedRows.map((id) => {
+                const item = props.rowData.find((row: { personID: number; email: string }) => row.personID === id);
+                return item ? item.email : '';
+              })}
+              selectedTemplate={selectedTemplate} // Pass the selected template here
+              templates={templates} // Pass the templates here
+              onTemplateSelect={handleTemplateSelect} // Pass the handler here
+            />
           </div>
         </>
       )}

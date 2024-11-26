@@ -394,7 +394,9 @@ select.selectfield {border: 1px solid #dee2e6; height: 37px; width: 100%; border
 
 /* Deal Detail Page CSS Start */
 
-.pdstage-detailarea{height: 100%; display: flex; flex-direction: column;}
+.pdstage-detailarea{  display: flex;
+  flex-direction: column;
+  height: 100%;}
 .pdsdetailtop-row{display: flex;}
 .pdsdetail-title{margin-right: 15px;}
 .pdsdetail-title h1{position: relative; font-size: 25px; line-height: 1.3; font-weight: 400; border-radius: 4px; padding: 5px 10px; padding-right: 40px;}
@@ -425,8 +427,8 @@ select.selectfield {border: 1px solid #dee2e6; height: 37px; width: 100%; border
 .sidebardetail-col{width: 400px; height: 100%; overflow-y: auto; z-index: 1; flex-shrink: 0; background-color: #fff; border-right: 1px solid rgba(33,35,44,.12);}
 .campaign-sidebardetail-col{height: 100%; overflow-y: auto; z-index: 1; flex-shrink: 0; background-color: #fff; border-right: 1px solid rgba(33,35,44,.12);}
 .timelinecontent-col{width: 100%; height: 100%; overflow: hidden auto; background-color: #f5f5f6;}
-
 .appdealblock-head{padding:8px 0; position: relative; display: flex; align-items: center; justify-content: space-between;}
+
 .appblock-headcolleft{display: flex; -webkit-box-align: center; align-items: center;}
 .appblock-headcolright{margin-left: auto; display: flex;}
 .appdealblock-row {padding: 4px 0;}
@@ -742,7 +744,7 @@ button.fields-editbtn{visibility: hidden; line-height: 1.2; background-color: #f
 
 @media (min-width: 576px) {
   .modal-dialog {
-    max-width: 100%; padding: 0 20px;
+    max-width: 600px; padding: 0 20px;
     margin: 1.75rem auto; }
 
   .modal-dialog-scrollable {
@@ -876,56 +878,126 @@ min-width: 375px !important;
   top:6px;
   padding: 0 !important;
 }
-
-/*Dealfilteraddedit style*/
-
-.filter-editor {
-  /* max-width: 500px; */
-  padding: 20px;
-  /* border: 1px solid #ddd; */
-  border-radius: 8px;
-  font-family: Arial, sans-serif;
-}
-
-.condition-group {
-  margin-bottom: 20px;
-}
-
-.condition-row {
+.headsearchrow {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
+  justify-content: center;
+  height: 50px; /* Set this height based on your header size */
+  padding: 0; /* Remove any padding */
+  margin: 0;  /* Remove any margin */
 }
 
-.filter-details {
-  margin-bottom: 20px;
+.headsearch .ui.icon.headinput {
+  margin: 0;
+  padding: 0;
+  height: 100%;
 }
 
-.filter-details label {
-  display: block;
-  margin-bottom: 10px;
+.headsearch input.form-control {
+  height: 100%;
+  padding: 8px 12px;  /* Adjust the padding as needed */
+  box-sizing: border-box;
 }
-
-.filter-details input, .filter-details select {
-  width: 100%;
-  padding: 5px;
-  margin-top: 5px;
-}
-
-.filter-actions button {
-  margin-right: 10px;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.filter-actions button:nth-child(1) {
-  background-color: #f0f0f0;
-}
-
-.filter-actions button:nth-child(2) {
-  background-color: #4CAF50;
+.view-deals-button {
+  background-color: #007bff;
   color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  margin-left: 10px; /* Adds space between label and button */
+  
 }
+
+.view-deals-button:hover {
+  background-color: #8399bb;
+}
+.stages-progress-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pipeline-stage-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pipeline-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  font-size: 0.85em;
+}
+
+.pipeline-stage label {
+  margin-bottom: 4px;
+  font-weight: normal;
+  color: #333;
+}
+
+.pipeline-stage.current-stage label {
+  font-weight: bold;
+  color: green;
+}
+
+.stage-separator {
+  height: 4px;
+  width: 20px;
+  background-color: #e0e0e0;
+}
+
+.pipeline-stage.completed .stage-separator {
+  background-color: green;
+}
+
+.pipeline-stage:last-child .stage-separator {
+  display: none;
+}
+/* Add borders to the DataGrid cells for a table-like appearance */
+/* Styles for making the DataGrid look more like a table */
+.custom-data-grid .MuiDataGrid-cell,
+.custom-data-grid .MuiDataGrid-columnHeader {
+    border-right: 1px solid rgba(224, 224, 224, 1); /* Vertical borders */
+}
+
+.custom-data-grid .MuiDataGrid-columnHeader {
+    font-weight: bold; /* Make headers bold */
+}
+
+.custom-data-grid .MuiDataGrid-row {
+    border-bottom: 1px solid rgba(224, 224, 224, 1); /* Horizontal row borders */
+}
+
+.custom-data-grid .MuiDataGrid-root {
+    background-color: white; /* Ensure grid background is white */
+}
+
+
+.details-row {
+  display: grid;
+  grid-template-columns: 120px auto; /* Two columns: Label and Value */
+  gap: 10px;
+  padding: 8px 0;
+  align-items: center;
+}
+
+
+
+/* Scrollbar Styling */
+.app-detail-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.app-detail-content::-webkit-scrollbar-thumb {
+  background: #cccccc;
+  border-radius: 4px;
+}
+
+

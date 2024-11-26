@@ -38,6 +38,8 @@ import NotesAddEdit from "./activities/notes/notesAddEdit";
 import { TaskAddEdit } from "./activities/tasks/taskAddEdit";
 import DealOverView from "./overview/dealOverView";
 import DealDetailsCustomFields from "./dealDetailsCustomFields";
+import DealsDialog from "./DealsDialog";
+
 
 export const DealDetails = () => {
   const [dealId, setDealId] = useState(
@@ -48,7 +50,7 @@ export const DealDetails = () => {
   );
   const dealSvc = new DealService(ErrorBoundary);
   const [error, setError] = useState<AxiosError>();
-  const [dealItem, setDealItem] = useState<Deal>(new Deal());
+  const [dealItem, setDealItem] = useState<Deal>({ ...new Deal(), openDealsCount: 0 });
   const [isLoading, setIsLoading] = useState(true);
   const stagesSvc = new StageService(ErrorBoundary);
   const [stages, setStages] = useState<Array<Stage>>([]);
@@ -62,7 +64,13 @@ export const DealDetails = () => {
   );
   const navigator = useNavigate();
   const { instance, accounts } = useMsal();
+  const location = useLocation();
+  const [isDealsModalOpen, setIsDealsModalOpen] = useState(false);
+  const [relatedDeals, setRelatedDeals] = useState([]);
 
+  const [openDealsCount, setOpenDealsCount] = useState(dealItem.openDealsCount || 0);
+  const [dealsData, setDealsData] = useState<Deal[]>([]); 
+  
 
   useEffect(() => {}, [dealItem]);
 
@@ -85,6 +93,70 @@ export const DealDetails = () => {
         setError(err);
       });
   }, []);
+  const fetchDealData = async (dealId: number, pipelineId: number) => {
+    setIsLoading(true);
+    try {
+      // Fetch the deal data and stages concurrently
+      const [dealData, stagesData] = await Promise.all([
+        dealSvc.getDealsById(dealId),
+        stagesSvc.getStages(pipelineId),
+      ]);
+
+      if (dealData && stagesData) {
+        setDealItem(
+          IsMockService()
+            ? dealData.find((d: Deal) => d.dealID == dealId)
+            : dealData
+        );
+        let sortedStages = Util.sortList(stagesData.stageDtos, "stageOrder");
+        setStages(sortedStages);
+      }
+    } catch (err) {
+      setError(err as AxiosError);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  interface SimplifiedDeal {
+    id: number;
+    treatmentName: string;
+    personName: string;
+    ownerName: string;
+}
+ // Fetch deals data when opening the dialog
+ const openMoveDealDialog = async () => {
+  try {
+      const relatedDealsData: Deal[] = await dealSvc.getDealsByPersonId(dealItem.contactPersonID);
+
+      // Map relatedDealsData to ensure every deal has required fields for DataGrid
+      const formattedData: Deal[] = relatedDealsData.map((deal) => ({
+          ...deal, // spread all original properties
+          id: deal.dealID, // if `dealID` is the unique identifier expected by DataGrid
+          treatmentName: deal.treatmentName || 'No Title', // default title if missing
+          personName: deal.personName || 'No Contact', // default contact person if missing
+          ownerName: deal.ownerName || 'No Owner', // default owner if missing
+      }));
+
+      setDealsData(formattedData);
+      setIsDealsModalOpen(true);
+  } catch (error) {
+      console.error("Error fetching related deals:", error);
+  }
+};
+const closeMoveDealDialog = () => setIsDealsModalOpen(false);
+
+  // Use the useLocation hook instead of the global location object
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const newDealId = searchParams.get("id");
+    const newPipelineId = searchParams.get("pipeLineId");
+
+    if (newDealId && newPipelineId) {
+      fetchDealData(Number(newDealId), Number(newPipelineId)); // Fetch new deal data based on new params
+    }
+  }, [location.search]); // Listen for changes to the URL search params
+
+ 
 
   const onDealModified = (stageId: number) => {
     dealSvc
@@ -287,14 +359,17 @@ export const DealDetails = () => {
                   </div>
                 </div>
               </div>
-
+              {/* Scrollable Content Panel */}
+              <div className="pdstage-detailarea">
+  <div className="sidebardetail-col">
+      <div className="app-detail-content">
               <div className="app-dealblock">
                 <div className="app-dealblock-inner">
                   <div className="appdealblock-head">
                     <div className="appblock-headcolleft">
                       <button className="appblock-collapse">
                         <span className="appblock-titlelabel">
-                          <FontAwesomeIcon icon={faAngleDown} /> About this deal
+                          <FontAwesomeIcon icon={faAngleDown} /> Transfer Ownership
                         </span>
                       </button>
                     </div>
@@ -324,13 +399,36 @@ export const DealDetails = () => {
                             <FontAwesomeIcon icon={faPencil} />
                           </button>
                           <button className="btn fields-detailbtn">
-                            Detail
+                          Detail
                           </button>
                         </div>
                       </div>
                     </div>
                   </div>
-
+                  <div className="appdealblock-head">
+                    <div className="appblock-headcolleft">
+                      <button className="appblock-collapse">
+                        <span className="appblock-titlelabel">
+                          <FontAwesomeIcon icon={faAngleDown} /> About this deal
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="details-panel">
+                  <div className="details-row">
+                    <div className="details-label">Clinic -</div>
+                     <div className="details-value">{dealItem.clinicName || "-"}</div>
+                    </div>
+                    <div className="details-row">
+                  <div className="details-label">Source -</div>
+                  <div className="details-value">{dealItem.sourceName || "-"}</div>
+                     </div>
+                     <div className="details-row">
+                  <div className="details-label">Treatment -</div>
+                  <div className="details-value">{dealItem.treatmentName || "-"}</div>
+                     </div>
+                     </div>
                   <div className=" appdeal-dtrow">
                          <DealDetailsCustomFields dealItem={dealItem} setDealItem={setDealItem}/>  
                   </div>
@@ -344,33 +442,38 @@ export const DealDetails = () => {
                       </button>
                     </div>
                   </div>
-                  <div className="appdealblock-row mt-1">
-                    <div className="appdeal-amount dflex">
-                      Phone:{" "}
-                      <span className="appdeal-amountnum">
-                        {dealItem.phone}
-                      </span>
+                   {/* Content */}
+    <div className="details-panel">
+                  <div className="details-row">
+                    <div className="details-label">Phone -</div>
+                     <div className="details-value">{dealItem.phone || "-"}</div>
                     </div>
-                  </div>
-
-                  <div className="appdealblock-row mt-1">
-                    <div className="appdeal-amount dflex">
-                      Email:{" "}
-                      <span className="appdeal-amountnum">
-                        {dealItem.email}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="appdealblock-row mt-1">
-                    <div className="appdeal-amount dflex">
-                      Person Name:{" "}
-                      <span className="appdeal-amountnum">
-                        {dealItem.personName}
-                      </span>
-                    </div>
-                  </div>
+                    <div className="details-row">
+                  <div className="details-label">Email -</div>
+                  <div className="details-value">{dealItem.email || "-"}</div>
+                     </div>
+                     <div className="details-row">
+  <div className="details-label">Person Name -</div>
+  <div className="details-value" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+    {dealItem.personName || "-"}
+    <a
+      href="#"
+      onClick={openMoveDealDialog}
+      style={{ fontSize: "0.9em", color: "#007bff", textDecoration: "underline" }}
+    >
+      View Deals ({dealItem.openDealsCount || 0})
+    </a>
+  </div>
+</div>
+  </div>
+                  <div className="details-row">
+                    <div className="details-label">Source -</div>
+                  <div className="details-value">{dealItem.sourceName || "-"}</div>
+                     </div>
                 </div>
+              </div>
+              </div>
+              </div>
               </div>
             </div>
             {dialogIsOpen &&
@@ -400,6 +503,19 @@ export const DealDetails = () => {
                   setDialogIsOpen={setDialogIsOpen}
                 />
               ) : null)}
+              {/* Deals Dialog */}
+              <DealsDialog
+  show={isDealsModalOpen}
+  onClose={closeMoveDealDialog}
+  dealsData={dealsData.map((deal, index) => ({
+    id: deal.dealID || index, // use index if dealID is not available
+    treatmentName: deal.treatmentName || 'No Title', // ensure title has a value
+    personName: deal.personName || 'No Contact', // default if undefined
+    ownerName: deal.ownerName || 'No Owner', // default if undefined
+  }))}
+  stages={stages} // Pass the stages array
+  currentStageId={dealItem.stageID} // Pass the current stage ID of the deal
+/>
             <DealOverView
               dealItem={dealItem}
               dealId={dealId}
@@ -410,6 +526,7 @@ export const DealDetails = () => {
           </div>
         </div>
       )}
+     
     </>
   );
 };

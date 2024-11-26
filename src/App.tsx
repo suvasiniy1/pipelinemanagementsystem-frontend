@@ -22,8 +22,10 @@ function App() {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState<any>(
     (LocalStorageUtil.getItem(Constants.ISSIDEBAR_EXPANDED) as any) ===
-      "false" ?? false
+      "false" ? false : true
   );
+  
+
   const shouldShowSidebar = () => {
     const { pathname } = location;
     return !["/login", "/signup"].includes(pathname);

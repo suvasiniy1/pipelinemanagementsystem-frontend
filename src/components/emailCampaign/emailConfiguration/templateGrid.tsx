@@ -13,6 +13,7 @@ import TemplatePreview from "../template/templatePreview";
 import { Spinner } from "react-bootstrap";
 import TemplatePreviewDialog from "./templatePreviewDialog";
 
+
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
   ...theme.typography.body2,
@@ -30,6 +31,7 @@ const useStyles = makeStyles({
 type params = {
   selectedId: number;
   setSelectedId: any;
+  onTemplateSelect: (template: any) => void; 
 };
 export const TemplateGrid = (props: params) => {
   const templateSvc = new EmailTemplateService(ErrorBoundary);
@@ -85,6 +87,7 @@ export const TemplateGrid = (props: params) => {
                   onClick={(e) => {
                     setSelectedId(template.id as any);
                     props.setSelectedId(template.id as any);
+                    props.onTemplateSelect(template); 
                   }}
                 >
                   <CardActions

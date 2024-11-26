@@ -17,6 +17,7 @@ import Constants from "../../../others/constants";
 import Util from "../../../others/util";
 import { DealService } from "../../../services/dealService";
 import { StageService } from "../../../services/stageService";
+import { PipeLineTypeService } from "../../../services/pipeLineTypeService";
 
 type params = {
     dialogIsOpen: boolean;
@@ -31,35 +32,37 @@ export const DealAddEditDialog = (props: params) => {
     
     const { dialogIsOpen, setDialogIsOpen, onSaveChanges, index, pipeLinesList, selectedPipeLineId, selectedStageId, ...others } = props;
     const [stages, setStages] = useState<Array<Stage>>([]);
+    const [pipelineTypes, setPipelineTypes] = useState<Array<{ name: string, value: number }>>([]);
     const [selectedItem, setSelectedItem] = useState({ ...new Deal(), pipelineID: selectedPipeLineId ?? pipeLinesList[0].pipelineID });
     const [isLoading, setIsLoading] = useState(false);
     const dealsSvc = new DealService(ErrorBoundary);
     const stagesSvc = new StageService(ErrorBoundary);
+    const pipeLineTypeSvc = new PipeLineTypeService(ErrorBoundary);
     const utility: Utility = JSON.parse(LocalStorageUtil.getItemObject(Constants.UTILITY) as any);
     const [persons, setPersons] = useState(utility?.persons ?? []);
 
     const controlsList1: Array<IControl> = [
-        { key: "Deal Name", value: "title", sidebyItem: "Company", isRequired: true },
-        { key: "Company", value: "organizationID", type: ElementType.dropdown, isSideByItem: true, isRequired: true },
+        { key: "Contact Person", value: "contactPersonID", sidebyItem: "Deal Value", type: ElementType.dropdown, isRequired: true },
+        { key: "Deal Value", value: "value", type: ElementType.textbox, isSideByItem: true, isRequired: true },
+        { key: "Organization", value: "organizationID", sidebyItem: "Probability Of Winning", type: ElementType.dropdown, isRequired: true },
+        { key: "Probability Of Winning", value: "probability", type: ElementType.textbox, isSideByItem: true, isRequired: true },
+        { key: "Title", value: "title", sidebyItem: "Forecast Close Date", type: ElementType.textbox, isRequired: true },
+        { key: "Forecast Close Date", value: "operationDate", type: ElementType.datepicker, isSideByItem: true, isRequired: false },
     ];
-
+    
     const controlsList2: Array<IControl> = [
-        { key: "Category", value: "category", sidebyItem: "Probability Of Winning", isRequired: true },
-        { key: "Probability Of Winning", value: "probability", isSideByItem: true, isRequired: true },
-        { key: "Forecast Close Date", value: "operationDate", sidebyItem: "Actual Close Date", type: ElementType.datepicker, isRequired: false },
-        { key: "Actual Close Date", value: "expectedCloseDate", isSideByItem: true, type: ElementType.datepicker, isRequired: false },
-        { key: "User Responsible", value: "contactPersonID", sidebyItem: "Deal Value", type: ElementType.dropdown, isRequired: true },
-        { key: "Deal Value", value: "value", isRequired: true, isSideByItem: true } 
+        { key: "Pipeline", value: "pipelineID", type: ElementType.dropdown, isRequired: true, sidebyItem: "Actual Close Date" },
+        { key: "Actual Close Date", value: "expectedCloseDate", type: ElementType.datepicker, isSideByItem: true, isRequired: false },
+        { key: "Stage", value: "stageID", type: ElementType.custom, isRequired: true, sidebyItem: "PA Name", disabled: !Util.isNullOrUndefinedOrEmpty(selectedStageId) }, // Stage beside PA Name
+        { key: "PA Name", value: "paName", type: ElementType.textbox, isSideByItem: true, isRequired: false }, 
+        { key: "Pipeline Type", value: "pipelineTypeID", type: ElementType.dropdown, isRequired: false, sidebyItem: "Lead Source" }, 
+        { key: "Lead Source", value: "leadSourceID", type: ElementType.dropdown, isSideByItem: true, isRequired: true }, 
+        { key: "Clinic", value: "clinicID", type: ElementType.dropdown, isRequired: true, sidebyItem: "Phone" }, 
+        { key: "Phone", value: "phone", type: ElementType.textbox, isSideByItem: true, isRequired: false }, 
+        { key: "Treatment", value: "treatmentID", type: ElementType.dropdown, isRequired: true, sidebyItem: "Email" }, 
+        { key: "Email", value: "email", type: ElementType.textbox, isSideByItem: true, isRequired: false }, 
     ];
-
-
-
-    const controlsList5: Array<IControl> = [
-        { key: "Pipeline", value: "pipelineID", isRequired: true, type: ElementType.dropdown, sidebyItem: "Stage", disabled: !Util.isNullOrUndefinedOrEmpty(selectedStageId) },
-        { key: "Stage", value: "stageID", isRequired: true, type: ElementType.custom, isSideByItem: true, disabled: !Util.isNullOrUndefinedOrEmpty(selectedStageId) },
-    ]
-
-    const controlsList = [controlsList1, controlsList2, controlsList5];
+    const controlsList = [controlsList1, controlsList2];
 
 
 
@@ -86,6 +89,7 @@ export const DealAddEditDialog = (props: params) => {
         let defaultPipeLine = selectedPipeLineId ?? pipeLinesList[0]?.pipelineID;
         setSelectedItem({ ...selectedItem, "pipelineID": +defaultPipeLine });
         loadStages(defaultPipeLine);
+        loadPipelineTypes();
     }, [])
 
     const loadStages = (selectedPipeLineId: number) => {
@@ -97,7 +101,19 @@ export const DealAddEditDialog = (props: params) => {
         }).catch(err => {
         });
     }
-
+    const loadPipelineTypes = () => {
+        pipeLineTypeSvc.getPipelineTypes().then(res => {
+            const pipelineTypeList = (res as Array<{ pipelineTypeName: string, pipelineTypeID: number }>).map(type => ({
+                name: type.pipelineTypeName,
+                value: type.pipelineTypeID,
+            }));
+            setPipelineTypes(pipelineTypeList);
+            setIsLoading(false);
+        }).catch(err => {
+            toast.error("Failed to fetch pipeline types.");
+            setIsLoading(false);
+        });
+    };
     const onChange = (value: any, item: any) => {
         if (item.key === "Pipeline") {
             setSelectedItem({ ...selectedItem, "pipelineID": +value > 0 ? +value : null as any });
@@ -168,12 +184,15 @@ export const DealAddEditDialog = (props: params) => {
         if (item.key === "Pipeline") {
             return getPipeLines() ?? [];
         }
-        if (item.key === "Company") {
+        if (item.key === "Organization") {
 
             return utility?.organizations.map(({ name, organizationID }) => ({ "name": name, "value": organizationID })) ?? [];
         }
-        if (item.key === "User Responsible") {
+        if (item.key === "Contact Person") {
             return utility?.persons.map(({ personName, personID }) => ({ "name": personName, "value": personID })) ?? [];
+        }
+        if (item.key === "Pipeline Type") {
+            return pipelineTypes ?? [];
         }
     }
 
@@ -217,6 +236,7 @@ export const DealAddEditDialog = (props: params) => {
                                                         onChange={(value: any, item: any) => onChange(value, item)}
                                                         getListofItemsForDropdown={(e: any) => getDropdownvalues(e) as any}
                                                         getCustomElement={(item: IControl) => getCustomElement(item)}
+                                                        showDelete={false} 
                                                     />
                                                 ))
                                             }

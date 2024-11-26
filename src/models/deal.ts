@@ -35,6 +35,8 @@ export class Deal extends AuditItem {
   visibilityGroupName!: string;
   status?: string; // Add this if it's not already there
   isClosed!: boolean; // Add this if it's not already there
+  openDealsCount?: number;
+  ownerName!:string;
   // constructor(dealID: number = null as any,
   //     contactPersonID: number = null as any,
   //     organizationID: number = null as any,

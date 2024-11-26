@@ -21,9 +21,16 @@ import PersonList from "../components/person/personList";
 import ReportingDashboard from "../components/reporting/reportingDashboard";
 import ProfilePage from "../components/profiles/ProfilePage";
 import EnquiryFormList from "../components/enquiryForm/enquiryFormsList";
+
 import ClinicList from "../components/clinic/clinicList";
 import SourceList from "../components/source/sourceList";
 import TreatMentList from "../components/treatment/treatmentList";
+
+import ConfirmEmail from "../components/ConfirmEmail";
+import ActivityTaskList from "../components/taskActivities/activityTaskList"
+import ChangePassword from '../components/profiles/changePassword';
+
+
 
 export const AppRouter = () => {
   useEffect(() => {
@@ -41,9 +48,10 @@ export const AppRouter = () => {
   return (
     <>
       <Routes>
+        <Route path="/changePassword" element={<ChangePassword />} />
         <Route path="/pipeline" element={<Deals />} />
         <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={ <Login />} />
         <Route path="/pipeline/edit" element={<Stages stages={[]} />} />
         <Route path="/pipeline/add" element={<Stages stages={[]} />} />
         <Route path="/leads" element={<Leads />} />
@@ -67,9 +75,14 @@ export const AppRouter = () => {
         <Route path="/profile" element={<ProfilePage/>} />
         <Route path="/Reporting" element={<ReportingDashboard />}/>
         <Route path="/Enquiries" element={<EnquiryFormList />}/>
+
         <Route path="/Clinic" element={<ClinicList />}/>
         <Route path="/Source" element={<SourceList />}/>
         <Route path="/Treatment" element={<TreatMentList />}/>
+
+        <Route path="/confirm-email" element={<ConfirmEmail />} />
+        <Route path="/Activities" element={ <AuthProvider><ActivityTaskList /></AuthProvider>} />
+ 
       </Routes>
       <ToastContainer />
     </>

@@ -386,7 +386,7 @@ const PersonAddEditDialog: React.FC<ViewEditProps> = (props) => {
 
             if (response) {
                 toast.success(`Person ${obj.personID > 0 ? 'updated' : 'created'} successfully`);
-                onSave();
+                setLoadRowData(true);
                 setDialogIsOpen(false);
             }
         } catch (error) {
