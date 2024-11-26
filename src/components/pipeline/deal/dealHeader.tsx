@@ -25,6 +25,7 @@ import OutsideClickHandler from "react-outside-click-handler";
 import { Stage } from "../../../models/stage";
 import Dropdown from "react-bootstrap/Dropdown";
 import FilterDropdown from "./dealFilters/filterDropdown/filterDropdown";
+import { DealFilter } from "../../../models/dealFilters";
 
 type params = {
   canAddDeal: boolean;
@@ -54,6 +55,9 @@ export const DealHeader = (props: params) => {
   const [pipeLinesList, setPipeLinesList] = useState(props.pipeLinesList);
   const [showPipeLineDropdown, setShowPipeLineDropdown] = useState(false);
   const [showPipeLineFilters, setShowPipeLineFilters] = useState(false);
+  const [selectedFilterObj, setSelectedFilterObj] = useState<DealFilter>(
+    new DealFilter()
+  );
   const [canEdit, setCanEdit] = useState(false);
 
   useEffect(() => {
@@ -181,7 +185,7 @@ export const DealHeader = (props: params) => {
                   >
                     <button className="pipeselect" type="button">
                       <FontAwesomeIcon icon={faChartSimple} />{" "}
-                      {selectedItem?.pipelineName}{" "}
+                      {selectedItem?.pipelineName ?? "Select"}{" "}
                       <FontAwesomeIcon icon={faCaretDown} />
                     </button>
                     <div
@@ -203,7 +207,7 @@ export const DealHeader = (props: params) => {
                   >
                     <button className="pipeselect" type="button">
                       <FontAwesomeIcon icon={faChartSimple} />{" "}
-                      {selectedItem?.pipelineName}{" "}
+                      {selectedFilterObj?.name ?? "Select"}{" "}
                       <FontAwesomeIcon icon={faCaretDown} />
                     </button>
                     <div
@@ -211,7 +215,9 @@ export const DealHeader = (props: params) => {
                       hidden={!showPipeLineFilters}
                     >
                       <FilterDropdown showPipeLineFilters={showPipeLineFilters}
-                      setShowPipeLineFilters={setShowPipeLineFilters}/>
+                      setShowPipeLineFilters={setShowPipeLineFilters}
+                      selectedFilterObj={selectedFilterObj}
+                      setSelectedFilterObj={setSelectedFilterObj}/>
                     </div>
                   </div>
                 </div>

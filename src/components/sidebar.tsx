@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { FaDollarSign } from "react-icons/fa";
 import { HiTemplate } from "react-icons/hi";
+import { FaClinicMedical } from "react-icons/fa";
+import { FaSourcetree } from "react-icons/fa";
 import { IoSettings } from "react-icons/io5";
 import { MdCampaign, MdEmail, MdLocalOffer } from "react-icons/md";
 import {
@@ -26,6 +28,7 @@ export const SideBar = (props: params) => {
   const [selectedNavItem, setSelectedNavItem] = useState("pipeline");
   const [toggled, setToggled] = useState(false);
   const compaignSubMenu = ["Template", "Contact", "Campaign", "Email"];
+  const adminSubMenu = ["Clinic", "Treatment", "Source"];
 
   const themes: any = {
     light: {
@@ -177,14 +180,40 @@ export const SideBar = (props: params) => {
             >
               Settings
             </MenuItem>
-            <MenuItem
+            <SubMenu
               icon={<RiAdminFill />}
               hidden={!Util.isAuthorized("Admin")}
-              component={<Link to="/Admin" />}
-              onClick={(e: any) => setSelectedNavItem("Admin")}
+              defaultOpen={adminSubMenu.includes(selectedNavItem)}
+              label="Admin"
             >
-              Admin
-            </MenuItem>
+              <MenuItem
+                icon={<FaClinicMedical />}
+                hidden={!Util.isAuthorized("Clinic")}
+                component={<Link to="/Clinic" />}
+                onClick={(e: any) => setSelectedNavItem("Clinic")}
+              >
+                <b hidden={selectedNavItem != "Clinic"}>Clinic</b>
+                <p hidden={selectedNavItem == "Clinic"}>Clinic</p>
+              </MenuItem>
+              <MenuItem
+                icon={<FaSourcetree />}
+                hidden={!Util.isAuthorized("Source")}
+                component={<Link to="/Source" />}
+                onClick={(e: any) => setSelectedNavItem("Source")}
+              >
+                <b hidden={selectedNavItem != "Source"}>Source</b>
+                <p hidden={selectedNavItem == "Source"}>Source</p>
+              </MenuItem>
+              <MenuItem
+                icon={<FaSourcetree />}
+                hidden={!Util.isAuthorized("Treatment")}
+                component={<Link to="/Treatment" />}
+                onClick={(e: any) => setSelectedNavItem("Treatment")}
+              >
+                <b hidden={selectedNavItem != "Treatment"}>Treatment</b>
+                <p hidden={selectedNavItem == "Treatment"}>Treatment</p>
+              </MenuItem>
+              </SubMenu>
             <MenuItem
               icon={<RiDashboard2Fill />}
               hidden={!Util.isAuthorized("Reporting")}

@@ -18,10 +18,12 @@ import { toast } from "react-toastify";
 type params = {
   showPipeLineFilters: any;
   setShowPipeLineFilters: any;
+  selectedFilterObj:any;
+  setSelectedFilterObj:any;
 };
 
 const FilterDropdown = (props: params) => {
-  const { showPipeLineFilters, setShowPipeLineFilters, ...others } = props;
+  const { showPipeLineFilters, setShowPipeLineFilters, selectedFilterObj, setSelectedFilterObj, ...others } = props;
   const [selectedFilter, setSelectedFilter] = useState<DealFilter>(
     new DealFilter()
   );
@@ -115,33 +117,41 @@ const FilterDropdown = (props: params) => {
               // onMouseLeave={(e: any) => handlePipeLineEdit()}
             >
               {filters?.map((item, index) => (
-                <li key={index}>
-                  <button className="pipeselectlink" type="button">
-                    {item.name}{" "}
-                    <span
-                      className="pl-4"
-                      onClick={(e: any) => {
-                        setDialogIsOpen(true);
-                        setSelectedFilter(item);
-                      }}
-                      style={{paddingLeft:10, paddingRight:10}}
-                    >
-                      <FontAwesomeIcon className="pl-4" icon={faEdit} />
-                    </span>
-                    <span
-                      className="pl-4"
-                      onClick={(e: any) => {
-                        setSelectedFilter(item);
-                        setShowDeleteDialog(true);
-                      }}
-                    >
-                      <FontAwesomeIcon icon={faDeleteLeft} />
-                    </span>
-                  </button>
-                  {/* <span className="pipeselect-editlink" hidden={!item.canEdit}>
+                <>
+                  <div className="d-flex">
+                    <div>
+                      <li key={index}>
+                        <button className="pipeselectlink" onClick={(e: React.MouseEvent) => setSelectedFilterObj(item)} type="button">
+                          {item.name}{" "}
+                        </button>
+                        {/* <span className="pipeselect-editlink" hidden={!item.canEdit}>
                 <FontAwesomeIcon icon={faPencil} />
               </span> */}
-                </li>
+                      </li>
+                    </div>
+                    <div>
+                      <span
+                        className="pl-4"
+                        onClick={(e: any) => {
+                          setDialogIsOpen(true);
+                          setSelectedFilter(item);
+                        }}
+                        style={{ paddingLeft: 10, paddingRight: 10 }}
+                      >
+                        <FontAwesomeIcon className="pl-4" icon={faEdit} />
+                      </span>
+                      <span
+                        className="pl-4"
+                        onClick={(e: any) => {
+                          setSelectedFilter(item);
+                          setShowDeleteDialog(true);
+                        }}
+                      >
+                        <FontAwesomeIcon icon={faDeleteLeft} />
+                      </span>
+                    </div>
+                  </div>
+                </>
               ))}
             </ul>
           </div>
