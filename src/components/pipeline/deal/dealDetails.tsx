@@ -74,6 +74,32 @@ export const DealDetails = () => {
 
   useEffect(() => {}, [dealItem]);
 
+  const convertUTCtoISO = (utcDateString:string) => {
+    // Create a Date object from the UTC string
+    let utcDate = new Date(utcDateString);
+
+    // Convert to Indian Standard Time (IST), which is UTC +5:30
+    // IST is 5 hours 30 minutes ahead of UTC
+    let istOffset = 5.5 * 60 * 60 * 1000; // 5 hours 30 minutes in milliseconds
+
+    // Adjust the UTC date by adding the IST offset
+    let istDate = new Date(utcDate.getTime() + istOffset);
+
+    // Convert the IST date to an ISO string in local time
+    let istISO = istDate.toISOString();
+    return istISO
+  };
+
+  const loadDealItem=()=>{
+    dealSvc.getDealsById(dealId).then(res=>{
+      setDealItem(
+        IsMockService()
+          ? res.find((d: Deal) => d.dealID == dealId)
+          : {...res, operationDate:convertUTCtoISO(res.operationDate)}
+      );
+    })
+  }
+
   useEffect(() => {
     Promise.all([dealSvc.getDealsById(dealId), stagesSvc.getStages(pipeLineId)])
       .then((res) => {
@@ -81,7 +107,7 @@ export const DealDetails = () => {
           setDealItem(
             IsMockService()
               ? res[0].find((d: Deal) => d.dealID == dealId)
-              : res[0]
+              : {...res[0], operationDate:convertUTCtoISO(res[0].operationDate)}
           );
           let sortedStages = Util.sortList(res[1].stageDtos, "stageOrder");
           setStages(sortedStages);
@@ -158,7 +184,23 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
 
  
 
-  const onDealModified = (stageId: number) => {
+  const onDealModified = () => {
+    console.log(new Date(dealItem.operationDate))
+    dealSvc
+      .putItemBySubURL(
+        { ...dealItem, operationDate: new Date(dealItem.operationDate) },
+        "" + dealItem.dealID
+      )
+      .then((res) => {
+        toast.success("Deal updated successfully.");
+        loadDealItem();
+      })
+      .catch((err) => {
+        setError(err);
+      });
+  };
+
+  const onStageModified = (stageId: number) => {
     dealSvc
       .putItemBySubURL(
         {
@@ -170,6 +212,7 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
       )
       .then((res) => {
         toast.success("Deal updated successfully.");
+        loadDealItem();
       })
       .catch((err) => {
         setError(err);
@@ -246,9 +289,12 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
                 <div className="app-dealblock-inner">
                   <div className="appdealblock-title">
                     <h3>{dealItem?.pipelineName}</h3>
-                    <div className="appdealblock-titleedit">
-                      <FontAwesomeIcon icon={faPencil} />
-                    </div>
+                    <button
+                      className="btn btn-primary btn-sm"
+                      onClick={(e: any) => onDealModified()}
+                    >
+                      Save
+                    </button>
                   </div>
                   <div className="appdealblock-data">
                     <div className="appdealblock-row">
@@ -273,7 +319,10 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
                         <div className="closedateinput">
                           <DATEPICKER
                             onChange={(e: any) =>
-                              setDealItem({ ...dealItem, operationDate: e })
+                              setDealItem({
+                                ...dealItem,
+                                operationDate: moment(e).format("MM-DD-YYYY"),
+                              })
                             }
                             isValidationOptional={true}
                             selectedItem={dealItem}
@@ -376,31 +425,33 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
                   </div>
 
                   <div className="appdealblock-data">
-                    <div className="appdeal-dtrow">
-                      <div className="appdeal-dtname">Deal owner</div>
-                      <div className="appdeal-dtvalue">
-                        <SelectDropdown
-                          isValidationOptional={true}
-                          onItemChange={(e: any) =>
-                            setDealItem({ ...dealItem, contactPersonID: e })
-                          }
-                          value={"" + dealItem.contactPersonID}
-                          list={
-                            utility?.persons.map(
-                              ({ personName, personID }) => ({
-                                name: personName,
-                                value: personID,
-                              })
-                            ) ?? []
-                          }
-                        />
-                        <div className="appdeal-dtdetail">
+                    <div className="appdealblock-row mt-1">
+                      <div className="appdeal-closedate dflex">
+                        Deal Owner:{" "}
+                        <div className="closedateinput">
+                          <SelectDropdown
+                            isValidationOptional={true}
+                            onItemChange={(e: any) =>
+                              setDealItem({ ...dealItem, contactPersonID: e })
+                            }
+                            value={"" + dealItem.contactPersonID}
+                            list={
+                              utility?.persons.map(
+                                ({ personName, personID }) => ({
+                                  name: personName,
+                                  value: personID,
+                                })
+                              ) ?? []
+                            }
+                          />
+                          {/* <div className="appdeal-dtdetail">
                           <button className="btn fields-btnedit">
                             <FontAwesomeIcon icon={faPencil} />
                           </button>
                           <button className="btn fields-detailbtn">
                           Detail
                           </button>
+                        </div> */}
                         </div>
                       </div>
                     </div>
@@ -430,7 +481,10 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
                      </div>
                      </div>
                   <div className=" appdeal-dtrow">
-                         <DealDetailsCustomFields dealItem={dealItem} setDealItem={setDealItem}/>  
+                    <DealDetailsCustomFields
+                      dealItem={dealItem}
+                      setDealItem={setDealItem}
+                    />
                   </div>
 
                   <div className="appdealblock-head">
@@ -521,7 +575,7 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
               dealId={dealId}
               stages={stages}
               setDealItem={setDealItem}
-              onDealModified={(e: any) => onDealModified(e)}
+              onDealModified={(e: any) => onStageModified(e)}
             />
           </div>
         </div>

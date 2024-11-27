@@ -30,6 +30,9 @@ window.config = {
         "Admin",
         "Reporting",
         "Enquiries",
+        "Login",
+        "Home",
+        "confirm-email",
         "Clinic",
         "Source",
         "Treatment",
@@ -61,4 +64,5 @@ window.config = {
 };
 
    
+  
 
