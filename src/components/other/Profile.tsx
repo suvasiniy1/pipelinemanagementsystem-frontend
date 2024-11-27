@@ -9,7 +9,7 @@ import { UserProfile } from "../../models/userProfile";
 export const Profile = () => {
     const navigate = useNavigate();
     const {user, email, ...others}=LocalStorageUtil.getItemObject(Constants.USER_PROFILE) as UserProfile ?? new UserProfile();
-
+    console.log("User Profile from Local Storage:", {user, email, ...others});
     const doLogout = () => {
         localStorage.removeItem("isUserLoggedIn");
         navigate("/login");

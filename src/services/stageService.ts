@@ -8,7 +8,7 @@ export class StageService extends BaseService<Stage>{
         super("Stage", "Stage", errorHandler);
     }
 
-    getStages(pipelineId:number,  pageNo:number=1, pageSize:number=5, axiosCancel?: CancelTokenSource){
+    getStages(pipelineId:number,  pageNo:number=1, pageSize:number=11, axiosCancel?: CancelTokenSource){
         return this.getItems(axiosCancel, IsMockService() ? 'mockData/stages.json' : `Stage/GetAllStageDetails?PipelineId=${pipelineId}&pageNo=${pageNo}&pageSize=${pageSize}`)
     }
 

@@ -18,4 +18,6 @@ export class Tasks extends AuditItem{
     taskListGUID!:string;
     userGUID!:string;
     transactionId!:string;
+    duration!: number; // In hours
+    email !:string;
   }

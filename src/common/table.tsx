@@ -3,6 +3,8 @@ import Box from "@mui/material/Box";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
 import PluseIcon from "@material-ui/icons/Add";
+import { GridRowSelectionModel } from '@mui/x-data-grid';
+
 import {
   DataGrid, gridClasses,
   GridCellParams,
@@ -24,6 +26,7 @@ import { toast } from "react-toastify";
 import { Spinner } from "react-bootstrap";
 import moment from "moment";
 import { alpha, styled } from '@mui/material/styles';
+
 
 const ODD_OPACITY = 0.2;
 
@@ -73,6 +76,7 @@ export interface TableColumnMetadata {
   sort?: string;
   componentName?: string;
   type?: string;
+  renderCell?: (params: GridCellParams) => JSX.Element;
 }
 
 export interface TableListProps {
@@ -115,6 +119,8 @@ export interface TableListProps {
   customActions?: any;
   propNameforDelete?: string;
   serviceAPI: any;
+  checkboxSelection?: boolean;
+  onSelectionModelChange?: (newSelection: GridRowSelectionModel ) => void;
 }
 
 export interface ViewEditProps {
@@ -136,10 +142,12 @@ export interface ViewEditProps {
 }
 
 const Table: React.FC<TableListProps> = (props) => {
-  
   const [rowData, setRowData] = useState(props.rowData ?? []);
   const [columnMetaData, setColumnMetaRowData] = useState(props.columnMetaData);
-  
+  const [selectedRows, setSelectedRows] = useState<GridRowSelectionModel>([]);
+  const checkboxSelection = props.checkboxSelection;
+  const onSelectionModelChange= props.onSelectionModelChange;
+
   const [loadRowData, setLoadRowData] = useState(true);
   const canDoActions = props.canDoActions;
   const propNameforSelector = props.propNameforSelector;
@@ -269,7 +277,17 @@ const Table: React.FC<TableListProps> = (props) => {
     setActionType("Delete" as any);
     event.stopPropagation();
   };
-
+  useEffect(() => {
+    if (props.rowData) {
+      setRowData(props.rowData);
+    }
+  }, [props.rowData]);
+  const handleSelectionChange = (newSelection: GridRowSelectionModel) => {
+    setSelectedRows(newSelection);
+    if (onSelectionModelChange) {
+      onSelectionModelChange(newSelection);
+    }
+  };
   const generateGridColDef = (): GridColDef[] => {
     let index = 0;
     let columnDefs: GridColDef[] = columnMetaData.map(
@@ -287,7 +305,7 @@ const Table: React.FC<TableListProps> = (props) => {
           height: 500,
           width: metaDataIter.width,
           flex: metaDataIter.flex !== null ? metaDataIter.flex : 1,
-          renderCell: renderCellExpand,
+          renderCell: metaDataIter.renderCell,
           renderHeader: (params: GridColumnHeaderParams) => {
             // console.log("renderHeader: ", params);
             // dataGridAPIRef = params.api;
@@ -425,6 +443,8 @@ const Table: React.FC<TableListProps> = (props) => {
       <StripedDataGrid
         rows={rowData} 
         columns={columnsMetaData as any}
+        checkboxSelection={checkboxSelection} // Enable checkbox selection
+        onRowSelectionModelChange={handleSelectionChange}
         getRowClassName={(params) =>
           params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd'
         }

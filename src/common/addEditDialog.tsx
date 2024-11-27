@@ -17,13 +17,14 @@ type Props = {
     children?: any;
     disabled?:boolean;
     isFullscreen?:boolean;
+    showSaveButton?: boolean;
 };
 
 export const AddEditDialog: React.FC<Props> = (props) => {
 
     console.log("AddEditDialog - props: ", props);
     const [dialogIsOpen, setDialogIsOpen] = useState(props.dialogIsOpen);
-    const {customSaveChangesButtonName, header, customHeader, onSave, onClose, closeDialog, canSave, children, customFooter, onFormChange, disabled, ...rest } = props;
+    const {customSaveChangesButtonName, header, customHeader, onSave, onClose, closeDialog, canSave, children, customFooter, onFormChange, disabled,showSaveButton = true, ...rest } = props;
     const [dialogSize, setDialogSize] = useState(props.dialogSize =="default"? null : props.dialogSize ?? "lg");
     const [fullScreen, setFullScreen]=useState<any>(props.isFullscreen ?? false)
     useEffect(() => {
@@ -56,8 +57,10 @@ export const AddEditDialog: React.FC<Props> = (props) => {
                 <Modal.Footer className='modalfoot'>
                     <div className='modalfootbar' hidden={customFooter}>
                         <button onClick={closeDialog} className="btn btn-secondary btn-sm me-2" id="closeDialog">Cancel</button>
+                        {showSaveButton && ( // Conditionally render the Save button
                         <button type="submit" className={`btn btn-primary btn-sm save${header}`} onClick={onSave}>{customSaveChangesButtonName ? customSaveChangesButtonName : props.isNewItem ? "Create" : "Save"}</button>
-                    </div>
+                        )}
+                        </div>
                     {customFooter}
                 </Modal.Footer>
             </Modal>

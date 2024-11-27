@@ -1,7 +1,7 @@
 export class UserProfile {
   token!: string;
   user!: string; // Username
-  password!: string;
+  password?: string;
   email!: string;
   userId!: number;
   firstName?: string; // Optional fields
@@ -16,4 +16,7 @@ export class UserProfile {
   language?: string; // Optional fields
   timeZone?: string; // Optional fields
   profilePicture?: string; // Optional field
+  twoFactorRequired?: boolean; 
+  concurrencyStamp?:string;
+  securityStamp?:string;
 }

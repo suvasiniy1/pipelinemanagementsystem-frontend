@@ -36,7 +36,7 @@ type params = {
   dialogIsOpen: any;
   setDialogIsOpen: any;
   onSaveTask?: any;
-  taskItem?: Tasks;
+  taskItem?: Tasks | null;
   onCloseDialog?: any;
 };
 

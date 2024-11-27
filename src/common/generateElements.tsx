@@ -28,6 +28,7 @@ type props = {
   defaultSwitch?: any;
   onElementDelete?:any;
   onElementEdit?:any;
+  showDelete?: boolean; 
 };
 const GenerateElements: React.FC<props> = (props) => {
   
@@ -372,7 +373,7 @@ const GenerateElements: React.FC<props> = (props) => {
                       controlsList.find((c) => c.key === item.sidebyItem)
                     )}
               </div>
-              <div>Delete</div>
+              {props.showDelete && <div>Delete</div>}
             </div>
           </>
         ) : item.isSideByItem ? null : (
@@ -394,7 +395,7 @@ const GenerateElements: React.FC<props> = (props) => {
             >
               {getElement(item)}
             </div>
-            <div>Delete</div>
+            {props.showDelete && <div>Delete</div>}
           </div>
         )
       )}

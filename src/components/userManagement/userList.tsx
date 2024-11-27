@@ -30,6 +30,7 @@ const UsersList = () => {
             itemsBySubURL={"GetUsers"}
             rowTransformFn={rowTransform}
             api={new UserService(ErrorBoundary)}
+            enableCheckboxSelection={false} 
         />
     );
 };

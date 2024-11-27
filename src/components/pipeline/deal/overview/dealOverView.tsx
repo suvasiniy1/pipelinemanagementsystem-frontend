@@ -7,7 +7,7 @@ import {
   faThumbsUp,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 import moment from "moment";
 import { useEffect, useState } from "react";
 import Accordion from "react-bootstrap/Accordion";
@@ -24,6 +24,7 @@ import { NotesService } from "../../../../services/notesService";
 import DealActivities from "../activities/dealActivities";
 import { IsMockService } from "../../../../others/util";
 import { DealService } from "../../../../services/dealService";
+import { useLocation } from "react-router-dom";
 
 type params = {
   dealItem: Deal;
@@ -38,6 +39,8 @@ const DealOverView = (props: params) => {
   const recentActivitesFilters: Array<any> = ["All Activities"].map(
     (item: any) => ({ name: item, value: item })
   );
+  const location = useLocation(); 
+  const [pipelineId, setPipelineId] = useState<number | null>(null);
   const [activityFilter, setActivityFilter] = useState("All Activities");
   const notesSvc = new NotesService(ErrorBoundary);
   const dealSvc = new DealService(ErrorBoundary); // Instantiate DealService
@@ -46,19 +49,34 @@ const DealOverView = (props: params) => {
   const [selectedTab, setSelectedTab] = useState("Overview");
 
   useEffect(() => {
-    notesSvc
-      .getNotes(dealId)
+    const queryParams = new URLSearchParams(location.search);
+    const newDealId = Number(queryParams.get("id"));
+    const newPipelineId = Number(queryParams.get("pipeLineId"));
+
+    if (newDealId !== dealId) {
+      setDealItem((prevItem: Deal) => ({ ...prevItem, dealId: newDealId }));
+    }
+    if (newPipelineId !== pipelineId) {
+      setPipelineId(newPipelineId);
+    }
+  }, [location.search]);
+  // Fetch notes when dealId changes
+  useEffect(() => {
+    if (!dealId) return;
+
+    notesSvc.getNotes(dealId)
       .then((res) => {
         setNotesList(
           IsMockService()
-            ? (res as Array<Notes>).filter((n) => n.dealID == dealId)
+            ? (res as Array<Notes>).filter((n) => n.dealID === dealId)
             : res
         );
       })
-      .catch((err) => {
-        setError(err);
-      });
-  }, []);
+      .catch((err) => setError(err));
+  }, [dealId]);
+
+  
+
 // Function to update the deal status
 
 const updateDealStatus = async (status: string) => {
