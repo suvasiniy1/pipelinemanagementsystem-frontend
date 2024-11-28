@@ -6,7 +6,7 @@ import ItemCollection from "../../common/itemCollection";
 import { Person } from "../../models/person";
 import { personService } from "../../services/personService";
 import { Button, TextField, Popover, Box } from '@mui/material'; // Add Popover and Box
-import EditIcon from '@mui/icons-material/Edit';
+import EditIcon from '@material-ui/icons/Edit';
 import { toast } from 'react-toastify';
 import PersonAddEditDialog from "../person/personAddEditDialog";
 import React from 'react';

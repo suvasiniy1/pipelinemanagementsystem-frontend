@@ -66,7 +66,9 @@ export const Deals = (props: params) => {
     // }, [pipeLineId])
 
     useEffect(() => {
+
         loadPipeLines();
+        loadAllPipeLinesAndStages();
         utilSvc.getDropdownValues().then(res => {
             
             let result = IsMockService() ? res?.data : res?.utility
@@ -77,6 +79,13 @@ export const Deals = (props: params) => {
             setError(err);
         })
     }, [])
+
+
+    const loadAllPipeLinesAndStages=()=>{
+        stagesSvc.getAllPipeLinesAndStages().then(res=>{
+            localStorage.setItem("getAllPipeLinesAndStages", JSON.stringify(res.data));
+        })
+    }
 
 
 

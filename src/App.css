@@ -1000,4 +1000,11 @@ min-width: 375px !important;
   border-radius: 4px;
 }
 
+.non-selectable-option {
+  font-weight: bold;
+  text-align: left;
+  color: black !important; /* Override grayed-out look */
+  background-color: white !important; /* Ensure consistency */
+  pointer-events: none; /* Prevent selection */
+}
 

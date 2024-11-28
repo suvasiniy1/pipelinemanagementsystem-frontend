@@ -15,4 +15,8 @@ export class StageService extends BaseService<Stage>{
     getDealsbyStageId(stageId:number, axiosCancel?: CancelTokenSource){
         return this.getItems(axiosCancel, `Stage/GetDealsByStage?stageId=${stageId}`)
     }
+
+    getAllPipeLinesAndStages(axiosCancel?: CancelTokenSource){
+        return this.getItems(axiosCancel, 'Stage/GetPipelineAndStages')
+    }
 }
