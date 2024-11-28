@@ -168,10 +168,10 @@ const FilterCondition: React.FC<FilterConditionProps> = ({
     let res: Array<any> = JSON.parse(
       localStorage.getItem("getAllPipeLinesAndStages") as any
     );
-    res.forEach((i) => {
+    res.forEach((i:any) => {
       let obj = {
         pipeLine: i.pipelineName,
-        stages: i.pipelineStages.map((stage: any) => stage.stageName),
+        stages: (i.pipelineStages as Array<any>).map(({ stageID, stageName }) => ({ stageID, stageName }))
       };
       list.push(obj);
     });
@@ -204,8 +204,8 @@ const FilterCondition: React.FC<FilterConditionProps> = ({
                   {item.pipeLine}
                 </option>
                 {item.stages.map((stage: any) => (
-                  <option className="pl-4" key={stage} value={stage}>
-                    &nbsp; &nbsp; {stage}
+                  <option className="pl-4" key={stage.stageID} value={stage.stageID}>
+                    &nbsp; &nbsp; {stage.stageName}
                   </option>
                 ))}
               </>
