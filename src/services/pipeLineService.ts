@@ -13,5 +13,4 @@ export class PipeLineService extends BaseService<PipeLine>{
         return this.getItems(axiosCancel, IsMockService() ? 'mockData/pipeline.json' : 'Pipeline/GetAllPipelineDetails')
     }
     
-
 }

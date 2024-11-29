@@ -9,6 +9,8 @@ import { Rule, ConditionCSV, DealFilter } from "../../../../models/dealFilters";
 import RemoveCircleIcon from "@material-ui/icons/RemoveCircle";
 import { DealFiltersService } from "../../../../services/dealFiltersService";
 import { ErrorBoundary } from "react-error-boundary";
+import { DatePickerWithValidation } from "../../../../elements/datePicker";
+import Picker from "react-datepicker";
 
 const operatorOptions = [
   { label: "is empty", value: "IS NULL" },
@@ -19,6 +21,13 @@ const operatorOptions = [
   { label: "is earlier than", value: "<" },
   { label: "is exactly or later than", value: ">=" },
   { label: "is exactly or earlier than", value: "<=" },
+];
+
+const dealStatusList = [
+  { value: "open", label: "Open" },
+  { value: "lost", label: "Lost" },
+  { value: "won", label: "Won" },
+  { value: "deleted", label: "Deleted" },
 ];
 
 const fieldOptions = [
@@ -45,21 +54,21 @@ const fieldOptions = [
   { value: "22", label: "Deal closed on" },
   { value: "23", label: "Lost reason" },
   { value: "24", label: "Visible to" },
-  { value: "26", label: "Total activities" },
-  { value: "27", label: "Done activities" },
-  { value: "28", label: "Activities to do" },
-  { value: "29", label: "Email messages count" },
-  { value: "30", label: "Expected close date" },
-  { value: "34", label: "Source origin" },
-  { value: "35", label: "Source origin ID" },
-  { value: "36", label: "Source channel" },
-  { value: "37", label: "Source channel ID" },
-  { value: "38", label: "MRR" },
-  { value: "39", label: "ARR" },
-  { value: "40", label: "ACV" },
-  { value: "41", label: "Currency" },
-  { value: "42", label: "Date of entering stage" },
-  { value: "43", label: "Attached product" },
+  // { value: "26", label: "Total activities" },
+  // { value: "27", label: "Done activities" },
+  // { value: "28", label: "Activities to do" },
+  // { value: "29", label: "Email messages count" },
+  // { value: "30", label: "Expected close date" },
+  // { value: "34", label: "Source origin" },
+  // { value: "35", label: "Source origin ID" },
+  // { value: "36", label: "Source channel" },
+  // { value: "37", label: "Source channel ID" },
+  // { value: "38", label: "MRR" },
+  // { value: "39", label: "ARR" },
+  // { value: "40", label: "ACV" },
+  // { value: "41", label: "Currency" },
+  // { value: "42", label: "Date of entering stage" },
+  // { value: "43", label: "Attached product" },
 ];
 
 const filterTypeOptions = [
@@ -108,7 +117,6 @@ const formSchema2 = Yup.object().shape({
     .min(1, "At least one condition is required in ALL conditions"),
 });
 
-
 // Define types for conditions and props
 interface Condition {
   object: string;
@@ -138,7 +146,8 @@ const FilterCondition: React.FC<FilterConditionProps> = ({
   const {
     register,
     formState: { errors },
-    setValue
+    setValue,
+    getValues,
   } = useFormContext();
   // Access specific errors for each condition
   const errorPath = `${conditionType}[${index as any}]`;
@@ -154,13 +163,145 @@ const FilterCondition: React.FC<FilterConditionProps> = ({
     setValue(`${conditionType}.${index}.value`, condition.value);
   }, [condition, setValue, index, conditionType]);
 
+  const getAllPipeLinesAndStages = () => {
+    let list: Array<any> = [];
+    let res: Array<any> = JSON.parse(
+      localStorage.getItem("getAllPipeLinesAndStages") as any
+    );
+    res.forEach((i:any) => {
+      let obj = {
+        pipeLine: i.pipelineName,
+        stages: (i.pipelineStages as Array<any>).map(({ stageID, stageName }) => ({ stageID, stageName }))
+      };
+      list.push(obj);
+    });
+    return list;
+  };
+
+  const valueJSX = (key: string) => {
+    console.log("key is.... " + key);
+    switch (key) {
+      case "10":
+        return (
+          <select
+            className="form-control"
+            disabled={!getValues(`${conditionType}.${index}.field`)}
+            defaultValue={`${conditionType}.${index}.value`}
+            {...register(`${conditionType}.${index}.value`)}
+          >
+            <option value="">Select</option>
+            {getAllPipeLinesAndStages().map((item, index) => (
+              <>
+                <option
+                  key={index}
+                  disabled
+                  className="non-selectable-option"
+                  style={{
+                    fontWeight: "bold",
+                    textAlign: "left",
+                  }}
+                >
+                  {item.pipeLine}
+                </option>
+                {item.stages.map((stage: any) => (
+                  <option className="pl-4" key={stage.stageID} value={stage.stageID}>
+                    &nbsp; &nbsp; {stage.stageName}
+                  </option>
+                ))}
+              </>
+            ))}
+          </select>
+        );
+      case "12":
+        return (
+          <select
+            className="form-control"
+            disabled={!getValues(`${conditionType}.${index}.field`)}
+            defaultValue={`${conditionType}.${index}.value`}
+            {...register(`${conditionType}.${index}.value`)}
+          >
+            <option value="">Select</option>
+            {getDropdownListforValueJSX(key).map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        );
+
+      case "13":
+      case "14":
+      case "15":
+      case "16":
+      case "17":
+      case "18":
+      case "19":
+      case "20":
+      case "21":
+      case "22":
+        return (
+          <Picker
+            placeholderText="MM/DD/YYYY hh:mm:ss a"
+            showIcon
+            dateFormat={"MM/d/yyyy h:mm aa"}
+            disabled={!getValues(`${conditionType}.${index}.field`)}
+            selected={getValues(`${conditionType}.${index}.value`)}
+            className="form-control"
+            {...register(`${conditionType}.${index}.value`)}
+            onChange={(e: any) =>
+              setValue(`${conditionType}.${index}.value`, e)
+            }
+          />
+          // <select
+          //   className="form-control"
+          //   defaultValue={`${conditionType}.${index}.value`}
+          //   {...register(`${conditionType}.${index}.value`)}
+          // >
+          //   <option value="">Select</option>
+          //   {getDropdownListforValueJSX(key).map((option) => (
+          //     <option key={option.value} value={option.value}>
+          //       {option.label}
+          //     </option>
+          //   ))}
+          // </select>
+        );
+
+      default:
+        return (
+          <input
+            className="form-control"
+            type="text"
+            disabled={!getValues(`${conditionType}.${index}.field`)}
+            defaultValue={conditionType[index].value ?? null}
+            {...register(`${conditionType}.${index}.value`)}
+            placeholder="Value"
+          />
+        );
+    }
+  };
+
+  const getDropdownListforValueJSX = (key: string) => {
+    switch (key) {
+      case "12":
+        return dealStatusList;
+      default:
+        return [];
+    }
+  };
+
   return (
-    <div className="condition-row">
+    <div className="form-group row pb-2">
       <div className="col-3">
         <select
           className="form-control"
           defaultValue={`${conditionType}.${index}.object`}
           {...register(`${conditionType}.${index}.object`)}
+          onChange={(e: any) => {
+            setValue(`${conditionType}.${index}.field`, null);
+            setValue(`${conditionType}.${index}.operator`, null);
+            setValue(`${conditionType}.${index}.value`, null);
+            setValue(`${conditionType}.${index}.object`, e.target.value);
+          }}
         >
           <option value="">Select</option>
           {filterTypeOptions.map((option) => (
@@ -176,6 +317,12 @@ const FilterCondition: React.FC<FilterConditionProps> = ({
           className="form-control"
           defaultValue={`${conditionType}.${index}.field`}
           {...register(`${conditionType}.${index}.field`)}
+          disabled={!getValues(`${conditionType}.${index}.object`)}
+          onChange={(e: any) => {
+            setValue(`${conditionType}.${index}.operator`, null);
+            setValue(`${conditionType}.${index}.value`, null);
+            setValue(`${conditionType}.${index}.field`, e.target.value);
+          }}
         >
           <option value="">Select</option>
           {fieldOptions.map((option) => (
@@ -186,10 +333,12 @@ const FilterCondition: React.FC<FilterConditionProps> = ({
         </select>
         {<p className="error-text text-danger">{attributeError?.message}</p>}
       </div>
+
       <div className="col-2">
         <select
           className="form-control"
           defaultValue={`${conditionType}.${index}.operator`}
+          disabled={!getValues(`${conditionType}.${index}.field`)}
           {...register(`${conditionType}.${index}.operator`)}
         >
           <option value="">Select</option>
@@ -203,18 +352,13 @@ const FilterCondition: React.FC<FilterConditionProps> = ({
         </select>
         {<p className="error-text text-danger">{operatorError?.message}</p>}
       </div>
+
       <div className="col-2">
-        <input
-          className="form-control"
-          type="text"
-          defaultValue={conditionType[index].value ?? null}
-          {...register(`${conditionType}.${index}.value`)}
-          placeholder="Value"
-        />
+        {valueJSX(getValues(`${conditionType}.${index}.field`))}
         {<p className="error-text text-danger">{valueError?.message}</p>}
       </div>
-      <div className="col-2">
-        AND
+      <div className="col-2" style={{ alignContent: "center" }}>
+        {conditionType === "allConditions" ? "AND" : "OR"}
         <button
           hidden={conditionsLength == 1 && conditionType === "allConditions"}
           onClick={(e: any) => {
@@ -243,7 +387,7 @@ type params = {
 // Main FilterEditor Component
 const DealFilterAddEditDialog = (props: params) => {
   // State for conditions in both ALL and ANY sections
-  
+
   const {
     dialogIsOpen,
     setDialogIsOpen,
@@ -265,7 +409,7 @@ const DealFilterAddEditDialog = (props: params) => {
   const [anyConditions, setAnyConditions] = useState<Condition[]>([]);
 
   const [formOptions, setFormOptions] = useState({
-    resolver: yupResolver(anyConditions.length>0 ? formSchema2 : formSchema1),
+    resolver: yupResolver(anyConditions.length > 0 ? formSchema2 : formSchema1),
     defaultValues: {
       name: "",
       visibility: "",
@@ -308,7 +452,6 @@ const DealFilterAddEditDialog = (props: params) => {
     }
   }, [dialogIsOpen, reset]);
 
-
   const [filterName, setFilterName] = useState<string>("");
   const [visibility, setVisibility] = useState<string>("");
 
@@ -336,9 +479,8 @@ const DealFilterAddEditDialog = (props: params) => {
   const handleDeleteCondition = (
     index: number,
     setConditions: React.Dispatch<React.SetStateAction<Condition[]>>,
-    isAllConditions:boolean
+    isAllConditions: boolean
   ) => {
-    
     setConditions((prev) => prev.filter((_, i) => i !== index));
   };
 
@@ -349,7 +491,9 @@ const DealFilterAddEditDialog = (props: params) => {
 
   useEffect(() => {
     setFormOptions({
-      resolver: yupResolver(anyConditions.length>0 ? formSchema2 : formSchema1),
+      resolver: yupResolver(
+        anyConditions.length > 0 ? formSchema2 : formSchema1
+      ),
       defaultValues: {
         name: "",
         visibility: "",
@@ -383,7 +527,9 @@ const DealFilterAddEditDialog = (props: params) => {
       );
     }
     if (anyConditions.length > 0) {
-      dealFilter.conditions.push(buildConditionsArray("OR", anyConditions, obj.anyConditions));
+      dealFilter.conditions.push(
+        buildConditionsArray("OR", anyConditions, obj.anyConditions)
+      );
     }
 
     dealFiltersSvc.saveDealFilters(dealFilter).then((res) => {
@@ -398,7 +544,11 @@ const DealFilterAddEditDialog = (props: params) => {
     });
   };
 
-  const buildConditionsArray = (glue: string, list: Array<any>, objList: Array<any>) => {
+  const buildConditionsArray = (
+    glue: string,
+    list: Array<any>,
+    objList: Array<any>
+  ) => {
     let condition = new Rule();
     condition.glue = glue;
     condition.conditionList = [];
@@ -420,6 +570,7 @@ const DealFilterAddEditDialog = (props: params) => {
       <AddEditDialog
         dialogIsOpen={dialogIsOpen}
         header={"Add Dealfilter"}
+        dialogSize={"xl"}
         closeDialog={oncloseDialog}
         onClose={oncloseDialog}
         onSave={handleSubmit(onSubmit)}
@@ -465,6 +616,7 @@ const DealFilterAddEditDialog = (props: params) => {
               </div>
 
               <div
+                className="pt-2"
                 style={{
                   display: "flex",
                   justifyContent: "center",
@@ -553,47 +705,43 @@ const DealFilterAddEditDialog = (props: params) => {
 
               <br />
               {/* Filter details */}
-              <div className="col-12 filter-details d-flex">
+              <div className="col-12 d-flex">
                 <div className="col-5">
-                  <label>
-                    Filter name:
-                    <input
-                      className="form-control"
-                      type="text"
-                      defaultValue={filterName}
-                      {...methods.register("name")}
-                      onChange={(e) => setFilterName(e.target.value)}
-                      placeholder="Filter name"
-                    />
-                    {errors.name && (
-                      <p className="error-text text-danger">
-                        {errors.name.message as any}
-                      </p>
-                    )}
-                  </label>
+                  <label>Filter name:</label>
+                  <input
+                    className="form-control"
+                    type="text"
+                    defaultValue={filterName}
+                    {...methods.register("name")}
+                    onChange={(e) => setFilterName(e.target.value)}
+                    placeholder="Filter name"
+                  />
+                  {errors.name && (
+                    <p className="error-text text-danger">
+                      {errors.name.message as any}
+                    </p>
+                  )}
                 </div>
                 <div className="col-2"></div>
                 <div className="col-5">
-                  <label>
-                    Visibility:
-                    <select
-                      className="form-control"
-                      value={visibility}
-                      {...methods.register("visibility")}
-                      onChange={(e) =>
-                        setVisibility(e.target.value as "Private" | "Public")
-                      }
-                    >
-                      <option value="">Select</option>
-                      <option value="Private">Private</option>
-                      <option value="Public">Public</option>
-                    </select>
-                    {errors.visibility && (
-                      <p className="error-text text-danger">
-                        {errors.visibility.message as any}
-                      </p>
-                    )}
-                  </label>
+                  <label>Visibility:</label>
+                  <select
+                    className="form-control"
+                    value={visibility}
+                    {...methods.register("visibility")}
+                    onChange={(e) =>
+                      setVisibility(e.target.value as "Private" | "Public")
+                    }
+                  >
+                    <option value="">Select</option>
+                    <option value="Private">Private</option>
+                    <option value="Public">Public</option>
+                  </select>
+                  {errors.visibility && (
+                    <p className="error-text text-danger">
+                      {errors.visibility.message as any}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
