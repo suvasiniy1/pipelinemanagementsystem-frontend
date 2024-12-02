@@ -2,7 +2,7 @@ import { AuditItem } from "./base/AuditNamedItem";
 
 export class Deal extends AuditItem {
   dealID: number = 0;
-  contactPersonID!: number;
+  contactPersonID?: number | null;
   organizationID!: number;
   title!: string;
   value: string = "100";
@@ -10,13 +10,13 @@ export class Deal extends AuditItem {
   stageID!: number;
   labelID!: number;
   probability: string = "100";
-  expectedCloseDate!: string;
+  expectedCloseDate: string | null = null;
   clinicID!: number;
   sourceID!: number;
   treatmentID!: number;
   enquiryID!: number;
   paName: string = "test";
-  operationDate!: string;
+  operationDate: string | null = null;
   lostReviewReason: string = "test";
   pipelineTypeID!: number;
   visibilityGroupID!: number;
@@ -37,6 +37,11 @@ export class Deal extends AuditItem {
   isClosed!: boolean; // Add this if it's not already there
   openDealsCount?: number;
   ownerName!:string;
+  newContact?: {
+    personName: string; // This is required
+    email?: string; // Required
+    phone?: string; // Required
+};
   // constructor(dealID: number = null as any,
   //     contactPersonID: number = null as any,
   //     organizationID: number = null as any,

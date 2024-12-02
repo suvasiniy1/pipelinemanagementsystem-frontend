@@ -18,6 +18,12 @@ import Util from "../../../others/util";
 import { DealService } from "../../../services/dealService";
 import { StageService } from "../../../services/stageService";
 import { PipeLineTypeService } from "../../../services/pipeLineTypeService";
+import { ClinicService } from '../../../services/clinicService';
+import { TreatmentService } from "../../../services/treatmenetService"; 
+import { SourceService } from "../../../services/sourceService";
+import { personService } from "../../../services/personService";
+import AsyncSelect from "react-select/async";
+import { SingleValue, ActionMeta } from "react-select";
 
 type params = {
     dialogIsOpen: boolean;
@@ -33,59 +39,255 @@ export const DealAddEditDialog = (props: params) => {
     const { dialogIsOpen, setDialogIsOpen, onSaveChanges, index, pipeLinesList, selectedPipeLineId, selectedStageId, ...others } = props;
     const [stages, setStages] = useState<Array<Stage>>([]);
     const [pipelineTypes, setPipelineTypes] = useState<Array<{ name: string, value: number }>>([]);
-    const [selectedItem, setSelectedItem] = useState({ ...new Deal(), pipelineID: selectedPipeLineId ?? pipeLinesList[0].pipelineID });
+    
+    const [selectedItem, setSelectedItem] = useState<SelectedItem>({
+        ...new Deal(),
+        pipelineID: selectedPipeLineId ?? pipeLinesList[0]?.pipelineID,
+        contactPersonID: null,
+        newContact: {
+            personName: "",
+            email: "",
+            phone: "",
+        },
+    });
     const [isLoading, setIsLoading] = useState(false);
+    const [selectedContact, setSelectedContact] = useState<any>(null);
     const dealsSvc = new DealService(ErrorBoundary);
     const stagesSvc = new StageService(ErrorBoundary);
     const pipeLineTypeSvc = new PipeLineTypeService(ErrorBoundary);
+    const clinicSvc = new ClinicService(ErrorBoundary);
+    const treatmentSvc = new TreatmentService(ErrorBoundary);
+    const sourceSvc = new SourceService(ErrorBoundary);
+    const personSvc = new personService(ErrorBoundary); 
     const utility: Utility = JSON.parse(LocalStorageUtil.getItemObject(Constants.UTILITY) as any);
     const [persons, setPersons] = useState(utility?.persons ?? []);
+    const [clinics, setClinics] = useState<Array<{ name: string, value: number }>>([]);
+    const [treatments, setTreatments] = useState<Array<{ name: string, value: number }>>([]);
+    const [sources, setSources] = useState<Array<{ name: string, value: number }>>([]);
 
     const controlsList1: Array<IControl> = [
-        { key: "Contact Person", value: "contactPersonID", sidebyItem: "Deal Value", type: ElementType.dropdown, isRequired: true },
+        { key: "Contact Person", value: "contactPersonID", sidebyItem: "Deal Value", type: ElementType.custom, isRequired: true },
         { key: "Deal Value", value: "value", type: ElementType.textbox, isSideByItem: true, isRequired: true },
         { key: "Organization", value: "organizationID", sidebyItem: "Probability Of Winning", type: ElementType.dropdown, isRequired: true },
         { key: "Probability Of Winning", value: "probability", type: ElementType.textbox, isSideByItem: true, isRequired: true },
-        { key: "Title", value: "title", sidebyItem: "Forecast Close Date", type: ElementType.textbox, isRequired: true },
-        { key: "Forecast Close Date", value: "operationDate", type: ElementType.datepicker, isSideByItem: true, isRequired: false },
+        { key: "Title", value: "title", sidebyItem: "Expected Close Date", type: ElementType.textbox, isRequired: true },
+        { key: "Expected Close Date", value: "expectedCloseDate", type: ElementType.datepicker, isSideByItem: true, isRequired: false },
     ];
     
     const controlsList2: Array<IControl> = [
-        { key: "Pipeline", value: "pipelineID", type: ElementType.dropdown, isRequired: true, sidebyItem: "Actual Close Date" },
-        { key: "Actual Close Date", value: "expectedCloseDate", type: ElementType.datepicker, isSideByItem: true, isRequired: false },
-        { key: "Stage", value: "stageID", type: ElementType.custom, isRequired: true, sidebyItem: "PA Name", disabled: !Util.isNullOrUndefinedOrEmpty(selectedStageId) }, // Stage beside PA Name
-        { key: "PA Name", value: "paName", type: ElementType.textbox, isSideByItem: true, isRequired: false }, 
-        { key: "Pipeline Type", value: "pipelineTypeID", type: ElementType.dropdown, isRequired: false, sidebyItem: "Lead Source" }, 
-        { key: "Lead Source", value: "leadSourceID", type: ElementType.dropdown, isSideByItem: true, isRequired: true }, 
-        { key: "Clinic", value: "clinicID", type: ElementType.dropdown, isRequired: true, sidebyItem: "Phone" }, 
-        { key: "Phone", value: "phone", type: ElementType.textbox, isSideByItem: true, isRequired: false }, 
-        { key: "Treatment", value: "treatmentID", type: ElementType.dropdown, isRequired: true, sidebyItem: "Email" }, 
-        { key: "Email", value: "email", type: ElementType.textbox, isSideByItem: true, isRequired: false }, 
+        { key: "Pipeline", value: "pipelineID", type: ElementType.dropdown, isRequired: true, sidebyItem: "Operation Date" },
+        { key: "Operation Date", value: "operationDate", type: ElementType.datepicker, isSideByItem: true, isRequired: false },
+        { key: "Stage", value: "stageID", type: ElementType.custom, isRequired: true, sidebyItem: "PA Name", disabled: !Util.isNullOrUndefinedOrEmpty(selectedStageId) },
+        { key: "PA Name", value: "paName", type: ElementType.textbox, isSideByItem: true, isRequired: false },
+        { key: "Pipeline Type", value: "pipelineTypeID", type: ElementType.dropdown, isRequired: false, sidebyItem: "Lead Source" },
+        { key: "Lead Source", value: "leadSourceID", type: ElementType.dropdown, isSideByItem: true, isRequired: true },
+        { key: "Clinic", value: "clinicID", type: ElementType.dropdown, isRequired: true, sidebyItem: "Phone" },
+        { key: "Phone", value: "phone", type: ElementType.textbox, isSideByItem: true, isRequired: false },
+        { key: "Treatment", value: "treatmentID", type: ElementType.dropdown, isRequired: true, sidebyItem: "Email" },
+        { key: "Email", value: "email", type: ElementType.textbox, isSideByItem: true, isRequired: false },
     ];
     const controlsList = [controlsList1, controlsList2];
 
-
-
-    const getValidationsSchema = (list: Array<any>) => {
-        return Yup.object().shape({
-            ...Util.buildValidations(list)
-        });
-    }
-
-    const formOptions = {
-        resolver: yupResolver(getValidationsSchema(controlsList[0])
-        )
+    const formatDate = (date: Date | string, format: string): string => {
+        const d = new Date(date);
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+        const year = d.getFullYear();
+    
+        if (format === "yyyy-MM-dd") {
+            return `${year}-${month}-${day}`;
+        } else if (format === "MM/DD/YYYY") {
+            return `${month}/${day}/${year}`;
+        }
+        throw new Error("Unsupported date format");
     };
-
-    const methods = useForm(formOptions);
-    const { handleSubmit, resetField, setValue, setError } = methods;
+    const getValidationsSchema = () =>
+        Yup.object({
+          phone: Yup.string().required("Phone is required."),
+          email: Yup.string().email("Invalid email").required("Email is required."),
+          pipelineID: Yup.number().nullable(),
+          pipelineTypeID: Yup.number().nullable(),
+          clinicID: Yup.number().nullable(),
+          treatmentID: Yup.number().nullable(),
+          leadSourceID: Yup.number().nullable(),
+          expectedCloseDate: Yup.date()
+            .nullable()
+            .required("Expected close date is required"),
+          operationDate: Yup.date().nullable().typeError("Invalid date format"),
+          contactPersonID: Yup.number()
+          .nullable()
+          .when("newContact.personName", (personName: any, schema) => {
+            if (!personName || (typeof personName === "string" && personName.trim() === "")) {
+              return schema.required("Contact person is required.");
+            }
+            return schema.nullable();
+          }),
+          newContact: Yup.object({
+            personName: Yup.string()
+              .nullable()
+              .when("contactPersonID", (contactPersonID, schema) => {
+                if (!contactPersonID) {
+                  return schema
+                    .required("New contact name is required.")
+                    .test(
+                      "is-string",
+                      "Contact name must be a string.",
+                      (value) => typeof value === "string"
+                    );
+                }
+                return schema.nullable();
+              }),
+            email: Yup.string().nullable().email("Invalid email format."),
+            phone: Yup.string()
+              .nullable()
+              .matches(/^[0-9]+$/, "Phone must be numeric."),
+          }),
+        });
+    type FormFields = Yup.InferType<ReturnType<typeof getValidationsSchema>>;
+    
 
     const oncloseDialog = () => {
         setDialogIsOpen(false);
     }
+    // Fetch persons for autocomplete
+    const fetchContacts = async (inputValue: string): Promise<ContactOption[]> => {
+        if (!inputValue) return [];
+        try {
+          const response = await personSvc.searchPersons(inputValue);
+          const options = response.map((person: any) => ({
+            label: `${person.personName} (${person.email || "No Email"})`,
+            value: person.personID,
+            details: person, // Pass full contact details
+          }));
+      
+          options.push({
+            label: `+ Add '${inputValue}' as new contact`,
+            value: "new",
+            isNew: true,
+            inputValue,
+          });
+      
+          return options;
+        } catch (error) {
+          console.error("Error fetching contacts:", error);
+          // Return a fallback option for adding a new contact
+          return [
+            {
+              label: `+ Add '${inputValue}' as new contact`,
+              value: "new",
+              isNew: true,
+              inputValue,
+            },
+          ];
+        }
+      };
+    
+    const formOptions = {
+        resolver: yupResolver(getValidationsSchema()), // Explicitly resolves the Yup schema
+        defaultValues: {
+            phone: "",
+            email: "",
+            pipelineID: null,
+            pipelineTypeID: null,
+            clinicID: null,
+            treatmentID: null,
+            leadSourceID: null,
+            operationDate: undefined,
+            expectedCloseDate: undefined,
+            contactPersonID: null,
+        },
+    };
+    
+    const methods = useForm<FormFields>(formOptions);
+    type SelectedItem = {
+        pipelineID: number | null;
+        stageID?: number;
+        contactPersonID: number | null;
+        newContact?: {
+            personName: string;
+            email?: string;
+            phone?: string;
+        };
+        [key: string]: any; // Allow other dynamic fields from the Deal model
+    };
+   
+    
+    const handleContactChange = (
+        newValue: SingleValue<ContactOption>,
+        actionMeta: ActionMeta<ContactOption>
+    ) => {
+        if (!newValue) return;
+    
+        if (newValue.isNew) {
+            // Set a placeholder for the new contact, allowing further typing
+            setSelectedContact({
+                personName: newValue.inputValue || "", // Preserve the entered input
+                email: "",
+                phone: "",
+            });
+    
+            setSelectedItem((prev) => ({
+                ...prev,
+                contactPersonID: -1, // Placeholder for a new contact
+                newContact: {
+                    personName: newValue.inputValue || "",
+                    email: "",
+                    phone: "",
+                },
+            }));
+        } else {
+            // Handle existing contact selection
+            const { phone, email } = newValue.details || {};
+            setSelectedContact(newValue.details);
+            setSelectedItem((prev) => ({
+                ...prev,
+                contactPersonID: newValue.value,
+                phone: phone || "",
+                email: email || "",
+            }));
+    
+            // Update the form fields directly
+            setValue("phone", phone || "");
+            setValue("email", email || "");
+        }
+    };
 
     useEffect(() => {
         setIsLoading(true);
+        sourceSvc.getSources().then(res => {
+            const sourceList = (res as Array<{ sourceName: string, sourceID: number }>).map(source => ({
+                name: source.sourceName,
+                value: source.sourceID,
+            }));
+            setSources(sourceList);
+            setIsLoading(false);
+        }).catch(err => {
+            toast.error("Failed to fetch sources.");
+            setIsLoading(false);
+        });
+        clinicSvc.getClinics().then(res => {
+            const clinicList = (res as Array<{ clinicName: string, clinicID: number }>).map(clinic => ({
+                name: clinic.clinicName,
+                value: clinic.clinicID,
+            }));
+            setClinics(clinicList);
+            setIsLoading(false);
+        }).catch(err => {
+            toast.error("Failed to fetch clinics.");
+            setIsLoading(false);
+        });
+        treatmentSvc.getTreatments().then(res => {
+            const treatmentList = (res as Array<{ treatmentName: string, treatmentID: number }>).map(treatment => ({
+                name: treatment.treatmentName,
+                value: treatment.treatmentID,
+            }));
+            setTreatments(treatmentList);
+            setIsLoading(false);
+        }).catch(err => {
+            toast.error("Failed to fetch treatments.");
+            setIsLoading(false);
+        });
+    
         let defaultPipeLine = selectedPipeLineId ?? pipeLinesList[0]?.pipelineID;
         setSelectedItem({ ...selectedItem, "pipelineID": +defaultPipeLine });
         loadStages(defaultPipeLine);
@@ -114,19 +316,29 @@ export const DealAddEditDialog = (props: params) => {
             setIsLoading(false);
         });
     };
+    
     const onChange = (value: any, item: any) => {
         if (item.key === "Pipeline") {
             setSelectedItem({ ...selectedItem, "pipelineID": +value > 0 ? +value : null as any });
             setStages([])
             if (+value > 0) loadStages(+value);
         }
-        if (item.key === "Forecast Close Date") {
-            setSelectedItem({ ...selectedItem, "operationDate": value });
+
+        if (item.key === "Expected Close Date") {
+            const parsedDate = new Date(value);
+            if (!isNaN(parsedDate.getTime())) {
+                setValue("expectedCloseDate", parsedDate); // Ensure it's a valid Date object
+                setSelectedItem({ ...selectedItem, expectedCloseDate: parsedDate });
+            }
         }
-        if (item.key === "Actual Close Date") {
-            setSelectedItem({ ...selectedItem, "expectedCloseDate": value })
+        if (item.key === "Operation Date") {
+            const parsedDate = new Date(value);
+            if (!isNaN(parsedDate.getTime())) {
+                setValue("operationDate", parsedDate); // Ensure it's a valid Date object
+                setSelectedItem({ ...selectedItem, operationDate: parsedDate });
+            }
         }
-    }
+    };
 
     const getPipeLines = () => {
         let list: Array<any> = [];
@@ -148,37 +360,199 @@ export const DealAddEditDialog = (props: params) => {
             </div>
         )
     }
-
+    const { handleSubmit, resetField, setValue, setError } = methods;
+    
     const onSubmit = (item: any) => {
-        
+        console.log("Form item submitted: ", item);
+        console.log("Selected item state: ", selectedItem);
+    
+        // Construct the Deal object
         let addUpdateItem: Deal = new Deal();
         addUpdateItem.createdBy = Util.UserProfile()?.userId;
-        addUpdateItem.modifiedBy = Util.UserProfile()?.userId;
         addUpdateItem.createdDate = new Date();
         Util.toClassObject(addUpdateItem, item);
-        addUpdateItem.pipelineID = +selectedItem.pipelineID;
-        addUpdateItem.stageID = selectedItem.stageID;
-        console.log("addUpdateItem" + { ...addUpdateItem });
+    
+        addUpdateItem.pipelineID = selectedItem.pipelineID!;
+        addUpdateItem.stageID = selectedItem.stageID!;
+        addUpdateItem.clinicID = item.clinicID;
+        addUpdateItem.pipelineTypeID = item.pipelineTypeID;
+        addUpdateItem.treatmentID = item.treatmentID;
+        addUpdateItem.sourceID = item.leadSourceID;
+        addUpdateItem.phone = item.phone;
+        addUpdateItem.email = item.email;
+    
+        if (selectedItem.expectedCloseDate) {
+            const parsedDate = new Date(selectedItem.expectedCloseDate);
+            addUpdateItem.expectedCloseDate = isNaN(parsedDate.getTime())
+                ? null
+                : formatDate(parsedDate, "yyyy-MM-dd");
+        } else {
+            addUpdateItem.expectedCloseDate = null;
+        }
+    
+        if (selectedItem.operationDate) {
+            const parsedDate = new Date(selectedItem.operationDate);
+            addUpdateItem.operationDate = isNaN(parsedDate.getTime())
+                ? null
+                : formatDate(parsedDate, "yyyy-MM-dd");
+        } else {
+            addUpdateItem.operationDate = null;
+        }
+    
+        // Handle new contact creation or existing contact
+    let newContact = null;
+    if (selectedItem.contactPersonID === -1 && selectedItem.newContact) {
+        const names = selectedItem.newContact.personName.split(" ");
+        const firstName = names[0];
+        const lastName = names.slice(1).join(" ");
 
-        dealsSvc.postItemBySubURL(addUpdateItem, "saveDealDetails").then(res => {
-            if (res.dealID > 0) {
+        newContact = {
+            ...selectedItem.newContact,
+            firstName: firstName || "",
+            lastName: lastName || "",
+        };
+        delete addUpdateItem.contactPersonID; // Remove contactPersonID for new contact
+    } else {
+        addUpdateItem.contactPersonID = selectedItem.contactPersonID!;
+    }
+        // Wrap the payload in the expected structure
+        const payload = {
+            Deal: addUpdateItem, // Encapsulate the deal in a Deal object
+            NewContact: newContact, // Include the new contact if applicable
+        };
+    
+        console.log("Payload being sent: ", payload);
+    
+        // Send the payload to the API
+        dealsSvc.postItemBySubURL(payload, "saveDealDetails").then((res) => {
+            if (res.success && res.dealID > 0) {
                 toast.success("Deal added successfully");
                 setTimeout(() => {
                     setDialogIsOpen(false);
                     props.onSaveChanges();
                 }, 500);
+            } else {
+                toast.error(res.message || "Unable to add Deal");
             }
-            else {
-                toast.error("Unable to add Deal");
-            }
-
-        })
-
-    }
-
+        }).catch((error) => {
+            console.error("Error saving deal: ", error);
+            toast.error("An error occurred while saving the deal.");
+        });
+    };
+    type ContactOption = {
+        label: string;
+        value: any;
+        isNew?: boolean; // Optional property for "Add new" option
+        inputValue?: string; // Optional property for the input value
+        details?: {
+            personName: string;
+            email?: string;
+            phone?: string;
+            contactPersonID?: number;
+        }; // Optional details for existing contacts
+    };
     const getCustomElement = (item: IControl) => {
-        if (item.key === "Stage") return getJsxForStage();
+        if (item.key === "Stage") {
+            // Custom rendering logic for Stage
+            return getJsxForStage();
+        }
+        if (item.key === "PersonDivider") {
+            return (
+                <div className="section-person-divider d-flex align-items-center mt-3 mb-3">
+                    <h6 className="section-person-label me-2">Person</h6>
+                    <hr className="flex-grow-1 section-divider" />
+                </div>
+            );
+        }
+        if (item.key === "Contact Person") {
+            return (
+<AsyncSelect<ContactOption>
+    cacheOptions
+    loadOptions={fetchContacts} // Function to fetch contacts
+    defaultOptions // Show default options on focus
+    onChange={(newValue) => {
+        if (!newValue) return;
+
+        if (newValue.isNew) {
+            // Handle new contact creation
+            setSelectedContact(null); // Clear selected contact
+            setSelectedItem((prev: SelectedItem) => ({
+                ...prev,
+                contactPersonID: -1, // Temporary ID for new contact
+                newContact: {
+                    personName: newValue.inputValue || "",
+                    email: "",
+                    phone: "",
+                },
+            }));
+
+            // Clear phone and email for new contacts
+            setValue("phone", "");
+            setValue("email", "");
+        } else {
+            // Handle selecting an existing contact
+            setSelectedContact(newValue.details); // Save selected contact
+            setSelectedItem((prev: SelectedItem) => ({
+                ...prev,
+                contactPersonID: newValue.value, // Save contact ID
+                phone: newValue.details?.phone || "",
+                email: newValue.details?.email || "",
+            }));
+
+            // Update form fields with existing contact details
+            setValue("phone", newValue.details?.phone || "");
+            setValue("email", newValue.details?.email || "");
+        }
+    }}
+    onInputChange={(inputValue, actionMeta) => {
+        if (actionMeta.action === "input-change") {
+            // Update the typed input in the state
+            setSelectedItem((prev: SelectedItem) => ({
+                ...prev,
+                newContact: {
+                    ...(prev.newContact || {}),
+                    personName: inputValue,
+                },
+            }));
+
+            // Clear phone and email when typing a new contact name
+            setValue("phone", "");
+            setValue("email", "");
+
+            // Clear selectedContact to avoid conflicts
+            setSelectedContact(null);
+        }
+    }}
+    placeholder="Search or Add Contact"
+    value={
+        selectedContact // Use selectedContact if available
+            ? { label: selectedContact.personName, value: selectedContact.contactPersonID }
+            : selectedItem.newContact?.personName // Use typed input for new contacts
+            ? { label: selectedItem.newContact.personName, value: "new" }
+            : null // Fallback for no selection
     }
+    noOptionsMessage={() => "Type to search or add a new contact"}
+    styles={{
+        option: (provided, state) => {
+            const isAddNewOption = state.data.isNew;
+            return {
+                ...provided,
+                backgroundColor: state.isFocused
+                    ? isAddNewOption
+                        ? "#e0f3ff" // Light blue for "Add new" hover
+                        : "#f0f0f0" // Default hover color
+                    : "white",
+                color: isAddNewOption ? "#007bff" : "black", // Blue text for "Add new"
+                fontWeight: isAddNewOption ? "bold" : "normal", // Bold for "Add new"
+            };
+        },
+    }}
+/>
+            );
+        }
+    
+        return null; // Return null for other keys if no custom element is needed
+    };
 
     const getDropdownvalues = (item: any) => {
         if (item.key === "Pipeline") {
@@ -193,6 +567,15 @@ export const DealAddEditDialog = (props: params) => {
         }
         if (item.key === "Pipeline Type") {
             return pipelineTypes ?? [];
+        }
+        if (item.key === "Clinic") {
+            return clinics ?? [];
+        }
+        if (item.key === "Treatment") {
+            return treatments ?? [];
+        }
+        if (item.key === "Lead Source") {
+            return sources ?? [];
         }
     }
 
@@ -240,6 +623,7 @@ export const DealAddEditDialog = (props: params) => {
                                                     />
                                                 ))
                                             }
+                                            
                                             <br />
                                         </div>
                                     </div>

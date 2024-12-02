@@ -152,7 +152,7 @@ export const DealDetails = () => {
  // Fetch deals data when opening the dialog
  const openMoveDealDialog = async () => {
   try {
-      const relatedDealsData: Deal[] = await dealSvc.getDealsByPersonId(dealItem.contactPersonID);
+    const relatedDealsData: Deal[] = await dealSvc.getDealsByPersonId(dealItem.contactPersonID ?? 0);
 
       // Map relatedDealsData to ensure every deal has required fields for DataGrid
       const formattedData: Deal[] = relatedDealsData.map((deal) => ({
@@ -182,13 +182,14 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
     }
   }, [location.search]); // Listen for changes to the URL search params
 
- 
 
   const onDealModified = () => {
-    console.log(new Date(dealItem.operationDate))
+    // Only convert to Date if operationDate is not null
+    const operationDate = dealItem.operationDate ? new Date(dealItem.operationDate) : null;
+
     dealSvc
       .putItemBySubURL(
-        { ...dealItem, operationDate: new Date(dealItem.operationDate) },
+        { ...dealItem, operationDate },
         "" + dealItem.dealID
       )
       .then((res) => {
@@ -198,8 +199,7 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
       .catch((err) => {
         setError(err);
       });
-  };
-
+};
   const onStageModified = (stageId: number) => {
     dealSvc
       .putItemBySubURL(
