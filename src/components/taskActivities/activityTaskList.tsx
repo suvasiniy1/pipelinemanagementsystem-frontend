@@ -26,35 +26,76 @@ const TasksList = () => {
 
     // Load task data from the API
     const loadTasksData = async (): Promise<void> => {
-      setIsLoading(true);
-      try {
-        taskService.getAllTasks()
-          .then((res: Array<Tasks>) => {
-            console.log("API Response:", res);
-            const transformedData = res.map(rowTransform);
-            console.log("Transformed Data:", transformedData);
-            setRowData(transformedData);
-          })
-          .catch((err) => {
+        setIsLoading(true);
+        try {
+            const response = await taskService.getAllTasks();
+            console.log("Raw API Response:", response);
+    
+            // Transform and deduplicate data
+            const transformedData = removeDuplicates(response.map(rowTransform));
+            console.log("Transformed & Deduplicated Data:", transformedData);
+    
+            setRowData(transformedData); // Bind the deduplicated data to rowData
+        } catch (err) {
             console.error("Error loading task data:", err);
-            toast.error(`Failed to load tasks: ${err.message || "Unknown error"}`);
-          });
-      } catch (error) {
-        toast.error("Failed to fetch data. Please try again.");
-      } finally {
-        setIsLoading(false);
-      }
+            //toast.error(`Failed to load tasks: ${err.message || "Unknown error"}`);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     // Row transformation function
     const rowTransform = (item: Tasks, index: number) => {
-      return {
-          ...item,
-          id: item.taskId > 0 ? item.taskId : index,
-          email: item.email || 'No email available', // Ensure email is populated
-      };
-  };
+        const formattedCallDateTime = item.callDateTime
+        ? new Date(item.callDateTime).toLocaleString("en-GB", { timeZone: "UTC" })
+        : "Invalid Date";
 
+    // Generate a truly unique ID using taskId and callDateTime timestamp
+    const uniqueId = item.taskId && item.callDateTime
+        ? `${item.taskId}-${new Date(item.callDateTime).getTime()}`
+        : `${item.taskId || "no-id"}-${index}`;
+    
+            return {
+                id: uniqueId, // Use taskId directly as the unique identifier
+                taskId: item.taskId,
+                callType: item.callType || "No Call Type Available",
+                callDateTime: formattedCallDateTime,
+                treatmentName: item.treatmentName || "No Treatment",
+                personName: item.personName || "No Contact",
+                phone: item.phone || "No Phone",
+                email: item.email || "No Email",
+                dueDate: item.dueDate
+            ? new Date(item.dueDate).toLocaleDateString("en-GB")
+            : "No Due Date",
+                duration: item.duration || 0,
+                name: item.name || "No Name Available",
+                startDate: item.startDate ? new Date(item.startDate) : new Date(),
+                reminder: item.reminder ? new Date(item.reminder) : new Date(),
+                todo: item.todo || "",
+                priority: item.priority || "Normal",
+                assignedTo: item.assignedTo || 0,
+                taskDetails: item.taskDetails || "",
+                dealId: item.dealId || 0,
+                userName: item.userName || "Unknown",
+                comments: item.comments || [],
+                taskGUID: item.taskGUID || "",
+                taskListGUID: item.taskListGUID || "",
+                userGUID: item.userGUID || "",
+                transactionId: item.transactionId || "",
+                createdBy: item.createdBy || 0,
+                createdDate: item.createdDate ? new Date(item.createdDate) : new Date(),
+                modifiedBy: item.modifiedBy || 0,
+                modifiedDate: item.modifiedDate ? new Date(item.modifiedDate) : new Date(),
+                updatedBy: item.updatedBy || 0,
+                updatedDate: item.updatedDate ? new Date(item.updatedDate) : new Date(),
+            };
+    };
+    
+    const removeDuplicates = (data: any[]) => {
+        const uniqueRows = new Map(); // Use Map to ensure uniqueness
+        data.forEach(row => uniqueRows.set(row.id, row)); // Map `id` to the entire row
+        return Array.from(uniqueRows.values()); // Return only unique rows
+    };
     // Handle row selection change
     const handleSelectionChange = (newSelection: GridRowSelectionModel) => {
       console.log("Selection Changed: ", newSelection); // Add this
@@ -65,12 +106,12 @@ const TasksList = () => {
     // Toggle all rows selection
     const toggleSelectAll = () => {
         if (selectAllChecked) {
-            setSelectedRows([]);
+            setSelectedRows([]); // Clear selection if already selected
         } else {
-            const allRowIds = rowData.map(row => row.taskId);
+            const allRowIds = rowData.map(row => row.taskId); // Use `id` instead of `taskId`
             setSelectedRows(allRowIds);
         }
-        setSelectAllChecked(!selectAllChecked);
+        setSelectAllChecked(!selectAllChecked); // Toggle checkbox state
     };
 
     // Open Group Email Dialog
@@ -115,13 +156,13 @@ const TasksList = () => {
             sortable: false,
             disableColumnMenu: true,
             renderHeader: () => (
-              <Checkbox
-              indeterminate={selectedRows.length > 0 && selectedRows.length < rowData.length}
-              checked={selectedRows.length === rowData.length && rowData.length > 0}
-              onChange={() => setSelectedRows(selectedRows.length === rowData.length ? [] : rowData.map(row => row.taskId))} // Select All or Deselect All
-              inputProps={{ 'aria-label': 'select all rows' }}
-          />
-            )
+                <Checkbox
+                    indeterminate={selectedRows.length > 0 && selectedRows.length < rowData.length}
+                    checked={selectedRows.length === rowData.length && rowData.length > 0}
+                    onChange={() => setSelectedRows(selectedRows.length === rowData.length ? [] : rowData.map(row => row.taskId))} // Select All or Deselect All
+                    inputProps={{ 'aria-label': 'select all rows' }}
+                />
+            ),
         },
         { columnName: "name", columnHeaderName: "Subject", width: 150 },
         { columnName: "treatmentName", columnHeaderName: "Deal", width: 150 },

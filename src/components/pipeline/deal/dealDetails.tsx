@@ -126,7 +126,7 @@ export const DealDetails = () => {
  // Fetch deals data when opening the dialog
  const openMoveDealDialog = async () => {
   try {
-      const relatedDealsData: Deal[] = await dealSvc.getDealsByPersonId(dealItem.contactPersonID);
+    const relatedDealsData: Deal[] = await dealSvc.getDealsByPersonId(dealItem.contactPersonID ?? 0);
 
       // Map relatedDealsData to ensure every deal has required fields for DataGrid
       const formattedData: Deal[] = relatedDealsData.map((deal) => ({

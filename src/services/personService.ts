@@ -13,7 +13,9 @@ export class personService extends BaseService<Person> {
   getPersons(axiosCancel?: CancelTokenSource) {
     return this.getItems(axiosCancel, 'Person/GetAllPersonDetails');
   }
-
+  searchPersons(query: string, axiosCancel?: CancelTokenSource) {
+    return this.getItems(axiosCancel, `Person/SearchPersons?query=${query}`);
+  }
   getOrganizations(axiosCancel?: CancelTokenSource) {
     return this.getItems(axiosCancel, 'Organization/GetAllOrganizationDetails'); // Adjust the API endpoint as necessary
   }
@@ -36,5 +38,6 @@ export class personService extends BaseService<Person> {
   getVisibilityGroups(axiosCancel?: CancelTokenSource) {
     return this.getItems(axiosCancel, 'VisibilityGroup/GetAllVisibilityGroupDetails');  // Adjust API endpoint as necessary
   }
+
 }
 

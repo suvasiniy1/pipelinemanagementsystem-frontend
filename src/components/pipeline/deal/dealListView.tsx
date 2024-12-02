@@ -28,7 +28,7 @@ const DealListView = (props: params) => {
 
     const getOrganizationName=(orgId:number)=> utility.organizations.find(o=>o.organizationID==orgId)?.name;
 
-    const getContactPersonName=(personId:number)=> utility.persons.find(p=>p.personID==personId)?.personName;
+    const getContactPersonName=(personId:number|null)=> utility.persons.find(p=>p.personID==personId)?.personName;
 
     useEffect(()=>{
         if(!isLoading){
@@ -142,7 +142,11 @@ const DealListView = (props: params) => {
                                                 {/* <div className="tbl-editicon">
                                                     <a href="#"><i className="rs-icon rs-icon-edit2"></i></a>
                                                 </div> */}
-                                                <div className="tblcontact-data"><a href="">{getContactPersonName(d.contactPersonID)}</a></div>
+                                               <div className="tblcontact-data">
+    <a href="">
+        {d.contactPersonID !== undefined ? getContactPersonName(d.contactPersonID) : "No Contact"}
+    </a>
+</div>
                                             </div>
                                         </td>
                                         <td className="pdlist-table-closedate">
@@ -150,12 +154,20 @@ const DealListView = (props: params) => {
                                                 {/* <div className="tbl-editicon">
                                                     <a href="#"><i className="rs-icon rs-icon-edit2"></i></a>
                                                 </div> */}
-                                                <div className="tblclosedate-data">{new Date(d.expectedCloseDate ).toLocaleDateString()}</div>
+                                                <div className="tblclosedate-data">
+    {d.expectedCloseDate 
+        ? new Date(d.expectedCloseDate).toLocaleDateString() 
+        : "N/A"}
+</div>
                                             </div>
                                         </td>
                                         <td className="pdlist-table-actdate">
                                             <div className="pdlisttable-item">
-                                                <div className="tblactdate-data">{new Date(d.operationDate ).toLocaleDateString()}</div>
+                                            <div className="tblactdate-data">
+    {d.operationDate 
+        ? new Date(d.operationDate).toLocaleDateString() 
+        : "N/A"}
+</div>
                                             </div>
                                         </td>
 
