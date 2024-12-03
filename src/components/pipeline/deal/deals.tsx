@@ -22,6 +22,7 @@ import { DealHeader } from "./dealHeader";
 import DealListView from "./dealListView";
 import { DealStage } from "./dealStage";
 import DealsByStage from "./dealsByStage";
+import { DealFilter } from "../../../models/dealFilters";
 
 type params = {
     isCombineEnabled?: any,
@@ -46,6 +47,7 @@ export const Deals = (props: params) => {
     const [selectedItem, setSelectedItem] = useState<PipeLine>();
     const [isDragging, setIsDragging] = useState(false);
     const [error, setError] = useState<AxiosError>();
+    const [customError, setCustomError] = useState<AxiosError>();
     const [deals, setDeals] = useState<Array<Deal>>([]);
     const [dialogIsOpen, setDialogIsOpen] = useState(false);
     const [selectedStageId, setSelectedStageId] = useState(null);
@@ -59,6 +61,7 @@ export const Deals = (props: params) => {
     const userProfile = Util.UserProfile();
     const utilSvc = new UtilService(ErrorBoundary);
     const [pageSize, setPageSize] = useState(10);
+    const [selectedFilterObj, setSelectedFilterObj] = useState<any>();
 
     // useEffect(() => {
     //     
@@ -142,7 +145,12 @@ export const Deals = (props: params) => {
 
     useEffect(() => {
         LocalStorageUtil.setItemObject(Constants.PIPE_LINE, selectedItem);
-        loadStages(selectedItem?.pipelineID as any);
+        if(selectedFilterObj?.id>0){
+            loadDealsByFilter();
+        }
+        else{
+            loadStages(selectedItem?.pipelineID as any);
+        }
     }, [selectedItem])
 
     const onDragEnd = (result: any) => {
@@ -163,7 +171,7 @@ export const Deals = (props: params) => {
                 setStages([...stagesList]);
 
                 setIsLoading(true);
-
+                setError(null as any);
                 dealsSvc.putItemBySubURL({
                     "newStageId": +destination.droppableId,
                     "modifiedById": userProfile.userId,
@@ -172,13 +180,47 @@ export const Deals = (props: params) => {
                 }, +source.index + "/stage").then(res => {
                     loadStages(selectedItem?.pipelineID as any, true);
                 }).catch(err => {
-                    setError(err);
+                    setError("No deals found under selected combination" as any);
                     setStages([...originalStages]);
                 })
 
             }
         }
     };
+
+    const loadDealsByFilter=()=>{
+        setIsLoading(true);
+        setCustomError(null as any);
+        stagesSvc.getDealsByFilterId(selectedFilterObj?.id, selectedItem?.pipelineID ??pipeLineId).then(res=>{
+            let sortedStages = Util.sortList(res.stages, "stageOrder");
+            let totalDealsList: Array<Deal> = [];
+            sortedStages.forEach((s: Stage) => {
+                s.deals.forEach(d => {
+                    totalDealsList.push(d);
+                })
+            });
+
+            setTotalDeals([...totalDealsList])
+            setStages(sortedStages);
+            setOriginalStages(sortedStages);
+            setIsLoading(false);
+            setIsLoadingMore(false);
+        }).catch(err=>{
+            
+            setCustomError("No deals under selected combination" as any);
+            setTotalDeals([])
+            setStages([]);
+            setOriginalStages([]);
+            setIsLoading(false);
+            setIsLoadingMore(false);
+        })
+    }
+
+    useEffect(()=>{
+        if(selectedFilterObj?.id>0){
+            loadDealsByFilter()
+        }
+    },[selectedFilterObj])
 
     return (
         <>
@@ -194,6 +236,8 @@ export const Deals = (props: params) => {
                             selectedStageId={dialogIsOpen ? null : selectedStageId as any}
                             onDealDialogClose={(e: any) => setSelectedStageId(null)}
                             setViewType={(e: any) => setViewType(e)}
+                            selectedFilterObj={selectedFilterObj}
+                            setSelectedFilterObj={setSelectedFilterObj}
                         />
                         {viewType === "kanban" ?
                             <div className="pdstage-area">
@@ -236,7 +280,7 @@ export const Deals = (props: params) => {
                                         <div style={{ textAlign: "center" }} hidden={isLoadingMore || pipeLines.length==0}>
                                         <button type="button" className="btn btn-primary" onClick={(e: any) => loadMoreDeals()}>Load More</button>
                                         </div>
-                                        <div style={{ textAlign: "center" }} hidden={!isLoadingMore}>
+                                        <div style={{ textAlign: "center" }} hidden={!isLoadingMore || selectedFilterObj?.id>0}>
                                             Loading More...
                                         </div>
                                     </div>
@@ -246,7 +290,7 @@ export const Deals = (props: params) => {
                                 </div>
                             </div> : <DealListView pipeLineId={selectedItem?.pipelineID ?? pipeLineId} />}
                     </div>
-                    {error && <UnAuthorized error={error as any} />}
+                    {(error || customError)&& <UnAuthorized error={error as any} customMessage={customError as any}/>}
                     {
                         dialogIsOpen && <DealsByStage   stageId={stageIdForExpand as any}
                                                         stageName={selectedStageName as any}

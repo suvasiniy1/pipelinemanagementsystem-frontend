@@ -37,6 +37,8 @@ type params = {
   selectedStageId: number;
   onDealDialogClose: any;
   setViewType: any;
+  selectedFilterObj:any;
+  setSelectedFilterObj:any;
 };
 export const DealHeader = (props: params) => {
   const navigate = useNavigate();
@@ -50,14 +52,13 @@ export const DealHeader = (props: params) => {
     selectedStageId,
     onDealDialogClose,
     setViewType,
+    selectedFilterObj,
+    setSelectedFilterObj,
     ...others
   } = props;
   const [pipeLinesList, setPipeLinesList] = useState(props.pipeLinesList);
   const [showPipeLineDropdown, setShowPipeLineDropdown] = useState(false);
   const [showPipeLineFilters, setShowPipeLineFilters] = useState(false);
-  const [selectedFilterObj, setSelectedFilterObj] = useState<DealFilter>(
-    new DealFilter()
-  );
   const [canEdit, setCanEdit] = useState(false);
 
   useEffect(() => {
