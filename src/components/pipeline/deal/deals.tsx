@@ -95,6 +95,7 @@ export const Deals = (props: params) => {
         pipeLineSvc.getPipeLines().then((res: Array<PipeLine>) => {
             
             setPipeLines(res);
+            localStorage.setItem("allPipeLines", JSON.stringify(res));
             let selectedPipeLineId = pipeLineId > 0 ? pipeLineId : res[0].pipelineID;
             setPipeLineId(selectedPipeLineId);
             setSelectedItem(res.find(i => i.pipelineID == selectedPipeLineId));

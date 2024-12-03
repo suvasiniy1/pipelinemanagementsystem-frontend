@@ -93,6 +93,7 @@ const DealDetailsCustomFields = (props: params) => {
           obj.key = i.customField;
           obj.value = "value" + (customFieldsList.length+1);
           obj.isControlInNewLine = obj.showDelete = obj.showEdit = obj.isRequired = true;
+          obj.pipelineIds = i.pipelineIds;
           obj.elementSize = 9;
           obj.type =
             i.customFieldValue == "textbox" ? null : i.customFieldValue;
@@ -148,8 +149,8 @@ const DealDetailsCustomFields = (props: params) => {
   };
 
   const saveCustomFields = () => {
-    trigger().then((valid) => {
-      if (valid) {
+    //trigger().then((valid) => {
+      //if (valid) {
         let customFieldsList: Array<DealCustomFields> = [];
         customFields.forEach((field: any, index) => {
           let obj = new DealCustomFields();
@@ -159,6 +160,7 @@ const DealDetailsCustomFields = (props: params) => {
           obj.customField = field.key;
           obj.customFieldValue = field.type;
           obj.customSelectValues = getValues(field.value as never);
+          obj.pipelineIds = field.pipelineIds;
           obj.createdBy = Util.UserProfile()?.userId;
           customFieldsList.push(obj);
         });
@@ -177,8 +179,8 @@ const DealDetailsCustomFields = (props: params) => {
             toast.error("Unable to add custom field, please verify");
             setIsLoading(false);
           });
-      }
-    });
+      //}
+    //});
     return null;
   };
 
