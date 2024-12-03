@@ -24,10 +24,11 @@ const operatorOptions = [
 ];
 
 const dealStatusList = [
-  { value: "open", label: "Open" },
-  { value: "lost", label: "Lost" },
-  { value: "won", label: "Won" },
-  { value: "deleted", label: "Deleted" },
+  { value: "1", label: "Open" },
+  { value: "2", label: "Won" },
+  { value: "3", label: "Lost" }, 
+  { value: "4", label: "Closed" },
+  { value: "5", label: "Deleted" },
 ];
 
 const fieldOptions = [
@@ -39,9 +40,9 @@ const fieldOptions = [
   { value: "7", label: "Organization" },
   { value: "8", label: "Pipeline" },
   { value: "9", label: "Contact person" },
-  { value: "10", label: "Stage" },
+  { value: "stageid", label: "Stage" },
   { value: "11", label: "Label" },
-  { value: "12", label: "Status" },
+  { value: "statusid", label: "Status" },
   { value: "13", label: "Deal created" },
   { value: "14", label: "Update time" },
   { value: "15", label: "Last stage change" },
@@ -181,7 +182,7 @@ const FilterCondition: React.FC<FilterConditionProps> = ({
   const valueJSX = (key: string) => {
     console.log("key is.... " + key);
     switch (key) {
-      case "10":
+      case "stageid":
         return (
           <select
             className="form-control"
@@ -212,7 +213,7 @@ const FilterCondition: React.FC<FilterConditionProps> = ({
             ))}
           </select>
         );
-      case "12":
+      case "statusid":
         return (
           <select
             className="form-control"
@@ -282,7 +283,7 @@ const FilterCondition: React.FC<FilterConditionProps> = ({
 
   const getDropdownListforValueJSX = (key: string) => {
     switch (key) {
-      case "12":
+      case "statusid":
         return dealStatusList;
       default:
         return [];
