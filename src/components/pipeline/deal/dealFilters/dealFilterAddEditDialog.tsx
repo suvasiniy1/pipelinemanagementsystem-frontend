@@ -24,10 +24,10 @@ const operatorOptions = [
 ];
 
 const dealStatusList = [
-  { value: "open", label: "Open" },
-  { value: "lost", label: "Lost" },
-  { value: "won", label: "Won" },
-  { value: "deleted", label: "Deleted" },
+  { value: "1", label: "Open" },
+  { value: "2", label: "Lost" },
+  { value: "3", label: "Won" },
+  { value: "4", label: "Deleted" },
 ];
 
 const fieldOptions = [
