@@ -5,6 +5,8 @@ export default class Constants{
     public static readonly REMEMBER_ME : string = "Rememberme";
     public static readonly User_Name : string = "Username";
     public static readonly PIPE_LINE : string = "PipeLine";
+    public static readonly FILTER_ID : string = "FilterId";
+    public static readonly Deal_FILTERS : string = "DealFilters";
     public static readonly USER_PROFILE : string = "UserProfile";
     public static readonly UTILITY : string = "Utility";
     public static readonly SIDEBAR_CLASS:string="SideBarClass";

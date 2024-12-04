@@ -132,7 +132,7 @@ export const DealHeader = (props: params) => {
               {pipeLinesList.map((item, index) => (
                 <li
                   key={index}
-                  onClick={(e: any) => setSelectedItem(item)}
+                  onClick={(e: any) => {setSelectedFilterObj(null); setSelectedItem(item)}}
                   onMouseOver={(e: any) => handlePipeLineEdit(index)}
                 >
                   <button className="pipeselectlink" type="button">
@@ -203,7 +203,7 @@ export const DealHeader = (props: params) => {
                   <div
                     className="pipeselectbox variantselectbox"
                     onClick={(e: any) =>
-                        setShowPipeLineFilters(!showPipeLineFilters)
+                      setShowPipeLineFilters(!showPipeLineFilters)
                     }
                   >
                     <button className="pipeselect" type="button">
@@ -215,12 +215,17 @@ export const DealHeader = (props: params) => {
                       className="pipeselectcontent"
                       hidden={!showPipeLineFilters}
                     >
-                      <FilterDropdown showPipeLineFilters={showPipeLineFilters}
-                      setShowPipeLineFilters={setShowPipeLineFilters}
-                      selectedFilterObj={selectedFilterObj}
-                      setSelectedFilterObj={setSelectedFilterObj}/>
+                      <FilterDropdown
+                        showPipeLineFilters={showPipeLineFilters}
+                        setShowPipeLineFilters={setShowPipeLineFilters}
+                        selectedFilterObj={selectedFilterObj}
+                        setSelectedFilterObj={setSelectedFilterObj}
+                      />
                     </div>
                   </div>
+                </div>
+                <div className="pipeselectbtngroup pt-2">
+                  <div><a href="javascript:void(0);" onClick={(e:any)=>setSelectedFilterObj(null)}>Clear filter</a></div>
                 </div>
 
                 {/* <div className="pipeselectbox selecteveryonebox">

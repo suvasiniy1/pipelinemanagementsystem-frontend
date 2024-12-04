@@ -61,7 +61,11 @@ export const Deals = (props: params) => {
     const userProfile = Util.UserProfile();
     const utilSvc = new UtilService(ErrorBoundary);
     const [pageSize, setPageSize] = useState(10);
-    const [selectedFilterObj, setSelectedFilterObj] = useState<any>();
+    
+    const filters = LocalStorageUtil.getItemObject(Constants.Deal_FILTERS) as any;
+    const dealFilters:Array<DealFilter> = !Array.isArray(filters) ? JSON.parse(filters) : [];
+    const selectedFilterID = new URLSearchParams(useLocation().search).get("filterId") as any;
+    const [selectedFilterObj, setSelectedFilterObj] = useState<any>(selectedFilterID > 0 ? dealFilters?.find(i=>i.id==+selectedFilterID) : null);
 
     // useEffect(() => {
     //     
@@ -102,7 +106,7 @@ export const Deals = (props: params) => {
             let selectedPipeLineId = pipeLineId > 0 ? pipeLineId : res[0].pipelineID;
             setPipeLineId(selectedPipeLineId);
             setSelectedItem(res.find(i => i.pipelineID == selectedPipeLineId));
-            loadStages(selectedPipeLineId);
+            if(!selectedFilterObj) loadStages(selectedPipeLineId);
 
         }).catch((err: AxiosError) => {
             setError(err);
@@ -112,6 +116,8 @@ export const Deals = (props: params) => {
     const loadStages = (selectedPipeLineId: number, skipLoading: boolean = false, pagesize: number = 10, fromDealModify:boolean=false) => {
         
         if(!skipLoading) setIsLoading(true);
+        setCustomError(null as any);
+        setError(null as any);
         if (selectedPipeLineId > 0) stagesSvc.getStages(selectedPipeLineId, 1, pagesize ?? pageSize).then(items => {
             let sortedStages = Util.sortList(items.stageDtos, "stageOrder");
             let totalDealsList: Array<Deal> = [];
@@ -145,10 +151,7 @@ export const Deals = (props: params) => {
 
     useEffect(() => {
         LocalStorageUtil.setItemObject(Constants.PIPE_LINE, selectedItem);
-        if(selectedFilterObj?.id>0){
-            loadDealsByFilter();
-        }
-        else{
+        if(!selectedFilterObj){
             loadStages(selectedItem?.pipelineID as any);
         }
     }, [selectedItem])
@@ -171,14 +174,18 @@ export const Deals = (props: params) => {
                 setStages([...stagesList]);
 
                 setIsLoading(true);
-                setError(null as any);
                 dealsSvc.putItemBySubURL({
                     "newStageId": +destination.droppableId,
                     "modifiedById": userProfile.userId,
                     "dealId": +source.index,
                     "pipelineId":selectedItem?.pipelineID
                 }, +source.index + "/stage").then(res => {
-                    loadStages(selectedItem?.pipelineID as any, true);
+                    if(selectedFilterObj?.id>0){
+                        loadDealsByFilter();
+                    }
+                    else{
+                        loadStages(selectedItem?.pipelineID as any, true);
+                    }
                 }).catch(err => {
                     setError("No deals found under selected combination" as any);
                     setStages([...originalStages]);
@@ -191,6 +198,7 @@ export const Deals = (props: params) => {
     const loadDealsByFilter=()=>{
         setIsLoading(true);
         setCustomError(null as any);
+        setError(null as any);
         stagesSvc.getDealsByFilterId(selectedFilterObj?.id, selectedItem?.pipelineID ??pipeLineId).then(res=>{
             let sortedStages = Util.sortList(res.stages, "stageOrder");
             let totalDealsList: Array<Deal> = [];
@@ -217,8 +225,12 @@ export const Deals = (props: params) => {
     }
 
     useEffect(()=>{
+        LocalStorageUtil.setItem(Constants.FILTER_ID, selectedFilterObj?.id);
         if(selectedFilterObj?.id>0){
             loadDealsByFilter()
+        }
+        else{
+            loadStages(selectedItem?.pipelineID as any);
         }
     },[selectedFilterObj])
 
