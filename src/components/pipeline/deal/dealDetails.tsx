@@ -173,7 +173,7 @@ export const DealDetails = () => {
               <div className="app-dealblock">
                 <div className="app-dealblock-inner">
                   <div className="appdealblock-title">
-                    <h3>{dealItem?.pipelineName}</h3>
+                    <h3>{dealItem?.treatmentName}</h3>
                     <div className="appdealblock-titleedit">
                       <FontAwesomeIcon icon={faPencil} />
                     </div>

@@ -4,8 +4,11 @@ import { Comment } from "./comment"
 export class Tasks extends AuditItem{
     taskId!: number
     name!: string;
+    callType!: string;
+    callDateTime!:Date;
+    phone!: string; 
     startDate!:Date;
-    dueDate!: Date
+    dueDate!: Date | string; 
     reminder!: Date
     todo!: string
     priority!: string
@@ -20,4 +23,10 @@ export class Tasks extends AuditItem{
     transactionId!:string;
     duration!: number; // In hours
     email !:string;
+    treatmentName!: string;
+    personName!: string;
+    type?: string;
+    fromDate?: Date; // Add fromDate property
+    toDate?: Date;   // Add toDate property
+
   }

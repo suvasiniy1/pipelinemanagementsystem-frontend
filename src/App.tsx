@@ -21,8 +21,9 @@ function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState<any>(
-    (LocalStorageUtil.getItem(Constants.ISSIDEBAR_EXPANDED) as any) ===
-      "false" ?? false
+    (LocalStorageUtil.getItem(Constants.ISSIDEBAR_EXPANDED) as any) === "false"
+    ? false
+    : true
   );
   const shouldShowSidebar = () => {
     const { pathname } = location;

@@ -30,6 +30,14 @@ import {
 } from "../email/emailService";
 import { PostAuditLog } from "../../../../../models/dealAutidLog";
 import { DealAuditLogService } from "../../../../../services/dealAuditLogService";
+import 'react-calendar/dist/Calendar.css';
+import { Calendar, momentLocalizer } from "react-big-calendar";
+import moment from "moment";
+import "react-big-calendar/lib/css/react-big-calendar.css";
+import { UserService  } from "../../../../../services/UserService";
+import { User } from "../../../../../models/user";
+import { DealService } from "../../../../../services/dealService";
+
 
 type params = {
   dealId: number;
@@ -40,11 +48,26 @@ type params = {
   onCloseDialog?: any;
 };
 
+const typesList = ["Call", "Meeting", "Task"]; // Activity Types
+interface CalendarEvent {
+  id: string;
+  subject: string;
+  start: { dateTime: string };
+  end: { dateTime: string };
+}
+interface FormattedEvent {
+  id: string;
+  title: string;
+  start: Date;
+  end: Date;
+}
+
 export const TaskAddEdit = (props: params) => {
   const { dialogIsOpen, setDialogIsOpen, dealId, taskItem, ...Others } = props;
   const [selectedItem, setSelectedItem] = useState(taskItem ?? new Tasks());
+  const [activityType, setActivityType] = useState("Call"); // Default activity type
   const [isLoading, setIsLoading] = useState(false);
-  const typesList = ["To Do", "Email"];
+  //const typesList = ["To Do", "Email"];
   const prioritiesList = ["High", "Normal", "Low"];
   const utility: Utility = JSON.parse(
     LocalStorageUtil.getItemObject(Constants.UTILITY) as any
@@ -55,50 +78,50 @@ export const TaskAddEdit = (props: params) => {
   const [accessToken, setAccessToken] = useState();
   const [userGuID, setUserGuID] = useState();
   const auditLogsvc = new DealAuditLogService(ErrorBoundary);
+  const localizer = momentLocalizer(moment);
+  const [calendarEvents, setCalendarEvents] = useState<FormattedEvent[]>([]);
+  const userService = new UserService(ErrorBoundary); 
+  const [owners, setOwners] = useState<Array<{ name: string; value: string }>>([]);
+  const [treatmentName, setTreatmentName] = useState<string>("");
+  const [personName, setPersonName] = useState<string>("");
+  const dealSvc = new DealService(ErrorBoundary); // Initialize DealService
+  
 
   const controlsList: Array<IControl> = [
+    {
+      key: "Type",
+      value: "type",
+      type: ElementType.dropdown,
+      isRequired: true,
+      sidebyItem: "Name",
+    },
     {
       key: "Name",
       value: "name",
       isRequired: true,
-      sidebyItem: "Assigned To",
+      isSideByItem: true,
     },
     {
-      key: "Due Date",
-      value: "dueDate",
+      key: "From Date",
+      value: "fromDate",
       type: ElementType.datepicker,
-      sidebyItem: "Reminder",
+      sidebyItem: "To Date",
       isRequired: true,
       showTimeSelect: true,
     },
     {
-      key: "Reminder",
-      value: "reminder",
+      key: "To Date",
+      value: "toDate",
       type: ElementType.datepicker,
       isRequired: true,
       isSideByItem: true,
       showTimeSelect: true,
-    },
-    {
-      key: "Type",
-      value: "todo",
-      type: ElementType.dropdown,
-      sidebyItem: "Priority",
-      isRequired: true,
     },
     {
       key: "Priority",
       value: "priority",
       type: ElementType.dropdown,
       isRequired: true,
-      isSideByItem: true,
-    },
-    {
-      key: "Assigned To",
-      value: "assignedTo",
-      type: ElementType.dropdown,
-      isRequired: true,
-      isSideByItem: true,
     },
     {
       key: "Task Details",
@@ -108,13 +131,33 @@ export const TaskAddEdit = (props: params) => {
       elementSize: 12,
       hideLabel: true,
     },
+    {
+      key: "Assigned To",
+      value: "assignedTo",
+      type: ElementType.dropdown,
+      isRequired: true,
+    },
+    {
+      key: "Treatment Name",
+      value: "treatmentName",
+      type: ElementType.textbox,
+      isRequired: true,
+    },
+    // New text box for person's name
+    {
+      key: "Person Name",
+      value: "personName",
+      type: ElementType.textbox,
+      isRequired: false,
+    },
   ];
-
   useEffect(() => {
     if (taskItem) {
-      setValue("dueDate" as never, taskItem.dueDate as never);
-      setValue("reminder" as never, taskItem.reminder as never);
+      setValue("fromDate" as never, taskItem.fromDate as never);
+      setValue("toDate" as never, taskItem.toDate as never);
       setValue("taskDetails" as never, taskItem.taskDetails as never);
+      setValue("treatmentName" as keyof Tasks, taskItem.treatmentName ?? "" as never); // Default treatment
+      setValue("personName" as keyof Tasks, taskItem.personName ?? "" as never); 
       setUserGuID(taskItem.userGUID as any);
     }
   }, [taskItem]);
@@ -122,7 +165,15 @@ export const TaskAddEdit = (props: params) => {
   useEffect(() => {
     getAccessToken();
   }, []);
-
+  useEffect(() => {
+    if (accessToken) {
+      fetchCalendarEvents();
+    }
+  }, [accessToken]);
+  useEffect(() => {
+    setValue("name", activityType); // Update the "name" field with selected activity type
+  }, [activityType]);
+  
   useEffect(() => {
     if (accessToken && taskItem?.taskGUID) {
       let res =
@@ -141,6 +192,8 @@ export const TaskAddEdit = (props: params) => {
       });
     }
   }, [accessToken]);
+  
+  
 
   const getEventDetails = async () => {
     let userGUID =
@@ -180,11 +233,27 @@ export const TaskAddEdit = (props: params) => {
       ...Util.buildValidations(list),
     });
   };
-
+  const otherDefaultValues = {
+    // Add your necessary default field values here
+    priority: "Normal",
+    todo: "To Do",
+};
   const formOptions = {
     resolver: yupResolver(getValidationsSchema(controlsList)),
   };
-  const methods = useForm(formOptions);
+  const methods = useForm<Tasks>({
+    defaultValues: {
+        type: "Call",
+        fromDate: new Date(), // Default dueDate value
+        toDate: new Date(), // Default reminder value
+        name: "Call", // Ensure all required fields are initialized
+        assignedTo: 0, // Initialize assignedTo with a default ID
+        taskDetails: "",
+        treatmentName: "", // Default for treatment
+        personName: "", // Default for person name
+        ...otherDefaultValues, // If declared or imported
+    },
+});
   const { handleSubmit, unregister, register, resetField, setValue, setError } =
     methods;
 
@@ -196,7 +265,21 @@ export const TaskAddEdit = (props: params) => {
 
     setAccessToken(res?.accessToken as any);
   };
-
+  // Fetch Events for Calendar
+  const fetchCalendarEvents = async () => {
+    try {
+      const events: CalendarEvent[] = await getEventsList(accessToken); // Ensure the correct type is used here
+      const formattedEvents: FormattedEvent[] = events.map((event: CalendarEvent) => ({
+        id: event.id,
+        title: event.subject,
+        start: new Date(event.start.dateTime),
+        end: new Date(event.end.dateTime),
+      }));
+      setCalendarEvents(formattedEvents); // TypeScript should now recognize this as valid
+    } catch (error) {
+      console.error("Error fetching events", error);
+    }
+  };
   function getDurationInMinutes(startDate: any, endDate: any) {
     // Convert dates to milliseconds
     const startMillis = startDate.getTime();
@@ -271,11 +354,11 @@ export const TaskAddEdit = (props: params) => {
           timeZone: "India Standard Time",
         },
         dueDateTime: {
-          dateTime: task.dueDate,
+          dateTime: task.fromDate,
           timeZone: "India Standard Time",
         },
         reminderDateTime: {
-          dateTime: task.reminder,
+          dateTime: task.toDate,
           timeZone: "India Standard Time",
         },
         importance: task.priority.toLocaleLowerCase(),
@@ -295,6 +378,78 @@ export const TaskAddEdit = (props: params) => {
       }
     }
   };
+  useEffect(() => {
+    if (!dealId) return; // Exit early if dealId is not available
+
+    const fetchDealDetails = async () => {
+        try {
+            setIsLoading(true);
+            const res = await dealSvc.getDealsById(dealId);
+
+            console.log("API Response:", res);
+
+            const dealData = res || {};
+            if (dealData) {
+                // Update treatmentName if available
+                if (treatmentName !== dealData.treatmentName) {
+                    setTreatmentName(dealData.treatmentName || "");
+                    setValue("treatmentName", dealData.treatmentName || "", { shouldValidate: true });
+                }
+                // Update personName if available
+                if (personName !== dealData.personName) {
+                    setPersonName(dealData.personName || "");
+                    setValue("personName", dealData.personName || "", { shouldValidate: true });
+                }
+            }
+        } catch (error) {
+            console.error("Error fetching deal details:", error);
+        } finally {
+            setIsLoading(false); // Ensure loading state is cleared
+        }
+    };
+
+    fetchDealDetails(); // Call the async function
+}, [dealId, setValue, treatmentName, personName]);
+
+useEffect(() => {
+  const fetchUsers = async () => {
+    try {
+      const response = await userService.getUsers();
+
+      if (response && Array.isArray(response)) {
+        const currentUser = Util.UserProfile(); // Get the logged-in user's profile
+        const currentUserId = currentUser?.userId?.toString(); // Convert ID to string
+
+        const usersList = response.map((user: User) => ({
+          value: user.userId.toString(), // Convert userId to string to match expected type
+          name: user.userName,
+        }));
+
+        // Update owners with the fetched user list
+        setOwners(usersList);
+
+        // Set default user in the dropdown
+        const defaultUser =
+          usersList.find((user) => user.value === selectedItem.assignedTo?.toString()) ||
+          usersList.find((user) => user.value === currentUserId); // Fallback to current user
+
+          if (defaultUser) {
+            setValue("assignedTo", Number(defaultUser.value)); // Convert string to number
+            setSelectedItem((prev) => ({ ...prev, assignedTo: Number(defaultUser.value) })); // Update selected item state
+          } else {
+            setValue("assignedTo", 0); // Use 0 or a default number instead of null
+          }
+      } else {
+        console.warn("Invalid response from getUsers()", response);
+      }
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
+
+  // Fetch users when the component mounts
+  fetchUsers();
+}, [selectedItem.assignedTo, setValue]);
 
   const performActionForEmail = async (
     task: Tasks,
@@ -313,7 +468,7 @@ export const TaskAddEdit = (props: params) => {
         timeZone: "India Standard Time",
       },
       end: {
-        dateTime: task.dueDate,
+        dateTime: task.fromDate,
         timeZone: "India Standard Time",
       },
       attendees: [
@@ -435,43 +590,76 @@ export const TaskAddEdit = (props: params) => {
 
   const getDropdownvalues = (item: any) => {
     if (item.key === "Type") {
-      return typesList.map((i: any) => ({ name: i, value: i })) ?? [];
+      return [
+        { name: "Call", value: "Call" },
+        { name: "Meeting", value: "Meeting" },
+        { name: "Task", value: "Task" },
+      ];
     }
     if (item.key === "Priority") {
       return prioritiesList.map((i: any) => ({ name: i, value: i })) ?? [];
     }
+    
     if (item.key === "Assigned To") {
-      return (
-        [
-          {
-            personName: "Test",
-            personID: "Testtest@transforminglives.co.uk",
-          },
-        ]?.map(({ personName, personID }) => ({
-          name: personName,
-          value: personID,
-        })) ?? []
-      );
+      return owners.map(({ name, value }) => ({
+        name, // Display name for the dropdown
+        value, // Value bound to the form
+      }));
     }
   };
 
   const onChange = (value: any, item: any) => {
-    
+    if (item.key === "Type") {
+      setActivityType(value); // Update activity type dynamically
+      setValue("name", value); // Update the text field with selected value
+    }
+    if (item.key === "From Date") {
+      setSelectedItem({ ...selectedItem, fromDate: value });
+  
+      // Dynamically update calendar slot based on "From Date" and "To Date"
+      setCalendarEvents((prevEvents) => {
+        const toDate = selectedItem.toDate || value; // Use existing "toDate" or "fromDate" if not set
+        return [
+          ...prevEvents.filter((e) => e.id !== "temp-event"), // Remove existing temp event
+          {
+            id: "temp-event", // Temporary ID for the currently selected event
+            title: activityType,
+            start: value,
+            end: toDate,
+          },
+        ];
+      });
+    }
+    if (item.key === "To Date") {
+      setSelectedItem({ ...selectedItem, toDate: value });
+  
+      // Dynamically update calendar slot based on "From Date" and "To Date"
+      setCalendarEvents((prevEvents) => {
+        const fromDate = selectedItem.fromDate || value; // Use existing "fromDate" or "toDate" if not set
+        return [
+          ...prevEvents.filter((e) => e.id !== "temp-event"), // Remove existing temp event
+          {
+            id: "temp-event", // Temporary ID for the currently selected event
+            title: activityType,
+            start: fromDate,
+            end: value,
+          },
+        ];
+      });
+    }
+    if (item.key === "Task Details") {
+      setSelectedItem({ ...selectedItem, taskDetails: value });
+    }
     setValue(item.value as never, value as never);
     if (value) unregister(item.value as never);
     else register(item.value as never);
     resetField(item.value as never);
 
-    if (item.key === "Due Date") {
-      setSelectedItem({ ...selectedItem, dueDate: value });
-    }
-    if (item.key === "Reminder") {
-      setSelectedItem({ ...selectedItem, reminder: value });
-    }
-    if (item.key === "Task Details") {
-      setSelectedItem({ ...selectedItem, taskDetails: value });
-    }
   };
+  // Remove the colon (:) from rendering
+  const cleanControlsList = controlsList.map((control) =>
+    control.key === "" ? { ...control, key: null } : control
+  );
   return (
     <>
       {
@@ -490,25 +678,70 @@ export const TaskAddEdit = (props: params) => {
                 </div>
               )}
               <br />
-              <div className="modelformfiledrow row">
-                <div>
-                  <div className="modelformbox ps-2 pe-2">
-                    {
-                      <GenerateElements
-                        controlsList={controlsList}
-                        selectedItem={selectedItem}
-                        onChange={(value: any, item: any) =>
-                          onChange(value, item)
-                        }
-                        getListofItemsForDropdown={(e: any) =>
-                          getDropdownvalues(e) as any
-                        }
-                      />
-                    }
-                    
-                  </div>
-                </div>
-              </div>
+              <div className="row">
+  <div className="col-md-5">
+    <div className="modelformfiledrow row" style={{ gap: "16px" }}> {/* Add spacing */}
+      <div>
+        <div className="modelformbox ps-2 pe-2">
+          <div style={{ width: "100%" }}>
+            <GenerateElements
+              controlsList={cleanControlsList}
+              selectedItem={selectedItem}
+              onChange={(value: any, item: any) => onChange(value, item)}
+              getListofItemsForDropdown={(e: any) => getDropdownvalues(e) as any}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {/* Divider */}
+  <div className="col-md-1 text-center align-items-center d-flex">
+    <div
+      style={{
+        borderLeft: "1px solid #ccc",
+        height: "100%",
+        width: "1px",
+        margin: "0 auto",
+      }}
+    ></div>
+  </div>
+
+  {/* Right Section - Calendar */}
+  <div className="col-md-6">
+    <div className="calendar-container">
+      <Calendar
+        localizer={localizer}
+        events={calendarEvents}
+        startAccessor="start"
+        endAccessor="end"
+        style={{ height: 700 }}
+        selectable
+        defaultView="day" // Set the default view to "day"
+        onSelectSlot={(slot) => {
+          setSelectedItem({
+            ...selectedItem,
+            fromDate: slot.start,
+            toDate: slot.end,
+          });
+          setValue("fromDate", slot.start);
+          setValue("toDate", slot.end);
+          // Update calendar events to visually show the selected slot
+  setCalendarEvents((prevEvents) => [
+    ...prevEvents,
+    {
+      id: "temp-event", // Temporary ID for selected event
+      title: "Selected Slot",
+      start: slot.start,
+      end: slot.end,
+    },
+  ]);
+        }}
+      />
+    </div>
+  </div>
+</div>
             </>
             {/* <SelectDropdown isValidationOptional={true} 
                                 item={selectedItem} 
