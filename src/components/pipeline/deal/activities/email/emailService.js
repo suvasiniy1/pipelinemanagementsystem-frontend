@@ -301,8 +301,14 @@ export const deleteTask=async(accessToken, userId, taskListId, taskGuId)=>{
 }
 
 //#endregion
-
+const validateInput = (value, fieldName) => {
+  if (!value) {
+    console.error(`${fieldName} is required but undefined.`);
+    throw new Error(`${fieldName} is required but undefined.`);
+  }
+};
 export const getUserDetails=async(accessToken, userEmail)=>{
+  validateInput(userEmail, "User Email");
   try {
     const response = await fetch(
       `https://graph.microsoft.com/v1.0/users/${userEmail}`,
@@ -321,5 +327,6 @@ export const getUserDetails=async(accessToken, userEmail)=>{
     return data?.id;
   } catch (error) {
     console.error("Error:", error);
+    throw error;
   }
 }

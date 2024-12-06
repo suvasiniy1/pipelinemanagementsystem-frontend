@@ -9,7 +9,7 @@ export class Tasks extends AuditItem{
     phone!: string; 
     startDate!:Date;
     dueDate!: Date | string; 
-    reminder!: Date
+    reminder!: Date | string;
     todo!: string
     priority!: string
     assignedTo!: number
@@ -27,6 +27,7 @@ export class Tasks extends AuditItem{
     personName!: string;
     type?: string;
     fromDate?: Date; // Add fromDate property
-    toDate?: Date;   // Add toDate property
+  toDate?: Date;   // Add toDate property
+
 
   }
