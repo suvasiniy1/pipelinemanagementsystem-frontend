@@ -11,6 +11,9 @@ import { DealFiltersService } from "../../../../services/dealFiltersService";
 import { ErrorBoundary } from "react-error-boundary";
 import { DatePickerWithValidation } from "../../../../elements/datePicker";
 import Picker from "react-datepicker";
+import LocalStorageUtil from "../../../../others/LocalStorageUtil";
+import Constants from "../../../../others/constants";
+import { DotdigitalCampagin } from "../../../../models/dotdigitalCampagin";
 
 const operatorOptions = [
   { label: "is empty", value: "IS NULL" },
@@ -80,6 +83,12 @@ const filterTypeOptions = [
   { value: "activity", label: "Activity" },
 ];
 
+const filterTypes=[
+  { value: "justCall", label: "JustCall" },
+  { value: "dotDigital", label: "DotDigital" },
+  { value: "others", label: "Others" }
+]
+
 // Condition schema
 const conditionSchema = Yup.object().shape({
   object: Yup.string().required("Field is required"),
@@ -92,6 +101,8 @@ const conditionSchema = Yup.object().shape({
 const formSchema1 = Yup.object().shape({
   name: Yup.string().required("Filter name is required"),
   visibility: Yup.string().required("Visibility is required"),
+  filterType: Yup.string().nullable(),
+  filterAction: Yup.string().nullable(),
 
   // Validate 'ALL' conditions
   allConditions: Yup.array()
@@ -106,6 +117,8 @@ const formSchema1 = Yup.object().shape({
 const formSchema2 = Yup.object().shape({
   name: Yup.string().required("Filter name is required"),
   visibility: Yup.string().required("Visibility is required"),
+  filterType: Yup.string().nullable(),
+  filterAction: Yup.string().nullable(),
 
   // Validate 'ALL' conditions
   allConditions: Yup.array()
@@ -403,6 +416,8 @@ const DealFilterAddEditDialog = (props: params) => {
   const [selectedFilter, setSelectedFilter] = useState(
     props.selectedFilter ?? new DealFilter()
   );
+  const [isDotDigitalSelected, setIsDotDigitalSelected]=useState(false);
+  const dotDigitalCampaignList = JSON.parse(LocalStorageUtil.getItemObject(Constants.DOT_DIGITAL_CAMPAIGNSLIST) as any ?? []);
 
   const [allConditions, setAllConditions] = useState<Condition[]>([
     { object: "", field: "", operator: "", value: null as any },
@@ -426,6 +441,8 @@ const DealFilterAddEditDialog = (props: params) => {
   const {
     reset,
     handleSubmit,
+    getValues,
+    setValue,
     formState: { errors },
   } = methods;
 
@@ -520,7 +537,8 @@ const DealFilterAddEditDialog = (props: params) => {
     dealFilter.createdDate = new Date();
     dealFilter.conditions = [];
     dealFilter.name = obj.name;
-    dealFilter.filterType = "test";
+    dealFilter.filterType = obj.filterType;
+    dealFilter.filterAction = obj.filterAction ?? "N/A";
 
     if (allConditions.length > 0) {
       dealFilter.conditions.push(
@@ -565,6 +583,19 @@ const DealFilterAddEditDialog = (props: params) => {
     });
     return condition;
   };
+
+  
+  const onFilterTypeChange=(type:any)=>{
+    setValue("filterAction", null as any);
+    setIsDotDigitalSelected(type==="dotDigital");
+   }
+
+  const getDotDigitalCampaignList=()=>{
+   return dotDigitalCampaignList.map((item: DotdigitalCampagin) => ({
+      name: item.name,
+      value: item.id,
+    })) ?? []
+  }
 
   return (
     <FormProvider {...methods}>
@@ -743,6 +774,51 @@ const DealFilterAddEditDialog = (props: params) => {
                       {errors.visibility.message as any}
                     </p>
                   )}
+                </div>
+              </div>
+
+              <div className="col-12 d-flex pt-4">
+                <div className="col-5">
+                  <label>Filter Type:</label>
+                  <select
+                    className="form-control"
+                    defaultValue={getValues("filterType")}
+                    {...methods.register("filterType")}
+                    onChange={(e:any)=>onFilterTypeChange(e.target.value)}
+                  >
+                    <option value="">Select</option>
+                    {
+                      filterTypes.map((item, index)=>(
+                        <option key={index} value={item.value}>{item.label}</option>
+                      ))
+                    }
+                  </select>
+                </div>
+                <div className="col-2"></div>
+                <div className="col-5">
+                  <label>Filter Action:</label>
+                  <select
+                    className="form-control"
+                    defaultValue={getValues("filterAction")}
+                    hidden={!isDotDigitalSelected}
+                    {...methods.register("filterAction")}
+                    onChange={(e:any)=>setValue("filterAction", e.target.value)}
+                  >
+                    <option value="">Select</option>
+                    {
+                      getDotDigitalCampaignList().map((item:any, index:any)=>(
+                        <option key={index} value={item.value}>{item.name}</option>
+                      ))
+                    }
+                  </select>
+                  <input
+                    className="form-control"
+                    type="text"
+                    defaultValue={getValues("filterAction")}
+                    hidden={isDotDigitalSelected}
+                    {...methods.register("filterAction")}
+                    placeholder="Filter action"
+                  />
                 </div>
               </div>
             </div>

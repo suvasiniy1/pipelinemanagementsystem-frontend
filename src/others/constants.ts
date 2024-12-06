@@ -13,4 +13,5 @@ export default class Constants{
     public static readonly ISSIDEBAR_EXPANDED:string="IsSideBarExpanded";
     public static readonly DEAL_EMAILS:string="DealEmails";
     public static readonly USER_Role : string = "UserRole";
+    public static readonly DOT_DIGITAL_CAMPAIGNSLIST : string = "DotDigitalCampaignList";
 }
