@@ -18,4 +18,7 @@ export class DealFiltersService extends BaseService<DealFilter>{
     getDotDigitalCampaignList(dealFilters:DealFilter, axiosCancel?: CancelTokenSource){
         return this.postItemBySubURL(dealFilters, 'SaveDealfilters')
     }
+    getJustCallCampaignList(dealFilters: DealFilter, axiosCancel?: CancelTokenSource){
+        return this.postItemBySubURL(dealFilters, 'SaveDealfilters')
+    }
 }

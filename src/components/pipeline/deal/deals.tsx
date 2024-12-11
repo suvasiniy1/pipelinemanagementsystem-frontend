@@ -24,6 +24,7 @@ import { DealStage } from "./dealStage";
 import DealsByStage from "./dealsByStage";
 import { DealFilter } from "../../../models/dealFilters";
 import { DotDigitalCampaignService } from "../../../services/dotDigitalCampaignService";
+import { JustcallCampaignService } from "../../../services/justCallCampaignService";
 
 type params = {
     isCombineEnabled?: any,
@@ -62,6 +63,7 @@ export const Deals = (props: params) => {
     const userProfile = Util.UserProfile();
     const utilSvc = new UtilService(ErrorBoundary);
     const dotDigitalCampaignService = new DotDigitalCampaignService(ErrorBoundary);
+    const justCallCampaignService = new JustcallCampaignService(ErrorBoundary);
     const [pageSize, setPageSize] = useState(10);
     
     const filters = LocalStorageUtil.getItemObject(Constants.Deal_FILTERS) as any;
@@ -79,6 +81,8 @@ export const Deals = (props: params) => {
         loadPipeLines();
         loadAllPipeLinesAndStages();
         getDotDigitalCampaignList();
+        getJustCallCampaignList();
+
         utilSvc.getDropdownValues().then(res => {
             
             let result = IsMockService() ? res?.data : res?.utility
@@ -97,6 +101,16 @@ export const Deals = (props: params) => {
         }).catch(err=>{
             setError(err);
         })
+    }
+
+    const getJustCallCampaignList=()=>{
+        justCallCampaignService.getJustCallCampaignList().then(res=>{
+            
+            LocalStorageUtil.setItemObject(Constants.JUST_CALL_CAMPAIGNSLIST, JSON.stringify(res));
+        }).catch(err=>{
+            setError(err);
+        })
+
     }
 
 

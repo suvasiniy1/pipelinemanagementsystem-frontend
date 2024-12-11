@@ -14,6 +14,8 @@ import Picker from "react-datepicker";
 import LocalStorageUtil from "../../../../others/LocalStorageUtil";
 import Constants from "../../../../others/constants";
 import { DotdigitalCampagin } from "../../../../models/dotdigitalCampagin";
+import { JustcallCampagin } from "../../../../models/justcallCampagin";
+import { JustcallCampaignService } from "../../../../services/justCallCampaignService";
 
 const operatorOptions = [
   { label: "is empty", value: "IS NULL" },
@@ -417,7 +419,9 @@ const DealFilterAddEditDialog = (props: params) => {
     props.selectedFilter ?? new DealFilter()
   );
   const [isDotDigitalSelected, setIsDotDigitalSelected]=useState(false);
+  const [isJustCallSelected, setisJustCallSelected]=useState(false);
   const dotDigitalCampaignList = JSON.parse(LocalStorageUtil.getItemObject(Constants.DOT_DIGITAL_CAMPAIGNSLIST) as any ?? []);
+  const justCallCampaignList = JSON.parse(LocalStorageUtil.getItemObject(Constants.JUST_CALL_CAMPAIGNSLIST) as any ?? []);
 
   const [allConditions, setAllConditions] = useState<Condition[]>([
     { object: "", field: "", operator: "", value: null as any },
@@ -588,6 +592,7 @@ const DealFilterAddEditDialog = (props: params) => {
   const onFilterTypeChange=(type:any)=>{
     setValue("filterAction", null as any);
     setIsDotDigitalSelected(type==="dotDigital");
+    setisJustCallSelected(type==="justCall");
    }
 
   const getDotDigitalCampaignList=()=>{
@@ -596,7 +601,14 @@ const DealFilterAddEditDialog = (props: params) => {
       value: item.id,
     })) ?? []
   }
-
+  const getJustCallCampaignList=()=>{
+    debugger;
+    return justCallCampaignList.map((item: JustcallCampagin) => ({
+       name: item.name,
+       value: item.id,
+     })) ?? []
+   }
+ 
   return (
     <FormProvider {...methods}>
       <AddEditDialog
@@ -811,11 +823,25 @@ const DealFilterAddEditDialog = (props: params) => {
                       ))
                     }
                   </select>
+                  <select
+                    className="form-control"
+                    defaultValue={getValues("filterAction")}
+                    hidden={!isJustCallSelected}
+                    {...methods.register("filterAction")}
+                    onChange={(e:any)=>setValue("filterAction", e.target.value)}
+                  >
+                    <option value="">Select</option>
+                    {
+                      getJustCallCampaignList().map((item:any, index:any)=>(
+                        <option key={index} value={item.value}>{item.name}</option>
+                      ))
+                    }
+                  </select>
                   <input
                     className="form-control"
                     type="text"
                     defaultValue={getValues("filterAction")}
-                    hidden={isDotDigitalSelected}
+                    hidden={isDotDigitalSelected || isJustCallSelected}
                     {...methods.register("filterAction")}
                     placeholder="Filter action"
                   />
