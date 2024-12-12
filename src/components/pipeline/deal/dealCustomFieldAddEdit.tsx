@@ -9,6 +9,9 @@ import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { PipeLine } from "../../../models/pipeline";
 import { getValue } from "@testing-library/user-event/dist/utils";
+import { ErrorBoundary } from "react-error-boundary";
+import { DealCustomFields } from "../../../models/deal";
+import { CustomFieldService } from "../../../services/customFieldService";
 
 type params = {
   customFields: Array<IControl>;
@@ -31,6 +34,7 @@ const DealCustomFieldAddEdit = (props: params) => {
   const selectedItem = {};
   const allPipeLinesList:Array<PipeLine> = JSON.parse(localStorage.getItem("allPipeLines") as any);
   const [selectedPipeLines, setSelectedPipeLines]=useState([]);
+  const customFieldsService = new CustomFieldService(ErrorBoundary);
   const controlsList: Array<IControl> = [
     {
       key: "Field Name",
@@ -81,14 +85,14 @@ const DealCustomFieldAddEdit = (props: params) => {
   useEffect(() => {
     
     if (selectedFieldIndex >= 0) {
-      let selectedFieldItem = customFields[selectedFieldIndex];
+      let selectedFieldItem:any = customFields[selectedFieldIndex];
       if (selectedFieldItem) {
         setValue("fieldName" as never, selectedFieldItem.key as never);
         setValue("fieldType" as never, selectedFieldItem.type as never);
-        setValue("pipelineIds" as never, selectedFieldItem.pipelineIds as never);
+        setValue("pipelineIds" as never, selectedFieldItem.pipelineId as never);
         let selectedList:Array<any>=[];
         
-        selectedFieldItem.pipelineIds?.split(",").forEach(sp=>{
+        (""+selectedFieldItem.pipelineId)?.split(",").forEach((sp:any)=>{
           let spItem =  allPipeLinesList.find(apI=>apI.pipelineID==+sp);
           selectedList.push(spItem);
         });
@@ -121,9 +125,10 @@ const DealCustomFieldAddEdit = (props: params) => {
       obj.elementSize = 9;
       
       obj.pipelineIds = getValues("pipelineIds" as any);
-      obj.type = item.fieldType == "textbox" ? null : item.fieldType;
+      obj.type = item.fieldType;
       if (selectedFieldIndex == -1) {
         prev.push(obj);
+        saveCustomFields(obj);//Saving fields at pipeline level if it is a new field
       } else {
         prev[selectedFieldIndex] = obj;
       }
@@ -131,6 +136,26 @@ const DealCustomFieldAddEdit = (props: params) => {
     });
     if (!isDuplicateFound) setDialogIsOpen(false);
     if(selectedFieldIndex != -1) props.onFieldsSubmit(selectedFieldIndex);
+  };
+
+  const saveCustomFields = (item:any) => {
+    //trigger().then((valid) => {
+      //if (valid) {
+        let obj:any = {};
+        obj.id = 0 as any;
+        obj.customField = item.key;
+        obj.customFieldType = item.type;
+        obj.pipelineIds = item.pipelineIds;
+        obj.createdBy = Util.UserProfile()?.userId;
+        customFieldsService
+          .postItem(obj)
+          .then((res) => {
+          })
+          .catch((err) => {
+          });
+      //}
+    //});
+    return null;
   };
 
   const getDropdownValues = (item: any) => {

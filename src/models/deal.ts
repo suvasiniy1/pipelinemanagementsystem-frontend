@@ -116,7 +116,8 @@ export class DealCustomFields extends AuditItem {
   id!: number;
   dealID!: number;
   customField!: string;
+  customFieldType!:string;
   customFieldValue!: string;
   customSelectValues!: string;
-  pipelineIds!:string;
+  pipelineId!:string;
 }

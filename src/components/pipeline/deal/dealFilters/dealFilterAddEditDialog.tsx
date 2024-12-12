@@ -602,7 +602,7 @@ const DealFilterAddEditDialog = (props: params) => {
     })) ?? []
   }
   const getJustCallCampaignList=()=>{
-    debugger;
+    
     return justCallCampaignList.map((item: JustcallCampagin) => ({
        name: item.name,
        value: item.id,

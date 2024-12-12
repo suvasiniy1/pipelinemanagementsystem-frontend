@@ -9,7 +9,7 @@ import { Deal, DealCustomFields } from "../../../models/deal";
 import Util from "../../../others/util";
 import DealCustomFieldAddEdit from "./dealCustomFieldAddEdit";
 import { toast } from "react-toastify";
-import { CustomFieldsService } from "../../../services/customFieldsService";
+import { CustomDealFieldsService } from "../../../services/customDealFieldsService";
 import { ErrorBoundary } from "react-error-boundary";
 import { Spinner } from "react-bootstrap";
 import { DeleteDialog } from "../../../common/deleteDialog";
@@ -29,7 +29,7 @@ const DealDetailsCustomFields = (props: params) => {
   const [originalCustomFields, setOriginalCustomFields] = useState<
     Array<DealCustomFields>
   >([]);
-  const customFieldsService = new CustomFieldsService(ErrorBoundary);
+  const customFieldsService = new CustomDealFieldsService(ErrorBoundary);
   const getValidationsSchema = (list: Array<any>) => {
     return Yup.object().shape({
       ...Util.buildValidations(list),
@@ -81,7 +81,7 @@ const DealDetailsCustomFields = (props: params) => {
   const loadCustomFields = () => {
     setIsLoading(true);
     customFieldsService
-      .getCustomFields(dealItem.dealID)
+      .getCustomFields(dealItem.dealID, dealItem.pipelineID)
       .then((res: any) => {
         let customFieldsList: Array<any> = [];
         res.customFields.forEach((i: DealCustomFields) => {
@@ -93,10 +93,10 @@ const DealDetailsCustomFields = (props: params) => {
           obj.key = i.customField;
           obj.value = "value" + (customFieldsList.length+1);
           obj.isControlInNewLine = obj.showDelete = obj.showEdit = obj.isRequired = true;
-          obj.pipelineIds = i.pipelineIds;
+          obj.pipelineId =i.pipelineId;
           obj.elementSize = 9;
           obj.type =
-            i.customFieldValue == "textbox" ? null : i.customFieldValue;
+            i.customFieldValue == "textbox" ? null : i.customFieldType;
           customFieldsList.push(obj);
         });
         setOriginalCustomFields(res.customFields);
@@ -158,9 +158,8 @@ const DealDetailsCustomFields = (props: params) => {
             ?.id as any;
           obj.dealID = dealItem.dealID;
           obj.customField = field.key;
-          obj.customFieldValue = field.type;
-          obj.customSelectValues = getValues(field.value as never);
-          obj.pipelineIds = field.pipelineIds;
+          obj.customFieldType = field.type;
+          obj.customFieldValue = getValues(field.value as never);
           obj.createdBy = Util.UserProfile()?.userId;
           customFieldsList.push(obj);
         });
@@ -182,16 +181,6 @@ const DealDetailsCustomFields = (props: params) => {
       //}
     //});
     return null;
-  };
-
-  const canAddNewField = async () => {
-    
-    trigger().then((valid) => {
-      if (!valid) {
-        toast.warn("Please fill all the fields before adding new one");
-      }
-      return setDialogIsOpen(valid);
-    });
   };
 
   const hideDeleteDialog = () => {
@@ -259,7 +248,7 @@ const DealDetailsCustomFields = (props: params) => {
               <div className="col-sm-10 pt-4">
                 <button
                   className="btn btn-secondary btn-sm"
-                  onClick={(e: any) => canAddNewField()}
+                  onClick={(e: any) => setDialogIsOpen(true)}
                 >
                   + Custom Field
                 </button>
