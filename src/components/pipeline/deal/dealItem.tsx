@@ -6,6 +6,8 @@ import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
 import { useState } from "react";
 import MoveDeal from "./moveDeal";
 import { PipeLine } from "../../../models/pipeline";
+import LocalStorageUtil from "../../../others/LocalStorageUtil";
+import Constants from "../../../others/constants";
 
 
 type params = {
@@ -31,7 +33,8 @@ export const DealItem = (props: params) => {
   const handleLinkClick = (e:any) => {
     e.preventDefault(); // Prevents the default anchor behavior
     // Navigate programmatically
-    navigator(`/deal?id=${deal?.dealID}&pipeLineId=${deal?.pipelineID}`)
+    let filterId = LocalStorageUtil.getItem(Constants.FILTER_ID) as any;
+    navigator(`/deal?id=${deal?.dealID}&pipeLineId=${deal?.pipelineID}&filterId=${filterId}`)
   };
 
   return (

@@ -42,6 +42,8 @@ export interface IControl {
   defaultValue?: any;
   showDelete?: boolean | false;
   showEdit?:boolean | false;
+  pipelineIds?:string;
+  bindable?:string;
 }
 
 export enum CustomActionPosition {

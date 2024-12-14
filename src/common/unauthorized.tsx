@@ -5,12 +5,13 @@ import { ToastContainer, toast } from "react-toastify";
 
 type params = {
     error: AxiosError;
-    isRetrivingList?:boolean
+    isRetrivingList?:boolean;
+    customMessage?:string;
 }
 
 export const UnAuthorized = (props: params) => {
     
-    const { error, isRetrivingList, ...others } = props;
+    const { error, isRetrivingList, customMessage, ...others } = props;
     const navigate = useNavigate();
 
     useEffect(()=>{
@@ -20,9 +21,9 @@ export const UnAuthorized = (props: params) => {
             navigate("/login");
         }
         else{
-            toast.error(isRetrivingList? "Unable to retreive the list" : "Unable to perform the action", {delay:20});
+            toast.error(customMessage ?? (isRetrivingList? "Unable to retreive the list" : "Unable to perform the action"), {delay:20});
         }
-    },[error])
+    },[error, customMessage])
 
     return (
         <>
