@@ -439,10 +439,10 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
                             }
                             value={"" + dealItem.contactPersonID}
                             list={
-                              utility?.persons.map(
-                                ({ personName, personID }) => ({
-                                  name: personName,
-                                  value: personID,
+                              utility?.users.filter(u=>u.isActive).map(
+                                ({ name, id }) => ({
+                                  name: name,
+                                  value: id,
                                 })
                               ) ?? []
                             }

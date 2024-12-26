@@ -10,6 +10,6 @@ export class Utility extends AuditItem {
     pipelines: PipeLine[] = []
     organizations: Organization[]=[]
     pipeLineTypes: PipeLineType[] = []
-    users: any
     persons: Person[] = []
+    users: any[] = []
   }
