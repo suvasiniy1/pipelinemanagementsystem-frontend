@@ -35,10 +35,10 @@ const MultiSelectDropdownWithValidations = (props: params) => {
 
   const onSelect = (selectedList: any, selectedItem: any) => {
     
-    props.onItemChange(Array.from(selectedList, (x:any)=>x.name).join(","))
+    props.onItemChange(Array.from(selectedList, (x:any)=>x[item.bindable ?? "name"]).join(","))
   };
   const onRemove = (selectedList: any, removedItem: any) => {
-    props.onItemChange(Array.from(selectedList, (x:any)=>x.name).join(","))
+    props.onItemChange(Array.from(selectedList, (x:any)=>x[item.bindable ?? "name"]).join(","))
   };
 
   return (

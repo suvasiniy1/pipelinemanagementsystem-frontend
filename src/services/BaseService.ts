@@ -36,6 +36,7 @@ export class BaseService<TItem extends AuditItem>{
                 console.log("getItems - res: ", res);
                 resolve(res?.data);
             }).catch((err: AxiosError) => {
+                
                 reject(err);
             })
         });

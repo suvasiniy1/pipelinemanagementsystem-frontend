@@ -48,6 +48,9 @@ export const DealDetails = () => {
   const [pipeLineId, setPipeLineId] = useState(
     new URLSearchParams(useLocation().search).get("pipeLineId") as any
   );
+  const [filterId, setFilterId] = useState(
+    new URLSearchParams(useLocation().search).get("filterId") as any
+  );
   const dealSvc = new DealService(ErrorBoundary);
   const [error, setError] = useState<AxiosError>();
   const [dealItem, setDealItem] = useState<Deal>({ ...new Deal(), openDealsCount: 0 });
@@ -266,7 +269,7 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
                 <div
                   className="appdealtopbartitle"
                   onClick={(e: any) =>
-                    navigator("/pipeline?pipelineID=" + pipeLineId)
+                    navigator(`/pipeline?pipelineID=${pipeLineId}&filterId=${filterId}`)
                   }
                 >
                   <a href="javascript:void(0);">
@@ -436,10 +439,10 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
                             }
                             value={"" + dealItem.contactPersonID}
                             list={
-                              utility?.persons.map(
-                                ({ personName, personID }) => ({
-                                  name: personName,
-                                  value: personID,
+                              utility?.users.filter(u=>u.isActive).map(
+                                ({ name, id }) => ({
+                                  name: name,
+                                  value: id,
                                 })
                               ) ?? []
                             }

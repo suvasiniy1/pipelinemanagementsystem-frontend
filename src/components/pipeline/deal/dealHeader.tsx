@@ -37,6 +37,8 @@ type params = {
   selectedStageId: number;
   onDealDialogClose: any;
   setViewType: any;
+  selectedFilterObj:any;
+  setSelectedFilterObj:any;
 };
 export const DealHeader = (props: params) => {
   const navigate = useNavigate();
@@ -50,14 +52,13 @@ export const DealHeader = (props: params) => {
     selectedStageId,
     onDealDialogClose,
     setViewType,
+    selectedFilterObj,
+    setSelectedFilterObj,
     ...others
   } = props;
   const [pipeLinesList, setPipeLinesList] = useState(props.pipeLinesList);
   const [showPipeLineDropdown, setShowPipeLineDropdown] = useState(false);
   const [showPipeLineFilters, setShowPipeLineFilters] = useState(false);
-  const [selectedFilterObj, setSelectedFilterObj] = useState<DealFilter>(
-    new DealFilter()
-  );
   const [canEdit, setCanEdit] = useState(false);
 
   useEffect(() => {
@@ -131,7 +132,7 @@ export const DealHeader = (props: params) => {
               {pipeLinesList.map((item, index) => (
                 <li
                   key={index}
-                  onClick={(e: any) => setSelectedItem(item)}
+                  onClick={(e: any) => {setSelectedFilterObj(null); setSelectedItem(item)}}
                   onMouseOver={(e: any) => handlePipeLineEdit(index)}
                 >
                   <button className="pipeselectlink" type="button">
@@ -202,7 +203,7 @@ export const DealHeader = (props: params) => {
                   <div
                     className="pipeselectbox variantselectbox"
                     onClick={(e: any) =>
-                        setShowPipeLineFilters(!showPipeLineFilters)
+                      setShowPipeLineFilters(!showPipeLineFilters)
                     }
                   >
                     <button className="pipeselect" type="button">
@@ -214,12 +215,17 @@ export const DealHeader = (props: params) => {
                       className="pipeselectcontent"
                       hidden={!showPipeLineFilters}
                     >
-                      <FilterDropdown showPipeLineFilters={showPipeLineFilters}
-                      setShowPipeLineFilters={setShowPipeLineFilters}
-                      selectedFilterObj={selectedFilterObj}
-                      setSelectedFilterObj={setSelectedFilterObj}/>
+                      <FilterDropdown
+                        showPipeLineFilters={showPipeLineFilters}
+                        setShowPipeLineFilters={setShowPipeLineFilters}
+                        selectedFilterObj={selectedFilterObj}
+                        setSelectedFilterObj={setSelectedFilterObj}
+                      />
                     </div>
                   </div>
+                </div>
+                <div className="pipeselectbtngroup pt-2">
+                  <div><a href="javascript:void(0);" onClick={(e:any)=>setSelectedFilterObj(null)}>Clear filter</a></div>
                 </div>
 
                 {/* <div className="pipeselectbox selecteveryonebox">

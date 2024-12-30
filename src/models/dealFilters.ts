@@ -4,6 +4,7 @@ export class DealFilter extends AuditItem {
     id!: number;
     name!: string;
     filterType!: string;
+    filterAction!:any;
     isEditable: boolean = false;
     isFavourite: boolean = false;
     isPublic!: boolean;

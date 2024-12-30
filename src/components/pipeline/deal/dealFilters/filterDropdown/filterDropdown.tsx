@@ -14,6 +14,8 @@ import { DealFiltersService } from "../../../../../services/dealFiltersService";
 import { ErrorBoundary } from "react-error-boundary";
 import { DeleteDialog } from "../../../../../common/deleteDialog";
 import { toast } from "react-toastify";
+import LocalStorageUtil from "../../../../../others/LocalStorageUtil";
+import Constants from "../../../../../others/constants";
 
 type params = {
   showPipeLineFilters: any;
@@ -64,11 +66,13 @@ const FilterDropdown = (props: params) => {
 
   const loadDealFilters = () => {
     setIsLoading(true);
+    LocalStorageUtil.setItemObject(Constants.Deal_FILTERS, []);
     dealFiltersSvc
       .getDealFilters()
       .then((res) => {
         if (res) {
           setFilters(res);
+          LocalStorageUtil.setItemObject(Constants.Deal_FILTERS, JSON.stringify(res));
           setIsLoading(false);
         }
       })

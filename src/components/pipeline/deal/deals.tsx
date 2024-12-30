@@ -22,6 +22,9 @@ import { DealHeader } from "./dealHeader";
 import DealListView from "./dealListView";
 import { DealStage } from "./dealStage";
 import DealsByStage from "./dealsByStage";
+import { DealFilter } from "../../../models/dealFilters";
+import { DotDigitalCampaignService } from "../../../services/dotDigitalCampaignService";
+import { JustcallCampaignService } from "../../../services/justCallCampaignService";
 
 type params = {
     isCombineEnabled?: any,
@@ -46,6 +49,7 @@ export const Deals = (props: params) => {
     const [selectedItem, setSelectedItem] = useState<PipeLine>();
     const [isDragging, setIsDragging] = useState(false);
     const [error, setError] = useState<AxiosError>();
+    const [customError, setCustomError] = useState<AxiosError>();
     const [deals, setDeals] = useState<Array<Deal>>([]);
     const [dialogIsOpen, setDialogIsOpen] = useState(false);
     const [selectedStageId, setSelectedStageId] = useState(null);
@@ -58,7 +62,14 @@ export const Deals = (props: params) => {
     const [pipeLineId, setPipeLineId] = useState(new URLSearchParams(useLocation().search).get("pipelineID") as any);
     const userProfile = Util.UserProfile();
     const utilSvc = new UtilService(ErrorBoundary);
+    const dotDigitalCampaignService = new DotDigitalCampaignService(ErrorBoundary);
+    const justCallCampaignService = new JustcallCampaignService(ErrorBoundary);
     const [pageSize, setPageSize] = useState(10);
+    
+    const filters = LocalStorageUtil.getItemObject(Constants.Deal_FILTERS) as any;
+    const dealFilters:Array<DealFilter> = !Array.isArray(filters) ? JSON.parse(filters) : [];
+    const selectedFilterID = new URLSearchParams(useLocation().search).get("filterId") as any;
+    const [selectedFilterObj, setSelectedFilterObj] = useState<any>(selectedFilterID > 0 ? dealFilters?.find(i=>i.id==+selectedFilterID) : null);
 
     // useEffect(() => {
     //     
@@ -69,6 +80,9 @@ export const Deals = (props: params) => {
 
         loadPipeLines();
         loadAllPipeLinesAndStages();
+        getDotDigitalCampaignList();
+        getJustCallCampaignList();
+
         utilSvc.getDropdownValues().then(res => {
             
             let result = IsMockService() ? res?.data : res?.utility
@@ -79,6 +93,25 @@ export const Deals = (props: params) => {
             setError(err);
         })
     }, [])
+
+    const getDotDigitalCampaignList=()=>{
+        dotDigitalCampaignService.getDotDigitalCampaignList().then(res=>{
+            
+            LocalStorageUtil.setItemObject(Constants.DOT_DIGITAL_CAMPAIGNSLIST, JSON.stringify(res));
+        }).catch(err=>{
+            setError(err);
+        })
+    }
+
+    const getJustCallCampaignList=()=>{
+        justCallCampaignService.getJustCallCampaignList().then(res=>{
+            
+            LocalStorageUtil.setItemObject(Constants.JUST_CALL_CAMPAIGNSLIST, JSON.stringify(res));
+        }).catch(err=>{
+            setError(err);
+        })
+
+    }
 
 
     const loadAllPipeLinesAndStages=()=>{
@@ -95,10 +128,11 @@ export const Deals = (props: params) => {
         pipeLineSvc.getPipeLines().then((res: Array<PipeLine>) => {
             
             setPipeLines(res);
+            localStorage.setItem("allPipeLines", JSON.stringify(res));
             let selectedPipeLineId = pipeLineId > 0 ? pipeLineId : res[0].pipelineID;
             setPipeLineId(selectedPipeLineId);
             setSelectedItem(res.find(i => i.pipelineID == selectedPipeLineId));
-            loadStages(selectedPipeLineId);
+            if(!selectedFilterObj) loadStages(selectedPipeLineId);
 
         }).catch((err: AxiosError) => {
             setError(err);
@@ -108,6 +142,8 @@ export const Deals = (props: params) => {
     const loadStages = (selectedPipeLineId: number, skipLoading: boolean = false, pagesize: number = 10, fromDealModify:boolean=false) => {
         
         if(!skipLoading) setIsLoading(true);
+        setCustomError(null as any);
+        setError(null as any);
         if (selectedPipeLineId > 0) stagesSvc.getStages(selectedPipeLineId, 1, pagesize ?? pageSize).then(items => {
             let sortedStages = Util.sortList(items.stageDtos, "stageOrder");
             let totalDealsList: Array<Deal> = [];
@@ -141,7 +177,9 @@ export const Deals = (props: params) => {
 
     useEffect(() => {
         LocalStorageUtil.setItemObject(Constants.PIPE_LINE, selectedItem);
-        loadStages(selectedItem?.pipelineID as any);
+        if(!selectedFilterObj){
+            loadStages(selectedItem?.pipelineID as any);
+        }
     }, [selectedItem])
 
     const onDragEnd = (result: any) => {
@@ -162,22 +200,65 @@ export const Deals = (props: params) => {
                 setStages([...stagesList]);
 
                 setIsLoading(true);
-
                 dealsSvc.putItemBySubURL({
                     "newStageId": +destination.droppableId,
                     "modifiedById": userProfile.userId,
                     "dealId": +source.index,
                     "pipelineId":selectedItem?.pipelineID
                 }, +source.index + "/stage").then(res => {
-                    loadStages(selectedItem?.pipelineID as any, true);
+                    if(selectedFilterObj?.id>0){
+                        loadDealsByFilter();
+                    }
+                    else{
+                        loadStages(selectedItem?.pipelineID as any, true);
+                    }
                 }).catch(err => {
-                    setError(err);
+                    setError("No deals found under selected combination" as any);
                     setStages([...originalStages]);
                 })
 
             }
         }
     };
+
+    const loadDealsByFilter=()=>{
+        setIsLoading(true);
+        setCustomError(null as any);
+        setError(null as any);
+        stagesSvc.getDealsByFilterId(selectedFilterObj?.id, selectedItem?.pipelineID ??pipeLineId).then(res=>{
+            let sortedStages = Util.sortList(res.stages, "stageOrder");
+            let totalDealsList: Array<Deal> = [];
+            sortedStages.forEach((s: Stage) => {
+                s.deals.forEach(d => {
+                    totalDealsList.push(d);
+                })
+            });
+
+            setTotalDeals([...totalDealsList])
+            setStages(sortedStages);
+            setOriginalStages(sortedStages);
+            setIsLoading(false);
+            setIsLoadingMore(false);
+        }).catch(err=>{
+            
+            setCustomError("No deals under selected combination" as any);
+            setTotalDeals([])
+            setStages([]);
+            setOriginalStages([]);
+            setIsLoading(false);
+            setIsLoadingMore(false);
+        })
+    }
+
+    useEffect(()=>{
+        LocalStorageUtil.setItem(Constants.FILTER_ID, selectedFilterObj?.id);
+        if(selectedFilterObj?.id>0){
+            loadDealsByFilter()
+        }
+        else{
+            loadStages(selectedItem?.pipelineID as any);
+        }
+    },[selectedFilterObj])
 
     return (
         <>
@@ -193,6 +274,8 @@ export const Deals = (props: params) => {
                             selectedStageId={dialogIsOpen ? null : selectedStageId as any}
                             onDealDialogClose={(e: any) => setSelectedStageId(null)}
                             setViewType={(e: any) => setViewType(e)}
+                            selectedFilterObj={selectedFilterObj}
+                            setSelectedFilterObj={setSelectedFilterObj}
                         />
                         {viewType === "kanban" ?
                             <div className="pdstage-area">
@@ -235,7 +318,7 @@ export const Deals = (props: params) => {
                                         <div style={{ textAlign: "center" }} hidden={isLoadingMore || pipeLines.length==0}>
                                         <button type="button" className="btn btn-primary" onClick={(e: any) => loadMoreDeals()}>Load More</button>
                                         </div>
-                                        <div style={{ textAlign: "center" }} hidden={!isLoadingMore}>
+                                        <div style={{ textAlign: "center" }} hidden={!isLoadingMore || selectedFilterObj?.id>0}>
                                             Loading More...
                                         </div>
                                     </div>
@@ -245,7 +328,7 @@ export const Deals = (props: params) => {
                                 </div>
                             </div> : <DealListView pipeLineId={selectedItem?.pipelineID ?? pipeLineId} />}
                     </div>
-                    {error && <UnAuthorized error={error as any} />}
+                    {(error || customError)&& <UnAuthorized error={error as any} customMessage={customError as any}/>}
                     {
                         dialogIsOpen && <DealsByStage   stageId={stageIdForExpand as any}
                                                         stageName={selectedStageName as any}
