@@ -291,7 +291,7 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
               <div className="app-dealblock">
                 <div className="app-dealblock-inner">
                   <div className="appdealblock-title">
-                    <h3>{dealItem?.pipelineName}</h3>
+                    <h3>{dealItem?.treatmentName}</h3>
                     <button
                       className="btn btn-primary btn-sm"
                       onClick={(e: any) => onDealModified()}
