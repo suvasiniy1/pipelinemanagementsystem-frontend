@@ -470,7 +470,7 @@ export const DealAddEditDialog = (props: params) => {
     cacheOptions
     loadOptions={fetchContacts} // Function to fetch contacts
     defaultOptions // Show default options on focus
-    onChange={(newValue) => {
+    onChange={(newValue: any) => {
         if (!newValue) return;
 
         if (newValue.isNew) {
@@ -504,7 +504,7 @@ export const DealAddEditDialog = (props: params) => {
             setValue("email", newValue.details?.email || "");
         }
     }}
-    onInputChange={(inputValue, actionMeta) => {
+    onInputChange={(inputValue: any, actionMeta: { action: string; }) => {
         if (actionMeta.action === "input-change") {
             // Update the typed input in the state
             setSelectedItem((prev: SelectedItem) => ({
@@ -533,7 +533,7 @@ export const DealAddEditDialog = (props: params) => {
     }
     noOptionsMessage={() => "Type to search or add a new contact"}
     styles={{
-        option: (provided, state) => {
+        option: (provided: any, state: { data: { isNew: any; }; isFocused: any; }) => {
             const isAddNewOption = state.data.isNew;
             return {
                 ...provided,
@@ -546,7 +546,7 @@ export const DealAddEditDialog = (props: params) => {
                 fontWeight: isAddNewOption ? "bold" : "normal", // Bold for "Add new"
             };
         },
-    }}
+    } as any}
 />
             );
         }

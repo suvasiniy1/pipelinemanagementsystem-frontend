@@ -14,6 +14,7 @@ import { AppRouter } from "./others/appRouter";
 import NotAuthorized from "./others/notAuthorized";
 import Util from "./others/util";
 import ChangePassword from "./components/profiles/changePassword";
+import ConfirmEmail from "./components/ConfirmEmail";
 
 function App() {
   
@@ -35,6 +36,11 @@ function App() {
     
     return location.pathname==="/changePassword";
 }
+const IsConfirmEmail= (): boolean => {
+    
+  return location.pathname==="/confirm-email";
+}
+
 
   const IsNotAuthorized = (): boolean => {
     return !Util.isAuthorized(location.pathname.replace(/^\/+/, ''));
@@ -47,7 +53,7 @@ function App() {
     ) as any;
     let isSessionExpired =
       Date.parse(currentDateTime) > Date.parse(tokenExpirationTime);
-    if (isSessionExpired && !IsChangePassword()) {
+    if (isSessionExpired && !IsChangePassword() && !IsConfirmEmail()) {
       console.log(
         "Session has expired as token is expired... " + tokenExpirationTime
       );
@@ -55,7 +61,7 @@ function App() {
       navigate("/login");
       return;
     }
-    if (LocalStorageUtil.getItem(Constants.USER_LOGGED_IN) != "true" && !IsChangePassword()) {
+    if (LocalStorageUtil.getItem(Constants.USER_LOGGED_IN) != "true" && !IsChangePassword() && !IsConfirmEmail()) {
       navigate("/login");
     }
   }, []);
@@ -66,7 +72,7 @@ function App() {
 
   return (
     <>
-      {IsChangePassword()? <ChangePassword/> : shouldShowSidebar() ? IsNotAuthorized()? <NotAuthorized/> : (
+      {IsConfirmEmail()? <ConfirmEmail/> : IsChangePassword()? <ChangePassword/> : shouldShowSidebar() ? IsNotAuthorized()? <NotAuthorized/> : (
         <>
           <div className="mainlayout">
             <SideBar collapsed={collapsed} />
@@ -91,3 +97,7 @@ function App() {
 }
 
 export default App;
+
+
+
+
