@@ -1,6 +1,6 @@
 window.config = {
 
-  ServicesBaseURL: "http://localhost:5127/api",
+ ServicesBaseURL: "http://localhost:5127/api",
   //ServicesBaseURL: "http://20.26.122.140/PLMS/api",
   DefaultStages: [
     "Qualified",
@@ -38,6 +38,7 @@ window.config = {
           "Clinic",
           "Source",
           "Treatment",
+          "profile"
       ],
     },
     {
@@ -46,7 +47,8 @@ window.config = {
         "Stages",
         "deal",
         "pipeline",
-        "Activities"
+        "Activities",
+        "profile"
       ],
     },
     {

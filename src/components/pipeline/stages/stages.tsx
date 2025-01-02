@@ -177,9 +177,18 @@ export const Stages = (props: params) => {
     const prepareToSave = (pipeLineId: number) => {
         let userObj: UserProfile = LocalStorageUtil.getItem(Constants.USER_PROFILE) as any;
         let userName = userObj.user;
+        if (!pipeLineId || isNaN(pipeLineId)) {
+            console.error("Pipeline ID is missing or invalid");
+            return; // Do not proceed if pipelineID is invalid
+        }
+    
         stages.forEach((item, index) => {
             item.stageOrder = index + 1;
             item.pipelineID = pipeLineId;
+            item.stageName = item.stageName?.trim();
+            if (!item.stageName) {
+                console.error(`Stage name is missing for stage at index ${index}`);
+            }
             if (item.stageID > 0) {
                 item.createdBy = item.createdBy ?? userName;
                 item.modifiedBy = userName;
@@ -191,9 +200,12 @@ export const Stages = (props: params) => {
     }
 
     const saveStages = () => {        
-         if(stages.find(s=>!s.stageName)) return;
+        if (stages.find(s => !s.stageName)) {
+            toast.error("Stage name is required");
+            return;
+        }
         if (selectedItem?.pipelineID == 0) {
-            var pipeline={
+            const  pipeline={
                 "pipelineID":selectedItem.pipelineID,
                 "pipelineName": selectedItem.pipelineName,
                 "description": selectedItem.description,
@@ -203,11 +215,17 @@ export const Stages = (props: params) => {
                 "modifiedBy":selectedItem.modifiedBy
             }
             pipeLineSvc.postItemBySubURL(pipeline, 'SavePipelineDetails').then(res => {
-                if (res) {
-                    continueToSave(res.pipelineID);
+                if (res && res.result?.pipelineID) {
+                    console.log("Pipeline API Response:", res);
+                    continueToSave(res.result.pipelineID); // Pass valid pipelineID
+                } else {
+                    toast.error("Pipeline saved but no pipelineID returned.");
+                    console.error("Pipeline Save Response Missing pipelineID:", res);
                 }
-
-            })
+            }).catch(err => {
+                toast.error("Error saving pipeline details");
+                console.error("Pipeline Save Error:", err);
+            });
         }
         else {
             continueToSave(selectedItem?.pipelineID);
@@ -216,14 +234,24 @@ export const Stages = (props: params) => {
 
     }
 
-    const continueToSave = (pipelineID?: number) => {        
-        prepareToSave(pipelineID ?? pipeLineId);
+    const continueToSave = (pipelineID: number | undefined) => {        
+        if (!pipelineID || isNaN(pipelineID)) {
+            toast.error("Pipeline ID is missing or invalid");
+            console.error("Pipeline ID is missing or invalid in continueToSave");
+            return;
+        }
+    
+        prepareToSave(pipelineID); // Assign pipelineID to all stages before sending
+        console.log("Prepared Stages Payload:", stages);
         stagesSvc.postItemBySubURL(stages as any, 'SaveStages').then(res => {
 
             if (res) {
+                console.log("Stages Save Response:", res);
                 toast.success(`Pipeline ${(selectedItem as any)?.pipelineID > 0 ? ' updated ' : 'created'} successfully`, { autoClose: 500 });
                 setTimeout(() => {
-                    navigator("/pipeline?pipelineID=" + pipelineID ?? pipeLineId);
+                   // navigator("/pipeline?pipelineID=" + pipelineID ?? pipeLineId);
+                  //  navigator("/pipeline?pipelineID=" + (pipelineID || pipeLineId));
+                  navigator(`/pipeline?pipelineID=${pipelineID}`);
                 }, 500);
 
             }
@@ -232,6 +260,7 @@ export const Stages = (props: params) => {
             }
         }).catch(error => {
             setError(error);
+            console.error("Error Saving Stages:", error);
         })
     }
 
