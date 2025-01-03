@@ -10,4 +10,8 @@ export class DotDigitalCampaignService extends BaseService<DotdigitalCampagin>{
     getDotDigitalCampaignList(axiosCancel?: CancelTokenSource){
         return this.getItemsBySubURL('GetDotDigitalCampaigns')
     }
+    getDotDigitalPrograms() {
+        return this.getItemsBySubURL("GetDotDigitalPrograms");
+      }
+    
 }

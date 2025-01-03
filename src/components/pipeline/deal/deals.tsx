@@ -80,7 +80,7 @@ export const Deals = (props: params) => {
 
         loadPipeLines();
         loadAllPipeLinesAndStages();
-        getDotDigitalCampaignList();
+        getDotDigitalPrograms();
         getJustCallCampaignList();
 
         utilSvc.getDropdownValues().then(res => {
@@ -94,8 +94,8 @@ export const Deals = (props: params) => {
         })
     }, [])
 
-    const getDotDigitalCampaignList=()=>{
-        dotDigitalCampaignService.getDotDigitalCampaignList().then(res=>{
+    const getDotDigitalPrograms=()=>{
+        dotDigitalCampaignService.getDotDigitalPrograms().then(res=>{
             
             LocalStorageUtil.setItemObject(Constants.DOT_DIGITAL_CAMPAIGNSLIST, JSON.stringify(res));
         }).catch(err=>{
@@ -341,3 +341,7 @@ export const Deals = (props: params) => {
         </>
     );
 };
+function getDotDigitalPrograms() {
+    throw new Error("Function not implemented.");
+}
+

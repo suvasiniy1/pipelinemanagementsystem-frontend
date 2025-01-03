@@ -595,7 +595,7 @@ const DealFilterAddEditDialog = (props: params) => {
     setisJustCallSelected(type==="justCall");
    }
 
-  const getDotDigitalCampaignList=()=>{
+  const getDotDigitalProgramsList=()=>{
    return dotDigitalCampaignList.map((item: DotdigitalCampagin) => ({
       name: item.name,
       value: item.id,
@@ -818,7 +818,7 @@ const DealFilterAddEditDialog = (props: params) => {
                   >
                     <option value="">Select</option>
                     {
-                      getDotDigitalCampaignList().map((item:any, index:any)=>(
+                      getDotDigitalProgramsList().map((item:any, index:any)=>(
                         <option key={index} value={item.value}>{item.name}</option>
                       ))
                     }
