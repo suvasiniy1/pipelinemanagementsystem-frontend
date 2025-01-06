@@ -91,7 +91,7 @@ const TemplatesAddEditDialog: React.FC<ViewEditProps> = (props) => {
     resolver: yupResolver(getValidationsSchema(controlsList1.concat(controlsList2))),
   };
   const methods = useForm(formOptions);
-  const { handleSubmit, unregister, register, resetField, setValue, setError } =
+  const { handleSubmit, unregister, register, resetField, setValue, reset, setError } =
     methods;
 
   const oncloseDialog = () => {
@@ -109,6 +109,7 @@ const TemplatesAddEditDialog: React.FC<ViewEditProps> = (props) => {
       };
 
       setSelectedItem(obj);
+      setValue("header" as never, obj.header?.content as never);
       setTimeout(() => {
         
         controlsList1.forEach((c) => {
@@ -118,7 +119,7 @@ const TemplatesAddEditDialog: React.FC<ViewEditProps> = (props) => {
           resetValidationsOnLoad(c.value, obj[c.value]?.content);
         });
         setIsLoading(false);
-      }, 100);
+      }, 500);
     } else setIsLoading(false);
   }, []);
 
@@ -127,7 +128,7 @@ const TemplatesAddEditDialog: React.FC<ViewEditProps> = (props) => {
   };
 
   const onChange = (value: any, item: any, itemName?:any, isValidationOptional:boolean=false) => {
-
+    
     if(!isValidationOptional){
       setValue(item.value as never, value as never);
       if (value) unregister(item.value as never);
@@ -136,11 +137,17 @@ const TemplatesAddEditDialog: React.FC<ViewEditProps> = (props) => {
     }
 
 
-    let selectedItemObj = selectedItem as EmailTemplate;
+    let selectedItemObj:any = selectedItem as EmailTemplate;
+
+    controlsList2.forEach((c) => {
+      resetValidationsOnLoad(c.value, (selectedItemObj[c.value] as any)?.content);
+    });
+
     if (item.key === "Header") {
       let headerObj = selectedItemObj.header;
       if(itemName === "content") headerObj.content = value;
       else headerObj.position = value;
+      setValue("header" as never, headerObj.content as never);
       setSelectedItem({ ...selectedItem, header: headerObj });
     }
     if (item.key === "Body") {
@@ -159,12 +166,15 @@ const TemplatesAddEditDialog: React.FC<ViewEditProps> = (props) => {
   };
 
   const onSubmit = (item: any) => {
+    
     let obj: EmailTemplate = { ...selectedItem };
     obj.name=item.name;
     obj.header = JSON.stringify(selectedItem.header) as any;
     obj.body = JSON.stringify(selectedItem.body) as any;
     obj.footer = JSON.stringify(selectedItem.footer) as any;
-    obj.createdBy = Util.UserProfile()?.userId;
+    obj.createdBy = obj.id == 0 ? Util.UserProfile()?.userId : obj.createdBy;
+    obj.modifiedBy = Util.UserProfile()?.userId;
+    obj.modifiedDate = new Date();
     obj.id = obj.id ?? 0;
     obj.categoryId = 0;
     console.log("ItemToSave");
@@ -177,6 +187,7 @@ const TemplatesAddEditDialog: React.FC<ViewEditProps> = (props) => {
         toast.success(
           `Template ${obj.id > 0 ? "updated" : "created"}  successfully`
         );
+        setLoadRowData(true);
         setDialogIsOpen(false);
       })
       .catch((err) => {
