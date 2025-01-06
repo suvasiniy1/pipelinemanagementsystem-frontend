@@ -87,7 +87,7 @@ const DealDetailsCustomFields = (props: params) => {
         res.customFields.forEach((i: DealCustomFields) => {
           setValue(
             ("value" + (customFieldsList.length+1)) as never,
-            i.customSelectValues as never
+            i.customFieldValue as never
           );
           let obj: any = {};
           obj.key = i.customField;
@@ -96,7 +96,7 @@ const DealDetailsCustomFields = (props: params) => {
           obj.pipelineId =i.pipelineId;
           obj.elementSize = 9;
           obj.type =
-            i.customFieldValue == "textbox" ? null : i.customFieldType;
+            i.customFieldType == "textbox" ? null : i.customFieldType;
           customFieldsList.push(obj);
         });
         setOriginalCustomFields(res.customFields);
