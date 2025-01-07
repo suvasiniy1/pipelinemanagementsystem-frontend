@@ -122,7 +122,7 @@ const DealDetailsCustomFields = (props: params) => {
     let controlsList = customFields;
     let customField = customFields[selectedFieldIndex] as any;
     let id = originalCustomFields.find((o) => o.customField === customField.key)
-      ?.customFieldsId as any;
+      ?.customFieldId as any;
     if (id > 0) {
       customFieldsService
         .delete(id)
@@ -155,8 +155,8 @@ const DealDetailsCustomFields = (props: params) => {
         let customFieldsList: Array<DealCustomFields> = [];
         customFields.forEach((field: any, index) => {
           let obj = new DealCustomFields();
-          obj.customFieldsId = originalCustomFields.find((o) => o.customField === field.key)
-            ?.customFieldsId as any;
+          obj.customFieldId = originalCustomFields.find((o) => o.customField === field.key)
+            ?.customFieldId as any;
           obj.dealID = dealItem.dealID;
           obj.customField = field.key;
           obj.customFieldType = field.type;
