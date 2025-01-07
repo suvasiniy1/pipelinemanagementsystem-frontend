@@ -13,6 +13,9 @@ import SentEmailsList from "./sentEmailsList";
 import { DealAuditLogService } from "../../../../../services/dealAuditLogService";
 import { ErrorBoundary } from "react-error-boundary";
 import { PostAuditLog } from "../../../../../models/dealAutidLog";
+import { EmailTemplateService } from "../../../../../services/emailTemplateService";
+import LocalStorageUtil from "../../../../../others/LocalStorageUtil";
+import Constants from "../../../../../others/constants";
 
 type params = {
   dealId: any;
@@ -28,7 +31,7 @@ function EmailActivities(props: params) {
   const [selectedEmail, setSelectedEmail] = useState<any>();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const auditLogsvc = new DealAuditLogService(ErrorBoundary);
-
+  const emailTemplateSvc = new EmailTemplateService(ErrorBoundary);
   useEffect(() => {
     
     if(accounts.length==0){
@@ -36,7 +39,10 @@ function EmailActivities(props: params) {
     }
 
     if (accounts.length > 0 && instance) {
-      fetchData();
+      emailTemplateSvc.getEmailTemplates().then(res=>{
+        LocalStorageUtil.setItemObject(Constants.EMAIL_TEMPLATES, JSON.stringify(res));
+        fetchData();
+      })
     }
 
   }, [(instance as any)?.controller?.initialized, accounts]);

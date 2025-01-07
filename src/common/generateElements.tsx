@@ -29,6 +29,7 @@ type props = {
   onElementDelete?:any;
   onElementEdit?:any;
   showDelete?: boolean; 
+  getAttachedData?:any;
 };
 const GenerateElements: React.FC<props> = (props) => {
   
@@ -124,10 +125,12 @@ const GenerateElements: React.FC<props> = (props) => {
             item={item}
             selectedItem={selectedItem}
             onChange={(e: any) => {
+              
               onChange && onChange(e, item);
             }}
             hideSpace={item.hideSpaceForEditor}
             value={selectedItem[item.value]}
+            attachedData={props.getAttachedData ? props.getAttachedData() : []}
           />
         );
       case ElementType.checkbox: // Add checkbox handling

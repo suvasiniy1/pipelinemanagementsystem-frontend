@@ -7,6 +7,9 @@ import { ElementType, IControl } from "../../../../../models/iControl";
 import GenerateElements from "../../../../../common/generateElements";
 import { useEffect } from "react";
 import { useMsal } from "@azure/msal-react";
+import LocalStorageUtil from "../../../../../others/LocalStorageUtil";
+import Constants from "../../../../../others/constants";
+import { EmailItemProps, EmailTemplate } from "../../../../../models/emailTemplate";
 
 const EmailComposeDialog = (props: any) => {
   const {
@@ -95,7 +98,7 @@ const EmailComposeDialog = (props: any) => {
     
     let toAddresses = selectedItem?.sender?.emailAddress?.address;
     let obj = {...selectedItem, "fromAddress":fromAddress?.username, "toAddress":toAddresses,
-      "body":"", "subject":selectedItem.subject ? addReToSubject(selectedItem.subject) : null, "isReply": !Util.isNullOrUndefinedOrEmpty(selectedItem.subject)
+      "body":selectedItem?.body?.content, "subject":selectedItem.subject ? addReToSubject(selectedItem.subject) : null, "isReply": !Util.isNullOrUndefinedOrEmpty(selectedItem.subject)
     };
     setSelectedItem(obj);
     controlsList.forEach((c) => {
@@ -113,6 +116,7 @@ const EmailComposeDialog = (props: any) => {
     itemName?: any,
     isValidationOptional: boolean = false
   ) => {
+    
     if (!isValidationOptional) {
       if (item.key === "Body") {
         value = value==="<p><br></p>" ? null : value;
@@ -133,6 +137,26 @@ const EmailComposeDialog = (props: any) => {
     props.onSave(obj);
   };
 
+  const getAttachedData=()=>{
+    let list:Array<EmailTemplate> = JSON.parse(LocalStorageUtil.getItemObject(Constants.EMAIL_TEMPLATES) as any);
+    
+    let itemList:Array<any>=[];
+    list.forEach((i) => {
+      ;
+      let header: EmailItemProps = JSON.parse(i.header as any);
+      let body = JSON.parse(i.body as any);
+      let footer = JSON.parse(i.footer as any);
+      let value = `<div class="email-header" style="text-align: ${header.position};">${header.content}
+      <div class="email-body" style="text-align: ${body.position};">${body.content}
+      <div class="email-footer" style="text-align: ${header.position};">${footer.content}`;
+
+      let obj = { name: i.name, value: value };
+      itemList.push(obj);
+    });
+
+    return itemList;
+  }
+
   return (
     <>
       {
@@ -149,6 +173,7 @@ const EmailComposeDialog = (props: any) => {
               controlsList={controlsList}
               selectedItem={selectedItem}
               onChange={(value: any, item: any) => onChange(value, item)}
+              getAttachedData={(e:any)=>getAttachedData()}
             />
           </AddEditDialog>
         </FormProvider>

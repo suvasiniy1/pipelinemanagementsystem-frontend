@@ -118,7 +118,7 @@ export class DealMove {
 }
 
 export class DealCustomFields extends AuditItem {
-  id!: number;
+  customFieldId!: number;
   dealID!: number;
   customField!: string;
   customFieldType!:string;

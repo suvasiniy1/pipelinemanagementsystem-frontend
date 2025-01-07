@@ -87,7 +87,7 @@ const DealDetailsCustomFields = (props: params) => {
         res.customFields.forEach((i: DealCustomFields) => {
           setValue(
             ("value" + (customFieldsList.length+1)) as never,
-            i.customSelectValues as never
+            i.customFieldValue as never
           );
           let obj: any = {};
           obj.key = i.customField;
@@ -96,7 +96,7 @@ const DealDetailsCustomFields = (props: params) => {
           obj.pipelineId =i.pipelineId;
           obj.elementSize = 9;
           obj.type =
-            i.customFieldValue == "textbox" ? null : i.customFieldType;
+            i.customFieldType == "textbox" ? null : i.customFieldType;
           customFieldsList.push(obj);
         });
         setOriginalCustomFields(res.customFields);
@@ -117,11 +117,12 @@ const DealDetailsCustomFields = (props: params) => {
   }, [customFields.length]);
 
   const deleteCustomField = () => {
+    
     setShowDeleteDialog(false);
     let controlsList = customFields;
     let customField = customFields[selectedFieldIndex] as any;
     let id = originalCustomFields.find((o) => o.customField === customField.key)
-      ?.id as any;
+      ?.customFieldId as any;
     if (id > 0) {
       customFieldsService
         .delete(id)
@@ -154,8 +155,8 @@ const DealDetailsCustomFields = (props: params) => {
         let customFieldsList: Array<DealCustomFields> = [];
         customFields.forEach((field: any, index) => {
           let obj = new DealCustomFields();
-          obj.id = originalCustomFields.find((o) => o.customField === field.key)
-            ?.id as any;
+          obj.customFieldId = originalCustomFields.find((o) => o.customField === field.key)
+            ?.customFieldId as any;
           obj.dealID = dealItem.dealID;
           obj.customField = field.key;
           obj.customFieldType = field.type;
