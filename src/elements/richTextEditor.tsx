@@ -14,6 +14,7 @@ type params = {
 };
 
 const RitechTextEditorWithValidation = (props: params) => {
+  
   const {
     value,
     onChange,
@@ -97,7 +98,7 @@ const RitechTextEditorWithValidation = (props: params) => {
       />
 
       <div
-        hidden={attachedData?.length == 0}
+        hidden={!attachedData || attachedData?.length == 0}
         style={{
           cursor: "pointer",
           fontSize: "20px",
@@ -155,6 +156,7 @@ const RitechTextEditorWithValidation = (props: params) => {
 };
 
 const RichTextEditor = (props: params) => {
+  
   const {
     onChange,
     value,
@@ -231,9 +233,8 @@ const RichTextEditor = (props: params) => {
             value={value}
           />
           <br hidden={hideSpace} />
-
           <div
-            hidden={attachedData?.length == 0}
+            hidden={!attachedData || attachedData?.length == 0}
             style={{
               cursor: "pointer",
               fontSize: "20px",

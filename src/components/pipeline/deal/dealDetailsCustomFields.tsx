@@ -152,10 +152,11 @@ const DealDetailsCustomFields = (props: params) => {
   const saveCustomFields = () => {
     //trigger().then((valid) => {
       //if (valid) {
+      
         let customFieldsList: Array<DealCustomFields> = [];
         customFields.forEach((field: any, index) => {
           let obj = new DealCustomFields();
-          obj.customFieldId = originalCustomFields.find((o) => o.customField === field.key)
+          obj.customFieldId = field.id ?? originalCustomFields.find((o) => o.customField === field.key)
             ?.customFieldId as any;
           obj.dealID = dealItem.dealID;
           obj.customField = field.key;

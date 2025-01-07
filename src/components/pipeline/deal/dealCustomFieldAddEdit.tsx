@@ -19,7 +19,7 @@ type params = {
   dialogIsOpen: boolean;
   setDialogIsOpen: any;
   selectedFieldIndex: any;
-  onFieldsSubmit:any;
+  onFieldsSubmit: any;
 };
 const DealCustomFieldAddEdit = (props: params) => {
   const {
@@ -32,8 +32,10 @@ const DealCustomFieldAddEdit = (props: params) => {
     ...others
   } = props;
   const selectedItem = {};
-  const allPipeLinesList:Array<PipeLine> = JSON.parse(localStorage.getItem("allPipeLines") as any);
-  const [selectedPipeLines, setSelectedPipeLines]=useState([]);
+  const allPipeLinesList: Array<PipeLine> = JSON.parse(
+    localStorage.getItem("allPipeLines") as any
+  );
+  const [selectedPipeLines, setSelectedPipeLines] = useState([]);
   const customFieldsService = new CustomFieldService(ErrorBoundary);
   const controlsList: Array<IControl> = [
     {
@@ -55,7 +57,7 @@ const DealCustomFieldAddEdit = (props: params) => {
       isRequired: true,
       type: ElementType.multiSelectDropdown,
       isControlInNewLine: true,
-      bindable:"value"
+      bindable: "value",
     },
   ];
 
@@ -72,8 +74,7 @@ const DealCustomFieldAddEdit = (props: params) => {
   const { handleSubmit, unregister, setValue, getValues } = methods;
 
   const onChange = (value: any, item: any) => {
-    
-    if(item.key==="PipeLine"){
+    if (item.key === "PipeLine") {
       setValue("pipelineIds" as never, value as never);
     }
   };
@@ -83,17 +84,17 @@ const DealCustomFieldAddEdit = (props: params) => {
   };
 
   useEffect(() => {
-    
     if (selectedFieldIndex >= 0) {
-      let selectedFieldItem:any = customFields[selectedFieldIndex];
+      
+      let selectedFieldItem: any = customFields[selectedFieldIndex];
       if (selectedFieldItem) {
         setValue("fieldName" as never, selectedFieldItem.key as never);
         setValue("fieldType" as never, selectedFieldItem.type as never);
         setValue("pipelineIds" as never, selectedFieldItem.pipelineId as never);
-        let selectedList:Array<any>=[];
-        
-        (""+selectedFieldItem.pipelineId)?.split(",").forEach((sp:any)=>{
-          let spItem =  allPipeLinesList.find(apI=>apI.pipelineID==+sp);
+        let selectedList: Array<any> = [];
+
+        ("" + selectedFieldItem.pipelineId)?.split(",").forEach((sp: any) => {
+          let spItem = allPipeLinesList.find((apI) => apI.pipelineID == +sp);
           selectedList.push(spItem);
         });
         setSelectedPipeLines(selectedList as any);
@@ -103,7 +104,7 @@ const DealCustomFieldAddEdit = (props: params) => {
 
   const onSubmit = (item: any) => {
     let isDuplicateFound = false;
-    
+
     setCustomFields((prev: Array<IControl>) => {
       isDuplicateFound = prev.some(
         (i, index) => i.key === item.fieldName && selectedFieldIndex != index
@@ -117,43 +118,51 @@ const DealCustomFieldAddEdit = (props: params) => {
 
       let obj: any = {};
       obj.key = item.fieldName;
-      obj.value = "value" + (selectedFieldIndex == -1 ? prev.length + 1 : selectedFieldIndex+1);
+      obj.value =
+        "value" +
+        (selectedFieldIndex == -1 ? prev.length + 1 : selectedFieldIndex + 1);
       obj.isControlInNewLine = true;
       obj.showDelete = true;
       obj.showEdit = true;
       obj.isRequired = true;
       obj.elementSize = 9;
-      
+
       obj.pipelineIds = getValues("pipelineIds" as any);
       obj.type = item.fieldType;
       if (selectedFieldIndex == -1) {
         prev.push(obj);
-        saveCustomFields(obj);//Saving fields at pipeline level if it is a new field
+        saveCustomFields(obj); //Saving fields at pipeline level if it is a new field
       } else {
         prev[selectedFieldIndex] = obj;
       }
       return prev;
     });
     if (!isDuplicateFound) setDialogIsOpen(false);
-    if(selectedFieldIndex != -1) props.onFieldsSubmit(selectedFieldIndex);
+    if (selectedFieldIndex != -1) props.onFieldsSubmit(selectedFieldIndex);
   };
 
-  const saveCustomFields = (item:any) => {
+  const saveCustomFields = (item: any) => {
     //trigger().then((valid) => {
-      //if (valid) {
-        let obj:any = {};
-        obj.id = 0 as any;
-        obj.customField = item.key;
-        obj.customFieldType = item.type;
-        obj.pipelineIds = item.pipelineIds;
-        obj.createdBy = Util.UserProfile()?.userId;
-        customFieldsService
-          .postItem(obj)
-          .then((res) => {
-          })
-          .catch((err) => {
-          });
-      //}
+    //if (valid) {
+    let obj: any = {};
+    obj.id = 0 as any;
+    obj.customField = item.key;
+    obj.customFieldType = item.type;
+    obj.pipelineIds = item.pipelineIds;
+    obj.createdBy = Util.UserProfile()?.userId;
+    customFieldsService
+      .postItem(obj)
+      .then((res) => {
+        
+        item.id = res?.result[0]?.id;
+        let itemIndex = customFields.findIndex((i) => i.key === item.key);
+        setCustomFields((prev: Array<IControl>) => {
+          prev[itemIndex] = item;
+          return prev;
+        });
+      })
+      .catch((err) => {});
+    //}
     //});
     return null;
   };
@@ -172,20 +181,20 @@ const DealCustomFieldAddEdit = (props: params) => {
         })) ?? [];
     }
 
-    if(item.key==="PipeLine"){
+    if (item.key === "PipeLine") {
       list =
-      allPipeLinesList.map((item: PipeLine) => ({
-        name: item.pipelineName,
-        value: item.pipelineID,
-      })) ?? [];
+        allPipeLinesList.map((item: PipeLine) => ({
+          name: item.pipelineName,
+          value: item.pipelineID,
+        })) ?? [];
     }
     return list;
   };
 
   const getSelectedList = (e: any) => {
     return selectedPipeLines.map((item: PipeLine) => ({
-      name: item.pipelineName,
-      value: item.pipelineID,
+      name: item?.pipelineName,
+      value: item?.pipelineID,
     }));
   };
 

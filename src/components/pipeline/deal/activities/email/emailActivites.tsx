@@ -133,7 +133,7 @@ function EmailActivities(props: params) {
     } catch (error) {
       console.error("Email sending failed", error);
       setDialogIsOpen(false);
-      toast.success("Unable to sent email please re try after sometime");
+      toast.warning("Unable to sent email please re try after sometime");
     }
   };
 
@@ -151,7 +151,7 @@ function EmailActivities(props: params) {
     } catch (error) {
       console.error("Email deleting failed", error);
       setDialogIsOpen(false);
-      toast.success("Unable to delete email please re try after sometime");
+      toast.warning("Unable to delete email please re try after sometime");
     }
   };
 
@@ -260,9 +260,9 @@ function EmailActivities(props: params) {
 export default EmailActivities;
 
 
-export const prepareToRecipients = (emailObj: EmailCompose) => {
+export const prepareToRecipients = (emailObj: any) => {
   let emails: Array<any> = [];
-  emailObj.toAddress.split(";").forEach((i) => {
+  emailObj.toAddress?.split(";")?.forEach((i:any) => {
     let obj: any = {
       emailAddress: {
         address: i,
@@ -270,7 +270,7 @@ export const prepareToRecipients = (emailObj: EmailCompose) => {
     };
     emails.push(obj);
   });
-  return emails;
+  return emails.length>0 ? emails : emailObj?.toRecipients;
 };
 
 export const prepareEmailBody = (emailObj: EmailCompose, dealId:number) => {
