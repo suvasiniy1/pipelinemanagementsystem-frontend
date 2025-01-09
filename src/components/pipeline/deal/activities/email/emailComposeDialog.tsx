@@ -133,7 +133,7 @@ const EmailComposeDialog = (props: any) => {
   const onSubmit = (item: any) => {
     
     let obj = Util.toClassObject(selectedItem, item);
-    
+    obj.toAddress = item.toAddress;
     props.onSave(obj);
   };
 
