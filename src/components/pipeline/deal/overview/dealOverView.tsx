@@ -47,6 +47,10 @@ const DealOverView = (props: params) => {
   const [notesList, setNotesList] = useState<Array<Notes>>([]);
   const [error, setError] = useState<AxiosError>();
   const [selectedTab, setSelectedTab] = useState("Overview");
+  const removeSpecificTags = (html: string | null | undefined): string => {
+    if (!html) return ""; // Handle null or undefined input
+    return html.replace(/<\/?p>/g, ""); // Remove <p> and </p> tags
+  };
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -289,7 +293,7 @@ const handleLostClick = () => {
                                   </span>
                                 </Accordion.Header>
                                 <Accordion.Body>
-                                  {note.noteDetails}
+                                {removeSpecificTags(note.noteDetails)}
                                 </Accordion.Body>
                               </Accordion.Item>
                             ))}
