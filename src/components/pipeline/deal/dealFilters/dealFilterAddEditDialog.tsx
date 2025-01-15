@@ -171,7 +171,11 @@ const FilterCondition: React.FC<FilterConditionProps> = ({
   const attributeError = (errors[conditionType] as any)?.[index]?.field;
   const operatorError = (errors[conditionType] as any)?.[index]?.operator;
   const valueError = (errors[conditionType] as any)?.[index]?.value;
-
+  interface Pipeline {
+    pipelineID: string; 
+    pipelineName: string;
+  }
+  
   useEffect(() => {
     setValue(`${conditionType}.${index}.object`, condition.object);
     setValue(`${conditionType}.${index}.field`, condition.field);
@@ -179,24 +183,67 @@ const FilterCondition: React.FC<FilterConditionProps> = ({
     setValue(`${conditionType}.${index}.value`, condition.value);
   }, [condition, setValue, index, conditionType]);
 
-  const getAllPipeLinesAndStages = () => {
+  const [pipelines, setPipelines] = useState<Pipeline[]>([]);
+
+  useEffect(() => {
+    setPipelines(getPipelines());
+  }, []);
+  
+  const getPipelines = (): Pipeline[] => {
+    const res = JSON.parse(localStorage.getItem("getAllPipeLinesAndStages") || "[]");
+    return res.map((pipeline: any) => ({
+      pipelineID: pipeline.pipelineStages?.[0]?.pipelineID || "", 
+      pipelineName: pipeline.pipelineName || "Unknown Pipeline",
+    }));
+  };
+  
+  const getAllPipeLinesAndStages = (): Array<{
+    pipeLine: string;
+    pipelineID: string | null;
+    stages: Array<{ stageID: string; stageName: string }>;
+  }> => {
     let list: Array<any> = [];
-    let res: Array<any> = JSON.parse(
-      localStorage.getItem("getAllPipeLinesAndStages") as any
-    );
-    res.forEach((i:any) => {
-      let obj = {
-        pipeLine: i.pipelineName,
-        stages: (i.pipelineStages as Array<any>).map(({ stageID, stageName }) => ({ stageID, stageName }))
+    const res = JSON.parse(localStorage.getItem("getAllPipeLinesAndStages") || "[]");
+    console.log("Raw pipelines with stages:", res); // Log raw data for debugging
+  
+    res.forEach((pipeline: any) => {
+      const obj = {
+        pipeLine: pipeline.pipelineName || "Unknown Pipeline",
+        pipelineID: pipeline.pipelineStages?.[0]?.pipelineID || null, // Extract pipelineID from the first stage
+        stages: (pipeline.pipelineStages || []).map((stage: { stageID: string; stageName: string }) => ({
+          stageID: stage.stageID || "Unknown Stage ID",
+          stageName: stage.stageName || "Unknown Stage Name",
+        })),
       };
       list.push(obj);
     });
+  
     return list;
   };
+ 
 
   const valueJSX = (key: string) => {
     console.log("key is.... " + key);
     switch (key) {
+      case "8": // Pipeline
+      return (
+        <select
+          className="form-control"
+          disabled={!getValues(`${conditionType}.${index}.field`)}
+          value={getValues(`${conditionType}.${index}.value`) || ""}
+          {...register(`${conditionType}.${index}.value`)}
+          onChange={(e) =>
+            setValue(`${conditionType}.${index}.value`, e.target.value)
+          }
+        >
+          <option value="">Select</option>
+          {pipelines.map((pipeline) => (
+            <option key={pipeline.pipelineID} value={pipeline.pipelineID}>
+              {pipeline.pipelineName}
+            </option>
+          ))}
+        </select>
+      );
       case "stageid":
         return (
           <select
@@ -567,24 +614,46 @@ const DealFilterAddEditDialog = (props: params) => {
     });
   };
 
-  const buildConditionsArray = (
-    glue: string,
-    list: Array<any>,
-    objList: Array<any>
-  ) => {
+  const buildConditionsArray = (glue: string, list: Array<any>, objList: Array<any>) => {
     let condition = new Rule();
     condition.glue = glue;
     condition.conditionList = [];
+  
+    const pipelines = JSON.parse(localStorage.getItem("getAllPipeLinesAndStages") || "[]").map((pipeline: any) => ({
+      pipelineID: pipeline.pipelineID || null,
+      pipelineName: pipeline.pipelineName || "Unknown Pipeline",
+    }));
+  
     list.forEach((ac, index) => {
       let objItem = objList[index];
       let conditionCSV = new ConditionCSV();
+  
       conditionCSV = { ...objItem };
-      // conditionCSV.object = ac.attribute;
-      // conditionCSV.value = ac.field;
-      // conditionCSV.operator = ac.operator;
-      conditionCSV.extraValue = objItem.value;
+      conditionCSV.extraValue = objItem.value; // Default extraValue
+  
+      if (objItem.field === "8") { // Check for Pipeline field
+        console.log("Pipelines: ", pipelines);
+        console.log("Pipeline value from objItem: ", objItem.value);
+  
+        const pipeline = pipelines.find(
+          (p: any) => p.pipelineID === objItem.value || p.pipelineName === objItem.value
+        );
+  
+        if (pipeline) {
+          console.log("Matched Pipeline: ", pipeline);
+          conditionCSV.value = pipeline.pipelineID; 
+          conditionCSV.extraValue = pipeline.pipelineName; 
+        } else {
+          console.log("No matching pipeline found!");
+          conditionCSV.value = objItem.value || "";
+        }
+      }
+  
+      console.log("Condition CSV before pushing:", conditionCSV);
       condition.conditionList.push(conditionCSV);
     });
+  
+    console.log("Final Condition Object:", condition);
     return condition;
   };
 
