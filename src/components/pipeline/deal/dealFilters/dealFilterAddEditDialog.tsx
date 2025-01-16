@@ -39,7 +39,7 @@ const dealStatusList = [
 const fieldOptions = [
   { value: "1", label: "Title" },
   { value: "2", label: "Creator" },
-  { value: "3", label: "Owner" },
+  { value: "ContactPersonID", label: "Owner" },
   { value: "4", label: "Value" },
   { value: "6", label: "Probability" },
   { value: "7", label: "Organization" },
