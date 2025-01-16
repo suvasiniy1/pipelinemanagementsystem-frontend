@@ -12,13 +12,40 @@ import axios from "axios";
 import { DealService } from "../../../../services/dealService";
 import { ErrorBoundary } from "react-error-boundary";
 
+// Define the structure of a Call object based on the API response
+type Call = {
+  id: string;
+  callDate: string;
+  callTime: string;
+  contactName?: string;
+  contactNumber?: string;
+  justCallNumber?: string;
+  agentName?: string;
+  callInfo?: {
+    direction?: string;
+    type?: string;
+    disposition?: string;
+    notes?: string;
+    recording?: string;
+    missedCallReason?: string;
+  };
+  duration?: number;
+  campaign?: {
+    id?: string;
+    name?: string;
+    type?: string;
+  };
+  status?: string;
+  recordingUrl?: string;
+  missedCallReason?: string;
+};
 type params = {
   dealItem: Deal;
   dealId:number;
 };
 const DealActivities = (props: params) => {
   const { dealItem, dealId, ...others } = props;
-  const [callHistory, setCallHistory] = useState<Array<any>>([]);
+  const [callHistory, setCallHistory] = useState<Call[]>([]);
   const [defaultActiveKey, setdefaultActiveKey] = useState("activity_sub");
   const [error, setError] = useState(null);
   // Initialize DealService
@@ -33,9 +60,21 @@ const DealActivities = (props: params) => {
       try {
         const response = await dealSvc.getDealsById(dealId, axiosCancelSource);
         console.log("API Response:", response); // Log full response
+
         if (response && response.callHistory) {
-          setCallHistory(response.callHistory);
-          console.log("Updated callHistory in state:", response.callHistory);
+          // Map and add default values for required fields
+          const updatedCallHistory = response.callHistory.map((call: any) => ({
+            ...call,
+            status: call.status || "Pending", // Default if missing
+            callInfo: {
+              ...call.callInfo,
+              missedCallReason: call.callInfo?.missedCallReason || "Not Provided", // Default if missing
+              recording: call.callInfo?.recording || "", // Default to empty string
+            }
+          }));
+
+          setCallHistory(updatedCallHistory);
+          console.log("Updated callHistory in state:", updatedCallHistory);
         } else {
           console.warn("API Response does not contain expected data.");
         }

@@ -108,6 +108,9 @@ export class Deal extends AuditItem {
   //     this.visibilityGroupName = visibilityGroupName;
 
   // }
+  MissedCallReason: string = "Not Provided";
+  RecordingUrl: string = "";
+  Status: string = "Pending";
 }
 
 export class DealMove {

@@ -16,60 +16,67 @@ const CallsActivities: React.FC<CallsActivitiesProps> = ({ callHistory }) => {
 
   return (
     <Accordion className="activityfilter-acco">
-      {callHistory.map((call, index) => (
-        <Accordion.Item eventKey={`call-${index}`} key={index}>
-          <Accordion.Header>
-            <span className="accoheader-title">
-              Call ID: {call.id} - {call.callInfo?.type}
-            </span>
-            <span className="accoheader-date">
-              {moment(`${call.callDate} ${call.callTime}`).format("MM-DD-YYYY hh:mm:ss a")}
-            </span>
-          </Accordion.Header>
-          <Accordion.Body>
+  {callHistory.map((call, index) => (
+    <Accordion.Item eventKey={`call-${index}`} key={index}>
+    <Accordion.Header>
+        <span className="accoheader-title">
+            Call ID: {call.id || "Unknown"} - {call.callInfo?.type || "Unknown Type"}
+        </span>
+        <span className="accoheader-date">
+            {moment(`${call.callDate || "N/A"} ${call.callTime || "N/A"}`).isValid()
+                ? moment(`${call.callDate} ${call.callTime}`).format("MM-DD-YYYY hh:mm:ss a")
+                : "Invalid Date"}
+        </span>
+    </Accordion.Header>
+    <Accordion.Body>
+        <p>
+            <strong>Call From:</strong> {call.contactName || "Unknown"} {call.contactNumber || "Unknown"}
+        </p>
+        <p>
+            <strong>Received On:</strong> {call.justCallNumber || "Unknown"}
+        </p>
+        <p>
+            <strong>Assigned To:</strong> {call.agentName || "Unassigned"}
+        </p>
+        {call.callInfo?.disposition && (
             <p>
-              <strong>Call From:</strong> {call.contactName} {call.contactNumber}
+                <strong>Disposition:</strong> {call.callInfo.disposition || "Not Provided"}
             </p>
+        )}
+        {call.callInfo?.notes && (
             <p>
-              <strong>Received On:</strong> {call.justCallNumber}
+                <strong>Notes:</strong> {call.callInfo.notes || "No Notes"}
             </p>
-            <p>
-              <strong>Assigned To:</strong> {call.agentName}
-            </p>
-            {call.callInfo?.disposition && (
-              <p>
-                <strong>Disposition:</strong> {call.callInfo.disposition}
-              </p>
-            )}
-            {call.callInfo?.notes && (
-              <p>
-                <strong>Notes:</strong> {call.callInfo.notes}
-              </p>
-            )}
-            {call.callInfo?.recording ? (
-              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        )}
+        {call.callInfo?.recording ? (
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                 <p style={{ margin: 0 }}>
-                  <strong>Recording:</strong>
+                    <strong>Recording:</strong>
                 </p>
                 <audio controls>
-                  <source src={call.callInfo.recording} type="audio/mpeg" />
-                  Your browser does not support the audio element.
+                    <source src={call.callInfo.recording || ""} type="audio/mpeg" />
+                    Your browser does not support the audio element.
                 </audio>
-              </div>
-            ) : (
-              <p>
+            </div>
+        ) : (
+            <p>
                 <strong>Recording:</strong> Not Available
-              </p>
-            )}
-            {call.status === "missed" && (
-              <p>
-                <strong>Missed Call Reason:</strong> {call.missedCallReason}
-              </p>
-            )}
-          </Accordion.Body>
-        </Accordion.Item>
-      ))}
-    </Accordion>
+            </p>
+        )}
+        {call.status && (
+            <p>
+                <strong>Status:</strong> {call.status || "Pending"}
+            </p>
+        )}
+        {call.status === "missed" && (
+            <p>
+                <strong>Missed Call Reason:</strong> {call.missedCallReason || "Not Provided"}
+            </p>
+        )}
+    </Accordion.Body>
+</Accordion.Item>
+  ))}
+</Accordion>
   );
 };
 

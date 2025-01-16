@@ -53,7 +53,9 @@ export const DealDetails = () => {
   );
   const dealSvc = new DealService(ErrorBoundary);
   const [error, setError] = useState<AxiosError>();
-  const [dealItem, setDealItem] = useState<Deal>({ ...new Deal(), openDealsCount: 0 });
+  const [dealItem, setDealItem] = useState<Deal>({ ...new Deal(), openDealsCount: 0,MissedCallReason: "Not Provided",
+    RecordingUrl: "",
+    Status: "Pending", });
   const [isLoading, setIsLoading] = useState(true);
   const stagesSvc = new StageService(ErrorBoundary);
   const [stages, setStages] = useState<Array<Stage>>([]);
