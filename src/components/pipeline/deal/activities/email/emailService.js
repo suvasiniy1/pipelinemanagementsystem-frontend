@@ -3,6 +3,7 @@ import { Client } from "@microsoft/microsoft-graph-client";
 //#region Email
 export const sendEmail = async (accessToken, body, emailId = null) => {
   // Example function to send email using access token
+  
   try {
     // Replace with your actual email sending logic
     const response = await fetch(

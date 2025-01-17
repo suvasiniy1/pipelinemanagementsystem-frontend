@@ -87,11 +87,27 @@ const RitechTextEditorWithValidation = (props: params) => {
     setShowDropdown(false); // Close dropdown
   };
 
+  const modules = {
+    toolbar: [
+      [{ 'font': [] }],
+      [{ 'size': [] }],
+      [{ 'align': [] }],
+      [{ 'color': [] }, { 'background': [] }], // Allow background colors
+      [{ 'bold': true }, { 'italic': true }, { 'underline': true }],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      ['link'],
+      ['image'],
+      [{ 'indent': '-1' }, { 'indent': '+1' }]
+    ]
+  };
+
+
   return (
     <>
       <br hidden={hideSpace} />
       <ReactQuill
         ref={quillRef}
+        modules={modules}
         onFocus={(e: any) => handleAtClick()}
         onChange={(e: any) => props.onChange(e)}
         value={value}

@@ -15,6 +15,7 @@ import { EmailTemplateService } from "../../../services/emailTemplateService";
 import { ErrorBoundary } from "react-error-boundary";
 import { toast } from "react-toastify";
 import SelectDropdown from "../../../elements/SelectDropdown";
+import { ColorPicker } from "../../../elements/colorPicker";
 
 const TemplatesAddEditDialog: React.FC<ViewEditProps> = (props) => {
   
@@ -32,6 +33,7 @@ const TemplatesAddEditDialog: React.FC<ViewEditProps> = (props) => {
     ...others
   } = props;
 
+  const [headerBGcolor, setHeaderBGColor] = useState("#aabbcc");
   const [isLoading, setIsLoading] = useState(true);
   const editorsList = [
     { key: "Header", value: "header" },
@@ -146,21 +148,24 @@ const TemplatesAddEditDialog: React.FC<ViewEditProps> = (props) => {
     if (item.key === "Header") {
       let headerObj = selectedItemObj.header;
       if(itemName === "content") headerObj.content = value;
-      else headerObj.position = value;
+      if(itemName === "position") headerObj.position = value;
+      if(itemName === "backGroundColor") headerObj.backGroundColor = value;
       setValue("header" as never, headerObj.content as never);
       setSelectedItem({ ...selectedItem, header: headerObj });
     }
     if (item.key === "Body") {
       let bodyObj = selectedItemObj.body;
       if(itemName === "content") bodyObj.content = value;
-      else bodyObj.position = value;
+      if(itemName === "position") bodyObj.position = value;
+      if(itemName === "backGroundColor") bodyObj.backGroundColor = value;
       setSelectedItem({ ...selectedItem, body: bodyObj });
     }
 
     if (item.key === "Footer") {
       let footerObj = selectedItemObj.footer;
       if(itemName === "content") footerObj.content = value;
-      else footerObj.position = value;;
+      if(itemName === "position") footerObj.position = value;
+      if(itemName === "backGroundColor") footerObj.backGroundColor = value;
       setSelectedItem({ ...selectedItem, footer: footerObj });
     }
   };
@@ -172,7 +177,7 @@ const TemplatesAddEditDialog: React.FC<ViewEditProps> = (props) => {
     obj.header = JSON.stringify(selectedItem.header) as any;
     obj.body = JSON.stringify(selectedItem.body) as any;
     obj.footer = JSON.stringify(selectedItem.footer) as any;
-    obj.createdBy = obj.id == 0 ? Util.UserProfile()?.userId : obj.createdBy;
+    obj.createdBy = obj.id>0 ? obj.createdBy : Util.UserProfile()?.userId ;
     obj.modifiedBy = Util.UserProfile()?.userId;
     obj.modifiedDate = new Date();
     obj.id = obj.id ?? 0;
@@ -208,7 +213,6 @@ const TemplatesAddEditDialog: React.FC<ViewEditProps> = (props) => {
             closeDialog={oncloseDialog}
             onClose={oncloseDialog}
           >
-            
             <>
               {isLoading ? (
                 <div className="alignCenter">
@@ -226,7 +230,7 @@ const TemplatesAddEditDialog: React.FC<ViewEditProps> = (props) => {
                             onChange(value, item)
                           }
                         />
-                        <br/>
+                        <br />
                         <div className="accordion" id="accordionExample">
                           {/* Header Accordion */}
                           {editorsList.map((editor, index) => (
@@ -292,6 +296,33 @@ const TemplatesAddEditDialog: React.FC<ViewEditProps> = (props) => {
                                             </div>
                                           </div>
                                         </div>
+                                        <div className="pt-2"  hidden={index==1}>
+                                          <div className="form-group row">
+                                            <div className="col-6">
+                                              <label
+                                                htmlFor="name"
+                                                id={`labelFor_${editor.value}`}
+                                                className="col-sm-12"
+                                              >
+                                                Background Color:
+                                              </label>
+                                            </div>
+                                            <div className="col-6">
+                                              <ColorPicker
+                                                color={selectedItem?.[editor.value]
+                                                  ?.backGroundColor}
+                                                setColor={(e: any) =>
+                                                  onChange(
+                                                    e,
+                                                    editor,
+                                                    "backGroundColor",
+                                                    true
+                                                  )
+                                                }
+                                              />
+                                            </div>
+                                          </div>
+                                        </div>
                                         <RichTextEditor
                                           onChange={(e: any) =>
                                             onChange(e, editor, "content")
@@ -312,10 +343,12 @@ const TemplatesAddEditDialog: React.FC<ViewEditProps> = (props) => {
                         </div>
                       </>
                     }
-                    
                   </div>
                   <div className="col-6 addemailconf2-col6">
-                    <TemplatePreview selectedItem={selectedItem} setHieghtWidth={false}/>
+                    <TemplatePreview
+                      selectedItem={selectedItem}
+                      setHieghtWidth={false}
+                    />
                   </div>
                 </div>
               )}

@@ -40,19 +40,19 @@ const TemplatePreview = (props: params) => {
       <div className="email-preview">
         <div
           className="email-header"
-          style={{ textAlign: selectedItem?.header?.position }}
+          style={{ textAlign: selectedItem?.header?.position, backgroundColor: selectedItem?.header?.backGroundColor}}
           ref={headerRef as any}
         ></div>
         <div
           className="email-body"
-          style={{ textAlign: selectedItem?.body?.position }}
+          style={{ textAlign: selectedItem?.body?.position, backgroundColor: selectedItem?.body?.backGroundColor }}
           ref={bodyRef as any}
         >
           Body
         </div>
         <div
           className="email-footer"
-          style={{ textAlign: selectedItem?.footer?.position }}
+          style={{ textAlign: selectedItem?.footer?.position, backgroundColor: selectedItem?.footer?.backGroundColor }}
           ref={footerRef as any}
         >
           footer
