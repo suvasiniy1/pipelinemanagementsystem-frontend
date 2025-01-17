@@ -68,7 +68,7 @@ const TasksList = () => {
             ? new Date(item.dueDate).toLocaleDateString("en-GB")
             : "No Due Date",
                 duration: item.duration || 0,
-                name: item.name || "No Name Available",
+                name: item.name || "No Call Type Available",
                 startDate: item.startDate ? new Date(item.startDate) : new Date(),
                 reminder: item.reminder ? new Date(item.reminder) : new Date(),
                 todo: item.todo || "",
@@ -164,10 +164,10 @@ const TasksList = () => {
                 />
             ),
         },
-        { columnName: "name", columnHeaderName: "Subject", width: 150 },
-        { columnName: "treatmentName", columnHeaderName: "Deal", width: 150 },
-        { columnName: "personName", columnHeaderName: "Contact Person", width: 150 },
-        { columnName: "email", columnHeaderName: "Email", width: 150 },
+        { columnName: "name", columnHeaderName: "Subject", width: 230},
+        { columnName: "treatmentName", columnHeaderName: "Deal", width: 200 },
+        { columnName: "personName", columnHeaderName: "Contact Person", width: 200 },
+        { columnName: "email", columnHeaderName: "Email", width: 250 },
         { columnName: "phone", columnHeaderName: "Phone Number", width: 150 },
         { columnName: "dueDate", columnHeaderName: "Due Date", width: 150 },
         { columnName: "duration", columnHeaderName: "Duration (hours)", width: 150 },
