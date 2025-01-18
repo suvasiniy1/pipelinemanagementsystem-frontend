@@ -220,7 +220,7 @@ function EmailActivities(props: params) {
           )}
         </div>
         <div hidden={accounts.length === 0 || isLoading}>
-          <h3>April 2024</h3>
+          {/* <h3>April 2024</h3> */}
           <div
             className="activityfilter-accrow  mb-3"
             hidden={emailsList.length == 0}

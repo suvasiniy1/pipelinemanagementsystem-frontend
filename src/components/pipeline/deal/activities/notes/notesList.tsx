@@ -67,7 +67,7 @@ const NotesList = (props: params) => {
                 <button className='btn btn-y1app' type='button' onClick={(e: any) => setDialogIsOpen(true)}>Create Note</button>
               </div>
             </div>
-            <h3>April 2024</h3>
+            {/* <h3>April 2024</h3> */}
             <div className='activityfilter-accrow  mb-3' hidden={notesList.length==0}>
               <Accordion className='activityfilter-acco'>
                 {notesList.map((note, index) => (

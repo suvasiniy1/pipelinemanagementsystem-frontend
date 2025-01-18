@@ -123,7 +123,7 @@ const RitechTextEditorWithValidation = (props: params) => {
         }}
         onClick={(e: any) => setShowDropdown(true)}
       >
-        @
+      <b>Select From Template</b>  @
       </div>
 
       {/* Dropdown - Show when @ is clicked */}
@@ -259,7 +259,7 @@ const RichTextEditor = (props: params) => {
             }}
             onClick={(e: any) => setShowDropdown(true)}
           >
-            @
+           <b>Select From Template</b>  @
           </div>
 
           {/* Dropdown - Show when @ is clicked */}
