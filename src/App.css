@@ -1034,3 +1034,55 @@ min-width: 375px !important;
 .colorPickerSmall .react-colorful__hue {
   height: 20px;
 }
+.appdeal-amount-container {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Space between elements */
+  background-color: #f5f5f5;
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  width: fit-content; /* Adjust to content width */
+}
+
+.deal-amount-input {
+  width: 120px;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.currency-dropdown {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.btn-cancel {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.deal-amount-icon {
+  color: #6c757d;
+  font-size: 18px;
+}
+
+.deal-amount-value {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.edit-icon {
+  cursor: pointer;
+  color: #007bff;
+  font-size: 16px;
+}
+
+

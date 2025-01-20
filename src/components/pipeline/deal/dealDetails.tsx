@@ -4,6 +4,7 @@ import {
   faAngleLeft,
   faEnvelope,
   faListCheck,
+  faMoneyBill,
   faPencil,
   faPenToSquare,
   faPhone,
@@ -42,6 +43,8 @@ import DealsDialog from "./DealsDialog";
 
 
 export const DealDetails = () => {
+  const [isEditingAmount, setIsEditingAmount] = useState(false);
+
   const [dealId, setDealId] = useState(
     new URLSearchParams(useLocation().search).get("id") as any
   );
@@ -75,7 +78,7 @@ export const DealDetails = () => {
 
   const [openDealsCount, setOpenDealsCount] = useState(dealItem.openDealsCount || 0);
   const [dealsData, setDealsData] = useState<Deal[]>([]); 
-  
+  const [dealValue, setDealValue] = useState(dealItem.value);
 
   useEffect(() => {}, [dealItem]);
 
@@ -93,6 +96,20 @@ export const DealDetails = () => {
     // Convert the IST date to an ISO string in local time
     let istISO = istDate.toISOString();
     return istISO
+  };
+  const handleEditClick = () => {
+    setIsEditingAmount(true);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDealValue(e.target.value);
+  };
+
+  const handleSaveClick = () => {
+    console.log("Saving deal value:", dealValue);  // Debugging
+    setIsEditingAmount(false);
+    setDealItem({ ...dealItem, value: dealValue }); // Update the deal value
+    onDealModified(); // Save the deal using existing function
   };
 
   const loadDealItem=()=>{
@@ -114,6 +131,7 @@ export const DealDetails = () => {
               ? res[0].find((d: Deal) => d.dealID == dealId)
               : {...res[0], operationDate:convertUTCtoISO(res[0].operationDate)}
           );
+          setDealValue(res[0].value);
           let sortedStages = Util.sortList(res[1].stageDtos, "stageOrder");
           setStages(sortedStages);
         }
@@ -179,6 +197,7 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
   // Use the useLocation hook instead of the global location object
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
+  
     const newDealId = searchParams.get("id");
     const newPipelineId = searchParams.get("pipeLineId");
 
@@ -189,15 +208,17 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
 
 
   const onDealModified = () => {
+    console.log("Updated dealItem:", dealItem);
     // Only convert to Date if operationDate is not null
     const operationDate = dealItem.operationDate ? new Date(dealItem.operationDate) : null;
 
     dealSvc
       .putItemBySubURL(
-        { ...dealItem, operationDate },
+        { ...dealItem,value: dealValue, operationDate },
         "" + dealItem.dealID
       )
       .then((res) => {
+        console.log("API Response:", res);
         toast.success("Deal updated successfully.");
         loadDealItem();
       })
@@ -256,6 +277,7 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
     }
   };
 
+
   return (
     <>
       {error && <UnAuthorized error={error as any} />}
@@ -311,13 +333,46 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
                       </div>
                     </div>
                     <div className="appdealblock-row mt-1">
-                      <div className="appdeal-amount dflex">
-                        Amount:{" "}
-                        <span className="appdeal-amountnum">
-                          ${dealItem.value}
-                        </span>
-                      </div>
-                    </div>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+    <FontAwesomeIcon icon={faMoneyBill} className="deal-amount-icon" />
+    <div className="appdeal-amount-container">
+      {isEditingAmount ? (
+        <div>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <input
+              type="number"
+              value={dealValue}
+              onChange={handleInputChange}
+              className="deal-amount-input"
+            />
+            <select className="currency-dropdown">
+              <option value="GBP">Pound Sterling (GBP)</option>
+              <option value="USD">US Dollar (USD)</option>
+              <option value="EUR">Euro (EUR)</option>
+            </select>
+          </div>
+          <div style={{ marginTop: '8px', textAlign: 'right' }}>
+            <button
+              className="btn-cancel"
+              onClick={() => setIsEditingAmount(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span className="deal-amount-value">${dealItem.value}</span>
+          <FontAwesomeIcon
+            icon={faPenToSquare}
+            className="edit-icon"
+            onClick={handleEditClick}
+          />
+        </div>
+      )}
+    </div>
+  </div>
+</div>
                     <div className="appdealblock-row mt-1">
                       <div className="appdeal-closedate dflex">
                         Close Date:{" "}

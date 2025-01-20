@@ -411,7 +411,7 @@ export const DealAddEditDialog = (props: params) => {
             firstName: firstName || "",
             lastName: lastName || "",
         };
-        delete addUpdateItem.contactPersonID; // Remove contactPersonID for new contact
+        //delete addUpdateItem.contactPersonID; // Remove contactPersonID for new contact
     } else {
         addUpdateItem.contactPersonID = selectedItem.contactPersonID!;
     }
