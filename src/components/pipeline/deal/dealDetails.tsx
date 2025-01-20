@@ -437,9 +437,9 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
                           <SelectDropdown
                             isValidationOptional={true}
                             onItemChange={(e: any) =>
-                              setDealItem({ ...dealItem, contactPersonID: e })
+                              setDealItem({ ...dealItem, assigntoId: e })
                             }
-                            value={"" + dealItem.contactPersonID}
+                            value={"" + dealItem.assigntoId}
                             list={
                               utility?.users.filter(u=>u.isActive).map(
                                 ({ name, id }) => ({

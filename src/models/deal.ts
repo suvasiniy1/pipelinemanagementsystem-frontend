@@ -2,7 +2,8 @@ import { AuditItem } from "./base/AuditNamedItem";
 
 export class Deal extends AuditItem {
   dealID: number = 0;
-  contactPersonID?: number | null;
+  contactPersonID!: number;
+  assigntoId!: number;
   organizationID!: number;
   title!: string;
   value: string = "100";

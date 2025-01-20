@@ -33,18 +33,19 @@ function EmailActivities(props: params) {
   const auditLogsvc = new DealAuditLogService(ErrorBoundary);
   const emailTemplateSvc = new EmailTemplateService(ErrorBoundary);
   useEffect(() => {
-    
-    if(accounts.length==0){
+    if (accounts.length == 0) {
       handleLogin();
     }
 
     if (accounts.length > 0 && instance) {
-      emailTemplateSvc.getEmailTemplates().then(res=>{
-        LocalStorageUtil.setItemObject(Constants.EMAIL_TEMPLATES, JSON.stringify(res));
+      emailTemplateSvc.getEmailTemplates().then((res) => {
+        LocalStorageUtil.setItemObject(
+          Constants.EMAIL_TEMPLATES,
+          JSON.stringify(res)
+        );
         fetchData();
-      })
+      });
     }
-
   }, [(instance as any)?.controller?.initialized, accounts]);
 
   const fetchData = async () => {
@@ -61,7 +62,7 @@ function EmailActivities(props: params) {
         );
 
         //Retrieving deal emails from localstorage
-        
+
         var emailsResult: Array<any> = [];
         emails.forEach((e) => {
           let categories = e.categories[0]?.split(":") ?? [];
@@ -109,27 +110,52 @@ function EmailActivities(props: params) {
     }
   };
 
-  const handleSendEmail = async (emailObj: any) => {
+  const handleSendEmail = async (emailObj: any, attachmentFiles:Array<any>) => {
     try {
       const accessTokenResponse = await instance.acquireTokenSilent({
         scopes: ["Mail.Send"],
         account: accounts[0],
       });
       // Send email logic here
+
+      
+
+      const attachments = await Promise.all(
+        attachmentFiles.map(async (file) => {
+          const base64File = await fileToBase64(file?.file);
+          return {
+            '@odata.type': '#microsoft.graph.fileAttachment',
+            name: file.file.name,
+            contentType: file.file.type,
+            contentBytes: base64File,
+          };
+        })
+      );
+
+      const emailBody = await prepareEmailBody(emailObj, dealId, attachments);
+
       let response: any = await sendEmail(
-        accessTokenResponse.accessToken,
-        prepareEmailBody(emailObj, dealId),
+        accessTokenResponse.accessToken,emailBody,
         emailObj.isReply ? selectedEmail.id : null
       );
-      
-      setEmailSent(true);
-      setDialogIsOpen(false);
-      toast.success("Email sent successfully");
-      let auditLogObj = {...new PostAuditLog(), eventType:"email Send", dealId:dealId}
-      auditLogObj.createdBy = Util.UserProfile()?.userId;
-      auditLogObj.eventDescription = "A new email was sent for the deal";
-      await auditLogsvc.postAuditLog(auditLogObj);
-      fetchData();
+      if(!response.error){
+        setEmailSent(true);
+        setDialogIsOpen(false);
+        toast.success("Email sent successfully");
+        let auditLogObj = {
+          ...new PostAuditLog(),
+          eventType: "email Send",
+          dealId: dealId,
+        };
+        auditLogObj.createdBy = Util.UserProfile()?.userId;
+        auditLogObj.eventDescription = "A new email was sent for the deal";
+        await auditLogsvc.postAuditLog(auditLogObj);
+        fetchData();
+      }
+      else{
+        toast.error("Unable to send email please verify");
+      }
+
     } catch (error) {
       console.error("Email sending failed", error);
       setDialogIsOpen(false);
@@ -165,36 +191,36 @@ function EmailActivities(props: params) {
             </div>
           ) : (
             <div className="createnote-row">
-                <div  className="d-flex">
-                  <div>
-                    <button
-                      type="button"
-                      onClick={(e: any) => {
-                        setSelectedEmail(new EmailCompose());
-                        setDialogIsOpen(true);
-                      }}
-                      className="btn btn-y1app"
-                    >
-                      Send Email
-                    </button>
-                  </div>
-                  <div style={{paddingLeft:"10px"}}>
-                    <button
-                      type="button"
-                      onClick={(e: any) => {
-                        fetchData();
-                      }}
-                      className="btn btn-secondary"
-                    >
-                      Refresh
-                    </button>
-                  </div>
+              <div className="d-flex">
+                <div>
+                  <button
+                    type="button"
+                    onClick={(e: any) => {
+                      setSelectedEmail(new EmailCompose());
+                      setDialogIsOpen(true);
+                    }}
+                    className="btn btn-y1app"
+                  >
+                    Send Email
+                  </button>
                 </div>
+                <div style={{ paddingLeft: "10px" }}>
+                  <button
+                    type="button"
+                    onClick={(e: any) => {
+                      fetchData();
+                    }}
+                    className="btn btn-secondary"
+                  >
+                    Refresh
+                  </button>
+                </div>
+              </div>
             </div>
           )}
         </div>
         <div hidden={accounts.length === 0 || isLoading}>
-          <h3>April 2024</h3>
+          {/* <h3>April 2024</h3> */}
           <div
             className="activityfilter-accrow  mb-3"
             hidden={emailsList.length == 0}
@@ -235,8 +261,8 @@ function EmailActivities(props: params) {
           selectedItem={selectedEmail ?? new EmailCompose()}
           setSelectedItem={setSelectedEmail}
           setDialogIsOpen={setDialogIsOpen}
-          onSave={(e: any) => {
-            handleSendEmail(e);
+          onSave={(e: any, attachmentFiles:Array<any>) => {
+            handleSendEmail(e, attachmentFiles);
           }}
         />
       )}
@@ -259,10 +285,9 @@ function EmailActivities(props: params) {
 
 export default EmailActivities;
 
-
 export const prepareToRecipients = (emailObj: any) => {
   let emails: Array<any> = [];
-  emailObj.toAddress?.split(";")?.forEach((i:any) => {
+  emailObj.toAddress?.split(";")?.forEach((i: any) => {
     let obj: any = {
       emailAddress: {
         address: i,
@@ -270,10 +295,24 @@ export const prepareToRecipients = (emailObj: any) => {
     };
     emails.push(obj);
   });
-  return emails.length>0 ? emails : emailObj?.toRecipients;
+  return emails.length > 0 ? emails : emailObj?.toRecipients;
 };
 
-export const prepareEmailBody = (emailObj: EmailCompose, dealId:number) => {
+// Convert file to Base64 for email attachment
+const fileToBase64 = (file: any) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve((reader as any).result.split(",")[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
+
+export const prepareEmailBody = async (
+  emailObj: EmailCompose,
+  dealId: number,
+  attachments?:any
+) => {
   return JSON.stringify({
     message: {
       subject: emailObj.subject,
@@ -283,6 +322,7 @@ export const prepareEmailBody = (emailObj: EmailCompose, dealId:number) => {
         content: emailObj.body,
       },
       toRecipients: prepareToRecipients(emailObj),
+      attachments: attachments
       // ccRecipients: [
       //   {
       //     emailAddress: {

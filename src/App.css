@@ -1008,3 +1008,19 @@ min-width: 375px !important;
   pointer-events: none; /* Prevent selection */
 }
 
+
+/*Colorpicker styles*/
+
+/* Responsive */
+.colorPickerResposive .react-colorful {
+  width: auto;
+}
+
+/* Small */
+.colorPickerSmall .react-colorful {
+  width: 225px;
+  height: 100px;
+}
+.colorPickerSmall .react-colorful__hue {
+  height: 20px;
+}
