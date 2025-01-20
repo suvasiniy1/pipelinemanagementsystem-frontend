@@ -121,20 +121,13 @@ const FilterDropdown = (props: params) => {
               // onMouseLeave={(e: any) => handlePipeLineEdit()}
             >
               {filters?.map((item, index) => (
-                <>
-                  <div className="d-flex">
-                    <div>
-                      <li key={index}>
-                        <button className="pipeselectlink" onClick={(e: React.MouseEvent) => setSelectedFilterObj(item)} type="button">
+                <>                   
+                  <li key={index}>
+                      <button className="pipeselectlink" onClick={(e: React.MouseEvent) => setSelectedFilterObj(item)} type="button">
                           {item.name}{" "}
-                        </button>
-                        {/* <span className="pipeselect-editlink" hidden={!item.canEdit}>
-                <FontAwesomeIcon icon={faPencil} />
-              </span> */}
-                      </li>
-                    </div>
-                    <div>
-                      <span
+                      </button>
+                      <div className="pipeselect-btns">
+                        <span
                         className="pl-4"
                         onClick={(e: any) => {
                           setDialogIsOpen(true);
@@ -153,8 +146,11 @@ const FilterDropdown = (props: params) => {
                       >
                         <FontAwesomeIcon icon={faDeleteLeft} />
                       </span>
-                    </div>
-                  </div>
+                        </div>
+                        {/* <span className="pipeselect-editlink" hidden={!item.canEdit}>
+                <FontAwesomeIcon icon={faPencil} />
+              </span> */}
+                  </li>
                 </>
               ))}
             </ul>
