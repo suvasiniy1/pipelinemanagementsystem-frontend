@@ -29,4 +29,5 @@ export class EmailTemplate extends AuditItem {
 export class EmailItemProps {
   content: any;
   position: any="center";
+  backGroundColor:any;
 }

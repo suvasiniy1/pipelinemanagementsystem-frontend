@@ -44,7 +44,7 @@ const fieldOptions = [
   { value: "6", label: "Probability" },
   { value: "7", label: "Organization" },
   { value: "8", label: "Pipeline" },
-  { value: "9", label: "Contact person" },
+  { value: "AssigntoId", label: "Assign to" },
   { value: "stageid", label: "Stage" },
   { value: "11", label: "Label" },
   { value: "statusid", label: "Status" },

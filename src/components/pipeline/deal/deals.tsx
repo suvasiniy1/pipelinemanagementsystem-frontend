@@ -225,7 +225,7 @@ export const Deals = (props: params) => {
         setIsLoading(true);
         setCustomError(null as any);
         setError(null as any);
-        stagesSvc.getDealsByFilterId(selectedFilterObj?.id, selectedItem?.pipelineID ??pipeLineId).then(res=>{
+        stagesSvc.getDealsByFilterId(selectedFilterObj?.id, selectedItem?.pipelineID ??pipeLineId,userProfile.userId).then(res=>{
             let sortedStages = Util.sortList(res.stages, "stageOrder");
             let totalDealsList: Array<Deal> = [];
             sortedStages.forEach((s: Stage) => {
