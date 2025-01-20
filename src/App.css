@@ -133,6 +133,7 @@ html, body{overflow: hidden; height: 100%; min-height: 100%;}
 .toolsummary-deals{margin-right: 10px;}
 .toolsummary-deals span{margin:0 5px;}
 .toolbarview-filtersrow{display: flex;}
+.toolgrip-dropdown.dropdown-menu{z-index: 2;}
 
 .pipeselectbtngroup{display: flex; margin-right: 8px;}
 .pipeselectbox{position: relative;}
@@ -153,10 +154,18 @@ max-width: 360px; position: absolute; left: 0; top: 100%; z-index:2;
 .pipeselectcontentinner{overflow: auto; white-space: nowrap;}
 .pipeselectpadlr{padding: 8px;}
 .pipeselectlist {margin: 0; padding: 0; list-style-type: none;}
-.pipeselectlist li{position: relative; display: flex; align-items: center; font-size: 14px; border-radius: 4px;}
+.pipeselectlist li{position: relative; display: flex; align-items: center; font-size: 14px; border-radius: 4px; padding-right: 30px;}
 .pipeselectlink{width: 100%; display: flex; align-items: center; justify-content: space-between; text-decoration: none; cursor: pointer; color: #21232c; padding:5px 10px; border-radius: 4px; border: none; font-size: 14px; background-color: inherit;}
 .pipeselectlist li:hover{background-color: #2b74da; color: #fff;}
 .pipeselectlist li:hover .pipeselectlink{text-decoration: none; color: #fff;}
+.pipeselectcontent.pipeselectfilter{width: 300px;}
+.pipeselectfilter .pipeselectcontentinner {white-space: normal;}
+.pipeselectfilter .pipeselectlist li {padding-right: 60px;}
+.pipeselect-btns {position: absolute; right: 5px;}
+.pipeselectfilter .pipeselectlink {text-align: left;}
+.pipeselect-btns span {cursor: pointer;}
+.add-new-filter button {display: block; width: 100%; padding: 8px 10px; text-transform: uppercase; border-top: 1px solid #ddd; cursor: pointer;}
+.add-new-filter button:hover{background-color: #faf5eb;}
 
 .pipeselectlink .fa-check{color: #2b74da;}
 .pipeselectlink:hover .fa-check{color: #fff;}
@@ -433,6 +442,7 @@ select.selectfield {border: 1px solid #dee2e6; height: 37px; width: 100%; border
 .appblock-headcolright{margin-left: auto; display: flex;}
 .appdealblock-row {padding: 4px 0;}
 .dflex{display: flex; align-items: center;}
+.closedateinput .react-datepicker-popper {z-index: 2;}
 .appdeal-amountnum, .closedateinput, .stageappointment{padding-left: 5px;}
 .dropdown-scheduledbox button.btn{background-color: #fff; border: none; color: #b68d40; padding: 0; font-weight: bold; font-size: 14px;}
 .dropdown-scheduledbox button.btn:hover{background-color: #fff; border: none; padding: 0; color: #b68d40;}

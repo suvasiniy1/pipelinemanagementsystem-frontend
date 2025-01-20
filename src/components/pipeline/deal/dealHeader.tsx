@@ -212,7 +212,7 @@ export const DealHeader = (props: params) => {
                       <FontAwesomeIcon icon={faCaretDown} />
                     </button>
                     <div
-                      className="pipeselectcontent"
+                      className="pipeselectcontent pipeselectfilter"
                       hidden={!showPipeLineFilters}
                     >
                       <FilterDropdown
