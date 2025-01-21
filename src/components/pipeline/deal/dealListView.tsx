@@ -32,6 +32,9 @@ const DealListView = (props: Params) => {
   const utility: Utility = JSON.parse(
     LocalStorageUtil.getItemObject(Constants.UTILITY) as any
   );
+ // Fetch user profile to get the role
+ const userProfile = JSON.parse(LocalStorageUtil.getItem(Constants.USER_PROFILE) || '{}');
+ const userRole = userProfile?.role || 2; // Default to 2 (user) if role is not found
 
   const getOrganizationName = (orgId: number) =>
     utility.organizations.find((o) => o.organizationID === orgId)?.name || "N/A";
@@ -207,7 +210,13 @@ const DealListView = (props: Params) => {
                       </td>
                       <td>{d.stageName}</td>
                       <td>{d.treatmentName || "N/A"}</td>
-                      <td>{d.value || "0"}</td>
+                      <td>
+                        {userRole === 1 ? (
+                          d.value && !isNaN(Number(d.value)) ? `£${d.value}` : "N/A"
+                        ) : (
+                          "£0"
+                        )}
+                      </td>
                       <td>{getOrganizationName(d.organizationID)}</td>
                       <td>{getContactPersonName(d.contactPersonID)}</td>
                       <td>

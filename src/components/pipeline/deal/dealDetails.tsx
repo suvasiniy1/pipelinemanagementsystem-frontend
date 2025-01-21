@@ -63,6 +63,7 @@ export const DealDetails = () => {
   const stagesSvc = new StageService(ErrorBoundary);
   const [stages, setStages] = useState<Array<Stage>>([]);
   const userProfile = Util.UserProfile();
+ 
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
   const [selectedTaskItem, setSelectedTaskItem] = useState<Tasks>();
   const [selectedEmail, setSelectedEmail] = useState<any>();
@@ -98,7 +99,11 @@ export const DealDetails = () => {
     return istISO
   };
   const handleEditClick = () => {
-    setIsEditingAmount(true);
+    if (userProfile.role === 1) {
+      setIsEditingAmount(true);
+    } else {
+      toast.error("You do not have permission to edit the deal amount.");
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -362,12 +367,17 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
         </div>
       ) : (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span className="deal-amount-value">${dealItem.value}</span>
-          <FontAwesomeIcon
-            icon={faPenToSquare}
-            className="edit-icon"
-            onClick={handleEditClick}
-          />
+          <span className="deal-amount-value">
+    
+          {userProfile.role === 1 ? `£${dealItem.value}` : '£0'}
+          </span>
+          {userProfile.role === 1 && (
+        <FontAwesomeIcon
+          icon={faPenToSquare}
+          className="edit-icon"
+          onClick={handleEditClick}
+        />
+      )}
         </div>
       )}
     </div>

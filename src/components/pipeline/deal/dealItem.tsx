@@ -6,6 +6,8 @@ import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
 import { useState } from "react";
 import MoveDeal from "./moveDeal";
 import { PipeLine } from "../../../models/pipeline";
+import { Utility } from "../../../models/utility";
+import Util, { IsMockService } from "../../../others/util";
 import LocalStorageUtil from "../../../others/LocalStorageUtil";
 import Constants from "../../../others/constants";
 
@@ -28,7 +30,7 @@ export const DealItem = (props: params) => {
   const { deal, isDragging, isGroupedOver, provided, style, isClone, index, onDeleteClick, pipeLinesList, onDealModify } = props;
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
   const navigator = useNavigate();
-
+  const [userProfile, setUserProfile] = useState(Util.UserProfile());
 
   const handleLinkClick = (e:any) => {
     e.preventDefault(); // Prevents the default anchor behavior
@@ -72,7 +74,7 @@ export const DealItem = (props: params) => {
                   <i className="rs-icon rs-icon-user-circle"></i>
                 </div>
                 <div className="pdstage-value">
-                  <span>£{deal?.value}</span>
+                <span>£{userProfile.role === 1 ? deal?.value : 0}</span>
                 </div>
               </div>
             </a>
