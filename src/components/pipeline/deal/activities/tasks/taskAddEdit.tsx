@@ -442,15 +442,12 @@ export const TaskAddEdit = (props: params) => {
     }
     if (item.key === "Assigned To") {
       return (
-        [
-          {
-            personName: "Test",
-            personID: "Testtest@transforminglives.co.uk",
-          },
-        ]?.map(({ personName, personID }) => ({
-          name: personName,
-          value: personID,
-        })) ?? []
+        utility?.users
+          .filter((u) => u.isActive)
+          .map(({ name, id }) => ({
+            name: name,
+            value: id,
+          })) ?? []
       );
     }
   };

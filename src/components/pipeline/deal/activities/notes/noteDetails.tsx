@@ -44,7 +44,8 @@ const NoteDetails = (props: params) => {
 
     const getnote = () => {
         noteSvc.getItem(note.noteID).then(res => {
-            setNote(res.data);
+            
+            setNote(res);
         })
     }
 
@@ -73,15 +74,15 @@ const NoteDetails = (props: params) => {
                 props.setSelectedIndex((prevIndex: any) => prevIndex === index ? null : index);
             }}>
                 <span className='accoheader-title'>
-                    <strong>Note</strong> by {note.userName}
+                    <strong>Note</strong> by {note?.userName}
                 </span>
-                <span className='accoheader-date'>{moment(note.createdDate).format("MM-DD-YYYY hh:mm:ss a")}</span>
+                <span className='accoheader-date'>{moment(note?.createdDate).format("MM-DD-YYYY hh:mm:ss a")}</span>
             </Accordion.Header>
             <Accordion.Body>
                 <div ref={divRef as any} style={{ maxHeight: "200px", overflow: 'auto' }}></div>
                 <div className="editstage-delete">
                     <button className="editstage-deletebtn" onClick={(e: any) => { props.setDialogIsOpen(true); props.setSelectedNoteItem(note as any) }}><FontAwesomeIcon icon={faEdit} /></button>
-                    <button className="editstage-deletebtn" onClick={(e: any) => { props.setShowDeleteDialog(true); props.setSelectedNoteId(note.noteID as any) }}><FontAwesomeIcon icon={faTrash} /></button>
+                    <button className="editstage-deletebtn" onClick={(e: any) => { props.setShowDeleteDialog(true); props.setSelectedNoteId(note?.noteID as any) }}><FontAwesomeIcon icon={faTrash} /></button>
                 </div>
                 <a href="javascript:void(0);"><span style={{ color: "#0091ae" }} onClick={(e: any) => { setShowComments(!showcomments) }}>{showcomments ? note.comments.length > 1 ? 'Hide Comments' : 'Hide Comment' : note.comments.length > 0 ? note.comments.length == 1 ? note.comments.length + " Comment" : note.comments.length + " Comments" : 'Add Comment'} </span></a>
                 <br />

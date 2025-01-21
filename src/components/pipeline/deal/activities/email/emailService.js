@@ -29,7 +29,7 @@ export const sendEmail = async (accessToken, body, emailId = null) => {
 export const getSentEmails = async (accessToken) => {
   try {
     const response = await fetch(
-      "https://graph.microsoft.com/v1.0/me/messages",
+      "https://graph.microsoft.com/v1.0/me/messages?$expand=attachments",
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,

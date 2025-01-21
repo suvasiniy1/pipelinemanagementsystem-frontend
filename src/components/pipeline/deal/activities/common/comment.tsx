@@ -40,9 +40,10 @@ const Comments = (props: params) => {
 
     const updateComment = () => {
         commentSvc.putItemBySubURL({ ...comment, modifiedBy: userObj.userId }, comment.commentId + "").then(res => {
-            if (res && res.data) {
+            
+            if (res) {
                 toast.success("Comment updated successfully");
-                setComment(res.data);
+                setComment(res);
                 setEditComment(false);
             }
         }).catch(err => {
