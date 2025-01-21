@@ -1,17 +1,12 @@
 import {
-  faCircleCheck,
-  faEdit,
-  faTrash,
-  faUser,
+  faCircleCheck
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import moment from "moment";
-import { Accordion } from "react-bootstrap";
-import Comments from "../common/comment";
 import { useEffect, useRef } from "react";
-import EmailThread from "./emailThread";
+import { Accordion } from "react-bootstrap";
 import { EmailThreadObject } from "../../../../../models/emailCompose";
-import Util from "../../../../../others/util";
+import EmailAttachments from "./emailAttachementsList";
 
 type params = {
   email: any;
@@ -25,8 +20,9 @@ type params = {
   accounts:Array<any>;
 };
 const SentEmailsList = (props: params) => {
+  
   const { index, email, selectedIndex, emailsList, accounts, ...others } = props;
-  const { subject, sender, toRecipients, sentDateTime, body } = email;
+  const { subject, sender, toRecipients, sentDateTime, body, attachments } = email;
   const divRef = useRef();
   
   const accountEmail = accounts.length>0 ? accounts[0].username : null;
@@ -57,34 +53,6 @@ const SentEmailsList = (props: params) => {
     return [threadObj];
   };
 
-  const getNestedEmails = () => {
-    
-    let threadEmails = emailsList?.filter(
-      (i) => new Date(i.sentDateTime) < new Date(email.sentDateTime)
-    );
-    threadEmails = Util.removeDuplicates(threadEmails, "parentFolderId");
-    let threadObj = new EmailThreadObject();
-    let emailThread;
-
-    if (threadEmails.length > 0) {
-      let obj = threadEmails[0];
-      let nestedObj = threadEmails?.find(
-        (i) => new Date(i.sentDateTime) < new Date(obj.sentDateTime)
-      );
-      threadObj.id = 1;
-      threadObj.sender = obj.sender.emailAddress.name;
-      threadObj.senderEmail = obj.sender.emailAddress.address;
-      threadObj.timestamp = obj.sentDateTime;
-      threadObj.content = obj.body.content;
-      threadObj.replies = nestedObj
-        ? generateDynamicThreadObj(nestedObj, threadObj.id + 1, threadEmails)
-        : [];
-
-      emailThread = [threadObj];
-    }
-    return emailThread ?? [];
-  };
-
   return (
     <div className="activityfilter-accrow mb-3">
       <Accordion className="activityfilter-acco">
@@ -102,6 +70,9 @@ const SentEmailsList = (props: params) => {
               ref={divRef as any}
               style={{ maxHeight: "200px", overflow: "auto" }}
             ></div>
+            <div>
+            <EmailAttachments attachments={attachments}/>
+            </div>
             <div className="form-group-row d-flex">
               <div className="editstage-delete">
                 <button
