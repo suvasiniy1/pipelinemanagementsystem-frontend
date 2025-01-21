@@ -29,6 +29,7 @@ const EmailComposeDialog = (props: any) => {
     setIsReadOnly,
     setLoadRowData,
     fromAddress,
+    personEmail,
     ...others
   } = props;
   const { instance, accounts } = useMsal();
@@ -102,12 +103,18 @@ const EmailComposeDialog = (props: any) => {
 
     return subject;
   }
-
   useEffect(() => {
-    let toAddresses = selectedItem?.sender?.emailAddress?.address;
+    console.log("Received personEmail prop:", props.personEmail);
+  }, [props.personEmail]);
+  
+  useEffect(() => {
+    let toAddresses = selectedItem?.sender?.emailAddress?.address || props.personEmail || "default@example.com"; 
+
+    console.log("Contact Person Email:", toAddresses);
+
     let obj = {
       ...selectedItem,
-      fromAddress: fromAddress?.username,
+      fromAddress: fromAddress?.username, 
       toAddress: toAddresses,
       body: selectedItem?.body?.content,
       subject: selectedItem.subject

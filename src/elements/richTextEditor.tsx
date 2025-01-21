@@ -68,25 +68,19 @@ const RitechTextEditorWithValidation = (props: params) => {
       }
     }
   };
-
-  // Function to insert text at stored cursor position
+ // Function to insert text at stored cursor position
   const insertTextAtCursor = (text: string) => {
     const quill = quillRef.current?.getEditor();
-    if (quill && cursorPosition !== null) {
-      const currentContent = quill.getText(); // Get current content
-      const updatedContent =
-        currentContent.slice(0, cursorPosition) +
-        text +
-        " " +
-        currentContent.slice(cursorPosition);
-
-      quill.clipboard.dangerouslyPasteHTML(cursorPosition, text);
-      quill.setSelection((cursorPosition + text?.length + 1) as any); // Move cursor after inserted text
-      setCursorPosition(null); // Reset stored position
+    if (quill) {
+      setTimeout(() => {
+        quill.setText('');  // Clear the editor content first
+        quill.clipboard.dangerouslyPasteHTML(0, text); // Insert new content from start
+        quill.setSelection({ index: text.length, length: 0 }); 
+        setShowDropdown(false); // Close dropdown after inserting
+      }, 0);
     }
-    setShowDropdown(false); // Close dropdown
   };
-
+  
   const modules = {
     toolbar: [
       [{ 'font': [] }],

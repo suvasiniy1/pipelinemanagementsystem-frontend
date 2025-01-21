@@ -16,6 +16,7 @@ import { PostAuditLog } from "../../../../../models/dealAutidLog";
 import { EmailTemplateService } from "../../../../../services/emailTemplateService";
 import LocalStorageUtil from "../../../../../others/LocalStorageUtil";
 import Constants from "../../../../../others/constants";
+import { DealService } from "../../../../../services/dealService";
 
 type params = {
   dealId: any;
@@ -32,6 +33,7 @@ function EmailActivities(props: params) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const auditLogsvc = new DealAuditLogService(ErrorBoundary);
   const emailTemplateSvc = new EmailTemplateService(ErrorBoundary);
+  const [personEmail, setPersonEmail] = useState("");
   useEffect(() => {
     if (accounts.length == 0) {
       handleLogin();
@@ -47,6 +49,28 @@ function EmailActivities(props: params) {
       });
     }
   }, [(instance as any)?.controller?.initialized, accounts]);
+
+  useEffect(() => {
+    if (!dealId) return;
+  
+    const fetchDealDetails = async () => {
+      try {
+        const dealSvc = new DealService(ErrorBoundary);
+        const response = await dealSvc.getDealsById(dealId);
+        if (response && response.email) {
+          let email = response.email;
+          setPersonEmail(email || "default@example.com");
+          console.log("Email Set:", email);
+        } else {
+          console.warn("contactPerson data missing in API response");
+        }
+      } catch (error) {
+        console.error("Error fetching deal details:", error);
+      }
+    };
+  
+    fetchDealDetails();
+  }, [dealId]);
 
   const fetchData = async () => {
     if ((instance as any)?.controller?.initialized) {
@@ -255,6 +279,7 @@ function EmailActivities(props: params) {
       </>
       {dialogIsOpen && (
         <EmailComposeDialog
+          personEmail={personEmail}
           fromAddress={accounts[0]}
           dialogIsOpen={dialogIsOpen}
           onCloseDialog={(e: any) => setSelectedEmail(null as any)}
