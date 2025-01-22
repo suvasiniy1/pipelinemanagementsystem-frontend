@@ -9,6 +9,7 @@ declare global {
             ClientId:string;
             DateFormat:string;
             NavItemsForUser:Array<any>;
+            RedirectUri:string;
         }
     }
 }
