@@ -9,6 +9,7 @@ window.config = {
     "Proposal Made",
     "Negotiations Started",
   ],
+  RedirectUri:"http://localhost:3000",
   UseMockService: false,
   CampaignSections: ["Assets", "Tasks"],
   ClientId: "58f8d840-1215-4e4f-8901-da06f1dba5ac",
