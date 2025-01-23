@@ -412,125 +412,121 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
                 </div>
               </div>
               {/* Scrollable Content Panel */}
-              <div className="pdstage-detailarea">
-  <div className="sidebardetail-col">
-      <div className="app-detail-content">
-              <div className="app-dealblock">
-                <div className="app-dealblock-inner">
-                  <div className="appdealblock-head">
-                    <div className="appblock-headcolleft">
-                      <button className="appblock-collapse">
-                        <span className="appblock-titlelabel">
-                          <FontAwesomeIcon icon={faAngleDown} /> Transfer Ownership
-                        </span>
-                      </button>
+              <div className="app-detail-content">
+                <div className="app-dealblock">
+                  <div className="app-dealblock-inner">
+                    <div className="appdealblock-head">
+                      <div className="appblock-headcolleft">
+                        <button className="appblock-collapse">
+                          <span className="appblock-titlelabel">
+                            <FontAwesomeIcon icon={faAngleDown} /> Transfer Ownership
+                          </span>
+                        </button>
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="appdealblock-data">
-                    <div className="appdealblock-row mt-1">
-                      <div className="appdeal-closedate dflex">
-                        Deal Owner:{" "}
-                        <div className="closedateinput">
-                          <SelectDropdown
-                            isValidationOptional={true}
-                            onItemChange={(e: any) =>
-                              setDealItem({ ...dealItem, assigntoId: e })
-                            }
-                            value={"" + dealItem.assigntoId}
-                            list={
-                              utility?.users.filter(u=>u.isActive).map(
-                                ({ name, id }) => ({
-                                  name: name,
-                                  value: id,
-                                })
-                              ) ?? []
-                            }
-                          />
-                          {/* <div className="appdeal-dtdetail">
-                          <button className="btn fields-btnedit">
-                            <FontAwesomeIcon icon={faPencil} />
-                          </button>
-                          <button className="btn fields-detailbtn">
-                          Detail
-                          </button>
-                        </div> */}
+                    <div className="appdealblock-data">
+                      <div className="appdealblock-row mt-1">
+                        <div className="appdeal-closedate dflex">
+                          Deal Owner:{" "}
+                          <div className="closedateinput">
+                            <SelectDropdown
+                              isValidationOptional={true}
+                              onItemChange={(e: any) =>
+                                setDealItem({ ...dealItem, assigntoId: e })
+                              }
+                              value={"" + dealItem.assigntoId}
+                              list={
+                                utility?.users.filter(u=>u.isActive).map(
+                                  ({ name, id }) => ({
+                                    name: name,
+                                    value: id,
+                                  })
+                                ) ?? []
+                              }
+                            />
+                            {/* <div className="appdeal-dtdetail">
+                            <button className="btn fields-btnedit">
+                              <FontAwesomeIcon icon={faPencil} />
+                            </button>
+                            <button className="btn fields-detailbtn">
+                            Detail
+                            </button>
+                          </div> */}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="appdealblock-head">
-                    <div className="appblock-headcolleft">
-                      <button className="appblock-collapse">
-                        <span className="appblock-titlelabel">
-                          <FontAwesomeIcon icon={faAngleDown} /> About this deal
-                        </span>
-                      </button>
+                    <div className="appdealblock-head">
+                      <div className="appblock-headcolleft">
+                        <button className="appblock-collapse">
+                          <span className="appblock-titlelabel">
+                            <FontAwesomeIcon icon={faAngleDown} /> About this deal
+                          </span>
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="details-panel">
-                  <div className="details-row">
-                    <div className="details-label">Clinic -</div>
-                     <div className="details-value">{dealItem.clinicName || "-"}</div>
+                    
+                    <div className="details-panel">
+                      <div className="details-row">
+                        <div className="details-label">Clinic -</div>
+                        <div className="details-value">{dealItem.clinicName || "-"}</div>
+                      </div>
+                      <div className="details-row">
+                        <div className="details-label">Source -</div>
+                        <div className="details-value">{dealItem.sourceName || "-"}</div>
+                      </div>
+                      <div className="details-row">
+                        <div className="details-label">Treatment -</div>
+                        <div className="details-value">{dealItem.treatmentName || "-"}</div>
+                      </div>
                     </div>
-                    <div className="details-row">
-                  <div className="details-label">Source -</div>
-                  <div className="details-value">{dealItem.sourceName || "-"}</div>
-                     </div>
-                     <div className="details-row">
-                  <div className="details-label">Treatment -</div>
-                  <div className="details-value">{dealItem.treatmentName || "-"}</div>
-                     </div>
-                     </div>
-                  <div className=" appdeal-dtrow">
-                    <DealDetailsCustomFields
-                      dealItem={dealItem}
-                      setDealItem={setDealItem}
-                    />
-                  </div>
+                    <div className=" appdeal-dtrow">
+                      <DealDetailsCustomFields
+                        dealItem={dealItem}
+                        setDealItem={setDealItem}
+                      />
+                    </div>
 
-                  <div className="appdealblock-head">
-                    <div className="appblock-headcolleft">
-                      <button className="appblock-collapse">
-                        <span className="appblock-titlelabel">
-                          <FontAwesomeIcon icon={faAngleDown} /> About Person
-                        </span>
-                      </button>
+                    <div className="appdealblock-head">
+                      <div className="appblock-headcolleft">
+                        <button className="appblock-collapse">
+                          <span className="appblock-titlelabel">
+                            <FontAwesomeIcon icon={faAngleDown} /> About Person
+                          </span>
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                   {/* Content */}
-    <div className="details-panel">
-                  <div className="details-row">
-                    <div className="details-label">Phone -</div>
-                     <div className="details-value">{dealItem.phone || "-"}</div>
+                    {/* Content */}
+                    <div className="details-panel">
+                      <div className="details-row">
+                        <div className="details-label">Phone -</div>
+                        <div className="details-value">{dealItem.phone || "-"}</div>
+                      </div>
+                      <div className="details-row">
+                        <div className="details-label">Email -</div>
+                        <div className="details-value">{dealItem.email || "-"}</div>
+                      </div>
+                      <div className="details-row">
+                        <div className="details-label">Person Name -</div>
+                        <div className="details-value" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                          {dealItem.personName || "-"}
+                          <a
+                            href="#"
+                            onClick={openMoveDealDialog}
+                            style={{ fontSize: "0.9em", color: "#007bff", textDecoration: "underline" }}
+                          >
+                            View Deals ({dealItem.openDealsCount || 0})
+                          </a>
+                        </div>
+                      </div>
                     </div>
                     <div className="details-row">
-                  <div className="details-label">Email -</div>
-                  <div className="details-value">{dealItem.email || "-"}</div>
-                     </div>
-                     <div className="details-row">
-  <div className="details-label">Person Name -</div>
-  <div className="details-value" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-    {dealItem.personName || "-"}
-    <a
-      href="#"
-      onClick={openMoveDealDialog}
-      style={{ fontSize: "0.9em", color: "#007bff", textDecoration: "underline" }}
-    >
-      View Deals ({dealItem.openDealsCount || 0})
-    </a>
-  </div>
-</div>
-  </div>
-                  <div className="details-row">
-                    <div className="details-label">Source -</div>
-                  <div className="details-value">{dealItem.sourceName || "-"}</div>
-                     </div>
+                      <div className="details-label">Source -</div>
+                      <div className="details-value">{dealItem.sourceName || "-"}</div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              </div>
-              </div>
               </div>
             </div>
             {dialogIsOpen &&

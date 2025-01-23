@@ -15,6 +15,7 @@ import {
 } from "../../../../../models/emailTemplate";
 import { InteractionRequiredAuthError } from "@azure/msal-browser";
 import CloseIcon from '@mui/icons-material/Close';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
 
 const EmailComposeDialog = (props: any) => {
   const {
@@ -300,7 +301,7 @@ const EmailComposeDialog = (props: any) => {
               }}
               className="file-upload-link"
             >
-              Attach Files
+              <AttachFileIcon />
             </a>
           </div>
           <button
