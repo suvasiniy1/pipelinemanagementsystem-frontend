@@ -25,7 +25,7 @@
 
 
 .colheadprofilerow{display: flex; align-items: center; justify-content: end;}
-.headsearchrow{justify-content: center; max-width: 360px;}
+.headsearchrow{justify-content: center; max-width: 360px; position: relative; margin: 0 !important;}
 .colheadsearch .form-control {width: 100%; border-radius: 40px; height: 40px; padding: 10px 20px 10px 40px;}
 .headinput{position: relative;}
 .headinput .rs-icon{position: absolute; left: 10px; top: 10px;font-size: 18px;}
@@ -40,7 +40,13 @@
 .quickadd-menulist .dropdown-item-text:hover{background-color: #f5f5f6;}
 .quickadd-menulist .dropdown-item-text svg {width: 20px;}
 .colactionbtnrow{display: flex; justify-content: end;}
-
+.headsearchrow > p {
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    right: -60px;
+    z-index: 1;
+}
 
 /* Sidebar Menu */
 /* .sidenavExpand{

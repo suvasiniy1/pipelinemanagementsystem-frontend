@@ -1,3 +1,4 @@
+import { padding } from "@xstyled/styled-components";
 import React, { useEffect, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import ReactQuill from "react-quill";
@@ -107,13 +108,13 @@ const RitechTextEditorWithValidation = (props: params) => {
         value={value}
       />
 
-      <div
+      <div className="selectformtemplatebox"
         hidden={!attachedData || attachedData?.length == 0}
         style={{
           cursor: "pointer",
-          fontSize: "20px",
+          fontSize: "14px",
           marginTop: "10px",
-          display: "inline-block",
+          display: "inline-block", marginLeft:"-74px",
         }}
         onClick={(e: any) => setShowDropdown(true)}
       >
@@ -122,19 +123,19 @@ const RitechTextEditorWithValidation = (props: params) => {
 
       {/* Dropdown - Show when @ is clicked */}
       {showDropdown && (
-        <div
+        <div className="selectformtemplate"
           ref={dropdownRef}
           style={{
-            position: "absolute",
+            position: "absolute", bottom:"0", marginLeft:"0",
             background: "white",
             border: "1px solid #ccc",
             marginTop: "5px",
-            width: "150px",
+            width: "200px",
             zIndex: 10,
             boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
           }}
         >
-          <option disabled>Select From Template</option>
+          <option disabled style={{padding: "8px", cursor: "pointer", borderBottom: "1px solid #eee", color: "#000000"}}>Select From Template</option>
           {attachedData?.map((option, index) => (
             <div
               key={index}
@@ -243,11 +244,11 @@ const RichTextEditor = (props: params) => {
             value={value}
           />
           <br hidden={hideSpace} />
-          <div
+          <div className="selectformtemplatebox"
             hidden={!attachedData || attachedData?.length == 0}
             style={{
               cursor: "pointer",
-              fontSize: "20px",
+              fontSize: "14px",
               marginTop: "10px",
               display: "inline-block",
             }}
@@ -258,7 +259,7 @@ const RichTextEditor = (props: params) => {
 
           {/* Dropdown - Show when @ is clicked */}
           {showDropdown && (
-            <div
+            <div className="selectformtemplate"
               ref={dropdownRef}
               style={{
                 position: "absolute",
@@ -270,7 +271,7 @@ const RichTextEditor = (props: params) => {
                 boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
               }}
             >
-              <option disabled>Select From Template</option>
+              <option disabled style={{padding:"8px", cursor: "pointer", borderBottom: "1px solid #eee"}}>Select From Template</option>
               {attachedData?.map((option, index) => (
                 <div
                   key={index}
