@@ -443,7 +443,7 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
                             <FontAwesomeIcon
                               icon={faEnvelope}
                               onClick={(e: any) => {
-                                setSelectedEmail(new EmailCompose());
+                                setSelectedEmail({ to: dealItem.email || "default@example.com" });
                                 setDialogToOpen("EmailComposeDialog" as any);
                                 accounts.length == 0
                                   ? onLoginConfirm()
@@ -605,6 +605,7 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
                 />
               ) : dialogToOpen === "EmailComposeDialog" ? (
                 <EmailComposeDialog
+                  personEmail={dealItem.email}
                   fromAddress={accounts[0]}
                   dialogIsOpen={dialogIsOpen}
                   onCloseDialog={(e: any) => setSelectedEmail(null as any)}
