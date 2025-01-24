@@ -126,7 +126,7 @@ html, body{overflow: hidden; height: 100%; min-height: 100%;}
 .toolbutton-group .toolpipebtn.dropdown-toggle::after{display: none;}
 .toolbutton-group .tooltimebtn{border-radius: 0 4px 4px 0;}
 .toolbutton-group .tooldealbtn{border-left: 0; border-right: 0;}
-.toolbutton-group .activetoolbtn{border-color: #b68d40; color:#b68d40;}
+.toolbutton-group .activetoolbtn, .toolbutton-group .activetoolbtn:focus{border-color: #b68d40; color:#b68d40;}
 .toolbutton-group .toolpipebtn svg.fa-chart-simple{transform: rotate(180deg);}
 .toolbarview-actionsrow .btn-success{height: 32px; padding: 3px 10px;}
 .toolbarview-summery{display: flex;align-items: center; justify-content: end;}
