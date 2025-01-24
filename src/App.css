@@ -217,7 +217,7 @@ select.selectfield {border: 1px solid #dee2e6; height: 37px; width: 100%; border
 
 /* Pipedrive Box Code */
 .pdstage-area {overflow: hidden auto; height: calc(100% - 64px); display: grid;}
-.pdstagearea-inner{padding: 0 12px; overflow: auto;}
+.pdstagearea-inner{padding: 0 12px; overflow: auto; position: relative;}
 /* .pdstage-area::-webkit-scrollbar {width: 10px;}
 .pdstage-area::-webkit-scrollbar-track {background-color: #e4e4e4; border-radius: 100px;}
 .pdstage-area::-webkit-scrollbar-thumb {border-radius: 100px; background-color:#211c52; box-shadow: inset 2px 2px 5px 0 rgba(#fff, 0.5);} */
@@ -285,6 +285,8 @@ select.selectfield {border: 1px solid #dee2e6; height: 37px; width: 100%; border
 .pdstage-addplus{background-color: #f5f5f6; width: 100%; display: block; border-radius: 4px; padding: 6px 10px;}
 .pdstage-addplus:hover{background-color:#ececed;}
 .pdstage-addplus i{color: rgba(33,35,44,.72); font-size: 18px;}
+
+.loadingmore {position: absolute; left: 0; bottom: 66px; width: 100%; z-index: 1;}
 
 /* Start CSS Deal By Stage Popup */
 .dealbystage-popup{padding: 8px 0 16px 0; overflow: auto; height: 485px;}
@@ -686,7 +688,7 @@ button.fields-editbtn{visibility: hidden; line-height: 1.2; background-color: #f
     .modal-dialog-centered.modal-dialog-scrollable::before {
       content: none; }
 
-.modal-content {max-height: 100%; overflow-y: auto; overflow-x: hidden;
+.modal-content {/*max-height: 100%; overflow-y: auto; overflow-x: hidden;*/
   position: relative;
   display: flex;
   flex-direction: column;
@@ -731,7 +733,7 @@ button.fields-editbtn{visibility: hidden; line-height: 1.2; background-color: #f
   position: relative;
   flex: 1 1 auto;
   padding: 1rem; }
-
+.modal-dialog-centered .modalbody{max-height: calc(100vh - 150px); overflow-y: auto; overflow-x: hidden;}
 .modal-footer {
   display: flex;
   align-items: center;
