@@ -175,17 +175,7 @@ export const SearchBar = () => {
                 {filteredResults.length > 0 && (
                     <div 
                         className="search-results-dropdown" 
-                        style={{
-                            position: 'absolute',
-                            zIndex: 1000,
-                            top: '50px',
-                            width: '300px',
-                            backgroundColor: 'white',
-                            border: '1px solid #ccc',
-                            borderRadius: '4px',
-                            boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
-                            padding: '10px'
-                        }}
+                        
                     >
                          <ul style={{ listStyleType: 'none', margin: 0, padding: 0 }}>
                             {filteredResults.map((item, index) => (

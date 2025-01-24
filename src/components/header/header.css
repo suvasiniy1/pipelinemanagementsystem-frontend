@@ -25,7 +25,7 @@
 
 
 .colheadprofilerow{display: flex; align-items: center; justify-content: end;}
-.headsearchrow{justify-content: center; max-width: 360px; position: relative; margin: 0 !important;}
+.headsearchrow{justify-content: center; max-width: 500px; position: relative; margin: 0 !important;}
 .colheadsearch .form-control {width: 100%; border-radius: 40px; height: 40px; padding: 10px 20px 10px 40px;}
 .headinput{position: relative;}
 .headinput .rs-icon{position: absolute; left: 10px; top: 10px;font-size: 18px;}
@@ -47,7 +47,19 @@
     right: -60px;
     z-index: 1;
 }
-
+.search-results-dropdown {
+    position: absolute;
+    z-index: 1000;
+    top: 37px;
+    max-width: 500px;
+    background-color: white;
+    border: 1px solid rgb(204, 204, 204);
+    border-radius: 4px;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 5px;
+    padding: 10px;
+    max-height: 500px;
+    overflow-y: auto;
+}
 /* Sidebar Menu */
 /* .sidenavExpand{
 width: 210px !important;
