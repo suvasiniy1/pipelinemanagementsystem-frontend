@@ -27,6 +27,7 @@ import Dropdown from "react-bootstrap/Dropdown";
 import FilterDropdown from "./dealFilters/filterDropdown/filterDropdown";
 import { DealFilter } from "../../../models/dealFilters";
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
 
 type params = {
   canAddDeal: boolean;
@@ -226,7 +227,7 @@ export const DealHeader = (props: params) => {
                   </div>
                 </div>
                 <div className="pipefilterbtn">
-                  <div className="filterbtn"><a className="btn" href="javascript:void(0);" onClick={(e:any)=>setSelectedFilterObj(null)}><FilterAltIcon /></a></div>
+                  <div className="filterbtn"><a className="btn" href="javascript:void(0);" onClick={(e:any)=>setSelectedFilterObj(null)}><FilterAltOffIcon /></a></div>
                 </div>
 
                 {/* <div className="pipeselectbox selecteveryonebox">
