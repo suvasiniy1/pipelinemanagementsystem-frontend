@@ -127,17 +127,22 @@ const DealListView = (props: Params) => {
         return;
     }
 
+    const confirmation = window.confirm("Are you sure you want to send the selected contacts to JustCall?");
+    if (!confirmation) {
+        return;
+    }
+
     try {
         const selectedDeals = dealsList.filter((deal) => selectedRows.includes(deal.dealID));
         const justCallContacts = selectedDeals.map((deal) => ({
-            name: deal.personName || "No Name", // Match casing exactly
-            phoneNumber: deal.phone || "",      // Match casing exactly
-            email: deal.email || "",            // Match casing exactly
+            name: deal.personName || "No Name",
+            phoneNumber: deal.phone || "",
+            email: deal.email || "",
         }));
 
-        const response = await stagesSvc.addContactsToJustCall({ contacts: justCallContacts }); // Wrap in 'contacts'
+        const response = await stagesSvc.addContactsToJustCall({ contacts: justCallContacts });
 
-        if (response === true) { // Expecting a boolean response
+        if (response === true) {
             alert("Contacts successfully added to JustCall!");
         } else {
             console.error("Failed to add contacts");
