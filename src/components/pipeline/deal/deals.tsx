@@ -172,7 +172,7 @@ export const Deals = (props: params) => {
     const loadMoreDeals = () => {
         setIsLoadingMore(true);
         setPageSize(pageSize => pageSize + defaultPageSize);
-        loadStages(pipeLineId, true, pageSize + defaultPageSize);
+        loadStages(selectedItem?.pipelineID ?? pipeLineId, true, pageSize + defaultPageSize);
     };
 
     useEffect(() => {
