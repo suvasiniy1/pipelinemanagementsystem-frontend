@@ -18,6 +18,7 @@ import jpg from "../resources/images/Y1Logo.jpg";
 import { LoginService } from "../services/loginService";
 import { UserProfile } from "../models/userProfile";
 import ForgotPassword from "./profiles/forgotPassword";
+import moment from "moment";
 
 export class UserCredentails {
   public userName!: string;
@@ -92,6 +93,13 @@ const Login = () => {
     ...Util.buildValidations(controlsList),
   });
 
+
+   const convertTZ = (dateTime: any) => {
+     return moment(new Date(Util.toLocalTimeZone(dateTime))).format(
+       "MM/DD/YYYY hh:mm:ss a"
+     ) as any;
+   };
+
   const formOptions = { resolver: yupResolver(validationsSchema) };
   const methods = useForm(formOptions);
   const { handleSubmit, getValues, setValue } = methods;
@@ -121,14 +129,14 @@ const Login = () => {
           .login(obj)
           .then((res: UserProfile) => {
             setLoading(false);
-
+            
             if (res && res?.token) {
               LocalStorageUtil.setItem(Constants.USER_LOGGED_IN, "true");
               LocalStorageUtil.setItem(Constants.ACCESS_TOKEN, res?.token);
               LocalStorageUtil.setItem(Constants.User_Name, res?.user);
               LocalStorageUtil.setItem(
                 Constants.TOKEN_EXPIRATION_TIME,
-                Util.convertTZ(res?.expires)
+                convertTZ(res?.expires)
               );
               LocalStorageUtil.setItemObject(
                 Constants.USER_PROFILE,
@@ -199,13 +207,14 @@ const Login = () => {
       await loginSvc
         .verifyTwoFactorCode({ userId, verificationCode, email })
         .then((res: any) => {
+          
           if (res?.token) {
             LocalStorageUtil.setItem(Constants.USER_LOGGED_IN, "true");
             LocalStorageUtil.setItem(Constants.ACCESS_TOKEN, res?.token);
             LocalStorageUtil.setItem(Constants.User_Name, res?.user);
             LocalStorageUtil.setItem(
               Constants.TOKEN_EXPIRATION_TIME,
-              res?.expires
+              convertTZ(res?.expires)
             );
             navigate("/pipeline"); // Navigate to the next screen after successful verification
           } else {

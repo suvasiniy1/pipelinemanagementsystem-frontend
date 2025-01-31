@@ -10,6 +10,7 @@ declare global {
             DateFormat:string;
             NavItemsForUser:Array<any>;
             RedirectUri:string;
+            NavItemActiveColor:string;
         }
     }
 }

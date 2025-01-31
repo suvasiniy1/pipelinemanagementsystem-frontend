@@ -110,7 +110,9 @@ body a{color: #b68d40;}
 /* Main Content */
 html, body{overflow: hidden; height: 100%; min-height: 100%;}
 #root {padding: 0; margin: 0; display: flex; height: 100%; width: 100%; flex-direction: column;}
-.maincontent{width: 100%;}
+.maincontent{width:calc(100% - 174px);}
+.ps-collapsed + .maincontent {width: calc(100% - 80px);}
+
 .pdstage-mainarea {display: flex; flex-direction: column; height: 100%; overflow: hidden;}
 .mainlayout{position: relative; display: flex; flex-direction: row; max-width: 100%; height: 100vh;}
 .maincontentinner{width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden auto;}
@@ -136,6 +138,7 @@ html, body{overflow: hidden; height: 100%; min-height: 100%;}
 .toolgrip-dropdown.dropdown-menu{z-index: 2;}
 .dropdown-menu.show{z-index: 2;}
 .filterbtn .btn {padding: 3px 6px; background-color: #b68d40; color: #fff;}
+.filterbtn .btn svg {font-size: 18px;}
 
 .pipeselectbtngroup{display: flex; margin-right: 8px;}
 .pipeselectbox{position: relative;}
@@ -154,18 +157,20 @@ html, body{overflow: hidden; height: 100%; min-height: 100%;}
 max-width: 360px; position: absolute; left: 0; top: 100%; z-index:2;
 -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text;}
 .pipeselectcontentinner{overflow: auto; white-space: nowrap;}
-.pipeselectpadlr{padding: 8px;}
+.pipeselectpadlr{padding: 8px; overflow-y: auto; max-height: 312px;}
 .pipeselectlist {margin: 0; padding: 0; list-style-type: none;}
 .pipeselectlist li{position: relative; display: flex; align-items: center; font-size: 14px; border-radius: 4px; padding-right: 30px;}
 .pipeselectlink{width: 100%; display: flex; align-items: center; justify-content: space-between; text-decoration: none; cursor: pointer; color: #21232c; padding:5px 10px; border-radius: 4px; border: none; font-size: 14px; background-color: inherit;}
 .pipeselectlist li:hover{background-color: #2b74da; color: #fff;}
 .pipeselectlist li:hover .pipeselectlink{text-decoration: none; color: #fff;}
 .pipeselectcontent.pipeselectfilter{width: 300px;}
+.pipeselectfilter .pipeselectpadlr {max-height: inherit;}
 .pipeselectfilter .pipeselectcontentinner {white-space: normal;}
 .pipeselectfilter .pipeselectlist li {padding-right: 60px;}
 .pipeselect-btns {position: absolute; right: 5px;}
 .pipeselectfilter .pipeselectlink {text-align: left;}
 .pipeselect-btns span {cursor: pointer;}
+.pipeselectlink span{margin-left: 8px;}
 .add-new-filter button {display: block; width: 100%; padding: 8px 10px; text-transform: uppercase; border-top: 1px solid #ddd; cursor: pointer;}
 .add-new-filter button:hover{background-color: #faf5eb;}
 
@@ -286,7 +291,7 @@ select.selectfield {border: 1px solid #dee2e6; height: 37px; width: 100%; border
 .pdstage-addplus:hover{background-color:#ececed;}
 .pdstage-addplus i{color: rgba(33,35,44,.72); font-size: 18px;}
 
-.loadingmore {position: absolute; left: 0; bottom: 66px; width: 100%; z-index: 1;}
+.loadingmore {position: sticky; left: 0; bottom: 66px; width: 100%; z-index: 1;}
 
 /* Start CSS Deal By Stage Popup */
 .dealbystage-popup{padding: 8px 0 16px 0; overflow: auto; height: 485px;}
@@ -583,6 +588,10 @@ button.fields-editbtn{visibility: hidden; line-height: 1.2; background-color: #f
 .email-header{padding: 15px; background-color: #cfdceb;}
 .email-body{padding: 15px; height: 100%;}
 .email-footer{padding: 15px; background-color: #dbe1e8;}
+
+.sampleemailpreview .email-header{text-align: center !important;}
+.sampleemailpreview .email-header h1 {font-size: 18px; line-height: 1.2;}
+.sampleemailpreview .email-body {overflow: hidden;}
 
 /* Campaigns CSS End */
 

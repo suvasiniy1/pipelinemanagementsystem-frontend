@@ -18,6 +18,7 @@ const base64ToBlob = (base64: any, contentType: any) => {
 
 // Component to display attachments
 const EmailAttachments = (props: params) => {
+  
   const { attachments, ...others } = props;
   const [attachmentUrls, setAttachmentUrls] = useState<Array<any>>([]);
 

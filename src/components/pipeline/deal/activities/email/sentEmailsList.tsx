@@ -3,7 +3,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import moment from "moment";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Accordion } from "react-bootstrap";
 import { EmailThreadObject } from "../../../../../models/emailCompose";
 import EmailAttachments from "./emailAttachementsList";
@@ -22,9 +22,10 @@ type params = {
 const SentEmailsList = (props: params) => {
   
   const { index, email, selectedIndex, emailsList, accounts, ...others } = props;
-  const { subject, sender, toRecipients, sentDateTime, body, attachments } = email;
+  const { subject, sender, toRecipients, sentDateTime, body } = email;
   const divRef = useRef();
   
+  const [attachments, setAttachments]=useState(email?.attachments);
   const accountEmail = accounts.length>0 ? accounts[0].username : null;
 
   useEffect(() => {
