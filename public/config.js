@@ -59,7 +59,7 @@ window.config = {
       ],
     },
   ],
-  NavItemActiveColor: "#0098e5"
+  NavItemActiveColor: "#b68d40"
 };
 
    
