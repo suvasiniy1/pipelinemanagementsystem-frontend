@@ -104,13 +104,42 @@ const EmailComposeDialog = (props: any) => {
     return subject;
   }
 
+  const handleReplyClick = () => {
+    let senderName = selectedItem.sender.emailAddress.name;
+    let senderEmail = selectedItem.sender.emailAddress.address;
+    let sentDate = formatEmailDate(new Date(selectedItem.sentDateTime).toLocaleString());
+    let message = selectedItem.bodyPreview.split("\r")[0];
+    let formattedReply =`<br/><br/><div dir=\"ltr\" class=\"gmail_attr\">${sentDate} ${senderName} &lt;<a href=${senderEmail}">${senderEmail}</a>&gt; wrote:<br></div><blockquote class=\"gmail_quote\" style=\"margin:0px 0px 0px 0.8ex; border-left:1px solid rgb(204,204,204); padding-left:1ex\"><div><p>${message}</p></div></blockquote></div>`;
+    return formattedReply;
+  };
+
+  function formatEmailDate(dateString:any) {
+    // Convert the input string to a Date object
+    const date = new Date(dateString);
+  
+    // Format day of the week (e.g., Tue)
+    const weekday = date.toLocaleDateString("en-US", { weekday: "short" });
+  
+    // Format month name (e.g., Feb)
+    const month = date.toLocaleDateString("en-US", { month: "short" });
+  
+    // Format day, year, and time
+    const day = date.getDate();
+    const year = date.getFullYear();
+    const time = date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+  
+    // Construct the final formatted string
+    return `On ${weekday}, ${month} ${day}, ${year} at ${time}`;
+  }
+
   useEffect(() => {
+    
     let toAddresses = selectedItem?.sender?.emailAddress?.address;
     let obj = {
       ...selectedItem,
       fromAddress: fromAddress?.username,
       toAddress: toAddresses,
-      body: selectedItem?.body?.content,
+      body: selectedItem?.body?.content.replace(/<body>.*?<br>/s, handleReplyClick()),
       subject: selectedItem.subject
         ? addReToSubject(selectedItem.subject)
         : null,
