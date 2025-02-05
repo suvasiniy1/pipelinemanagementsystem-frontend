@@ -106,7 +106,7 @@ const EmailComposeDialog = (props: any) => {
   }
 
   const handleReplyClick = () => {
-    debugger
+    
     let senderName = selectedItem.sender.emailAddress.name;
     let senderEmail = selectedItem.sender.emailAddress.address;
     let sentDate = formatEmailDate(new Date(selectedItem.sentDateTime).toLocaleString());
