@@ -49,6 +49,7 @@ const EmailAttachments = (props: params) => {
     <div>
       {attachmentUrls.length > 0 ? (
         <div>
+          <br/>
           <h3>
             {attachmentUrls.length === 1
               ? "One attachment"

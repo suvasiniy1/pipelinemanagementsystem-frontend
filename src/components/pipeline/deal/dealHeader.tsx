@@ -188,7 +188,7 @@ export const DealHeader = (props: params) => {
                   >
                     <button className="pipeselect" type="button">
                       <FontAwesomeIcon icon={faChartSimple} />{" "}
-                      {selectedItem?.pipelineName ?? "Select"}{" "}
+                      <span>{selectedItem?.pipelineName ?? "Select"}{" "}</span>
                       <FontAwesomeIcon icon={faCaretDown} />
                     </button>
                     <div
@@ -210,7 +210,7 @@ export const DealHeader = (props: params) => {
                   >
                     <button className="pipeselect" type="button">
                       <FontAwesomeIcon icon={faChartSimple} />{" "}
-                      {selectedFilterObj?.name ?? "Select"}{" "}
+                      <span>{selectedFilterObj?.name ?? "Select"}{" "}</span>
                       <FontAwesomeIcon icon={faCaretDown} />
                     </button>
                     <div

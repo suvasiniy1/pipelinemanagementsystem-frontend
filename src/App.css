@@ -146,6 +146,8 @@ html, body{overflow: hidden; height: 100%; min-height: 100%;}
 .pipeselect .fa-caret-down {position: absolute; right: 10px; top: 7px; z-index: 1;}
 .pipeselect .fa-chart-simple, .pipeselect .fa-align-center{margin-right: 10px;}
 .pipeselect svg.fa-chart-simple{transform: rotate(180deg);}
+.pipeselectbox .pipeselect {width: 220px; justify-content: left; overflow: hidden; text-align: left; padding-right: 30px;}
+.pipeselect span {display: block; white-space: nowrap; text-overflow: ellipsis; width: 100%; overflow: hidden;}
 /* .variantselectbox .pipeselect{border-radius: 4px 0 0 4px; border-right: none;} */
 .selecteveryonebox{margin-left: 10px;}
 .updatestagebtn .btn {width: 32px; height: 32px; padding: 0 5px; border: 1px solid rgba(33, 35, 44, .24); /*border-radius: 0 4px 4px 0;*/ margin-right: 8px;}

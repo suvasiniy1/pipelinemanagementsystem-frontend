@@ -16,16 +16,16 @@ import Util from "./others/util";
 import ChangePassword from "./components/profiles/changePassword";
 
 function App() {
-    Util.loadNavItemsForUser(
-        LocalStorageUtil.getItem(Constants.USER_Role) as any
-    );
-    const navigate = useNavigate();
-    const location = useLocation();
-    const [collapsed, setCollapsed] = useState<any>(
-        (LocalStorageUtil.getItem(Constants.ISSIDEBAR_EXPANDED) as any) === "false"
-            ? false
-            : true
-    );
+  Util.loadNavItemsForUser(
+    LocalStorageUtil.getItem(Constants.USER_Role) as any
+  );
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [collapsed, setCollapsed] = useState<any>(
+    (LocalStorageUtil.getItem(Constants.ISSIDEBAR_EXPANDED) as any) === "false"
+      ? false
+      : true
+  );
 
     const shouldShowSidebar = () => {
         const { pathname } = location;
@@ -40,125 +40,102 @@ function App() {
         return location.pathname === "/confirm-email";
     }
 
-    const IsNotAuthorized = (): boolean => {
-        return !Util.isAuthorized(location.pathname.replace(/^\/+/, ""));
-    };
-    useEffect(() => {
-        let currentDateTime = moment(new Date()).format("MM/DD/YYYY hh:mm:ss a");
-        let tokenExpirationTime = LocalStorageUtil.getItem(
-            Constants.TOKEN_EXPIRATION_TIME
-        ) as any;
-        let isSessionExpired =
-            Date.parse(currentDateTime) > Date.parse(tokenExpirationTime);
-        if (isSessionExpired && !IsChangePassword() && !IsConfirmEmail()) {
-            console.log(
-                "Session has expired as token is expired... " + tokenExpirationTime
-            );
-            window.alert("Session has expired");
-            navigate("/login");
-            return;
-        }
-        if (LocalStorageUtil.getItem(Constants.USER_LOGGED_IN) != "true" && !IsChangePassword() && !IsConfirmEmail()) {
-            navigate("/login");
-        }
-    }, []);
+  const IsNotAuthorized = (): boolean => {
+    return !Util.isAuthorized(location.pathname.replace(/^\/+/, ""));
+  };
 
-    useEffect(() => {
-        if (
-            LocalStorageUtil.getItem(Constants.USER_LOGGED_IN) != "true" &&
-            !IsChangePassword()
-        ) {
-            clearLocalStorage();
-            navigate("/login");
-        }
-    }, []);
-    useEffect(() => {
-        LocalStorageUtil.setItem(Constants.ISSIDEBAR_EXPANDED, !collapsed as any);
-    }, [collapsed]);
+  useEffect(() => {
+    if (
+      LocalStorageUtil.getItem(Constants.USER_LOGGED_IN) != "true" &&
+      !IsChangePassword()
+    ) {
+      clearLocalStorage();
+      navigate("/login");
+    }
+  }, []);
 
-
-    const checkSession = () => {
-        const currentDateTime = moment().format("MM/DD/YYYY hh:mm:ss a");
-        const tokenExpirationTime = LocalStorageUtil.getItem(
-            Constants.TOKEN_EXPIRATION_TIME
-        );
-
-        if (
-            tokenExpirationTime &&
-            Date.parse(currentDateTime) > Date.parse(tokenExpirationTime)
-        ) {
-            handleLogout();
-        }
-    };
-
-    const handleLogout = () => {
-        console.log("Session expired. Logging out...");
-
-        // Clear session data
-        clearLocalStorage();
-
-        window.alert("Session has expired");
-
-        // Redirect to login page
-        navigate("/login");
-    };
-
-    useEffect(() => {
-        // Listen to user activity
-        const events = ["click", "keydown", "mousemove", "scroll"];
-
-        const activityHandler = () => {
-            checkSession();
-        };
-
-        events.forEach(event => window.addEventListener(event, activityHandler));
-
-        return () => {
-            // Cleanup event listeners on unmount
-            events.forEach(event => window.removeEventListener(event, activityHandler));
-        };
-    }, []);
-
-    const clearLocalStorage = () => {
-        LocalStorageUtil.removeItem(Constants.USER_LOGGED_IN);
-        LocalStorageUtil.removeItem(Constants.ACCESS_TOKEN);
-        LocalStorageUtil.removeItem(Constants.TOKEN_EXPIRATION_TIME);
-    };
-
-    useEffect(() => {
-        LocalStorageUtil.setItem(Constants.ISSIDEBAR_EXPANDED, !collapsed as any);
-    }, [collapsed]);
-
-    return (
-        <>
-            {IsChangePassword() ? (
-                <ChangePassword />
-            ) : shouldShowSidebar() ? (
-                IsNotAuthorized() ? (
-                    <NotAuthorized />
-                ) : (
-                    <>
-                        <div className="mainlayout">
-                            <SideBar collapsed={collapsed} />
-                            <div
-                                className="maincontent"
-                                style={{ maxWidth: collapsed ? "100%" : "90%" }}
-                            >
-                                <HeaderComponent
-                                    onExpandCollapseClick={(e: any) => setCollapsed(!collapsed)}
-                                />
-                                <Content className="maincontentinner">
-                                    <AppRouter />
-                                </Content>
-                            </div>
-                        </div>
-                    </>
-                )
-            ) : (
-                <Login />
-            )}
-        </>
+  const checkSession = () => {
+    const currentDateTime = moment().format("MM/DD/YYYY hh:mm:ss a");
+    const tokenExpirationTime = LocalStorageUtil.getItem(
+      Constants.TOKEN_EXPIRATION_TIME
     );
+
+    if (
+      tokenExpirationTime &&
+      Date.parse(currentDateTime) > Date.parse(tokenExpirationTime)
+    ) {
+      handleLogout();
+    }
+  };
+
+  const handleLogout = () => {
+    console.log("Session expired. Logging out...");
+
+    // Clear session data
+    clearLocalStorage();
+
+    window.alert("Session has expired");
+
+    // Redirect to login page
+    navigate("/login");
+  };
+
+  useEffect(() => {
+    // Listen to user activity
+    const events = ["click", "keydown", "mousemove", "scroll"];
+
+    const activityHandler = () => {
+      checkSession();
+    };
+
+    events.forEach(event => window.addEventListener(event, activityHandler));
+
+    return () => {
+      // Cleanup event listeners on unmount
+      events.forEach(event => window.removeEventListener(event, activityHandler));
+    };
+  }, []);
+
+  const clearLocalStorage = () => {
+    LocalStorageUtil.removeItem(Constants.USER_LOGGED_IN);
+    LocalStorageUtil.removeItem(Constants.ACCESS_TOKEN);
+    LocalStorageUtil.removeItem(Constants.TOKEN_EXPIRATION_TIME);
+  };
+
+    useEffect(() => {
+        LocalStorageUtil.setItem(Constants.ISSIDEBAR_EXPANDED, !collapsed as any);
+    }, [collapsed]);
+
+  return (
+    <>
+      {IsChangePassword() ? (
+        <ChangePassword />
+      ) : shouldShowSidebar() ? (
+        IsNotAuthorized() ? (
+          <NotAuthorized />
+        ) : (
+          <>
+            <div className="mainlayout">
+              <SideBar collapsed={collapsed} />
+              <div
+                className="maincontent"
+                style={{ maxWidth: collapsed ? "100%" : "90%" }}
+              >
+                <HeaderComponent
+                  onExpandCollapseClick={(e: any) => setCollapsed(!collapsed)}
+                />
+                <Content className="maincontentinner">
+                  <AppRouter />
+                </Content>
+              </div>
+            </div>
+          </>
+        )
+      ) : (
+        <Login />
+      )}
+    </>
+  );
 }
 
 export default App;
