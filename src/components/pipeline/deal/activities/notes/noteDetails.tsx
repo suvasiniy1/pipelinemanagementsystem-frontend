@@ -79,24 +79,28 @@ const NoteDetails = (props: params) => {
                 <span className='accoheader-date'>{moment(note?.createdDate).format("MM-DD-YYYY hh:mm:ss a")}</span>
             </Accordion.Header>
             <Accordion.Body>
-                <div ref={divRef as any} style={{ maxHeight: "200px", overflow: 'auto' }}></div>
-                <div className="editstage-delete">
-                    <button className="editstage-deletebtn" onClick={(e: any) => { props.setDialogIsOpen(true); props.setSelectedNoteItem(note as any) }}><FontAwesomeIcon icon={faEdit} /></button>
-                    <button className="editstage-deletebtn" onClick={(e: any) => { props.setShowDeleteDialog(true); props.setSelectedNoteId(note?.noteID as any) }}><FontAwesomeIcon icon={faTrash} /></button>
-                </div>
-                <a href="javascript:void(0);"><span style={{ color: "#0091ae" }} onClick={(e: any) => { setShowComments(!showcomments) }}>{showcomments ? note.comments.length > 1 ? 'Hide Comments' : 'Hide Comment' : note.comments.length > 0 ? note.comments.length == 1 ? note.comments.length + " Comment" : note.comments.length + " Comments" : 'Add Comment'} </span></a>
-                <br />
-                <br />
-                <div hidden={!showcomments}>
-                    {
+                    <div className='notecomment-text' ref={divRef as any}></div>
+                    <div className="editstage-delete">
+                        <button className="editstage-deletebtn" onClick={(e: any) => { props.setDialogIsOpen(true); props.setSelectedNoteItem(note as any) }}><FontAwesomeIcon icon={faEdit} /></button>
+                        <button className="editstage-deletebtn" onClick={(e: any) => { props.setShowDeleteDialog(true); props.setSelectedNoteId(note?.noteID as any) }}><FontAwesomeIcon icon={faTrash} /></button>
+                        <a className='margin-left' href="javascript:void(0);"><span style={{ color: "#0091ae" }} onClick={(e: any) => { setShowComments(!showcomments) }}>{showcomments ? note.comments.length > 1 ? 'Hide Comments' : 'Hide Comment' : note.comments.length > 0 ? note.comments.length == 1 ? note.comments.length + " Comment" : note.comments.length + " Comments" : 'Add Comment'} </span></a>
+                    </div>
+                
+                <div className='showcomments' hidden={!showcomments}>
+                    <div className='noteuserrow'>
+                        {
                         note.comments?.map((c, index) => (
                             <Comments comment={c}
                             loadComments={(e:any)=>getnote()} />
                         ))}
-                    <FontAwesomeIcon icon={faUser} /> {userObj?.user}
-                    <textarea className='form-control pt-4' ref={commentRef as any} defaultValue={defaultComment as any} onChange={(e: any) => setComment({ ...comment, comment: e.target.value })} style={{ minHeight: "150px", maxWidth: "600px" }} />
-                    <br />
-                    <button type="button" className="btn btn-secondary" onClick={(e: any) => saveComment()}>Save</button>
+                    </div>
+                    <div className='noteUserComment pt-4'>
+                        <div className='userEditComment noteuser'><FontAwesomeIcon icon={faUser} /> {userObj?.user}</div>
+                        <div className='noteUserCommentTextarea'>
+                            <textarea className='form-control pt-4' ref={commentRef as any} defaultValue={defaultComment as any} onChange={(e: any) => setComment({ ...comment, comment: e.target.value })} style={{ minHeight: "150px"}} />
+                        </div>
+                        <button type="button" className="btn btn-secondary" onClick={(e: any) => saveComment()}>Save</button>
+                    </div>
                 </div>
 
             </Accordion.Body>

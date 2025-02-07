@@ -76,6 +76,9 @@ body a{color: #b68d40;}
 
 .btn-y1app, .btn-y1app:focus{border: 1px solid #e4cb9a; background-color: #cfa34c; color: #fff;}
 .btn-y1app:hover{border: 1px solid #3f3f3f; background-color: #3f3f3f; color: #fff;}
+.margin-left{margin-left: 10px;}
+.margin-right{margin-right: 10px;}
+
 
 /* Login Screen */
 .logheader {position: relative; top:0; left:0; max-width: 350px; z-index: 1; margin-bottom: 30px;}
@@ -137,8 +140,9 @@ html, body{overflow: hidden; height: 100%; min-height: 100%;}
 .toolbarview-filtersrow{display: flex;}
 .toolgrip-dropdown.dropdown-menu{z-index: 2;}
 .dropdown-menu.show{z-index: 2;}
-.filterbtn .btn {padding: 3px 6px; background-color: #b68d40; color: #fff;}
-.filterbtn .btn svg {font-size: 18px;}
+.pipefilterbtn{display: flex; align-items: center;}
+.filterbtn .btn {padding: 1px 6px; background-color: #b68d40; color: #fff;}
+.filterbtn .btn svg {font-size: 16px;}
 
 .pipeselectbtngroup{display: flex; margin-right: 8px;}
 .pipeselectbox{position: relative;}
@@ -166,7 +170,7 @@ max-width: 360px; position: absolute; left: 0; top: 100%; z-index:2;
 .pipeselectlist li:hover{background-color: #2b74da; color: #fff;}
 .pipeselectlist li:hover .pipeselectlink{text-decoration: none; color: #fff;}
 .pipeselectcontent.pipeselectfilter{width: 300px;}
-.pipeselectfilter .pipeselectpadlr {max-height: inherit;}
+/* .pipeselectfilter .pipeselectpadlr {max-height: inherit;} */
 .pipeselectfilter .pipeselectcontentinner {white-space: normal;}
 .pipeselectfilter .pipeselectlist li {padding-right: 60px;}
 .pipeselect-btns {position: absolute; right: 5px;}
@@ -220,7 +224,6 @@ select.selectfield {border: 1px solid #dee2e6; height: 37px; width: 100%; border
 
 /* Campaigns Contact Page CSS*/
 .contactlist-row {display: flex; flex-direction: column; height: 100%;}
-.contactlist-row .container-fluid {/*height: 100%; display: flex;*/}
 
 /* Pipedrive Box Code */
 .pdstage-area {overflow: hidden auto; height: calc(100% - 64px); display: grid;}
@@ -579,6 +582,18 @@ button.fields-editbtn{visibility: hidden; line-height: 1.2; background-color: #f
 .accordion-collapse.collapse.show ~ .accofooterbtmrow {display:flex;}
 .movetoformbox .col-sm-6.errmessage {width: 100%;}
 
+/* Note Comment*/
+.notecomment-text{max-height: 200px; overflow: auto; background-color: #ffffff; border: 1px solid #ddd; border-bottom: none; padding: 15px;}
+.notecomment-text + .editstage-delete{width: 100%; background-color: #fafafa; border: 1px solid #ddd; padding: 10px 15px;}
+.showcomments{padding:0;}
+.editnoteuserrow {padding: 15px; background-color: #fafafa; border: 1px solid #ddd; margin-top: 15px;}
+.userEditComment {background-color: #eee; padding: 10px 15px; border-radius: 10px;}
+.userEditCommentDetail {padding: 10px 15px;}
+.editnoteuserrow .editstage-delete {min-height: auto; padding: 0 15px;}
+.editPostCommentBtnsRow{margin-top: 10px;}
+.noteUserCommentTextarea{margin-top: 10px;}
+.noteUserCommentTextarea textarea, .noteUserCommentTextarea textarea{width: 100%;}
+.noteUserComment .btn{margin-top: 10px;}
 
 /* Deal Detail Page CSS End */
 

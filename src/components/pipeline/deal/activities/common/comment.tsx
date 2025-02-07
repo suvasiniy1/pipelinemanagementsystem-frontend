@@ -53,21 +53,23 @@ const Comments = (props: params) => {
 
     return (
         <>
-            <div hidden={editComment}>
-                <div><FontAwesomeIcon icon={faUser} /> {userObj?.user}</div>
-                <div><span>{comment.comment}</span></div>
+        <div className='editnoteuserrow'>
+            <div className='editComment' hidden={editComment}>
+                <div className='userEditComment'><FontAwesomeIcon icon={faUser} /> {userObj?.user}</div>
+                <div className='userEditCommentDetail'><span>{comment.comment}</span></div>
             </div>
-            <div className="editstage-delete" hidden={editComment}>
+            <div className="editstage-delete editComment-stage" hidden={editComment}>
                 <button className="editstage-deletebtn" onClick={(e: any) => { setEditComment(true); setComment(props.comment) }}><FontAwesomeIcon icon={faEdit} /></button>
                 <button className="editstage-deletebtn" onClick={(e: any) => setShowDeleteDialog(true)}><FontAwesomeIcon icon={faTrash} /></button>
             </div>
-            <div hidden={!editComment}>
-                <textarea className='form-control pt-4'  defaultValue={comment.comment} onChange={(e: any) => setComment({ ...comment, comment: e.target.value })} style={{ minHeight: "150px", maxWidth: "600px" }} />
-                <br />
-                <button type="button" className="btn btn-secondary" onClick={(e: any) => updateComment()}>Save</button>
-                <button type="button" className="btn btn-light" onClick={(e: any) => { setEditComment(false); setComment(props.comment) }}>Cancel</button>
+            <div className='editPostComment' hidden={!editComment}>
+                <textarea className='form-control pt-4'  defaultValue={comment.comment} onChange={(e: any) => setComment({ ...comment, comment: e.target.value })} style={{ minHeight: "150px"}} />
+                <div className='editPostCommentBtnsRow'>
+                    <button type="button" className="btn btn-secondary" onClick={(e: any) => updateComment()}>Save</button>
+                    <button type="button" className="btn btn-light margin-left" onClick={(e: any) => { setEditComment(false); setComment(props.comment) }}>Cancel</button>
+                </div>
             </div>
-            <br />
+            
             {showDeleteDialog &&
                 <DeleteDialog itemType={"Comment"}
                     itemName={""}
@@ -78,6 +80,7 @@ const Comments = (props: params) => {
                     actionType={"Delete"}
                 />
             }
+            </div>
         </>
 
     )
