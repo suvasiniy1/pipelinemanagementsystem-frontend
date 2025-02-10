@@ -25,6 +25,7 @@ import DealActivities from "../activities/dealActivities";
 import { IsMockService } from "../../../../others/util";
 import { DealService } from "../../../../services/dealService";
 import { useLocation } from "react-router-dom";
+import { toast } from "react-toastify";
 
 type params = {
   dealItem: Deal;
@@ -104,16 +105,18 @@ const updateDealStatus = async (status: string) => {
     const response = await dealSvc.updateAllDeals([updatedDeal]);
 
     if (response) {
-
+      toast.success("Deal status updated successfully");
       setTimeout(() => {
         setDealItem({ ...dealItem, ...updatedDeal });
-        alert(`Deal marked as ${status}`);
-       // onDealModified(status);
-      }, 100); 
+        //onDealModified(status);
+      }, 100);
+    }
+    else{
+      toast.warning("Unable to update deal status");
     }
   } catch (error) {
     console.error('Failed to update deal status', error);
-    alert('Failed to update deal status');
+    toast.error('Failed to update deal status');
   }
 };
 

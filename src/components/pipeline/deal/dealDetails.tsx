@@ -238,6 +238,8 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
           newStageId: stageId,
           modifiedById: userProfile.userId,
           dealId: +dealItem.dealID,
+          pipelineId:dealItem.pipelineID,
+          statusId:dealItem.status
         },
         +dealItem.dealID + "/stage"
       )
