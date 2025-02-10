@@ -1,17 +1,14 @@
-import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from "react-router-dom";
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { isUserLoggedIn } from './others/authUtil';
-import { HashRouter as Router, Route, BrowserRouter } from "react-router-dom";
-import Login from './components/login';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 
 root.render(
-<BrowserRouter basename='PLMSUI'>
+<BrowserRouter basename={window.config.HomePage}>
     <App/>
   </BrowserRouter>,
 );
