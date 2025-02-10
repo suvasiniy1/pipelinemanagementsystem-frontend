@@ -172,7 +172,11 @@ export const Deals = (props: params) => {
     const loadMoreDeals = () => {
         setIsLoadingMore(true);
         setPageSize(pageSize => pageSize + defaultPageSize);
-        loadStages(selectedItem?.pipelineID ?? pipeLineId, true, pageSize + defaultPageSize);
+        if(!selectedFilterObj){
+            loadStages(selectedItem?.pipelineID ?? pipeLineId, true, pageSize + defaultPageSize);
+        }else{
+            loadDealsByFilter(pageSize + defaultPageSize);
+        }
     };
 
     useEffect(() => {
@@ -221,11 +225,11 @@ export const Deals = (props: params) => {
         }
     };
 
-    const loadDealsByFilter=()=>{
+    const loadDealsByFilter=(pageSize?:number)=>{
         setIsLoading(true);
         setCustomError(null as any);
         setError(null as any);
-        stagesSvc.getDealsByFilterId(selectedFilterObj?.id, selectedItem?.pipelineID ??pipeLineId,userProfile.userId).then(res=>{
+        stagesSvc.getDealsByFilterId(selectedFilterObj?.id, selectedItem?.pipelineID ??pipeLineId,userProfile.userId, 1, pageSize ?? pageSize).then(res=>{
             let sortedStages = Util.sortList(res.stages, "stageOrder");
             let totalDealsList: Array<Deal> = [];
             sortedStages.forEach((s: Stage) => {
