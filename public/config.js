@@ -9,7 +9,7 @@ window.config = {
     "Proposal Made",
     "Negotiations Started",
   ],
-  HomePage:"PLMSUI",
+  HomePage:"SignaturePLMSUI",
   RedirectUri:"http://localhost:3000",
   UseMockService: false,
   CampaignSections: ["Assets", "Tasks"],
