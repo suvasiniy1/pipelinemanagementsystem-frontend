@@ -43,12 +43,8 @@ const UsersAddEditDialog: React.FC<any> = (props) => {
             isControlInNewLine: true,
             elementSize: 12,
             type: ElementType.password,
-            defaultValue: isEditing ? "" : "",  
-           // autoComplete: "new-password",  
-           // readOnly: isEditing, 
-           // title: "",  
-           // style: { pointerEvents: "none" }, 
-            disabled: true,
+            defaultValue: isEditing ? "******" : "",  // Show masked value when editing
+            disabled: isEditing, 
         },        
         {
             key: "Confirm Password",
