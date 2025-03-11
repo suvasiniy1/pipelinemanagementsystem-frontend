@@ -1,7 +1,7 @@
 window.config = {
 
 //  ServicesBaseURL: "http://localhost:5127/api",
-  ServicesBaseURL: "http://20.26.122.140/PLMS/api",
+  ServicesBaseURL: "https://www.y1crm.com/PLMS/api",
   DefaultStages: [
     "Qualified",
     "Conact Made",
@@ -9,7 +9,7 @@ window.config = {
     "Proposal Made",
     "Negotiations Started",
   ],
-  HomePage:"PLMSUI",
+  HomePage:"/PLMSUI",
   RedirectUri:"http://localhost:3000",
   UseMockService: false,
   CampaignSections: ["Assets", "Tasks"],

@@ -15,14 +15,14 @@ export const UnAuthorized = (props: params) => {
     const navigate = useNavigate();
 
     useEffect(()=>{
-        
-        if(error?.response?.status==401){
-            alert("Session has expired");
-            navigate("/login");
-        }
-        else{
-            toast.error(customMessage ?? (isRetrivingList? "Unable to retreive the list" : "Unable to perform the action"), {delay:20});
-        }
+        console.log("An unauthorized exception occured for one of the API call....please verify!");
+        // if(error?.response?.status==401){
+        //     alert("Session has expired");
+        //     navigate("/login");
+        // }
+        // else{
+        //     toast.error(customMessage ?? (isRetrivingList? "Unable to retreive the list" : "Unable to perform the action"), {delay:20});
+        // }
     },[error, customMessage])
 
     return (
