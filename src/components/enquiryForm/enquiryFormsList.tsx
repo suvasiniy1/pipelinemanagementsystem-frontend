@@ -5,6 +5,7 @@ import { EnquiryForm } from "../../models/enquiryForm";
 
 
 const EnquiryFormList = () => {
+
     const columnMetaData = [
         { columnName: "firstName", columnHeaderName: "First Name", width: 100 },
         { columnName: "lastName", columnHeaderName: "Last Name", width: 100 },

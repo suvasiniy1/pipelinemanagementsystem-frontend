@@ -148,7 +148,7 @@ const Table: React.FC<TableListProps> = (props) => {
   const checkboxSelection = props.checkboxSelection;
   const onSelectionModelChange= props.onSelectionModelChange;
 
-  const [loadRowData, setLoadRowData] = useState(true);
+  const [loadRowData, setLoadRowData] = useState(false);
   const canDoActions = props.canDoActions;
   const propNameforSelector = props.propNameforSelector;
   const selectedItem = props.viewAddEditComponentProps.selectedItem;
@@ -168,7 +168,14 @@ const Table: React.FC<TableListProps> = (props) => {
   }, [props]);
 
   useEffect(()=>{
-    
+    loadData();
+  },[])
+
+  useEffect(()=>{
+    if(loadRowData==true) loadData();
+  },[loadRowData])
+
+  const loadData=()=>{
     setIsLoading(true);
       (props.itemsBySubURL ? props.serviceAPI.getItemsBySubURL(props.itemsBySubURL) : props.serviceAPI.getItems()).then((res:Array<any>)=>{
         
@@ -188,7 +195,7 @@ const Table: React.FC<TableListProps> = (props) => {
         setIsLoading(false);
         toast.error("Unable to retreive list");
       })
-  },[loadRowData])
+  }
 
   const processRowData=(rowData:Array<any>)=>{
     rowData.forEach(r=>{
@@ -435,32 +442,39 @@ const Table: React.FC<TableListProps> = (props) => {
           actionType={actionType}
         />
       )}
-            {isLoading ? (
+      
+      {isLoading ? (
         <div className="alignCenter">
           <Spinner />
         </div>
+      ) : rowData.length === 0 ? (  // Check if rowData is empty
+        <div className="alignCenter" style={{ padding: "20px", fontSize: "16px", color: "#888" }}>
+          No records found
+        </div>
       ) : (
-      <StripedDataGrid
-        rows={rowData} 
-        columns={columnsMetaData as any}
-        checkboxSelection={checkboxSelection} // Enable checkbox selection
-        onRowSelectionModelChange={handleSelectionChange}
-        getRowClassName={(params) =>
-          params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd'
-        }
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 12,
+        <StripedDataGrid
+          rows={rowData}
+          columns={columnsMetaData as any}
+          checkboxSelection={checkboxSelection} // Enable checkbox selection
+          onRowSelectionModelChange={handleSelectionChange}
+          getRowClassName={(params) =>
+            params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
+          }
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 12,
+              },
             },
-          },
-        }}
-        pagination={true}
-        pageSizeOptions={[5, 10, 20, 50]}
-        disableRowSelectionOnClick
-      />
+          }}
+          
+          pagination={true}
+          pageSizeOptions={[5, 10, 20, 50]}
+          disableRowSelectionOnClick
+        />
       )}
     </Grid>
   );
+  
 };
 export default Table;

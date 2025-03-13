@@ -14,6 +14,7 @@ import { AppRouter } from "./others/appRouter";
 import NotAuthorized from "./others/notAuthorized";
 import Util from "./others/util";
 import ChangePassword from "./components/profiles/changePassword";
+import TopNav from "./components/topNav";
 
 function App() {
   Util.loadNavItemsForUser(
@@ -115,15 +116,17 @@ function App() {
           <NotAuthorized />
         ) : (
           <>
-            <div className="mainlayout">
-              <SideBar collapsed={collapsed} />
+                  <TopNav/>
+                  <br/>
+                  <br/>
+                  <br/>
+            <div className="">
+      
               <div
-                className="maincontent"
-                style={{ maxWidth: collapsed ? "100%" : "90%" }}
               >
-                <HeaderComponent
+                {/* <HeaderComponent
                   onExpandCollapseClick={(e: any) => setCollapsed(!collapsed)}
-                />
+                /> */}
                 <Content className="maincontentinner">
                   <AppRouter />
                 </Content>

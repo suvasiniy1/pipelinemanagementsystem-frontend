@@ -55,7 +55,7 @@ export const AppRouter = () => {
         <Route path="/pipeline/edit" element={<Stages stages={[]} />} />
         <Route path="/pipeline/add" element={<Stages stages={[]} />} />
         <Route path="/leads" element={<Leads />} />
-        <Route path="/Stages" element={<Stages stages={[]} />} />
+        <Route path="/stages" element={<Stages stages={[]} />} />
         <Route path="/deals" element={<Deals />} />
         <Route
           path="/deal"
@@ -65,23 +65,23 @@ export const AppRouter = () => {
             </AuthProvider>
           }
         />
-        <Route path="/Template" element={<TemplatesList />} />
-        <Route path="/Contact" element={<ContactsList />} />
-        <Route path="/Email" element={<EmailConfigurationList />} />
-        <Route path="/Campaigns" element={<CampaignList />} />
-        <Route path="/CampaignDetails" element={<CampaignDetails />} />
+        <Route path="/template" element={<TemplatesList />} />
+        <Route path="/contact" element={<ContactsList />} />
+        <Route path="/email" element={<EmailConfigurationList />} />
+        <Route path="/campaigns" element={<CampaignList />} />
+        <Route path="/campaignDetails" element={<CampaignDetails />} />
         <Route path="/users" element={<UsersList />}/>
-        <Route path="/Person" element={<PersonList />}/>
+        <Route path="/Persons" element={<PersonList />}/>
         <Route path="/profile" element={<ProfilePage/>} />
-        <Route path="/Reporting" element={<ReportingDashboard />}/>
-        <Route path="/Enquiries" element={<EnquiryFormList />}/>
+        <Route path="/reporting" element={<ReportingDashboard />}/>
+        <Route path="/enquiries" element={<EnquiryFormList />}/>
 
-        <Route path="/Clinic" element={<ClinicList />}/>
-        <Route path="/Source" element={<SourceList />}/>
-        <Route path="/Treatment" element={<TreatMentList />}/>
+        <Route path="/clinic" element={<ClinicList />}/>
+        <Route path="/source" element={<SourceList />}/>
+        <Route path="/treatment" element={<TreatMentList />}/>
 
         <Route path="/confirm-email" element={<ConfirmEmail />} />
-        <Route path="/Activities" element={ <AuthProvider><ActivityTaskList /></AuthProvider>} />
+        <Route path="/activities" element={ <AuthProvider><ActivityTaskList /></AuthProvider>} />
  
       </Routes>
       <ToastContainer />
