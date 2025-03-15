@@ -180,7 +180,7 @@ const GenerateElements: React.FC<props> = (props) => {
     const labels = () => {
       return (
         <>
-          <label className={`col-sm-6 col-form-label`}>
+          <label className={`col-sm-6 col-form-label ${item.isRequired ? "required" : ""}`}>
             <label>
               <input
                 className="form-group"
@@ -259,6 +259,7 @@ const GenerateElements: React.FC<props> = (props) => {
                     className={`col-sm-${
                       item.elementSize ? item.elementSize : 6
                     } errmessage`}
+                    hidden={item.hidden}
                   >
                     {getElement(item)}
                   </div>
@@ -301,7 +302,7 @@ const GenerateElements: React.FC<props> = (props) => {
                   {item.key}:124
                 </label>
                 <div className="row">
-                  <div className="col-md-6">
+                  <div className={`col-md-6 ${item.isRequired ? "required" : ""}`}>
                     {getElement(item)}
                     {customActionElement(item)}
                   </div>
@@ -363,7 +364,7 @@ const GenerateElements: React.FC<props> = (props) => {
             </div>
 
             <div className="form-group row">
-              <div className="col-6">{getElement(item)}</div>
+              <div className={`col-6`}>{getElement(item)}</div>
               <div className="col-6">
                 {controlsList.find((c) => c.key === item.sidebyItem)
                   ?.isSwitchableElement
@@ -394,7 +395,7 @@ const GenerateElements: React.FC<props> = (props) => {
             </label>
             <div
               className={`col-sm-${item.elementSize ?? 11} errmessage`}
-              style={{ paddingBottom: "10px" }}
+              style={{ paddingBottom: "10px" }} hidden={item.hidden}
             >
               {getElement(item)}
             </div>

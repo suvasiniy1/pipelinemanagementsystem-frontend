@@ -1,61 +1,54 @@
-import React, { useEffect, useState } from "react";
-import Box from "@mui/material/Box";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
-import PluseIcon from "@material-ui/icons/Add";
-import { GridRowSelectionModel } from '@mui/x-data-grid';
+import { GridRowSelectionModel } from "@mui/x-data-grid";
+import React, { useEffect, useState } from "react";
 
 import {
-  DataGrid, gridClasses,
+  Button,
+  Grid
+} from "@material-ui/core";
+import { alpha, styled } from "@mui/material/styles";
+import {
+  DataGrid,
   GridCellParams,
   GridColDef,
   GridColumnHeaderParams,
+  gridClasses,
 } from "@mui/x-data-grid";
-import {
-  Button,
-  Container,
-  Grid,
-  Typography,
-  TablePagination,
-  makeStyles,
-} from "@material-ui/core";
-import Util from "../others/util";
-import renderCellExpand from "./renderCellExpand";
-import { DeleteDialog } from "./deleteDialog";
-import { toast } from "react-toastify";
-import { Spinner } from "react-bootstrap";
 import moment from "moment";
-import { alpha, styled } from '@mui/material/styles';
-
+import { Spinner } from "react-bootstrap";
+import { toast } from "react-toastify";
+import Util from "../others/util";
+import { DeleteDialog } from "./deleteDialog";
 
 const ODD_OPACITY = 0.2;
 
 const StripedDataGrid = styled(DataGrid)(({ theme }) => ({
   [`& .${gridClasses.row}.even`]: {
     backgroundColor: theme.palette.grey[200],
-    '&:hover': {
+    "&:hover": {
       backgroundColor: alpha(theme.palette.primary.main, ODD_OPACITY),
-      '@media (hover: none)': {
-        backgroundColor: 'transparent',
+      "@media (hover: none)": {
+        backgroundColor: "transparent",
       },
     },
-    '&.Mui-selected': {
+    "&.Mui-selected": {
       backgroundColor: alpha(
         theme.palette.primary.main,
-        ODD_OPACITY + theme.palette.action.selectedOpacity,
+        ODD_OPACITY + theme.palette.action.selectedOpacity
       ),
-      '&:hover': {
+      "&:hover": {
         backgroundColor: alpha(
           theme.palette.primary.main,
           ODD_OPACITY +
             theme.palette.action.selectedOpacity +
-            theme.palette.action.hoverOpacity,
+            theme.palette.action.hoverOpacity
         ),
         // Reset on touch devices, it doesn't add specificity
-        '@media (hover: none)': {
+        "@media (hover: none)": {
           backgroundColor: alpha(
             theme.palette.primary.main,
-            ODD_OPACITY + theme.palette.action.selectedOpacity,
+            ODD_OPACITY + theme.palette.action.selectedOpacity
           ),
         },
       },
@@ -120,7 +113,7 @@ export interface TableListProps {
   propNameforDelete?: string;
   serviceAPI: any;
   checkboxSelection?: boolean;
-  onSelectionModelChange?: (newSelection: GridRowSelectionModel ) => void;
+  onSelectionModelChange?: (newSelection: GridRowSelectionModel) => void;
 }
 
 export interface ViewEditProps {
@@ -146,9 +139,9 @@ const Table: React.FC<TableListProps> = (props) => {
   const [columnMetaData, setColumnMetaRowData] = useState(props.columnMetaData);
   const [selectedRows, setSelectedRows] = useState<GridRowSelectionModel>([]);
   const checkboxSelection = props.checkboxSelection;
-  const onSelectionModelChange= props.onSelectionModelChange;
+  const onSelectionModelChange = props.onSelectionModelChange;
 
-  const [loadRowData, setLoadRowData] = useState(true);
+  const [loadRowData, setLoadRowData] = useState(false);
   const canDoActions = props.canDoActions;
   const propNameforSelector = props.propNameforSelector;
   const selectedItem = props.viewAddEditComponentProps.selectedItem;
@@ -167,36 +160,49 @@ const Table: React.FC<TableListProps> = (props) => {
     setColumnMetaRowData(props.columnMetaData);
   }, [props]);
 
-  useEffect(()=>{
-    
+  useEffect(() => {
+   if(loadRowData==true) loadData();
+  }, [loadRowData]);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = () => {
     setIsLoading(true);
-      (props.itemsBySubURL ? props.serviceAPI.getItemsBySubURL(props.itemsBySubURL) : props.serviceAPI.getItems()).then((res:Array<any>)=>{
-        
-        console.log("res  "+ JSON.stringify(res));
-        res.forEach((r, index)=>{
-          r.id= r.id?? index+1;
+    (props.itemsBySubURL
+      ? props.serviceAPI.getItemsBySubURL(props.itemsBySubURL)
+      : props.serviceAPI.getItems()
+    )
+      .then((res: Array<any>) => {
+        console.log("res  " + JSON.stringify(res));
+        res.forEach((r, index) => {
+          r.id = r.id ?? index + 1;
           return r;
-        })
+        });
         res = processRowData(res);
-        var transformedRowData = res?.map((r:any)=>{
+        var transformedRowData = res?.map((r: any) => {
           return props.rowTransformFn(r);
         });
         setRowData(transformedRowData);
         setIsLoading(false);
         setLoadRowData(false);
-      }).catch((err:any)=>{
+      })
+      .catch((err: any) => {
         setIsLoading(false);
         toast.error("Unable to retreive list");
-      })
-  },[loadRowData])
+      });
+  };
 
-  const processRowData=(rowData:Array<any>)=>{
-    rowData.forEach(r=>{
+  const processRowData = (rowData: Array<any>) => {
+    rowData.forEach((r) => {
       r.modifiedBy = Util.getUserNameById(r.updatedBy ?? r.createdBy);
-      r.modifiedDate = moment(r.updatedDate ?? r.createdDate).format(window.config.DateFormat)
+      r.modifiedDate = moment(r.updatedDate ?? r.createdDate).format(
+        window.config.DateFormat
+      );
     });
     return rowData;
-  }
+  };
 
   const getSelectedItemfromCellValues = (cellValues: any) => {
     let newSelectedItem = { ...selectedItem };
@@ -214,6 +220,7 @@ const Table: React.FC<TableListProps> = (props) => {
     isReadOnly: boolean = false,
     isClone: boolean = false
   ) => {
+    
     console.log(
       "TableListBase - onClickEditListener - cellValues.row: ",
       cellValues.row,
@@ -241,13 +248,12 @@ const Table: React.FC<TableListProps> = (props) => {
   };
 
   const onDeleteConfirm = () => {
-    
     setIsLoading(true);
     props.serviceAPI
       .delete(selectedItem.id, userProfile.userId)
       .then((res: any) => {
         toast.success(itemType + " deleted successfully");
-        
+
         if (props.postDelete) {
           props.postDelete();
         }
@@ -271,7 +277,7 @@ const Table: React.FC<TableListProps> = (props) => {
       "TableListBase - onClickDeleteListener - cellValues.row: ",
       cellValues.row
     );
-    
+
     setShowDeleteDialog(true);
     setSelectedItem(cellValues.row);
     setActionType("Delete" as any);
@@ -401,7 +407,7 @@ const Table: React.FC<TableListProps> = (props) => {
       },
     };
 
-    if(canDoActions) columnDefs.push(actions);
+    if (canDoActions) columnDefs.push(actions);
     return columnDefs;
   };
 
@@ -435,30 +441,30 @@ const Table: React.FC<TableListProps> = (props) => {
           actionType={actionType}
         />
       )}
-            {isLoading ? (
+      {isLoading ? (
         <div className="alignCenter">
           <Spinner />
         </div>
       ) : (
-      <StripedDataGrid
-        rows={rowData} 
-        columns={columnsMetaData as any}
-        checkboxSelection={checkboxSelection} // Enable checkbox selection
-        onRowSelectionModelChange={handleSelectionChange}
-        getRowClassName={(params) =>
-          params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd'
-        }
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 12,
+        <StripedDataGrid
+          rows={rowData}
+          columns={columnsMetaData as any}
+          checkboxSelection={checkboxSelection} // Enable checkbox selection
+          onRowSelectionModelChange={handleSelectionChange}
+          getRowClassName={(params) =>
+            params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
+          }
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 12,
+              },
             },
-          },
-        }}
-        pagination={true}
-        pageSizeOptions={[5, 10, 20, 50]}
-        disableRowSelectionOnClick
-      />
+          }}
+          pagination={true}
+          pageSizeOptions={[5, 10, 20, 50]}
+          disableRowSelectionOnClick
+        />
       )}
     </Grid>
   );

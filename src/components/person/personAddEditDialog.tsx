@@ -1,23 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { ViewEditProps } from "../../common/table";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useForm, FormProvider } from "react-hook-form";
-import { AddEditDialog } from "../../common/addEditDialog";
-import Util from "../../others/util";
-import * as Yup from "yup";
-import { ElementType, IControl } from "../../models/iControl";
-import GenerateElements from "../../common/generateElements";
-import { personService } from "../../services/personService";
+import React, { useEffect, useState } from 'react';
 import { ErrorBoundary } from "react-error-boundary";
-import { Person } from "../../models/person";
+import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { VisibilityGroup } from "../../models/visibilityGroup";
-import { PersonFormValues } from '../../models/personFormValues';
-import { Organization } from "../../models/organization";
+import * as Yup from "yup";
+import { AddEditDialog } from "../../common/addEditDialog";
+import GenerateElements from "../../common/generateElements";
+import { ViewEditProps } from "../../common/table";
+import { ElementType, IControl } from "../../models/iControl";
 import { Label } from "../../models/label";
-import { User } from '../../models/user';
-import { Clinic } from '../../models/clinic';
+import { Organization } from "../../models/organization";
+import { Person } from "../../models/person";
 import { Source } from '../../models/source';
+import { User } from '../../models/user';
+import { VisibilityGroup } from "../../models/visibilityGroup";
+import Util from "../../others/util";
+import { personService } from "../../services/personService";
 
 const PersonAddEditDialog: React.FC<ViewEditProps> = (props) => {
     const {
@@ -41,30 +39,6 @@ const PersonAddEditDialog: React.FC<ViewEditProps> = (props) => {
     const [sources, setSources] = useState<Array<{ name: string; value: string }>>([]);
     const [visibilityGroups, setVisibilityGroups] = useState<Array<{ name: string; value: string }>>([]);
 
-    const getValidationsSchema = () => {
-        return Yup.object().shape({
-            personName: Yup.string().required('Person Name is required'),
-            email: Yup.string().required('Email is required').email('Email is not valid'),
-            phone: Yup.string().required('Phone Number is required')
-                .matches(/^([0|\+[0-9]{1,5})?([7-9][0-9]{9})$/, 'Please enter a valid phone number'),
-            organizationID: Yup.number()
-                .typeError('Organization must be selected')
-                .required('Organization must be selected'),
-            labelID: Yup.number()
-                .typeError('Label must be selected')
-                .required('Label must be selected'),
-            userID: Yup.number()
-                .typeError('Owner must be selected')
-                .required('Owner must be selected'),
-            sourceID: Yup.number()
-                .typeError('Source must be selected')
-                .required('Source must be selected'),
-            visibilityGroupID: Yup.number()
-                .typeError('Visibility Group must be selected')
-                .required('Visibility Group must be selected'),
-        });
-    };
-
     const controlsList: IControl[] = [
         { key: "Person Name", value: "personName", isRequired: true, isControlInNewLine: true, elementSize: 12 },
         { key: "First Name", value: "firstName", isRequired: true, isControlInNewLine: true, elementSize: 12 },
@@ -78,23 +52,17 @@ const PersonAddEditDialog: React.FC<ViewEditProps> = (props) => {
         { key: "Visibility Group", value: "visibilityGroupID", isRequired: true, isControlInNewLine: true, elementSize: 12, type: ElementType.dropdown, options: visibilityGroups.map(group => ({ key: group.name, value: group.value })) }
     ];
 
-    const formOptions = {
-        resolver: yupResolver(getValidationsSchema()),
-        defaultValues: {
-            personName: selectedItem?.personName || '',
-            firstName: selectedItem?.firstName || '',
-            lastName: selectedItem?.lastName || '',
-            email: selectedItem?.email || '',
-            phone: selectedItem?.phone || '',
-            organizationID: selectedItem?.organizationID ? selectedItem.organizationID : undefined,
-            labelID: selectedItem?.labelID ? selectedItem.labelID : undefined,
-           // ownerID: selectedItem?.userID ? selectedItem.userID : undefined,
-            userID: selectedItem?.userID ? selectedItem.userID : undefined,
-            sourceID: selectedItem?.sourceID ? selectedItem.sourceID : undefined,
-            visibilityGroupID: selectedItem?.visibilityGroupID ? selectedItem.visibilityGroupID : undefined,
-        },
-    };
-    const methods = useForm<PersonFormValues>(formOptions);
+  const getValidationsSchema = (list: Array<any>) => {
+    return Yup.object().shape({
+      ...Util.buildValidations(list),
+    });
+  };
+
+  const formOptions = {
+    resolver: yupResolver(getValidationsSchema(controlsList)),
+  };
+    
+  const methods = useForm(formOptions);
     const { handleSubmit, setValue } = methods;
     const { errors } = methods.formState;
     console.log('Validation errors:', errors);
@@ -111,7 +79,7 @@ const PersonAddEditDialog: React.FC<ViewEditProps> = (props) => {
                 setOrganizations(orgOptions);
                 if (selectedItem?.organizationID) {
                     console.log('Setting organizationID value:', selectedItem.organizationID); // Debug log
-                    setValue('organizationID', selectedItem.organizationID.toString());
+                    setValue('organizationID' as never, selectedItem.organizationID.toString() as never);
                 }
             } else {
                 console.warn('No organizations fetched from the API');
@@ -129,7 +97,7 @@ const PersonAddEditDialog: React.FC<ViewEditProps> = (props) => {
                 setLabels(resOptions);
                 if (selectedItem?.labelID) {
                     console.log('Setting labelID value:', selectedItem.labelID); // Debug log
-                    setValue('labelID', selectedItem.labelID.toString());
+                    setValue('labelID' as never, selectedItem.labelID.toString() as never);
                 }
             } else {
                 console.warn('No labels fetched from the API');
@@ -147,7 +115,7 @@ const PersonAddEditDialog: React.FC<ViewEditProps> = (props) => {
                 setOwners(resOptions);
                 if (selectedItem?.userId) { // Use ownerID instead of userId
                     console.log('Setting ownerID value:', selectedItem.userId); // Debug log
-                    setValue('userID', selectedItem.userId.toString());
+                    setValue('userID' as never, selectedItem.userId.toString() as never);
                 }
             } else {
                 console.warn('No users fetched from the API');
@@ -166,7 +134,7 @@ const PersonAddEditDialog: React.FC<ViewEditProps> = (props) => {
                 setSources(resOptions);
                 if (selectedItem?.sourceID) {
                     console.log('Setting sourceID value:', selectedItem.sourceID); // Debug log
-                    setValue('sourceID', selectedItem.sourceID.toString());
+                    setValue('sourceID' as never, selectedItem.sourceID.toString() as never);
                 }
             } else {
                 console.warn('No sources fetched from the API');
@@ -184,7 +152,7 @@ const PersonAddEditDialog: React.FC<ViewEditProps> = (props) => {
                 setVisibilityGroups(resOptions);
                 if (selectedItem?.visibilityGroupID) {
                     console.log('Setting visibility group value:', selectedItem.visibilityGroupID); // Debug log
-                    setValue('visibilityGroupID', selectedItem.visibilityGroupID.toString());
+                    setValue('visibilityGroupID' as never, selectedItem.visibilityGroupID.toString() as never);
                 }
             } else {
                 console.warn('No visibility group from the API');
@@ -201,20 +169,20 @@ const PersonAddEditDialog: React.FC<ViewEditProps> = (props) => {
     const onChange = (value: any, item: any) => {
         console.log(`Changing ${item.value} to ${value}`); // Debug log
         if (item.value === 'organizationID') {
-            setValue('organizationID', value);
+            setValue('organizationID' as never, value as never);
         }
         if (item.value === 'labelID') {
-            setValue('labelID', value);
+            setValue('labelID' as never, value as never);
         }
         if (item.value === 'userID') {
-            setValue('userID', value);
+            setValue('userID' as never, value as never);
         }
       
         if (item.value === 'sourceID') {
-            setValue('sourceID', value);
+            setValue('sourceID' as never, value as never);
         }
         if (item.value === 'visibilityGroupID') {
-            setValue('visibilityGroupID', value);
+            setValue('visibilityGroupID' as never, value as never);
         }
     }
 
@@ -229,7 +197,7 @@ const PersonAddEditDialog: React.FC<ViewEditProps> = (props) => {
         // Find and set label if it exists in roles
         const label = labels.find(r => r.name === selectedItem.labelName);
         if (label) {
-            setValue('labelID', Number(label.value)); 
+            setValue('labelID' as never, Number(label.value) as never); 
             console.log('Setting labelID value:', label.value);
         } else {
             console.warn('label not found for labelName:', selectedItem.labelName);
@@ -237,7 +205,7 @@ const PersonAddEditDialog: React.FC<ViewEditProps> = (props) => {
         //owner
         const owner = owners.find(r => r.name === selectedItem.userName);
        if (owner) {
-        setValue('userID', Number(owner.value)); 
+        setValue('userID' as never, Number(owner.value) as never); 
         console.log('Setting ownerID value:', owner.value);
        } else {
         console.warn('owner not found for userName:', selectedItem.userName);
@@ -246,7 +214,7 @@ const PersonAddEditDialog: React.FC<ViewEditProps> = (props) => {
         //source
         const source = sources.find(r => r.name === selectedItem.sourceName);
         if (source) {
-            setValue('sourceID', Number(source.value)); 
+            setValue('sourceID' as never, Number(source.value) as never); 
             console.log('Setting sourceID value:', source.value);
         } else {
             console.warn('source not found for sourceName:', selectedItem.sourceName);
@@ -254,7 +222,7 @@ const PersonAddEditDialog: React.FC<ViewEditProps> = (props) => {
         //visbility
         const visibilityGroup = visibilityGroups.find(r => r.name === selectedItem.visibilityGroupName);
         if (visibilityGroup) {
-            setValue('visibilityGroupID', Number(visibilityGroup.value)); 
+            setValue('visibilityGroupID' as never, Number(visibilityGroup.value) as never); 
             console.log('Setting visibilityGroupID value:', visibilityGroup.value);
         } else {
             console.warn('visibilityGroup not found for visibilityGroupName:', selectedItem.visibilityGroupName);
@@ -262,7 +230,7 @@ const PersonAddEditDialog: React.FC<ViewEditProps> = (props) => {
         // Find and set organizationID if it exists in organizations
         const organization = organizations.find(o => o.name === selectedItem.name);
         if (organization) {
-            setValue('organizationID', Number(organization.value)); // Ensure organization.value is a string
+            setValue('organizationID' as never, Number(organization.value)as never); // Ensure organization.value is a string
             console.log('Setting organizationID value:', organization.value);
         } else {
             console.warn('Organization not found for name:', selectedItem.name);
@@ -353,7 +321,7 @@ const PersonAddEditDialog: React.FC<ViewEditProps> = (props) => {
         return [];
     };
 
-    const onSubmit = async (item: PersonFormValues) => {
+    const onSubmit = (item: any) => {
         try {
             let obj: Person = { ...selectedItem };
             obj = Util.toClassObject(obj, item);
@@ -380,15 +348,14 @@ const PersonAddEditDialog: React.FC<ViewEditProps> = (props) => {
             obj.createdBy = obj.ownerID ;
             obj.createdDate = now;
         }
-            const response = obj.personID > 0 
-                ? await personSvc.putItemBySubURL(obj, `${obj.personID}`) 
-                : await personSvc.postItem(obj);
+           (obj.personID > 0 
+                ? personSvc.putItemBySubURL(obj, `${obj.personID}`) 
+                : personSvc.postItem(obj)).then(res=>{
+                    toast.success(`Person ${obj.personID > 0 ? 'updated' : 'created'} successfully`);
+                    setLoadRowData(true);
+                    setDialogIsOpen(false);
+                });
 
-            if (response) {
-                toast.success(`Person ${obj.personID > 0 ? 'updated' : 'created'} successfully`);
-                setLoadRowData(true);
-                setDialogIsOpen(false);
-            }
         } catch (error) {
             console.error('Submit error:', error);
         }

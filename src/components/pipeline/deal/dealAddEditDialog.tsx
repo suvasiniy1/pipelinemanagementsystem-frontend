@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Spinner } from "react-bootstrap";
 import { ErrorBoundary } from "react-error-boundary";
 import { FormProvider, useForm } from "react-hook-form";
+import AsyncSelect from "react-select/async";
 import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 import { AddEditDialog } from "../../../common/addEditDialog";
@@ -15,15 +16,13 @@ import { Utility } from "../../../models/utility";
 import LocalStorageUtil from "../../../others/LocalStorageUtil";
 import Constants from "../../../others/constants";
 import Util from "../../../others/util";
-import { DealService } from "../../../services/dealService";
-import { StageService } from "../../../services/stageService";
-import { PipeLineTypeService } from "../../../services/pipeLineTypeService";
 import { ClinicService } from '../../../services/clinicService';
-import { TreatmentService } from "../../../services/treatmenetService"; 
-import { SourceService } from "../../../services/sourceService";
+import { DealService } from "../../../services/dealService";
 import { personService } from "../../../services/personService";
-import AsyncSelect from "react-select/async";
-import { SingleValue, ActionMeta } from "react-select";
+import { PipeLineTypeService } from "../../../services/pipeLineTypeService";
+import { SourceService } from "../../../services/sourceService";
+import { StageService } from "../../../services/stageService";
+import { TreatmentService } from "../../../services/treatmenetService";
 
 type params = {
     dialogIsOpen: boolean;
@@ -82,9 +81,9 @@ export const DealAddEditDialog = (props: params) => {
         { key: "Pipeline Type", value: "pipelineTypeID", type: ElementType.dropdown, isRequired: false, sidebyItem: "Lead Source" },
         { key: "Lead Source", value: "leadSourceID", type: ElementType.dropdown, isSideByItem: true, isRequired: true },
         { key: "Clinic", value: "clinicID", type: ElementType.dropdown, isRequired: true, sidebyItem: "Phone" },
-        { key: "Phone", value: "phone", type: ElementType.textbox, isSideByItem: true, isRequired: false },
+        { key: "Phone", value: "phone", type: ElementType.textbox, isSideByItem: true, isRequired: true },
         { key: "Treatment", value: "treatmentID", type: ElementType.dropdown, isRequired: true, sidebyItem: "Email" },
-        { key: "Email", value: "email", type: ElementType.textbox, isSideByItem: true, isRequired: false },
+        { key: "Email", value: "email", type: ElementType.textbox, isSideByItem: true, isRequired: true },
     ];
     const controlsList = [controlsList1, controlsList2];
 
@@ -101,49 +100,6 @@ export const DealAddEditDialog = (props: params) => {
         }
         throw new Error("Unsupported date format");
     };
-    const getValidationsSchema = () =>
-        Yup.object({
-          phone: Yup.string().required("Phone is required."),
-          email: Yup.string().email("Invalid email").required("Email is required."),
-          pipelineID: Yup.number().nullable(),
-          pipelineTypeID: Yup.number().nullable(),
-          clinicID: Yup.number().nullable(),
-          treatmentID: Yup.number().nullable(),
-          leadSourceID: Yup.number().nullable(),
-          expectedCloseDate: Yup.date()
-            .nullable()
-            .required("Expected close date is required"),
-          operationDate: Yup.date().nullable().typeError("Invalid date format"),
-          contactPersonID: Yup.number()
-          .nullable()
-          .when("newContact.personName", (personName: any, schema) => {
-            if (!personName || (typeof personName === "string" && personName.trim() === "")) {
-              return schema.required("Contact person is required.");
-            }
-            return schema.nullable();
-          }),
-          newContact: Yup.object({
-            personName: Yup.string()
-              .nullable()
-              .when("contactPersonID", (contactPersonID, schema) => {
-                if (!contactPersonID) {
-                  return schema
-                    .required("New contact name is required.")
-                    .test(
-                      "is-string",
-                      "Contact name must be a string.",
-                      (value) => typeof value === "string"
-                    );
-                }
-                return schema.nullable();
-              }),
-            email: Yup.string().nullable().email("Invalid email format."),
-            phone: Yup.string()
-              .nullable()
-              .matches(/^[0-9]+$/, "Phone must be numeric."),
-          }),
-        });
-    type FormFields = Yup.InferType<ReturnType<typeof getValidationsSchema>>;
     
 
     const oncloseDialog = () => {
@@ -182,23 +138,17 @@ export const DealAddEditDialog = (props: params) => {
         }
       };
     
-    const formOptions = {
-        resolver: yupResolver(getValidationsSchema()), // Explicitly resolves the Yup schema
-        defaultValues: {
-            phone: "",
-            email: "",
-            pipelineID: null,
-            pipelineTypeID: null,
-            clinicID: null,
-            treatmentID: null,
-            leadSourceID: null,
-            operationDate: undefined,
-            expectedCloseDate: undefined,
-            contactPersonID: null,
-        },
-    };
+  const getValidationsSchema = (list: Array<any>) => {
+    return Yup.object().shape({
+      ...Util.buildValidations(list),
+    });
+  };
+
+  const formOptions = {
+    resolver: yupResolver(getValidationsSchema(controlsList1).concat(getValidationsSchema(controlsList2))),
+  };
     
-    const methods = useForm<FormFields>(formOptions);
+  const methods = useForm(formOptions);
     type SelectedItem = {
         pipelineID: number | null;
         stageID?: number;
@@ -211,46 +161,6 @@ export const DealAddEditDialog = (props: params) => {
         [key: string]: any; // Allow other dynamic fields from the Deal model
     };
    
-    
-    const handleContactChange = (
-        newValue: SingleValue<ContactOption>,
-        actionMeta: ActionMeta<ContactOption>
-    ) => {
-        if (!newValue) return;
-    
-        if (newValue.isNew) {
-            // Set a placeholder for the new contact, allowing further typing
-            setSelectedContact({
-                personName: newValue.inputValue || "", // Preserve the entered input
-                email: "",
-                phone: "",
-            });
-    
-            setSelectedItem((prev) => ({
-                ...prev,
-                contactPersonID: -1, // Placeholder for a new contact
-                newContact: {
-                    personName: newValue.inputValue || "",
-                    email: "",
-                    phone: "",
-                },
-            }));
-        } else {
-            // Handle existing contact selection
-            const { phone, email } = newValue.details || {};
-            setSelectedContact(newValue.details);
-            setSelectedItem((prev) => ({
-                ...prev,
-                contactPersonID: newValue.value,
-                phone: phone || "",
-                email: email || "",
-            }));
-    
-            // Update the form fields directly
-            setValue("phone", phone || "");
-            setValue("email", email || "");
-        }
-    };
 
     useEffect(() => {
         setIsLoading(true);
@@ -327,14 +237,14 @@ export const DealAddEditDialog = (props: params) => {
         if (item.key === "Expected Close Date") {
             const parsedDate = new Date(value);
             if (!isNaN(parsedDate.getTime())) {
-                setValue("expectedCloseDate", parsedDate); // Ensure it's a valid Date object
+                setValue("expectedCloseDate"  as never, parsedDate  as never); // Ensure it's a valid Date object
                 setSelectedItem({ ...selectedItem, expectedCloseDate: parsedDate });
             }
         }
         if (item.key === "Operation Date") {
             const parsedDate = new Date(value);
             if (!isNaN(parsedDate.getTime())) {
-                setValue("operationDate", parsedDate); // Ensure it's a valid Date object
+                setValue("operationDate"  as never, parsedDate  as never); // Ensure it's a valid Date object
                 setSelectedItem({ ...selectedItem, operationDate: parsedDate });
             }
         }
@@ -487,8 +397,8 @@ export const DealAddEditDialog = (props: params) => {
             }));
 
             // Clear phone and email for new contacts
-            setValue("phone", "");
-            setValue("email", "");
+            setValue("phone"  as never, ""  as never);
+            setValue("email"  as never, ""  as never);
         } else {
             // Handle selecting an existing contact
             setSelectedContact(newValue.details); // Save selected contact
@@ -500,8 +410,8 @@ export const DealAddEditDialog = (props: params) => {
             }));
 
             // Update form fields with existing contact details
-            setValue("phone", newValue.details?.phone || "");
-            setValue("email", newValue.details?.email || "");
+            setValue("phone" as never, (newValue.details?.phone || "") as never);
+            setValue("email" as never, (newValue.details?.email || "") as never);
         }
     }}
     onInputChange={(inputValue: any, actionMeta: { action: string; }) => {
@@ -516,8 +426,8 @@ export const DealAddEditDialog = (props: params) => {
             }));
 
             // Clear phone and email when typing a new contact name
-            setValue("phone", "");
-            setValue("email", "");
+            setValue("phone" as never, "" as never);
+            setValue("email" as never, "" as never);
 
             // Clear selectedContact to avoid conflicts
             setSelectedContact(null);
