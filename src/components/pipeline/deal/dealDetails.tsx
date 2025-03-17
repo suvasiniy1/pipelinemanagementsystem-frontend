@@ -40,6 +40,7 @@ import { TaskAddEdit } from "./activities/tasks/taskAddEdit";
 import DealOverView from "./overview/dealOverView";
 import DealDetailsCustomFields from "./dealDetailsCustomFields";
 import DealsDialog from "./DealsDialog";
+import JustCallComponent from "./justcall";
 
 
 export const DealDetails = () => {
@@ -68,6 +69,7 @@ export const DealDetails = () => {
   const [selectedTaskItem, setSelectedTaskItem] = useState<Tasks>();
   const [selectedEmail, setSelectedEmail] = useState<any>();
   const [dialogToOpen, setDialogToOpen] = useState<string>("");
+  const [selectedPhoneNumber, setSelectedPhoneNmber]=useState();
   const utility: Utility = JSON.parse(
     LocalStorageUtil.getItemObject(Constants.UTILITY) as any
   );
@@ -570,7 +572,7 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
                     <div className="details-panel">
                       <div className="details-row">
                         <div className="details-label">Phone -</div>
-                        <div className="details-value">{dealItem.phone || "-"}</div>
+                        <a href="javascript:void(0);"         style={{ fontSize: "0.9em", color: "#007bff", textDecoration: "underline" }}><div className="details-value" onClick={(e:any)=>setSelectedPhoneNmber(dealItem.phone as any)}>{dealItem.phone || "-"}</div></a>
                       </div>
                       <div className="details-row">
                         <div className="details-label">Email -</div>
@@ -646,6 +648,7 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
               setDealItem={setDealItem}
               onDealModified={(e: any) => onStageModified(e)}
             />
+            {selectedPhoneNumber ? <JustCallComponent phoneNumber={selectedPhoneNumber} setPhoneNumber={setSelectedPhoneNmber}/> : null }
           </div>
         </div>
       )}
