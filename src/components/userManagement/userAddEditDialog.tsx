@@ -209,8 +209,8 @@ const UsersAddEditDialog: React.FC<any> = (props) => {
       obj.createdDate = obj.createdDate || new Date().toISOString();
       obj.modifiedDate = null as any;
       // Add SecurityStamp and ConcurrencyStamp fields
-      obj.SecurityStamp = obj.SecurityStamp || generateRandomStamp(); // Placeholder function
-      obj.ConcurrencyStamp = obj.ConcurrencyStamp || generateRandomStamp(); // Placeholder function
+      obj.securityStamp = obj.securityStamp || generateRandomStamp(); // Placeholder function
+      obj.concurrencyStamp = obj.concurrencyStamp || generateRandomStamp(); // Placeholder function
 
       const response =
         obj.userId > 0
