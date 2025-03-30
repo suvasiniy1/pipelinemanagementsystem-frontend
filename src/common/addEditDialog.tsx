@@ -18,13 +18,14 @@ type Props = {
     disabled?:boolean;
     isFullscreen?:boolean;
     showSaveButton?: boolean;
+    canClose?:boolean;
 };
 
 export const AddEditDialog: React.FC<Props> = (props) => {
 
     console.log("AddEditDialog - props: ", props);
     const [dialogIsOpen, setDialogIsOpen] = useState(props.dialogIsOpen);
-    const {customSaveChangesButtonName, header, customHeader, onSave, onClose, closeDialog, canSave, children, customFooter, onFormChange, disabled,showSaveButton = true, ...rest } = props;
+    const {customSaveChangesButtonName, header, customHeader, onSave, canClose, onClose, closeDialog, canSave, children, customFooter, onFormChange, disabled,showSaveButton = true, ...rest } = props;
     const [dialogSize, setDialogSize] = useState(props.dialogSize =="default"? null : props.dialogSize ?? "lg");
     const [fullScreen, setFullScreen]=useState<any>(props.isFullscreen ?? false)
     useEffect(() => {
@@ -44,9 +45,11 @@ export const AddEditDialog: React.FC<Props> = (props) => {
                 backdrop="static" keyboard={false} // this was added to disable click outside of Modal window
                 centered
             >
-                <Modal.Header className='modalhead' closeButton>
+                {canClose ? <Modal.Header className='modalhead' closeButton>
                     <Modal.Title className='modalheadtitle' id="dialogHeader">{customHeader ?? header}</Modal.Title>
-                </Modal.Header>
+                </Modal.Header> : <Modal.Header className='modalhead' >
+                    <Modal.Title className='modalheadtitle' id="dialogHeader">{customHeader ?? header}</Modal.Title>
+                </Modal.Header>}
                 <Modal.Body className='modalbody'>
                     <form className="DialogForm" id="AddEditForm" onChange={(e) => onFormChange1()}>
                         <fieldset disabled={disabled}>
@@ -56,7 +59,7 @@ export const AddEditDialog: React.FC<Props> = (props) => {
                 </Modal.Body>
                 <Modal.Footer className='modalfoot'>
                     <div className='modalfootbar' hidden={customFooter}>
-                        <button onClick={closeDialog} className="btn btn-secondary btn-sm me-2" id="closeDialog">Cancel</button>
+                        <button onClick={closeDialog} disabled={!canClose} className="btn btn-secondary btn-sm me-2" id="closeDialog">Cancel</button>
                         {showSaveButton && ( // Conditionally render the Save button
                         <button type="submit" className={`btn btn-primary btn-sm save${header}`} onClick={onSave}>{customSaveChangesButtonName ? customSaveChangesButtonName : props.isNewItem ? "Create" : "Save"}</button>
                         )}

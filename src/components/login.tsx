@@ -1,6 +1,7 @@
 import { yupResolver } from "@hookform/resolvers/yup";
+import moment from "moment";
 import { useEffect, useState } from "react";
-import { Button, Form, Spinner } from "react-bootstrap";
+import { Button, Form } from "react-bootstrap";
 import { ErrorBoundary } from "react-error-boundary";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -9,16 +10,15 @@ import "react-toastify/dist/ReactToastify.css";
 import * as Yup from "yup";
 import GenerateElements from "../common/generateElements";
 import { ElementType, IControl } from "../models/iControl";
-import LocalStorageUtil from "../others/LocalStorageUtil";
+import { UserProfile } from "../models/userProfile";
 import Constants from "../others/constants";
+import LocalStorageUtil from "../others/LocalStorageUtil";
 import Util, { IsMockService } from "../others/util";
 import BackgroundImage from "../resources/images/background.png";
 import Logo from "../resources/images/logo.png";
 import jpg from "../resources/images/Y1Logo.jpg";
 import { LoginService } from "../services/loginService";
-import { UserProfile } from "../models/userProfile";
 import ForgotPassword from "./profiles/forgotPassword";
-import moment from "moment";
 
 export class UserCredentails {
   public userName!: string;
@@ -44,7 +44,6 @@ export class UserCredentails {
 const Login = () => {
   const [showForGotPasswordDiglog, setShowForGotPasswordDiglog] =
     useState(false);
-  const [isUserNotExist, setIsUserNotExist] = useState(false);
   const [isIncorrectCredentails, setIsIncorrectCredentails] = useState<any>();
   const [loading, setLoading] = useState(false);
   const [twoFactorRequired, setTwoFactorRequired] = useState(false); // For 2FA check
@@ -64,6 +63,7 @@ const Login = () => {
   const loginSvc = new LoginService(ErrorBoundary);
   const navigate = useNavigate();
   const [email, setEmail] = useState<string | null>(null);
+  const [loginError, setLoginError]=useState();
 
   const [controlsList, setControlsList] = useState<Array<IControl>>([
     {
@@ -130,6 +130,10 @@ const Login = () => {
           .then((res: UserProfile) => {
             setLoading(false);
             
+            if(res?.forcePasswordReset){
+              navigate(`/changePassword?userName=${res.user}&changePassword=true`);
+              return;
+            }
             if (res && res?.token) {
               LocalStorageUtil.setItem(Constants.USER_LOGGED_IN, "true");
               LocalStorageUtil.setItem(Constants.ACCESS_TOKEN, res?.token);
@@ -159,10 +163,12 @@ const Login = () => {
               setUserId(res.userId);
               setEmail(res.email);
             } else {
+              setLoginError(res as any);
               setIsIncorrectCredentails(res);
             }
           })
           .catch((err) => {
+            
             setLoading(false);
             toast.error(err);
           });
@@ -207,7 +213,6 @@ const Login = () => {
       await loginSvc
         .verifyTwoFactorCode({ userId, verificationCode, email })
         .then((res: any) => {
-          
           if (res?.token) {
             LocalStorageUtil.setItem(Constants.USER_LOGGED_IN, "true");
             LocalStorageUtil.setItem(Constants.ACCESS_TOKEN, res?.token);
@@ -264,9 +269,9 @@ const Login = () => {
                   <div className="h4">Sign In</div>
                 </div>
                 <div className="logformsubtext p-2 text-center">
-                  {twoFactorRequired
+                  {loading ? "Please wait" : twoFactorRequired
                     ? "Enter the 2FA code sent to your email"
-                    : "Please log in to continue."}
+                    : loginError ?? "Please log in to continue."}
                 </div>
                 {twoFactorRequired ? (
                   // If 2FA is required, show the verification code form

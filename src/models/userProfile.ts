@@ -19,4 +19,5 @@ export class UserProfile {
   twoFactorRequired?: boolean; 
   concurrencyStamp?:string;
   securityStamp?:string;
+  forcePasswordReset?:boolean;
 }

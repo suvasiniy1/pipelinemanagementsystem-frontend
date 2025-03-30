@@ -1,7 +1,7 @@
 window.config = {
 
 //  ServicesBaseURL: "http://localhost:5127/api",
-  ServicesBaseURL: "https://www.y1crm.com/PLMS/api",
+  ServicesBaseURL: "https://www.y1crm.com/PLMSDev/api",
   DefaultStages: [
     "Qualified",
     "Conact Made",

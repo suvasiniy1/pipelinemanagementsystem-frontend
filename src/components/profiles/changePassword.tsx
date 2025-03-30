@@ -25,19 +25,20 @@ const ChangePassword = () => {
   );
   const [isErrorChangingPassword, setIsErrorChangingPassword] = useState<any>();
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
 
   const navigate = useNavigate();
   const location = useLocation();
 
   // Capture token and username from URL query params
   const queryParams = new URLSearchParams(location.search);
-  const token = queryParams.get('tk');
-  const username = queryParams.get('username');
-  console.log('tk:', token, 'Username:', username);
+  const token = queryParams.get("tk");
+  const changePassword = queryParams.get("changePassword");
+  const username = queryParams.get("username");
+  console.log("tk:", token, "Username:", username);
 
   const forgotPasswordService = new ForgotPasswordService((error: any) => {
-    setIsErrorChangingPassword(error.message || 'Something went wrong.');
+    setIsErrorChangingPassword(error.message || "Something went wrong.");
   });
 
   const [controlsList, setControlsList] = useState<Array<IControl>>([
@@ -82,14 +83,14 @@ const ChangePassword = () => {
 
   const onSubmitClick = async () => {
     setLoading(true);
-    setMessage('');
+    setMessage("");
     const formData = getValues(); // Get values from the form
     const password = formData.passwordHash;
     const confirmPassword = formData.confirmPasswordHash;
 
     // Ensure passwords match
     if (password !== confirmPassword) {
-      setIsErrorChangingPassword('Passwords do not match');
+      setIsErrorChangingPassword("Passwords do not match");
       return;
     }
 
@@ -103,13 +104,15 @@ const ChangePassword = () => {
 
       if (response) {
         toast.success("Password has been reset successfully.");
-    
+
         setTimeout(() => {
           navigate("/login");
         }, 3000); // Redirect to login after success
-      } 
+      }
     } catch (error) {
-      setIsErrorChangingPassword("Something went wrong while resetting the password.");
+      setIsErrorChangingPassword(
+        "Something went wrong while resetting the password."
+      );
     } finally {
       setLoading(false);
     }
@@ -159,6 +162,21 @@ const ChangePassword = () => {
                   <div hidden={!loading}>
                     <Spinner />
                   </div>
+                </div>
+                <br/>
+                <div
+                  hidden={!changePassword}
+                  style={{
+                    backgroundColor: "#fff3cd",
+                    color: "#856404",
+                    padding: "10px",
+                    borderRadius: "5px",
+                    marginBottom: "15px",
+                    border: "1px solid #ffeeba",
+                  }}
+                >
+                  Your account has been created with a default password. You
+                  must change it before proceeding.
                 </div>
                 {
                   <GenerateElements

@@ -132,6 +132,7 @@ export interface ViewEditProps {
   setIsReadOnly?: any;
   isClone?: any;
   setIsClone?: any;
+  canClose?:any;
 }
 
 const Table: React.FC<TableListProps> = (props) => {

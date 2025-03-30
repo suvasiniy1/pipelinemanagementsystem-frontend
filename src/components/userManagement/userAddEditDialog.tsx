@@ -15,7 +15,6 @@ import * as Yup from "yup";
 import LocalStorageUtil from "../../others/LocalStorageUtil";
 
 const UsersAddEditDialog: React.FC<any> = (props) => {
-  
   const {
     header,
     onSave,
@@ -41,83 +40,66 @@ const UsersAddEditDialog: React.FC<any> = (props) => {
   // Controls for the form fields
   const controlsList: IControl[] = [
     {
-      key: "Username",
-      value: "userName",
-      isControlInNewLine: true,
-      elementSize: 12,
-      isRequired: true,
-    },
-    {
       key: "First Name",
       value: "firstName",
-      isControlInNewLine: true,
       elementSize: 12,
       isRequired: true,
+      sidebyItem: "Last Name",
     },
     {
       key: "Last Name",
       value: "lastName",
-      isControlInNewLine: true,
       elementSize: 12,
       isRequired: true,
+      isSideByItem: true,
+    },
+    {
+      key: "Username",
+      value: "userName",
+      elementSize: 12,
+      isRequired: true,
+      sidebyItem: "Email Address",
     },
     {
       key: "Email Address",
       value: "email",
-      isControlInNewLine: true,
       elementSize: 12,
       isRequired: true,
+      isSideByItem: true,
     },
     {
       key: "Phone Number",
       type: ElementType.number,
       value: "phoneNumber",
-      isControlInNewLine: true,
       elementSize: 12,
       isRequired: true,
-    },
-    {
-      key: "Password",
-      value: "passwordHash",
-      isControlInNewLine: true,
-      elementSize: 12,
-      type: ElementType.password,
-      isRequired: true,
-      hidden: selectedItem?.userId > 0,
-    },
-    {
-      key: "Confirm Password",
-      value: "confirmPassword",
-      isControlInNewLine: true,
-      elementSize: 12,
-      type: ElementType.password,
-      hidden: selectedItem?.userId > 0,
+      sidebyItem: "Role",
     },
     {
       key: "Role",
       value: "id",
-      isControlInNewLine: true,
       elementSize: 12,
       type: ElementType.dropdown,
       options: roles,
-      isRequired: true, // Use roles directly
+      isRequired: true,
+      isSideByItem: true, // Use roles directly
     },
     {
       key: "Is Active",
       value: "isActive",
-      isControlInNewLine: true,
       elementSize: 12,
-      type: ElementType.checkbox,
+      type: ElementType.slider,
       defaultValue: true,
+      sidebyItem: "Organization",
     },
     {
       key: "Organization",
       value: "organizationID",
-      isControlInNewLine: true,
       elementSize: 12,
       type: ElementType.dropdown,
       options: organizations,
       isRequired: true, // Use organizations directly
+      isSideByItem: true,
     },
   ];
 
@@ -127,11 +109,7 @@ const UsersAddEditDialog: React.FC<any> = (props) => {
     });
   };
 
-  const validationSchema = getValidationsSchema(controlsList).shape({
-    confirmPassword: Yup.string()
-      .oneOf([Yup.ref("passwordHash")], "Passwords must match")
-      .required("Confirm Password is required"),
-  });
+  const validationSchema = getValidationsSchema(controlsList);
 
   const formOptions = {
     resolver: yupResolver(validationSchema),
@@ -168,7 +146,6 @@ const UsersAddEditDialog: React.FC<any> = (props) => {
     }
   };
   const getListofItemsForDropdown = (item: any) => {
-    
     if (item.value === "id") {
       return roles.map((role) => ({
         value: role.id,
@@ -197,12 +174,12 @@ const UsersAddEditDialog: React.FC<any> = (props) => {
     try {
       let obj: User = { ...selectedItem };
       obj = Util.toClassObject(obj, item);
+      obj.passwordHash="test";
       obj.isActive = item.isActive === "true" ? true : false;
       obj.roleId = item.id !== null ? Number(item.id) : 0;
       obj.organizationId =
         item.organizationID !== null ? Number(item.organizationID) : 0;
       obj.lastLogin = new Date();
-      obj.passwordHash = selectedItem.passwordHash ?? item.passwordHash;
       obj.createdBy = String(Util.UserProfile()?.userId);
       // obj.createdBy = Util.UserProfile()?.userId;
       obj.userId = obj.userId ?? 0;
