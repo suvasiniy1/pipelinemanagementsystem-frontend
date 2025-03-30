@@ -32,7 +32,7 @@ const ChangePassword = () => {
 
   // Capture token and username from URL query params
   const queryParams = new URLSearchParams(location.search);
-  const token = queryParams.get("tk");
+  const token = '';
   const changePassword = queryParams.get("changePassword");
   const username = queryParams.get("username");
   console.log("tk:", token, "Username:", username);
