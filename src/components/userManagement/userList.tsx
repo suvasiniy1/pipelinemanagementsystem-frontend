@@ -9,8 +9,8 @@ import LocalStorageUtil from "../../others/LocalStorageUtil";
 import { Spinner } from "react-bootstrap";
 import { Button, Tooltip } from "@mui/material";
 import { toast } from "react-toastify";
-import ResetIcon from "../../resources/images/ResetIcon.svg";
-import UnlockIcon from "../../resources/images/UnlockIcon.svg";
+import LockResetIcon from "@mui/icons-material/LockReset";
+
 
 const UsersList = () => {
   const userSvc = new UserService(ErrorBoundary);
@@ -21,11 +21,9 @@ const UsersList = () => {
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
   const [userItem, setUserItem] = useState<User>(new User());
   const [loadRowData, setLoadRowData] = useState(true);
-  
+
   const columnMetaData = [
     { columnName: "userName", columnHeaderName: "Username", width: 150 },
-    { columnName: "firstName", columnHeaderName: "Firstname", width: 150 },
-    { columnName: "lastName", columnHeaderName: "Lastname", width: 150 },
     { columnName: "phoneNumber", columnHeaderName: "Phonenumber", width: 150 },
     { columnName: "email", columnHeaderName: "Email Address", width: 150 },
     { columnName: "name", columnHeaderName: "Organization", width: 150 },
@@ -38,11 +36,17 @@ const UsersList = () => {
     setLoadingData(true);
     Promise.all([
       userSvc.getRoles().catch(() => []), // If API fails, return an empty array
-      userSvc.getOrganizations().catch(() => []) // Handle failure
+      userSvc.getOrganizations().catch(() => []), // Handle failure
     ])
       .then((res) => {
-        LocalStorageUtil.setItemObject("userRoles", JSON.stringify(res[0] || []));
-        LocalStorageUtil.setItemObject("organizations", JSON.stringify(res[1] || []));
+        LocalStorageUtil.setItemObject(
+          "userRoles",
+          JSON.stringify(res[0] || [])
+        );
+        LocalStorageUtil.setItemObject(
+          "organizations",
+          JSON.stringify(res[1] || [])
+        );
       })
       .catch((error) => {
         console.error("Error fetching roles or organizations:", error);
@@ -51,7 +55,6 @@ const UsersList = () => {
         setLoadingData(false);
       });
   }, []);
-  
 
   const rowTransform = (item: User, index: number) => {
     return {
@@ -88,14 +91,17 @@ const UsersList = () => {
   };
 
   const resetPassword = (item: any) => {
-    // if(item.id==authContext.id){
-    //   setShowDeleteDialog(true);
-    //   return;
     console.log(item);
     if (isResetpasswordClicked) return;
     setIsResetpasswordClicked(true);
-    setDialogIsOpen(true);
-    setUserItem(item);
+    userSvc
+      .changePassword(item.id)
+      .then((res) => {
+        toast.success("Password is successfully reset for "+item.userName)
+      })
+      .finally(() => {
+        setIsResetpasswordClicked(false);
+      });
   };
 
   const customActions = (item: any) => {
@@ -105,36 +111,11 @@ const UsersList = () => {
       <>
         <Button
           color="primary"
-          startIcon={
-            <img
-              src={ResetIcon}
-              alt="0"
-              height="14"
-              style={{ marginLeft: "5px" }}
-            />
-          }
+          startIcon={<LockResetIcon />}
           title="Reset Password"
           onClick={(event) => {
             resetPassword(item.row);
           }}
-          className="rowActionIcon"
-        ></Button>
-
-        <Button
-          color="primary"
-          startIcon={
-            <img
-              src={UnlockIcon}
-              alt="0"
-              height="14"
-              style={{ marginLeft: "5px" }}
-            />
-          }
-          onClick={(event) => {
-            unLockUserAccount(item.row);
-          }}
-          title="Unlock"
-          disabled={item.row.failedAuthCount != 3}
           className="rowActionIcon"
         ></Button>
       </>
@@ -146,17 +127,19 @@ const UsersList = () => {
       <Spinner />
     </div>
   ) : (
-    <ItemCollection
-      itemName={"User"}
-      itemType={User}
-      columnMetaData={columnMetaData}
-      viewAddEditComponent={UsersAddEditDialog}
-      itemsBySubURL={"GetUsers"}
-      rowTransformFn={rowTransform}
-      api={new UserService(ErrorBoundary)}
-      enableCheckboxSelection={false}
-      // customActions={(e: any) => customActions(e)}
-    />
+    <>
+      <ItemCollection
+        itemName={"User"}
+        itemType={User}
+        columnMetaData={columnMetaData}
+        viewAddEditComponent={UsersAddEditDialog}
+        itemsBySubURL={"GetUsers"}
+        rowTransformFn={rowTransform}
+        api={new UserService(ErrorBoundary)}
+        enableCheckboxSelection={false}
+        customActions={(e: any) => customActions(e)}
+      />
+    </>
   );
 };
 

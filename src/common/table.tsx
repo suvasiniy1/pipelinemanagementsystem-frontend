@@ -338,7 +338,7 @@ const Table: React.FC<TableListProps> = (props) => {
       headerName: "Actions",
       headerAlign: "left",
       sortable: false,
-      width: 200,
+      width: 400,
       disableColumnMenu: true,
       disableReorder: true,
       renderHeader: (params: GridColumnHeaderParams) => (

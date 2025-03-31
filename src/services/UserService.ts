@@ -13,6 +13,10 @@ export class UserService extends BaseService<User> {
     return this.getItems(axiosCancel, 'ManageUser/GetUsers');
   }
 
+  changePassword(userId:number){
+    return this.getItemsBySubURL(`ResetUserPassword/${userId}`)
+  }
+
  
   getUserById(userId: number, axiosCancel?: CancelTokenSource) {
     return this.getItems(axiosCancel, IsMockService() ? 'mockData/users.json' : `ManageUser/${userId}`);
