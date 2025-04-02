@@ -60,6 +60,7 @@ export const SearchBar = () => {
 
     // Handle search input change and filter results as the user types
     interface SearchResult {
+        phone: string;
         contactPerson?: string;
         title?: string;
         treatmentName?: string;
@@ -78,7 +79,9 @@ export const SearchBar = () => {
                     item.contactPerson?.toLowerCase().includes(value) ||
                     item.title?.toLowerCase().includes(value) ||
                     item.treatmentName?.toLowerCase().includes(value) ||
-                    item.email?.toLowerCase().includes(value)  // Search by email as well
+                    item.email?.toLowerCase().includes(value)  ||
+                    item.phone?.toLowerCase().includes(value)// Search by email as well
+
                 )
                 .reduce((acc: SearchResult[], current: SearchResult) => {
                     // Avoid duplicates based on contactPerson or email, ignoring dealID
@@ -186,11 +189,42 @@ export const SearchBar = () => {
                                    padding: '10px', 
                                    cursor: 'pointer', 
                                    borderBottom: '1px solid #eee' 
+                  
                                }}
                            >
-                               {item.contactPerson && <span>{item.contactPerson}</span>}
-                               {item.email && <span> ({item.email})</span>}
-                               {item.treatmentName && <span> - {item.treatmentName}</span>}
+                            <ul style={{ listStyleType: 'none', margin: 0, padding: 0 }}>
+  {filteredResults.map((item, index) => (
+    <li
+      key={item.dealId || index}
+      onClick={() => navigateToItem(item)}
+      style={{
+        padding: '10px',
+        cursor: 'pointer',
+        borderBottom: '1px solid #eee',
+        position: 'relative'
+      }}
+    >
+      <span className="hover-person-name">
+        {item.contactPerson && <strong>{item.contactPerson}</strong>}
+        {item.treatmentName && <span> - {item.treatmentName}</span>}
+
+        {/* Tooltip Popup */}
+        <div className="hover-popup">
+          {item.email && <p><strong>Email:</strong> {item.email}</p>}
+          {item.phone && <p><strong>Phone:</strong> {item.phone}</p>}
+          {item.contactPerson && <p><strong>Name:</strong> {item.contactPerson}</p>}
+        </div>
+      </span>
+
+      {/* Show phone/email inline as well if you want */}
+      <div style={{ fontSize: '12px', color: '#555', marginTop: '2px' }}>
+        {item.phone && <span>📞 {item.phone}</span>}
+        {item.email && <span style={{ marginLeft: '10px' }}>✉️ {item.email}</span>}
+      </div>
+    </li>
+  ))}
+</ul>
+                                 
                            </li>
                             ))}
                         </ul>

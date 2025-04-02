@@ -40,7 +40,8 @@ window.config = {
           "Clinic",
           "Source",
           "Treatment",
-          "profile"
+          "profile",
+          "PipeLineType",
       ],
     },
     {

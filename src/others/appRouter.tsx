@@ -25,10 +25,11 @@ import EnquiryFormList from "../components/enquiryForm/enquiryFormsList";
 import ClinicList from "../components/clinic/clinicList";
 import SourceList from "../components/source/sourceList";
 import TreatMentList from "../components/treatment/treatmentList";
-
+import PipeLineTypeList from "../components/pipeLineType/pipeLineTypeList";
 import ConfirmEmail from "../components/ConfirmEmail";
 import ActivityTaskList from "../components/taskActivities/activityTaskList"
 import ChangePassword from '../components/profiles/changePassword';
+import { PipeLineType } from "../models/pipeLineType";
 
 
 
@@ -79,7 +80,7 @@ export const AppRouter = () => {
         <Route path="/Clinic" element={<ClinicList />}/>
         <Route path="/Source" element={<SourceList />}/>
         <Route path="/Treatment" element={<TreatMentList />}/>
-
+        <Route path="/PipeLineType" element={<PipeLineTypeList />} />
         <Route path="/confirm-email" element={<ConfirmEmail />} />
         <Route path="/Activities" element={ <AuthProvider><ActivityTaskList /></AuthProvider>} />
  
