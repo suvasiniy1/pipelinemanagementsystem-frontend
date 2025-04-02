@@ -10,7 +10,7 @@ import { Spinner } from "react-bootstrap";
 import { Button, Tooltip } from "@mui/material";
 import { toast } from "react-toastify";
 import LockResetIcon from "@mui/icons-material/LockReset";
-
+import moment from "moment";
 
 const UsersList = () => {
   const userSvc = new UserService(ErrorBoundary);
@@ -62,6 +62,9 @@ const UsersList = () => {
       roleId: item.roleId,
       organizationId: item.organizationId,
       id: item.userId > 0 ? item.userId : index,
+      lastLogin:moment(item.lastLogin).format(
+              window.config.DateFormat
+            )
     }; // Ensure a unique id
   };
 

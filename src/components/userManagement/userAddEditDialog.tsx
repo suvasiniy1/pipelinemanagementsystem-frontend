@@ -144,6 +144,9 @@ const UsersAddEditDialog: React.FC<any> = (props) => {
     if (item.value === "organizationID") {
       setValue("organizationID" as never, Number(value) as never);
     }
+    else{
+      setValue(item.value as never, value as never);
+    }
   };
   const getListofItemsForDropdown = (item: any) => {
     if (item.value === "id") {

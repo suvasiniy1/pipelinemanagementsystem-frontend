@@ -42,6 +42,8 @@ export class Deal extends AuditItem {
     personName: string; // This is required
     email?: string; // Required
     phone?: string; // Required
+    reason?:string;
+    comments?:string;
 };
   // constructor(dealID: number = null as any,
   //     contactPersonID: number = null as any,

@@ -514,6 +514,7 @@ const DealFilterAddEditDialog = (props: params) => {
       obj.anyConditions = obj.conditions.find((i) => i.glue === "OR")
         ?.conditionList as any;
       setAnyConditions(obj.anyConditions ?? []);
+      onFilterTypeChange(selectedFilter.filterType)
     }
 
     if (dialogIsOpen) {

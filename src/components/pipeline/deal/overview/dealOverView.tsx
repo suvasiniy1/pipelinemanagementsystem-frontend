@@ -26,6 +26,7 @@ import { IsMockService } from "../../../../others/util";
 import { DealService } from "../../../../services/dealService";
 import { useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
+import DealLostConfirmationDialog from "./dealLostConfirmation";
 
 type params = {
   dealItem: Deal;
@@ -48,6 +49,7 @@ const DealOverView = (props: params) => {
   const [notesList, setNotesList] = useState<Array<Notes>>([]);
   const [error, setError] = useState<AxiosError>();
   const [selectedTab, setSelectedTab] = useState("Overview");
+  const [isDealLost, setIsDealLost]=useState(false);
   const removeSpecificTags = (html: string | null | undefined): string => {
     if (!html) return ""; // Handle null or undefined input
     return html.replace(/<\/?p>/g, ""); // Remove <p> and </p> tags
@@ -123,10 +125,12 @@ const updateDealStatus = async (status: string) => {
 
 const handleWonClick = () => {
   updateDealStatus('Won');
+  setIsDealLost(false);
 };
 
 const handleLostClick = () => {
-  updateDealStatus('Lost');
+  //updateDealStatus('Lost');
+  setIsDealLost(true);
 };
 
   return (
@@ -320,6 +324,18 @@ const handleLostClick = () => {
           </div>
         </div>
       </div>
+      {
+        isDealLost && <DealLostConfirmationDialog 
+        dialogIsOpen={isDealLost} 
+        setDialogIsOpen={setIsDealLost} 
+        header={"Deal Edit"} 
+        selectedItem={dealItem} 
+        setSelectedItem={setDealItem} 
+        onSave={undefined} 
+        onClose={undefined} 
+        closeDialog={setIsDealLost} 
+        setLoadRowData={undefined} />
+      }
     </>
   );
 };
