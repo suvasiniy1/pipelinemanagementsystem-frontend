@@ -19,6 +19,9 @@ import "rsuite/dist/styles/rsuite-default.css";
 import jpg from "../../src/resources/images/logo.jpg";
 import png from "../../src/resources/images/y1.png";
 import Util from "../others/util";
+import { FaProjectDiagram } from "react-icons/fa";
+import { BiGitBranch } from "react-icons/bi";
+import { FaNotesMedical } from "react-icons/fa";
 
 type params = {
   collapsed: boolean;
@@ -28,7 +31,7 @@ export const SideBar = (props: params) => {
   const [selectedNavItem, setSelectedNavItem] = useState("pipeline");
   const [toggled, setToggled] = useState(false);
   const compaignSubMenu = ["Template", "Contact", "Campaign", "Email"];
-  const adminSubMenu = ["Clinic", "Treatment", "Source"];
+  const adminSubMenu = ["Clinic", "Treatment", "Source","PipeLineType"];
   const activeNavColor = window.config.NavItemActiveColor;
 
   const themes: any = {
@@ -319,9 +322,9 @@ export const SideBar = (props: params) => {
                     selectedNavItem === "Settings" ? activeNavColor : "black",
                 }}
               >
-                Settings
+                Manage User
               </b>
-              <p hidden={selectedNavItem == "Settings"}>Settings</p>
+              <p hidden={selectedNavItem == "Settings"}>Manage User</p>
             </MenuItem>
             <SubMenu
               icon={
@@ -367,7 +370,7 @@ export const SideBar = (props: params) => {
               </MenuItem>
               <MenuItem
                 icon={
-                  <FaSourcetree
+                  <BiGitBranch
                     color={
                       selectedNavItem === "Source" ? activeNavColor : "black"
                     }
@@ -390,7 +393,7 @@ export const SideBar = (props: params) => {
               </MenuItem>
               <MenuItem
                 icon={
-                  <FaSourcetree
+                  <FaNotesMedical
                     color={
                       selectedNavItem === "Treatment" ? activeNavColor : "black"
                     }
@@ -413,7 +416,29 @@ export const SideBar = (props: params) => {
                 </b>
                 <p hidden={selectedNavItem == "Treatment"}>Treatment</p>
               </MenuItem>
+              <MenuItem
+  icon={
+    <FaProjectDiagram
+      color={selectedNavItem === "PipeLineType" ? activeNavColor : "black"}
+    />
+  }
+  hidden={false}
+  component={<Link to="/PipeLineType" />}
+  onClick={() => setSelectedNavItem("PipeLineType")}
+>
+  <b
+    hidden={selectedNavItem !== "PipeLineType"}
+    style={{
+      color: selectedNavItem === "PipeLineType" ? activeNavColor : "black",
+    }}
+  >
+    Pipeline Type
+  </b>
+  <p hidden={selectedNavItem === "PipeLineType"}>Pipeline Type</p>
+</MenuItem>
+            
             </SubMenu>
+           
             <MenuItem
               icon={
                 <RiDashboard2Fill
