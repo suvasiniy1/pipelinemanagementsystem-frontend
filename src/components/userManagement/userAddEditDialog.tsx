@@ -134,6 +134,7 @@ const UsersAddEditDialog: React.FC<any> = (props) => {
         organizations.find((i) => i.name === selectedItem["name"])
           ?.organizationID as never
       );
+    setValue("isActive" as never, selectedItem.isActive as never);
     }
   }, []);
 
@@ -178,13 +179,25 @@ const UsersAddEditDialog: React.FC<any> = (props) => {
       let obj: User = { ...selectedItem };
       obj = Util.toClassObject(obj, item);
       obj.passwordHash="test";
-      obj.isActive = item.isActive === "true" ? true : false;
+    //  obj.isActive = item.isActive === "true" ? true : false;
+
+ // Update only editable fields
+ obj.firstName = item.firstName;
+ obj.lastName = item.lastName;
+ obj.email = item.email;
+ obj.userName = item.userName;
+ obj.phoneNumber = item.phoneNumber;
+ obj.isActive = item.isActive === "true" || item.isActive === true;
+
+
+
       obj.roleId = item.id !== null ? Number(item.id) : 0;
       obj.organizationId =
         item.organizationID !== null ? Number(item.organizationID) : 0;
       obj.lastLogin = new Date();
       obj.createdBy = String(Util.UserProfile()?.userId);
       // obj.createdBy = Util.UserProfile()?.userId;
+      obj.Id = obj.userId ?? 0; 
       obj.userId = obj.userId ?? 0;
       obj.createdDate = obj.createdDate || new Date().toISOString();
       obj.modifiedDate = null as any;
@@ -193,13 +206,13 @@ const UsersAddEditDialog: React.FC<any> = (props) => {
       obj.concurrencyStamp = obj.concurrencyStamp || generateRandomStamp(); // Placeholder function
 
       const response =
-        obj.userId > 0
-          ? await userSvc.putItemBySubURL(obj, `${obj.userId}`)
+        obj.Id > 0
+          ? await userSvc.putItemBySubURL(obj, `${obj.Id}`)
           : await userSvc.postItem(obj);
 
       if (response) {
         toast.success(
-          `User ${obj.userId > 0 ? "updated" : "created"} successfully`
+          `User ${obj.Id > 0 ? "updated" : "created"} successfully`
         );
         setLoadRowData(true);
         setDialogIsOpen(false);

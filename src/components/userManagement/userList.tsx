@@ -23,6 +23,8 @@ const UsersList = () => {
   const [loadRowData, setLoadRowData] = useState(true);
 
   const columnMetaData = [
+    { columnName: "firstName", columnHeaderName: "FirstName", width: 150 },
+    { columnName: "lastName", columnHeaderName: "LastName", width: 150 },
     { columnName: "userName", columnHeaderName: "Username", width: 150 },
     { columnName: "phoneNumber", columnHeaderName: "Phonenumber", width: 150 },
     { columnName: "email", columnHeaderName: "Email Address", width: 150 },
