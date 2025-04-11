@@ -19,7 +19,7 @@ import {
   faEye,
   faCircleInfo,
   faGrip,
-  faFilter,
+  faFilter
 } from "@fortawesome/free-solid-svg-icons";
 import OutsideClickHandler from "react-outside-click-handler";
 import { Stage } from "../../../models/stage";
@@ -28,6 +28,8 @@ import FilterDropdown from "./dealFilters/filterDropdown/filterDropdown";
 import { DealFilter } from "../../../models/dealFilters";
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 
 type params = {
   canAddDeal: boolean;
@@ -211,18 +213,41 @@ export const DealHeader = (props: params) => {
                     <button className="pipeselect" type="button">
                       <FontAwesomeIcon icon={faChartSimple} />{" "}
                       <span>{selectedFilterObj?.name ?? "Select"}{" "}</span>
-                      <FontAwesomeIcon icon={faCaretDown} />
+                      
                     </button>
                     <div
                       className="pipeselectcontent pipeselectfilter"
                       hidden={!showPipeLineFilters}
                     >
-                      <FilterDropdown
-                        showPipeLineFilters={showPipeLineFilters}
-                        setShowPipeLineFilters={setShowPipeLineFilters}
-                        selectedFilterObj={selectedFilterObj}
-                        setSelectedFilterObj={setSelectedFilterObj}
-                      />
+                    <ul className="nav nav-tabs pipefilternav-tabs" id="myTab" role="tablist">
+                      <li className="nav-item" role="presentation">
+                        <button className="nav-link active" id="filters-tab" data-bs-toggle="tab" data-bs-target="#filters" type="button" role="tab" aria-controls="filters" aria-selected="true">
+                          <span><FilterListIcon /></span>
+                          Filtes
+                        </button>
+                      </li>
+                      <li className="nav-item" role="presentation">
+                        <button className="nav-link" id="owners-tab" data-bs-toggle="tab" data-bs-target="#owners" type="button" role="tab" aria-controls="owners" aria-selected="false">
+                        <span><PersonOutlineIcon /></span>
+                          Profile
+                        </button>
+                      </li>
+                    </ul>
+                    <div className="tab-content pipefiltertab-content" id="myTabContent">
+                      <div className="tab-pane fade show active" id="filters" role="tabpanel" aria-labelledby="filters-tab">
+                          <FilterDropdown
+                            showPipeLineFilters={showPipeLineFilters}
+                            setShowPipeLineFilters={setShowPipeLineFilters}
+                            selectedFilterObj={selectedFilterObj}
+                            setSelectedFilterObj={setSelectedFilterObj}
+                          />   
+                      </div>
+                      <div className="tab-pane fade" id="owners" role="tabpanel" aria-labelledby="owners-tab">
+                          Profile Tab
+                      </div>
+                      
+                    </div> 
+                                      
                     </div>
                   </div>
                 </div>

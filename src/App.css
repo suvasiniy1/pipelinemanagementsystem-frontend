@@ -180,6 +180,13 @@ max-width: 360px; position: absolute; left: 0; top: 100%; z-index:2;
 .add-new-filter button {display: block; width: 100%; padding: 8px 10px; text-transform: uppercase; border-top: 1px solid #ddd; cursor: pointer;}
 .add-new-filter button:hover{background-color: #faf5eb;}
 
+.pipefiltertab-content.tab-content > .active{opacity: 1;}
+.nav-tabs.pipefilternav-tabs > li {width: 50%;}
+.nav-tabs.pipefilternav-tabs > li .nav-link {width: 100%; border: 0; border-radius: 0; border-bottom: 1px solid #e4cb9a;}
+.nav-tabs.pipefilternav-tabs > li .nav-link > span {display: block;}
+
+
+
 .pipeselectlink .fa-check{color: #2b74da;}
 .pipeselectlink:hover .fa-check{color: #fff;}
 .pipeselect-editlink {position: absolute; right: 10px; top: 3px; z-index: 2; border: 1px solid rgba(33, 35, 44, .24); background-color: #fff; padding: 1px 4px; border-radius: 4px; cursor: pointer;}
