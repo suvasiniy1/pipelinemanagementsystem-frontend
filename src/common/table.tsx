@@ -458,7 +458,7 @@ const Table: React.FC<TableListProps> = (props) => {
           initialState={{
             pagination: {
               paginationModel: {
-                pageSize: 12,
+                pageSize: 5,
               },
             },
           }}

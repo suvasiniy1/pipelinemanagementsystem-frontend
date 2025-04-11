@@ -335,7 +335,7 @@ const fileToBase64 = (file: any) => {
 
 export const prepareEmailBody = async (
   emailObj: EmailCompose,
-  dealId: number,
+  dealId?: number,
   attachments?:any
 ) => {
   return JSON.stringify({

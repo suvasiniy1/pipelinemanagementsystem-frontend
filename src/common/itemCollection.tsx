@@ -51,9 +51,10 @@ type params = {
   propNameforDelete?: string;
   displayTableHeaderasSingler?: boolean;
   onSave?:any;
-  onSelectionModelChange?: (newSelection: GridRowSelectionModel) => void; // Add this
+  onSelectionModelChange?: any; // Add this
   checkboxSelection?: boolean; // Ensure checkboxSelection is handled
   enableCheckboxSelection?: boolean; 
+  openGroupEmailDialog?:any;
 };
 
 const ItemCollection: React.FC<params> = (props) => {
@@ -231,14 +232,15 @@ const ItemCollection: React.FC<params> = (props) => {
 
   const handleSelectionChange = (newSelection: GridRowSelectionModel) => {
     console.log("Selection Changed in ItemCollection: ", newSelection);
-    setSelectedRows(newSelection);  // Update the state with new selection
+    setSelectedRows(newSelection);
+    props.onSelectionModelChange(newSelection);  // Update the state with new selection
   };
   // Function to set the selected template
   const handleTemplateSelect = (template: EmailTemplate) => {
     setSelectedTemplate(template); // Update state with selected template data
   };
   const openGroupEmailDialog = () => {
-    setGroupEmailDialogOpen(true);
+    props.openGroupEmailDialog(true);
   };
 
 
