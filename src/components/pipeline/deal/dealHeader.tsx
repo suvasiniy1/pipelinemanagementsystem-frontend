@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { DealAddEditDialog } from "./dealAddEditDialog";
 import SelectDropdown from "../../../elements/SelectDropdown";
 import { PipeLine } from "../../../models/pipeline";
-import { display, width } from "@xstyled/styled-components";
+import { display, marginLeft, width } from "@xstyled/styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCaretDown,
@@ -30,6 +30,9 @@ import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import StarIcon from '@mui/icons-material/Star';
+import DoneIcon from '@mui/icons-material/Done';
 
 type params = {
   canAddDeal: boolean;
@@ -229,7 +232,7 @@ export const DealHeader = (props: params) => {
                       <li className="nav-item" role="presentation">
                         <button className="nav-link" id="owners-tab" data-bs-toggle="tab" data-bs-target="#owners" type="button" role="tab" aria-controls="owners" aria-selected="false">
                         <span><PersonOutlineIcon /></span>
-                          Profile
+                          Owners
                         </button>
                       </li>
                     </ul>
@@ -243,7 +246,21 @@ export const DealHeader = (props: params) => {
                           />   
                       </div>
                       <div className="tab-pane fade" id="owners" role="tabpanel" aria-labelledby="owners-tab">
-                          Profile Tab
+                          <div className="pipeselectpadlr filterownersbox">
+                            <strong>Everyone</strong>
+                            <ul className="pipeselectlist filterownerslist">
+                              <li>
+                                <div className="filterownerli-row">
+                                  <AccountCircleIcon className="userCircleIcon" />
+                                  <span>Venkatesh Support (You)</span>
+                                  <div className="filterownerli-icon">
+                                    <a className="filterowner-star"><StarIcon /></a>
+                                    <a className="filterowner-tick"><DoneIcon /></a>
+                                  </div>
+                                </div>
+                              </li>
+                            </ul>
+                          </div>
                       </div>
                       
                     </div> 
