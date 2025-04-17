@@ -11,6 +11,16 @@ import TasksList from "./tasks/tasksList";
 import axios from "axios";
 import { DealService } from "../../../../services/dealService";
 import { ErrorBoundary } from "react-error-boundary";
+import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
+import CorporateFareIcon from '@mui/icons-material/CorporateFare';
+import PaidOutlinedIcon from '@mui/icons-material/PaidOutlined';
+import PhoneInTalkOutlinedIcon from '@mui/icons-material/PhoneInTalkOutlined';
+import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
+import StickyNote2OutlinedIcon from '@mui/icons-material/StickyNote2Outlined';
+import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
+import MoreHorizOutlinedIcon from '@mui/icons-material/MoreHorizOutlined';
+import UnfoldMoreOutlinedIcon from '@mui/icons-material/UnfoldMoreOutlined';
 
 // Define the structure of a Call object based on the API response
 type Call = {
@@ -150,6 +160,152 @@ const DealActivities = (props: params) => {
               {defaultActiveKey == "tasks" && (
                 <AuthProvider>
                   <TasksList dealId={dealItem.dealID} />
+                </AuthProvider>
+              )}
+            </Tab>
+            <Tab eventKey="Newdesign" title="NewDesign">
+              {defaultActiveKey == "Newdesign" && (
+                <AuthProvider>
+                  
+                  <div className="appboxdata">
+
+                    <div className="appboxdata-row">
+                      <div className="lineroundicon PhoneInTalkOutlinedIcon"><PhoneInTalkOutlinedIcon /></div>                    
+                      <div className="appboxdata-rowdata">
+                          <div className="appboxdatarow-head">
+                            <div className="appboxdatarow-headrow">
+                              <h2>Gastric Sleeve</h2>
+                              <div className="treedot-div">
+                                  <a className="treedot-btn"><PushPinOutlinedIcon /> <MoreHorizOutlinedIcon /> <UnfoldMoreOutlinedIcon /></a>
+                              </div>
+                            </div>
+                            <div className="appboxdata-meta appboxdata-headmeta">
+                              <div className="appboxdatameta-date">Aprill 1 at 5:41 PM</div>
+                              <div className="appboxdatameta-name"><FiberManualRecordIcon /> Linda Sehni</div>
+                              <div className="appboxdatameta-leadname"><PersonOutlineIcon /> Megan Clarke</div>
+                              <div className="appboxdatameta-clinic"><CorporateFareIcon /> Transform Weightloss</div>
+                              <div className="appboxdatameta-service"><PaidOutlinedIcon /> Gastric Sleeve</div>
+                            </div>
+
+                          </div>
+                          <div className="appboxdatarow-text">
+                            <div className="appboxdatarow-textmsg">                              
+                              <p>Hi, Megan Sorry I missed you today. I am responding to your enquiry regarding one of our Gastric Sleeve procedure. I will attempt to call you again soon from t...</p>
+                            </div>
+                          </div>
+                          <div className="appboxdatarow-foot">
+                            <div className="appboxdatafoot-call">
+                                <div className="appboxdatafoot-calltext">
+                                  <span>Call ID: 263716807</span> 
+                                  <span>Call Duration: 00h 00m 02s</span> 
+                                  <span>Date & Time: 1st Apr 2025, 0541pm</span> 
+                                  <span>Called on: Megan Clarke (+447001060539)</span>
+                                  <span>Called vis: (+447001060539)</span>
+                                </div>
+                            </div>
+                            <div className="appboxdata-meta appboxdata-footmeta">
+                              <div className="appboxdatameta-date">Aprill 1 at 5:41 PM</div>
+                              <div className="appboxdatameta-name"><FiberManualRecordIcon /> Linda Sehni</div>
+                              <div className="appboxdatameta-leadname"><PersonOutlineIcon /> Megan Clarke</div>
+                              <div className="appboxdatameta-clinic"><CorporateFareIcon /> Transform Weightloss</div>
+                              <div className="appboxdatameta-service"><PaidOutlinedIcon /> Gastric Sleeve</div>
+                            </div>
+                          </div>
+                      </div>  
+                    </div>
+                    
+                    <div className="appboxdata-row">
+                      <div className="lineroundicon EmailOutlinedIcon"><EmailOutlinedIcon /></div>                    
+                      <div className="appboxdata-rowdata">
+                          <div className="appboxdatarow-head">
+                            <div className="appboxdatarow-headrow">
+                              <h2>Gastric Sleeve</h2>
+                              <div className="treedot-div">
+                                  <a className="treedot-btn"><PushPinOutlinedIcon /> <MoreHorizOutlinedIcon /> <UnfoldMoreOutlinedIcon /></a>
+                              </div>
+                            </div>
+                            <div className="appboxdata-meta appboxdata-headmeta">
+                              <div className="appboxdatameta-date">Aprill 1 at 5:41 PM</div>
+                              <div className="appboxdatameta-name"><FiberManualRecordIcon /> Linda Sehni</div>
+                              <div className="appboxdatameta-leadname"><PersonOutlineIcon /> Megan Clarke</div>
+                              <div className="appboxdatameta-clinic"><CorporateFareIcon /> Transform Weightloss</div>
+                              <div className="appboxdatameta-service"><PaidOutlinedIcon /> Gastric Sleeve</div>
+                            </div>
+
+                          </div>
+                          <div className="appboxdatarow-text">
+                            <div className="appboxdatarow-textmsg">                              
+                              <p>Hi, Megan Sorry I missed you today. I am responding to your enquiry regarding one of our Gastric Sleeve procedure. I will attempt to call you again soon from t...</p>
+                            </div>
+                          </div>
+                          <div className="appboxdatarow-foot">
+                            <div className="appboxdatafoot-call">
+                                <div className="appboxdatafoot-calltext">
+                                  <span>Call ID: 263716807</span> 
+                                  <span>Call Duration: 00h 00m 02s</span> 
+                                  <span>Date & Time: 1st Apr 2025, 0541pm</span> 
+                                  <span>Called on: Megan Clarke (+447001060539)</span>
+                                  <span>Called vis: (+447001060539)</span>
+                                </div>
+                            </div>
+                            <div className="appboxdata-meta appboxdata-footmeta">
+                              <div className="appboxdatameta-date">Aprill 1 at 5:41 PM</div>
+                              <div className="appboxdatameta-name"><FiberManualRecordIcon /> Linda Sehni</div>
+                              <div className="appboxdatameta-leadname"><PersonOutlineIcon /> Megan Clarke</div>
+                              <div className="appboxdatameta-clinic"><CorporateFareIcon /> Transform Weightloss</div>
+                              <div className="appboxdatameta-service"><PaidOutlinedIcon /> Gastric Sleeve</div>
+                            </div>
+                          </div>
+                      </div>  
+                    </div>
+
+                    <div className="appboxdata-row">
+                      <div className="lineroundicon StickyNote2OutlinedIcon"><StickyNote2OutlinedIcon /></div>                      
+                      <div className="appboxdata-rowdata">
+                          <div className="appboxdatarow-head">
+                            <div className="appboxdatarow-headrow">
+                              <h2>Gastric Sleeve</h2>
+                              <div className="treedot-div">
+                                  <a className="treedot-btn"><PushPinOutlinedIcon /> <MoreHorizOutlinedIcon /> <UnfoldMoreOutlinedIcon /></a>
+                              </div>
+                            </div>
+                            <div className="appboxdata-meta appboxdata-headmeta">
+                              <div className="appboxdatameta-date">Aprill 1 at 5:41 PM</div>
+                              <div className="appboxdatameta-name"><FiberManualRecordIcon /> Linda Sehni</div>
+                              <div className="appboxdatameta-leadname"><PersonOutlineIcon /> Megan Clarke</div>
+                              <div className="appboxdatameta-clinic"><CorporateFareIcon /> Transform Weightloss</div>
+                              <div className="appboxdatameta-service"><PaidOutlinedIcon /> Gastric Sleeve</div>
+                            </div>
+
+                          </div>
+                          <div className="appboxdatarow-text">
+                            <div className="appboxdatarow-textmsg">                              
+                              <p>Hi, Megan Sorry I missed you today. I am responding to your enquiry regarding one of our Gastric Sleeve procedure. I will attempt to call you again soon from t...</p>
+                            </div>
+                          </div>
+                          <div className="appboxdatarow-foot">
+                            <div className="appboxdatafoot-call">
+                                <div className="appboxdatafoot-calltext">
+                                  <span>Call ID: 263716807</span> 
+                                  <span>Call Duration: 00h 00m 02s</span> 
+                                  <span>Date & Time: 1st Apr 2025, 0541pm</span> 
+                                  <span>Called on: Megan Clarke (+447001060539)</span>
+                                  <span>Called vis: (+447001060539)</span>
+                                </div>
+                            </div>
+                            <div className="appboxdata-meta appboxdata-footmeta">
+                              <div className="appboxdatameta-date">Aprill 1 at 5:41 PM</div>
+                              <div className="appboxdatameta-name"><FiberManualRecordIcon /> Linda Sehni</div>
+                              <div className="appboxdatameta-leadname"><PersonOutlineIcon /> Megan Clarke</div>
+                              <div className="appboxdatameta-clinic"><CorporateFareIcon /> Transform Weightloss</div>
+                              <div className="appboxdatameta-service"><PaidOutlinedIcon /> Gastric Sleeve</div>
+                            </div>
+                          </div>
+                      </div>  
+                    </div>
+
+                  </div>
+
                 </AuthProvider>
               )}
             </Tab>
