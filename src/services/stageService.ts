@@ -20,6 +20,10 @@ export class StageService extends BaseService<Stage>{
         return this.getItems(axiosCancel, 'Stage/GetPipelineAndStages')
     }
 
+    getDealsByUserId(userId:number, pipelineId:number, pageNo:number=1, pageSize:number=11, axiosCancel?: CancelTokenSource){
+        return this.getItems(axiosCancel, `Stage/GetDetailsByUser?userid=${userId}&pipelineId=${pipelineId}&pageNo=${pageNo}&pageSize=${pageSize}`)
+    }
+
     getDealsByFilterId(filterId:number, pipelineId:number,userId:number, pageNo:number=1, pageSize:number=11, axiosCancel?: CancelTokenSource){
         return this.getItems(axiosCancel, `Stage/GetDetailsByFilter?filterId=${filterId}&pipelineId=${pipelineId}&userid=${userId}&pageNo=${pageNo}&pageSize=${pageSize}`)
     }

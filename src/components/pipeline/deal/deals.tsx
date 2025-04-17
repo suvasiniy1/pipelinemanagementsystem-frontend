@@ -70,7 +70,7 @@ export const Deals = (props: params) => {
     const dealFilters:Array<DealFilter> = !Array.isArray(filters) ? JSON.parse(filters) : [];
     const selectedFilterID = new URLSearchParams(useLocation().search).get("filterId") as any;
     const [selectedFilterObj, setSelectedFilterObj] = useState<any>(selectedFilterID > 0 ? dealFilters?.find(i=>i.id==+selectedFilterID) : null);
-
+    const [selectedUserId, setSelectedUserId]=useState<any>();
     // useEffect(() => {
     //     
     //     if(+pipeLineId>0) loadStages(pipeLineId);
@@ -229,8 +229,9 @@ export const Deals = (props: params) => {
         setIsLoading(true);
         setCustomError(null as any);
         setError(null as any);
-        stagesSvc.getDealsByFilterId(selectedFilterObj?.id, selectedItem?.pipelineID ??pipeLineId,userProfile.userId, 1, pageSize ?? pageSize).then(res=>{
-            let sortedStages = Util.sortList(res.stages, "stageOrder");
+       (selectedUserId>0?stagesSvc.getDealsByUserId(selectedUserId, selectedItem?.pipelineID ??pipeLineId, 1, pageSize ?? pageSize) : stagesSvc.getDealsByFilterId(selectedFilterObj?.id, selectedItem?.pipelineID ??pipeLineId,userProfile.userId, 1, pageSize ?? pageSize)).then(res=>{
+        debugger    
+        let sortedStages = Util.sortList(res.stages, "stageOrder");
             let totalDealsList: Array<Deal> = [];
             sortedStages.forEach((s: Stage) => {
                 s.deals.forEach(d => {
@@ -256,13 +257,17 @@ export const Deals = (props: params) => {
 
     useEffect(()=>{
         LocalStorageUtil.setItem(Constants.FILTER_ID, selectedFilterObj?.id);
-        if(selectedFilterObj?.id>0){
+        if(selectedFilterObj?.id>0 || selectedUserId>0){
+            if(selectedFilterObj?.id>0){
+                setSelectedUserId(null as any);
+            }
             loadDealsByFilter()
         }
         else{
             loadStages(selectedItem?.pipelineID as any);
         }
-    },[selectedFilterObj])
+    },[selectedFilterObj, selectedUserId])
+
 
     return (
         <>
@@ -280,6 +285,8 @@ export const Deals = (props: params) => {
                             setViewType={(e: any) => setViewType(e)}
                             selectedFilterObj={selectedFilterObj}
                             setSelectedFilterObj={setSelectedFilterObj}
+                            selectedUserId={selectedUserId}
+                            setSelectedUserId={setSelectedUserId}
                         />
                         {viewType === "kanban" ?
                             <div className="pdstage-area">
