@@ -132,7 +132,7 @@ export const Deals = (props: params) => {
             let selectedPipeLineId = pipeLineId > 0 ? pipeLineId : res[0].pipelineID;
             setPipeLineId(selectedPipeLineId);
             setSelectedItem(res.find(i => i.pipelineID == selectedPipeLineId));
-            if(!selectedFilterObj) loadStages(selectedPipeLineId);
+            if(!selectedFilterObj && !isLoading) loadStages(selectedPipeLineId);
 
         }).catch((err: AxiosError) => {
             setError(err);
@@ -140,7 +140,7 @@ export const Deals = (props: params) => {
     }
 
     const loadStages = (selectedPipeLineId: number, skipLoading: boolean = false, pagesize: number = 10, fromDealModify:boolean=false) => {
-        
+
         if(!skipLoading) setIsLoading(true);
         setCustomError(null as any);
         setError(null as any);
@@ -173,7 +173,7 @@ export const Deals = (props: params) => {
         setIsLoadingMore(true);
         setPageSize(pageSize => pageSize + defaultPageSize);
         if(!selectedFilterObj){
-            loadStages(selectedItem?.pipelineID ?? pipeLineId, true, pageSize + defaultPageSize);
+            if(!isLoading) loadStages(selectedItem?.pipelineID ?? pipeLineId, true, pageSize + defaultPageSize);
         }else{
             loadDealsByFilter(pageSize + defaultPageSize);
         }
@@ -182,7 +182,7 @@ export const Deals = (props: params) => {
     useEffect(() => {
         LocalStorageUtil.setItemObject(Constants.PIPE_LINE, selectedItem);
         if(!selectedFilterObj){
-            loadStages(selectedItem?.pipelineID as any);
+           if(!isLoading) loadStages(selectedItem?.pipelineID as any);
         }
     }, [selectedItem])
 
@@ -214,7 +214,7 @@ export const Deals = (props: params) => {
                         loadDealsByFilter();
                     }
                     else{
-                        loadStages(selectedItem?.pipelineID as any, true);
+                        if(!isLoading) loadStages(selectedItem?.pipelineID as any, true);
                     }
                 }).catch(err => {
                     setError("No deals found under selected combination" as any);
@@ -230,7 +230,7 @@ export const Deals = (props: params) => {
         setCustomError(null as any);
         setError(null as any);
        (selectedUserId>0?stagesSvc.getDealsByUserId(selectedUserId, selectedItem?.pipelineID ??pipeLineId, 1, pageSize ?? pageSize) : stagesSvc.getDealsByFilterId(selectedFilterObj?.id, selectedItem?.pipelineID ??pipeLineId,userProfile.userId, 1, pageSize ?? pageSize)).then(res=>{
-        debugger    
+            
         let sortedStages = Util.sortList(res.stages, "stageOrder");
             let totalDealsList: Array<Deal> = [];
             sortedStages.forEach((s: Stage) => {
@@ -262,9 +262,6 @@ export const Deals = (props: params) => {
                 setSelectedUserId(null as any);
             }
             loadDealsByFilter()
-        }
-        else{
-            loadStages(selectedItem?.pipelineID as any);
         }
     },[selectedFilterObj, selectedUserId])
 
@@ -310,7 +307,7 @@ export const Deals = (props: params) => {
                                                                 providedFromParent={provided}
                                                                 isDragging={isDragging}
                                                                 pipeLinesList={pipeLines}
-                                                                onDealModify={(e:any)=>{loadStages(selectedItem?.pipelineID as any, true, null as any, true);}}
+                                                                onDealModify={(e:any)=>{if(!isLoading) loadStages(selectedItem?.pipelineID as any, true, null as any, true);}}
                                                                 onDealAddClick={(e: any) => setSelectedStageId(e)}
                                                                 onStageExpand={(e: any) => { setSelectedStageName(item.stageName); setDialogIsOpen(true); setStageIdForExpand(e) }}
                                                                 onSaveChanges={(e: any) => props.onSaveChanges()}

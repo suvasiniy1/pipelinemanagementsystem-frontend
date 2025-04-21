@@ -118,7 +118,7 @@ const FilterDropdown = (props: params) => {
   };
 
   const onFilterSelection=(item:DealFilter)=>{
-    debugger
+    
     setFilters((prevFilters) =>
       prevFilters.map((filter) =>
         filter.id === item.id
