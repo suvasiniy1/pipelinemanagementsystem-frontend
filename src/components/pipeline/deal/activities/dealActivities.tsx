@@ -3,12 +3,12 @@ import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import PhoneInTalkOutlinedIcon from "@mui/icons-material/PhoneInTalkOutlined";
 import PushPinOutlinedIcon from "@mui/icons-material/PushPinOutlined";
 import UnfoldMoreOutlinedIcon from "@mui/icons-material/UnfoldMoreOutlined";
-import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
-import CorporateFareIcon from '@mui/icons-material/CorporateFare';
-import PaidOutlinedIcon from '@mui/icons-material/PaidOutlined';
-import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
-import StickyNote2OutlinedIcon from '@mui/icons-material/StickyNote2Outlined';
-import {EntitType} from "../../../../models/deal";
+import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import CorporateFareIcon from "@mui/icons-material/CorporateFare";
+import PaidOutlinedIcon from "@mui/icons-material/PaidOutlined";
+import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
+import StickyNote2OutlinedIcon from "@mui/icons-material/StickyNote2Outlined";
+import { EntitType } from "../../../../models/deal";
 import axios from "axios";
 import moment from "moment";
 import { useEffect, useState } from "react";
@@ -24,6 +24,7 @@ import { AuthProvider } from "./email/authProvider";
 import EmailActivites from "./email/emailActivites";
 import NotesList from "./notes/notesList";
 import TasksList from "./tasks/tasksList";
+import { Spinner } from "react-bootstrap";
 
 // Define the structure of a Call object based on the API response
 type Call = {
@@ -65,97 +66,100 @@ const DealActivities = (props: params) => {
   const dealSvc = new DealService(ErrorBoundary);
   const dealAuditLogSvc = new DealAuditLogService(ErrorBoundary);
   const [dealTimeLines, setDealTimeLines] = useState<Array<DealTimeLine>>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchCallHistory = async () => {
+    try {
+      const axiosCancelSource = axios.CancelToken.source();
+      setIsLoading(true);
+      const response = await dealSvc.getDealsById(dealId, axiosCancelSource);
+      console.log("API Response:", response); // Log full response
+
+      if (response && response.callHistory) {
+        // Map and add default values for required fields
+        const updatedCallHistory = response.callHistory.map((call: any) => ({
+          ...call,
+          status: call.status || "Pending", // Default if missing
+          callInfo: {
+            ...call.callInfo,
+            missedCallReason: call.callInfo?.missedCallReason || "Not Provided", // Default if missing
+            recording: call.callInfo?.recording || "", // Default to empty string
+          },
+        }));
+
+        setCallHistory(updatedCallHistory);
+        setIsLoading(false);
+        console.log("Updated callHistory in state:", updatedCallHistory);
+      } else {
+        console.warn("API Response does not contain expected data.");
+      }
+    } catch (error) {
+      if (!axios.isCancel(error)) {
+        console.error("Error fetching call history:", error);
+      }
+    }
+  };
+
+  const featchDealTimeLines = async () => {
+    try {
+      setIsLoading(true);
+      let res = await dealAuditLogSvc.getDealTimeLine(dealId);
+      setDealTimeLines(res as any);
+      setIsLoading(false);
+    } catch {}
+  };
 
   useEffect(() => {
     if (!dealId) return;
-
-    const axiosCancelSource = axios.CancelToken.source();
-
-    const fetchCallHistory = async () => {
-      try {
-        const response = await dealSvc.getDealsById(dealId, axiosCancelSource);
-        console.log("API Response:", response); // Log full response
-
-        if (response && response.callHistory) {
-          // Map and add default values for required fields
-          const updatedCallHistory = response.callHistory.map((call: any) => ({
-            ...call,
-            status: call.status || "Pending", // Default if missing
-            callInfo: {
-              ...call.callInfo,
-              missedCallReason:
-                call.callInfo?.missedCallReason || "Not Provided", // Default if missing
-              recording: call.callInfo?.recording || "", // Default to empty string
-            },
-          }));
-
-          setCallHistory(updatedCallHistory);
-          console.log("Updated callHistory in state:", updatedCallHistory);
-        } else {
-          console.warn("API Response does not contain expected data.");
-        }
-      } catch (error) {
-        if (!axios.isCancel(error)) {
-          console.error("Error fetching call history:", error);
-        }
-      }
-    };
-
-    const dealTimeLines = async () => {
-      try {
-        
-        let res = await dealAuditLogSvc.getDealTimeLine(dealId);
-        setDealTimeLines(res as any);
-      } catch {}
-    };
-
-    dealTimeLines();
-
+    featchDealTimeLines();
     fetchCallHistory();
+    setIsLoading(false);
+  }, []);
 
-    return () => {
-      axiosCancelSource.cancel(
-        "Request canceled due to component unmount or dealId change"
-      );
-    };
-  }, [dealId]);
-
-  const getEventIcon=(eventType:number)=>{
+  const getEventIcon = (eventType: number) => {
     let icon;
     switch (eventType) {
       case EntitType.Task:
-        icon = <CorporateFareIcon/>
+        icon = <CorporateFareIcon />;
         break;
-        case EntitType.Note:
-        icon=<StickyNote2OutlinedIcon/>;
+      case EntitType.Note:
+        icon = <StickyNote2OutlinedIcon />;
         break;
-        case EntitType.Email:
-        icon = <EmailOutlinedIcon/>
+      case EntitType.Email:
+        icon = <EmailOutlinedIcon />;
         break;
-        case EntitType.Deal:
-          icon = <PaidOutlinedIcon/>
-          break;
-          case EntitType.Comment:
-            icon = <FiberManualRecordIcon/>
-            break;
-        default:
-          icon=<PhoneInTalkOutlinedIcon/>;
+      case EntitType.Deal:
+        icon = <PaidOutlinedIcon />;
+        break;
+      case EntitType.Comment:
+        icon = <FiberManualRecordIcon />;
+        break;
+      default:
+        icon = <PhoneInTalkOutlinedIcon />;
     }
     return icon;
-  }
+  };
 
   return (
     <>
+      {isLoading ? (
+        <div className="alignCenter">
+          <Spinner />
+        </div>
+      ) : null}
       <div className="timeline-tabscontent">
         <Tabs
           defaultActiveKey={defaultActiveKey}
           transition={false}
-          onSelect={(e: any) => setdefaultActiveKey(e)}
+          onSelect={(e: any) => {
+            featchDealTimeLines();
+            setdefaultActiveKey(e);
+          }}
           id="noanim-tab-example"
           className="mb-5 activity-subtab"
         >
           <Tab eventKey="activity_sub" title="Activity">
-          {defaultActiveKey == "activity_sub" && (
+            {defaultActiveKey == "activity_sub" && (
               <AuthProvider>
                 {dealTimeLines.map((item, index) => (
                   <div className="appboxdata">
@@ -177,7 +181,9 @@ const DealActivities = (props: params) => {
                           </div>
                           <div className="appboxdata-meta appboxdata-headmeta">
                             <div className="appboxdatameta-date">
-                              {moment(item.eventDate).format("MM-DD-YYYY hh:mm:ss a")}
+                              {moment(item.eventDate).format(
+                                "MM-DD-YYYY hh:mm:ss a"
+                              )}
                             </div>
                             {/* <div className="appboxdatameta-name">
                               <FiberManualRecordIcon /> Linda Sehni
@@ -195,9 +201,7 @@ const DealActivities = (props: params) => {
                         </div>
                         <div className="appboxdatarow-text">
                           <div className="appboxdatarow-textmsg">
-                            <p>
-                              {item.eventDescription}
-                            </p>
+                            <p>{item.eventDescription}</p>
                           </div>
                         </div>
                         <div className="appboxdatarow-foot">
@@ -208,12 +212,17 @@ const DealActivities = (props: params) => {
                           </div>
                           <div className="appboxdata-meta appboxdata-footmeta">
                             <div className="appboxdatameta-date">
-                            {moment(item.callDateTime).format("MM-DD-YYYY hh:mm:ss a")}
+                              {moment(item.callDateTime).format(
+                                "MM-DD-YYYY hh:mm:ss a"
+                              )}
                             </div>
                             {/* <div className="appboxdatameta-name">
                               <FiberManualRecordIcon /> Linda Sehni
                             </div> */}
-                            <div className="appboxdatameta-leadname" hidden={!item.contactNumber}>
+                            <div
+                              className="appboxdatameta-leadname"
+                              hidden={!item.contactNumber}
+                            >
                               <PersonOutlineIcon /> {item.contactNumber}
                             </div>
                             {/* <div className="appboxdatameta-clinic">
@@ -259,7 +268,6 @@ const DealActivities = (props: params) => {
               </AuthProvider>
             )}
           </Tab>
-
         </Tabs>
       </div>
     </>
