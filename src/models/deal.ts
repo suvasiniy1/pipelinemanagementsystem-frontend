@@ -138,6 +138,7 @@ export interface DealTimeLine {
   eventType: string;
   eventDescription: string;
   eventDate: string;
+  timeline:string;
   activityDetail: string;
   callDateTime: string;
   contactNumber: string;

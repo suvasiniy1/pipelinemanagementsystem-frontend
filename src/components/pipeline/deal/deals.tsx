@@ -180,11 +180,12 @@ export const Deals = (props: params) => {
     };
 
     useEffect(() => {
+        
         LocalStorageUtil.setItemObject(Constants.PIPE_LINE, selectedItem);
-        if(!selectedFilterObj){
+        if(!selectedFilterObj && !selectedUserId){
            if(!isLoading) loadStages(selectedItem?.pipelineID as any);
         }
-    }, [selectedItem])
+    }, [selectedItem, selectedFilterObj, selectedUserId])
 
     const onDragEnd = (result: any) => {
 

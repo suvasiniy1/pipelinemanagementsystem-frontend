@@ -355,7 +355,7 @@ export const DealHeader = (props: params) => {
                     <a
                       className="btn"
                       href="javascript:void(0);"
-                      onClick={(e: any) => setSelectedFilterObj(null)}
+                      onClick={(e: any) => {setSelectedUserId(null); setSelectedFilterObj(null)}}
                     >
                       <FilterAltOffIcon />
                     </a>

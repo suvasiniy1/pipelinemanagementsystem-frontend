@@ -185,6 +185,11 @@ const DealActivities = (props: params) => {
                                 "MM-DD-YYYY hh:mm:ss a"
                               )}
                             </div>
+                            <div className="appboxdatameta-service">
+                              &nbsp;&nbsp;({item.timeline})
+                            </div>
+                            
+
                             {/* <div className="appboxdatameta-name">
                               <FiberManualRecordIcon /> Linda Sehni
                             </div>
@@ -199,11 +204,7 @@ const DealActivities = (props: params) => {
                             </div> */}
                           </div>
                         </div>
-                        <div className="appboxdatarow-text">
-                          <div className="appboxdatarow-textmsg">
-                            <p>{item.eventDescription}</p>
-                          </div>
-                        </div>
+
                         <div className="appboxdatarow-foot">
                           <div className="appboxdatafoot-call">
                             <div className="appboxdatafoot-calltext">
@@ -211,11 +212,11 @@ const DealActivities = (props: params) => {
                             </div>
                           </div>
                           <div className="appboxdata-meta appboxdata-footmeta">
-                            <div className="appboxdatameta-date">
+                            {/* <div className="appboxdatameta-date">
                               {moment(item.callDateTime).format(
                                 "MM-DD-YYYY hh:mm:ss a"
                               )}
-                            </div>
+                            </div> */}
                             {/* <div className="appboxdatameta-name">
                               <FiberManualRecordIcon /> Linda Sehni
                             </div> */}
