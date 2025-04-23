@@ -171,7 +171,7 @@ function EmailActivities(props: params) {
         let dealEmailObj:DealEmailLog=new DealEmailLog();
         
         dealEmailObj.dealId = dealId;
-        dealEmailObj.emailBody = emailBody;
+        dealEmailObj.emailBody = emailObj.body;
         dealEmailObj.emailTo = emailObj.toAddress;
         dealEmailObj.emailDate = new Date();
         dealEmailObj.createdBy = Util.UserProfile()?.userId;
