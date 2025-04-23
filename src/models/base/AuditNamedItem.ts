@@ -6,6 +6,7 @@ export abstract class AuditItem {
     modifiedDate: Date;
     updatedBy!:any;
     updatedDate!:Date;
+    userId!:number;
 
     constructor(
         createdBy: string = null as any,
