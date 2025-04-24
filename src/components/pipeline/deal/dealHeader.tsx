@@ -73,6 +73,7 @@ export const DealHeader = (props: params) => {
   const [pipeLinesList, setPipeLinesList] = useState(props.pipeLinesList);
   const [showPipeLineDropdown, setShowPipeLineDropdown] = useState(false);
   const [showPipeLineFilters, setShowPipeLineFilters] = useState(false);
+  const [selectedViewType, setSelectedViewType]=useState("Kanban");
   const [canEdit, setCanEdit] = useState(false);
   const utility: Utility = JSON.parse(
     LocalStorageUtil.getItemObject(Constants.UTILITY) as any
@@ -216,7 +217,7 @@ export const DealHeader = (props: params) => {
         <div className="container-fluid">
           <div className="row toolbarview-row">
             <div className="col-sm-5 toolbarview-actions">
-              <div className="toolbarview-filtersrow">
+              <div className="toolbarview-filtersrow" hidden={selectedViewType!="kanban"}>
                 <div className="pipeselectbtngroup">
                   <div
                     className="pipeselectbox variantselectbox"
@@ -381,12 +382,12 @@ export const DealHeader = (props: params) => {
                     </Dropdown.Toggle>
                     <Dropdown.Menu className="toolgrip-dropdown">
                       <Dropdown.Item
-                        onClick={(e: any) => props.setViewType("list")}
+                        onClick={(e: any) => {setSelectedViewType("list"); props.setViewType("list")}}
                       >
                         List View
                       </Dropdown.Item>
                       <Dropdown.Item
-                        onClick={(e: any) => props.setViewType("kanban")}
+                        onClick={(e: any) => {setSelectedViewType("kanban"); props.setViewType("kanban")}}
                       >
                         Kanban View
                       </Dropdown.Item>
