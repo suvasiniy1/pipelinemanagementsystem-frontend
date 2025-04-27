@@ -73,7 +73,7 @@ export const DealHeader = (props: params) => {
   const [pipeLinesList, setPipeLinesList] = useState(props.pipeLinesList);
   const [showPipeLineDropdown, setShowPipeLineDropdown] = useState(false);
   const [showPipeLineFilters, setShowPipeLineFilters] = useState(false);
-  const [selectedViewType, setSelectedViewType]=useState("Kanban");
+  const [selectedViewType, setSelectedViewType]=useState("kanban");
   const [canEdit, setCanEdit] = useState(false);
   const utility: Utility = JSON.parse(
     LocalStorageUtil.getItemObject(Constants.UTILITY) as any

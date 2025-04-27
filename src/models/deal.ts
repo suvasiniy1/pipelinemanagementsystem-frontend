@@ -153,3 +153,13 @@ export enum EntitType {
   Task = 4,
   Comment = 8
 }
+
+export class DealExport {
+  minAmount!: any
+  assignedToId!: any
+  pipelineIDs!: string
+  startDate!: string
+  endDate!: string
+  stageId!: any
+}
+

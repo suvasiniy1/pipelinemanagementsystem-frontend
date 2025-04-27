@@ -30,6 +30,7 @@ export class StageService extends BaseService<Stage>{
     getAllDealsByPipelines(pageNo:number=1, pageSize:number=11, axiosCancel?: CancelTokenSource){
         return this.getItems(axiosCancel, IsMockService() ? 'mockData/stages.json' : `Stage/GetAllDealsByPipelines?pageNo=${pageNo}&pageSize=${pageSize}`)
     }
+
     addContactsToJustCall(contacts: any) {
         return this.postItemBySubURL(
             contacts,
