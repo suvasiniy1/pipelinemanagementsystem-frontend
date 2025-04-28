@@ -1229,6 +1229,10 @@ min-width: 375px !important;
   display: block;
 }
 
+.rs-picker-menu{
+  z-index: 9999 !important;
+}
 
-
-
+.modalpopupadddeal{
+  z-index: 9999 !important;
+}

@@ -1,24 +1,24 @@
-import React, { useEffect, useState } from "react";
+import { Button, Grid } from '@mui/material';
+import Checkbox from "@mui/material/Checkbox";
+import Drawer from "@mui/material/Drawer";
+import { AxiosError } from "axios";
+import { saveAs } from "file-saver";
+import { useEffect, useState } from "react";
+import { ErrorBoundary } from "react-error-boundary";
+import { toast } from "react-toastify";
+import * as XLSX from "xlsx";
+import { UnAuthorized } from "../../../common/unauthorized";
+import { DateRangePicker } from "../../../elements/dateRangePicker";
+import MultiSelectDropdown from "../../../elements/multiSelectDropdown";
 import { Deal, DealExport } from "../../../models/deal";
-import LocalStorageUtil from "../../../others/LocalStorageUtil";
+import { PipeLine } from "../../../models/pipeline";
 import { Utility } from "../../../models/utility";
 import Constants from "../../../others/constants";
-import { StageService } from "../../../services/stageService";
-import { ErrorBoundary } from "react-error-boundary";
-import { AxiosError } from "axios";
-import { UnAuthorized } from "../../../common/unauthorized";
-import Checkbox from "@mui/material/Checkbox";
-import Button from "@mui/material/Button";
-import Drawer from "@mui/material/Drawer";
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
-import ImportExportRoundedIcon from "@mui/icons-material/ImportExportRounded";
-import { IconButton } from "@mui/material"; // You can use IconButton for a clickable icon
-import MultiSelectDropdown from "../../../elements/multiSelectDropdown";
-import { PipeLineService } from "../../../services/pipeLineService";
-import { PipeLine } from "../../../models/pipeline";
-import { toast } from "react-toastify";
+import LocalStorageUtil from "../../../others/LocalStorageUtil";
 import { DealService } from "../../../services/dealService";
+import { PipeLineService } from "../../../services/pipeLineService";
+import { StageService } from "../../../services/stageService";
+import { DealExportPrview } from "./dealExportPreview";
 
 type Params = {
   pipeLineId: number;
@@ -33,7 +33,11 @@ const DealListView = (props: Params) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [error, setError] = useState<AxiosError | null>(null);
   const [pipeLines, setPipeLines] = useState<Array<PipeLine>>([]);
+  const [selectedStartDate, setSelectedStartDate] = useState<Date>();
+  const [selectedEndDate, setSelectedEndDate] = useState<Date>();
   const [selectedPipeLines, setSelectedPipeLines] = useState<Array<any>>([]);
+  const [previewData, setPreviewData] = useState<any[]>([]); // Preview data for export
+  const [dialogIsOpen, setDialogIsOpen] = useState(false);
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: string;
@@ -41,12 +45,14 @@ const DealListView = (props: Params) => {
     key: "",
     direction: "asc",
   });
-
+  const [totalColumns, setTotalColumns] = useState<
+    { key: string; label: string; selected?: boolean }[]
+  >([]);
   const stagesSvc = new StageService(ErrorBoundary);
   const dealSvc = new DealService(ErrorBoundary);
   const pipeLineSvc = new PipeLineService(ErrorBoundary);
 
-  const allColumns = [
+  const allColumns: Array<any> = [
     { key: "stageName", label: "Stage" },
     { key: "treatmentName", label: "Treatment Name" },
     { key: "value", label: "Value" },
@@ -56,9 +62,7 @@ const DealListView = (props: Params) => {
     { key: "operationDate", label: "Next Activity Date" },
   ];
 
-  const [selectedColumns, setSelectedColumns] = useState<string[]>(
-    allColumns.map((col) => col.key)
-  );
+  const [selectedColumns, setSelectedColumns] = useState<any[]>([]);
 
   const utility: Utility = JSON.parse(
     LocalStorageUtil.getItemObject(Constants.UTILITY) as any
@@ -83,6 +87,21 @@ const DealListView = (props: Params) => {
     loadDeals();
     loadPipeLines();
   }, [currentPage]);
+
+  useEffect(() => {
+    if (dealsList.length > 0) {
+      const firstDeal = dealsList[0];
+
+      const dynamicColumns = Object.keys(firstDeal).map((key) => ({
+        key,
+        label: key
+          .replace(/([A-Z])/g, " $1")
+          .replace(/^./, (str) => str.toUpperCase()), // optional: prettify key names
+      }));
+
+      setTotalColumns(dynamicColumns);
+    }
+  }, [dealsList]);
 
   const loadPipeLines = () => {
     setIsLoading(true);
@@ -166,13 +185,13 @@ const DealListView = (props: Params) => {
     setDrawerOpen(false);
   };
 
-  const toggleColumnSelection = (columnKey: string) => {
-    if (selectedColumns.includes(columnKey)) {
-      setSelectedColumns(selectedColumns.filter((key) => key !== columnKey));
-    } else {
-      setSelectedColumns([...selectedColumns, columnKey]);
-    }
-  };
+  // const toggleColumnSelection = (columnKey: string) => {
+  //   if (selectedColumns.includes(columnKey)) {
+  //     setSelectedColumns(selectedColumns.filter((key) => key !== columnKey));
+  //   } else {
+  //     setSelectedColumns([...selectedColumns, columnKey]);
+  //   }
+  // };
 
   const handleExportToExcel = async () => {
     try {
@@ -183,6 +202,8 @@ const DealListView = (props: Params) => {
       }
 
       const dealExport = new DealExport();
+      dealExport.startDate = selectedStartDate;
+      dealExport.endDate = selectedEndDate;
       dealExport.pipelineIDs = Array.from(
         selectedPipeLines,
         (x) => x.value
@@ -202,31 +223,21 @@ const DealListView = (props: Params) => {
 
       setSelectedPipeLines([]);
 
-      const dataToExport = allDeals.map((deal: Deal) => {
+      setSelectedColumns([]);
+
+      const dataToExport = allDeals.map((deal: any) => {
         const row: any = {};
-        if (selectedColumns.includes("stageName"))
-          row["Stage"] = deal.stageName;
-        if (selectedColumns.includes("treatmentName"))
-          row["Treatment Name"] = deal.treatmentName || "N/A";
-        if (selectedColumns.includes("value"))
-          row["Value"] =
-            userRole === 1
-              ? deal.value && !isNaN(Number(deal.value))
-                ? `£${deal.value}`
-                : "N/A"
-              : "£0";
-        if (selectedColumns.includes("organization"))
-          row["Organisation"] = getOrganizationName(deal.organizationID);
-        if (selectedColumns.includes("contactPerson"))
-          row["Contact Person"] = getContactPersonName(deal.contactPersonID);
-        if (selectedColumns.includes("expectedCloseDate"))
-          row["Expected Close Date"] = deal.expectedCloseDate
-            ? new Date(deal.expectedCloseDate).toLocaleDateString()
-            : "N/A";
-        if (selectedColumns.includes("operationDate"))
-          row["Next Activity Date"] = deal.operationDate
-            ? new Date(deal.operationDate).toLocaleDateString()
-            : "N/A";
+
+        // Loop through the selectedColumns and dynamically assign values to the row
+        selectedColumns.forEach((sColumn: { name: string; value: string }) => {
+          // Check if the key exists in the deal object and assign the value
+          if ((deal[sColumn.value] as any) !== undefined) {
+            row[sColumn.name] = deal[sColumn.value] as any;
+          } else {
+            row[sColumn.name] = "N/A"; // Default value if data is missing
+          }
+        });
+
         return row;
       });
 
@@ -257,8 +268,16 @@ const DealListView = (props: Params) => {
     );
   };
 
+  const getFiltersList = () => {
+    return (
+      totalColumns.map((item: any) => ({
+        name: item.label,
+        value: item.key,
+      })) ?? []
+    );
+  };
+
   const onPipeLineSelection = (pipeLinesList: any) => {
-    
     let selectedPipeLines: Array<any> = [];
     pipeLinesList?.split(",")?.forEach((p: any) => {
       let pipeLineItem = pipeLines.find((pItem) => pItem.pipelineName === p);
@@ -276,155 +295,270 @@ const DealListView = (props: Params) => {
     );
   };
 
+  const onColumnSelection = (columns: any) => {
+    
+    let selectedColumns: Array<any> = [];
+    columns?.split(",")?.forEach((c: any) => {
+      let columnItem = totalColumns.find((cItem: any) => cItem.label === c);
+      if (columnItem) {
+        columnItem.selected = true;
+        selectedColumns.push(columnItem);
+      }
+    });
+
+    setSelectedColumns(
+      (selectedColumns.map((item: any) => ({
+        name: item.label,
+        value: item.key,
+      })) ?? []) as any
+    );
+  };
+
+  const onDatePeriodSelection = (dates: Array<Date>) => {
+    if (dates.length > 0) {
+      setSelectedStartDate(dates[0]);
+      setSelectedEndDate(dates[1]);
+    }
+  };
+
+  const handlePreview = () => {
+    if (selectedColumns.length == 0) {
+      alert("Please select atleast one column to show preview");
+      return;
+    }
+    const previewRows = dealsList.map((deal: any) => {
+      const row: any = {};
+      
+      selectedColumns.forEach((col: any) => {
+        let value = deal[col.value];
+
+        // Special formatting for some fields (optional)
+        if (col.value === "value" && value !== undefined) {
+          value = `£${value}`;
+        }
+        if (col.value === "organization" && value) {
+          value = getOrganizationName(value); // value = organizationID
+        }
+        if (col.value === "contactPerson" && value) {
+          value = getContactPersonName(value); // value = contactPersonID
+        }
+        if (
+          (col.value === "treatmentName" || col.value === "stageName") &&
+          !value
+        ) {
+          value = "N/A";
+        }
+
+        row[col.value] = value !== undefined ? value : "N/A"; // fallback
+      });
+
+      return row;
+    });
+
+    setPreviewData(previewRows);
+    setDialogIsOpen(true);
+  };
+
   return (
-    <div className="pdstage-area">
-      <div className="container-fluid">
-        <div className="pdlist-row">
-          <div className="table-controls">
-            {/* Export to Excel Button */}
-            {/* <ImportExportRoundedIcon onClick={(e:any)=>setDrawerOpen(true)}/> */}
-            <Button
-              variant="contained"
-              onClick={(e: any) => setDrawerOpen(true)}
-              disabled={selectedRows.length > 0}
-              style={{ marginBottom: "16px" }}
-            >
-              Export
-            </Button>
-          </div>
-          <div className="pdlisttable-scroll">
-            <table className="pdlist-table">
-              <thead>
-                <tr>
-                  <th>
-                    <Checkbox
-                      indeterminate={
-                        selectedRows.length > 0 &&
-                        selectedRows.length < dealsList.length
-                      }
-                      checked={
-                        selectedRows.length === dealsList.length &&
-                        dealsList.length > 0
-                      }
-                      onChange={toggleSelectAll}
-                    />
-                  </th>
-                  <th onClick={() => handleSort("stageName")}>Stage</th>
-                  <th onClick={() => handleSort("treatmentName")}>
-                    Treatment Name
-                  </th>
-                  <th onClick={() => handleSort("value")}>Value</th>
-                  <th>Organisation</th>
-                  <th onClick={() => handleSort("contactPersonName")}>
-                    Contact Person
-                  </th>
-                  <th>Expected Close Date</th>
-                  <th>Next Activity Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {dealsList.length > 0 ? (
-                  dealsList.map((d) => (
-                    <tr key={d.dealID}>
-                      <td>
-                        <Checkbox
-                          checked={selectedRows.includes(d.dealID)}
-                          onChange={() => handleRowSelection(d.dealID)}
-                        />
-                      </td>
-                      <td>{d.stageName}</td>
-                      <td>{d.treatmentName || "N/A"}</td>
-                      <td>
-                        {userRole === 1
-                          ? d.value && !isNaN(Number(d.value))
-                            ? `£${d.value}`
-                            : "N/A"
-                          : "£0"}
-                      </td>
-                      <td>{getOrganizationName(d.organizationID)}</td>
-                      <td>{getContactPersonName(d.contactPersonID)}</td>
-                      <td>
-                        {d.expectedCloseDate
-                          ? new Date(d.expectedCloseDate).toLocaleDateString()
-                          : "N/A"}
-                      </td>
-                      <td>
-                        {d.operationDate
-                          ? new Date(d.operationDate).toLocaleDateString()
-                          : "N/A"}
+    <>
+      <div className="pdstage-area">
+        <div className="container-fluid">
+          <div className="pdlist-row">
+            <div className="table-controls">
+              {/* Export to Excel Button */}
+              {/* <ImportExportRoundedIcon onClick={(e:any)=>setDrawerOpen(true)}/> */}
+              <Button
+                variant="contained"
+                onClick={(e: any) => setDrawerOpen(true)}
+                disabled={selectedRows.length > 0}
+                style={{ marginBottom: "16px" }}
+              >
+                Export
+              </Button>
+            </div>
+            <div className="pdlisttable-scroll">
+              <table className="pdlist-table">
+                <thead>
+                  <tr>
+                    <th>
+                      <Checkbox
+                        indeterminate={
+                          selectedRows.length > 0 &&
+                          selectedRows.length < dealsList.length
+                        }
+                        checked={
+                          selectedRows.length === dealsList.length &&
+                          dealsList.length > 0
+                        }
+                        onChange={toggleSelectAll}
+                      />
+                    </th>
+                    <th onClick={() => handleSort("stageName")}>Stage</th>
+                    <th onClick={() => handleSort("treatmentName")}>
+                      Treatment Name
+                    </th>
+                    <th onClick={() => handleSort("value")}>Value</th>
+                    <th>Organisation</th>
+                    <th onClick={() => handleSort("contactPersonName")}>
+                      Contact Person
+                    </th>
+                    <th>Expected Close Date</th>
+                    <th>Next Activity Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dealsList.length > 0 ? (
+                    dealsList.map((d) => (
+                      <tr key={d.dealID}>
+                        <td>
+                          <Checkbox
+                            checked={selectedRows.includes(d.dealID)}
+                            onChange={() => handleRowSelection(d.dealID)}
+                          />
+                        </td>
+                        <td>{d.stageName}</td>
+                        <td>{d.treatmentName || "N/A"}</td>
+                        <td>
+                          {userRole === 1
+                            ? d.value && !isNaN(Number(d.value))
+                              ? `£${d.value}`
+                              : "N/A"
+                            : "£0"}
+                        </td>
+                        <td>{getOrganizationName(d.organizationID)}</td>
+                        <td>{getContactPersonName(d.contactPersonID)}</td>
+                        <td>
+                          {d.expectedCloseDate
+                            ? new Date(d.expectedCloseDate).toLocaleDateString()
+                            : "N/A"}
+                        </td>
+                        <td>
+                          {d.operationDate
+                            ? new Date(d.operationDate).toLocaleDateString()
+                            : "N/A"}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={8} style={{ textAlign: "center" }}>
+                        No deals found.
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={8} style={{ textAlign: "center" }}>
-                      No deals found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-          <div className="pagination">
-            <Button
-              disabled={currentPage === 1}
-              onClick={() => handlePageChange(currentPage - 1)}
-            >
-              Previous
-            </Button>
-            <Button onClick={() => handlePageChange(currentPage + 1)}>
-              Next
-            </Button>
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <div className="pagination">
+              <Button
+                disabled={currentPage === 1}
+                onClick={() => handlePageChange(currentPage - 1)}
+              >
+                Previous
+              </Button>
+              <Button onClick={() => handlePageChange(currentPage + 1)}>
+                Next
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
 
-      {error && <UnAuthorized error={error as any} />}
+        {error && <UnAuthorized error={error as any} />}
 
-      <Drawer
-        anchor="right"
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-      >
-        <div style={{ width: "300px", padding: "16px" }}>
-          <h3>Bulk Actions</h3>
-          <p>{selectedRows.length} deals selected</p>
-          <br />
-          <div hidden={selectedRows.length > 0}>
-            <h4>PipeLines</h4>
-            <MultiSelectDropdown
-              list={getPipeLinesList()}
-              selectedList={selectedPipeLines}
-              onItemChange={(e: any) => onPipeLineSelection(e)}
-            />
-          </div>
-          <br />
-          <div style={{ margin: "16px 0" }} hidden={selectedRows.length > 0}>
-            <h4>Select Columns to Export</h4>
-            {allColumns.map((col) => (
-              <div key={col.key}>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={selectedColumns.includes(col.key)}
-                    onChange={() => toggleColumnSelection(col.key)}
-                  />{" "}
-                  {col.label}
-                </label>
-              </div>
-            ))}
-          </div>
-
-          <Button
-            variant="contained"
-            hidden={selectedRows.length > 0}
-            onClick={handleExportToExcel}
+        <Drawer
+          anchor="right"
+          open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+        >
+          <div
+            style={{
+              width: "320px",
+              height: "100vh",
+              display: "flex",
+              flexDirection: "column",
+            }}
           >
-            Export All Deals to Excel
-          </Button>
+            <div style={{ flex: 1, overflowY: "auto", padding: "16px" }}>
+              <h2 style={{ marginBottom: "8px" }}>Bulk Actions</h2>
+              <p style={{ marginBottom: "24px" }}>
+                {selectedRows.length} deals selected
+              </p>
+
+              <div
+                hidden={selectedRows.length > 0}
+                style={{ marginBottom: "24px" }}
+              >
+                <h4>Date Range</h4>
+                <DateRangePicker
+                  startDate={selectedStartDate}
+                  endDate={selectedEndDate}
+                  onDatePeriodSelection={onDatePeriodSelection}
+                />
+              </div>
+
+              <div
+                hidden={selectedRows.length > 0}
+                style={{ marginBottom: "24px" }}
+              >
+                <h4>PipeLines</h4>
+                <MultiSelectDropdown
+                  list={getPipeLinesList()}
+                  selectedList={selectedPipeLines}
+                  onItemChange={(e: any) => onPipeLineSelection(e)}
+                />
+              </div>
+
+              <div
+                hidden={selectedRows.length > 0}
+                style={{ marginBottom: "24px" }}
+              >
+                <h4>Columns</h4>
+                <MultiSelectDropdown
+                  list={getFiltersList()}
+                  selectedList={selectedColumns}
+                  onItemChange={(e: any) => onColumnSelection(e)}
+                />
+              </div>
+
+              <Grid
+                container
+                spacing={2}
+                justifyContent="space-between"
+                alignItems="center"
+              >
+                <Grid item>
+                  <Button variant="contained" onClick={handlePreview}>
+                    Preview
+                  </Button>
+                </Grid>
+
+                <Grid item>
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    hidden={selectedRows.length > 0}
+                    onClick={(e: any) => handleExportToExcel()}
+                  >
+                    Export
+                  </Button>
+                </Grid>
+              </Grid>
+            </div>
+          </div>
+        </Drawer>
+      </div>
+      {dialogIsOpen && (
+        <div style={{ zIndex: 8888 }}>
+          <DealExportPrview
+            previewData={previewData}
+            selectedColumns={selectedColumns}
+            dialogIsOpen={dialogIsOpen}
+            setDialogIsOpen={setDialogIsOpen}
+            onConfirmClick={(e: any) => handleExportToExcel()}
+          />
         </div>
-      </Drawer>
-    </div>
+      )}
+    </>
   );
 };
 

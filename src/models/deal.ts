@@ -158,8 +158,8 @@ export class DealExport {
   minAmount!: any
   assignedToId!: any
   pipelineIDs!: string
-  startDate!: string
-  endDate!: string
+  startDate!: any
+  endDate!: any
   stageId!: any
 }
 
