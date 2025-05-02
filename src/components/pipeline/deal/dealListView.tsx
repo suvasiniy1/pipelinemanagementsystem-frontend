@@ -33,8 +33,8 @@ const DealListView = (props: Params) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [error, setError] = useState<AxiosError | null>(null);
   const [pipeLines, setPipeLines] = useState<Array<PipeLine>>([]);
-  const [selectedStartDate, setSelectedStartDate] = useState<Date>();
-  const [selectedEndDate, setSelectedEndDate] = useState<Date>();
+  const [selectedStartDate, setSelectedStartDate] = useState<Date>(new Date());
+  const [selectedEndDate, setSelectedEndDate] = useState<Date>(new Date());
   const [selectedPipeLines, setSelectedPipeLines] = useState<Array<any>>([]);
   const [previewData, setPreviewData] = useState<any[]>([]); // Preview data for export
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
@@ -196,8 +196,19 @@ const DealListView = (props: Params) => {
   const handleExportToExcel = async () => {
     try {
       
-      if (selectedPipeLines.length == 0) {
-        toast.warning("Please select atleast one pipeline");
+      if (
+        selectedPipeLines.length == 0 &&
+        !selectedStartDate &&
+        !selectedEndDate
+      ) {
+        alert(
+          "Please select at least one pipeline or choose a date range to proceed."
+        );
+        return;
+      }
+
+      if (selectedColumns.length == 0) {
+        alert("Please select atleast one column to proceed");
         return;
       }
 
@@ -318,6 +329,10 @@ const DealListView = (props: Params) => {
     if (dates.length > 0) {
       setSelectedStartDate(dates[0]);
       setSelectedEndDate(dates[1]);
+    }
+    else{
+      setSelectedStartDate(null as any);
+      setSelectedEndDate(null as any);
     }
   };
 
