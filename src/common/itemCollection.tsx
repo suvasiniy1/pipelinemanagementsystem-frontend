@@ -60,11 +60,17 @@ type params = {
   checkboxSelection?: boolean; // Ensure checkboxSelection is handled
   enableCheckboxSelection?: boolean;
   openGroupEmailDialog?: any;
+  excludeColumnsForExport?: any;
 };
 
 const ItemCollection: React.FC<params> = (props) => {
   console.log("ItemCollection - props: ", props);
-
+  const [excludeColumnsForExport, setExcludeColumnsForExport] = useState(
+    (props.excludeColumnsForExport ?? []).concat([
+      "renderValueinCustomFormat",
+      "id",
+    ])
+  );
   const [defaultSortField, setDefaultSortField] = useState(
     props.defaultSortField ? props.defaultSortField : "modifiedOn"
   );
@@ -228,7 +234,7 @@ const ItemCollection: React.FC<params> = (props) => {
       const firstItem = data[0];
 
       const dynamicColumns = Object.keys(firstItem)
-        ?.filter((i) => i != "renderValueinCustomFormat")
+        ?.filter((i) => !(excludeColumnsForExport ?? []).includes(i))
         ?.map((key) => ({
           key,
           label: key
@@ -426,11 +432,13 @@ const ItemCollection: React.FC<params> = (props) => {
 
   // Conditionally Render the Send Group Email Button
   const renderExportButton = () => (
-    <div style={{ textAlign: "right", marginRight: "16px", marginBottom: "16px" }}>
+    <div
+      style={{ textAlign: "right", marginRight: "16px", marginBottom: "16px" }}
+    >
       <Button
         variant="contained"
         onClick={(e: any) => setDrawerOpen(true)}
-        disabled={selectedRows.length > 0}
+        disabled={selectedRows.length > 0 && isLoading}
       >
         Export
       </Button>
@@ -460,13 +468,14 @@ const ItemCollection: React.FC<params> = (props) => {
               <div className="col-sm-5 toolbarview-actions">
                 <h4>{itemName + " List"}</h4>
               </div>
-              <div className="col-sm-7 toolbarview-summery" hidden={!canAdd}>
+              <div className="col-sm-7 toolbarview-summery">
                 <div className="toolbarview-actionsrow">
                   {renderSendGroupEmailButton()}
-                  {renderExportButton()}
+                  {canExport ? renderExportButton() : null}
                   <button
                     type="button"
                     className="btn btn-success"
+                    hidden={!canAdd}
                     onClick={(e: any) => {
                       setSelectedItemUser(new props.itemType());
                       setDialogIsOpen(true);
