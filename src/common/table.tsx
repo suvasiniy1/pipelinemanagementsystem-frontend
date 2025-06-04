@@ -186,6 +186,7 @@ const Table: React.FC<TableListProps> = (props) => {
           return props.rowTransformFn(r);
         });
         setRowData(transformedRowData);
+        props.postLoadData(transformedRowData);
         setIsLoading(false);
         setLoadRowData(false);
       })
@@ -458,7 +459,7 @@ const Table: React.FC<TableListProps> = (props) => {
           initialState={{
             pagination: {
               paginationModel: {
-                pageSize: 12,
+                pageSize: 5,
               },
             },
           }}

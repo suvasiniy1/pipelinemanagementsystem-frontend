@@ -142,7 +142,7 @@ export const SearchBar = () => {
                                 height: '35px', // Set a specific height for the input
                                 padding: '0 12px', // Adjust padding for centering
                                 boxSizing: 'border-box',
-                                width: '500px', // Increased width for better readability
+                                width: '100%', // Increased width for better readability
                                 borderRadius: '25px', // Smooth rounded corners
                                 textAlign: 'center', // Center-align placeholder text
                                 lineHeight: '35px', // Ensure placeholder is vertically centered

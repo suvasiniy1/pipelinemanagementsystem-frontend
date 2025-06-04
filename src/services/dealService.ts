@@ -1,5 +1,5 @@
 import { CancelTokenSource } from "axios";
-import { Deal } from "../models/deal";
+import { Deal, DealExport } from "../models/deal";
 import { BaseService } from "./BaseService";
 import { IsMockService } from "../others/util";
 
@@ -22,12 +22,18 @@ export class DealService extends BaseService<Deal>{
     deleteDeal(dealId:number){
         return this.delete(dealId, "Deal");
     }
+
     updateAllDeals(deals: Partial<Deal>[], axiosCancel?: CancelTokenSource) {
         return this.putItemBySubURL(deals, 'UpdateAllDeals', axiosCancel);
     }
+
     searchDeals(searchTerm: string, axiosCancel?: CancelTokenSource) {
         const apiUrl = IsMockService() ? 'mockData/searchDeals.json' : 'Deal/Search';
         return this.getItems(axiosCancel, `${apiUrl}?searchTerm=${searchTerm}`);
+    }
+
+    exportDeal(exportDeal:DealExport, axiosCancel?: CancelTokenSource){
+        return this.postItemBySubURL(exportDeal, `ExportDeal`)
     }
     syncCallLogs(payload: any, axiosCancel?: CancelTokenSource) {
         return this.postItemBySubURL(payload, 'SyncCallLogs');

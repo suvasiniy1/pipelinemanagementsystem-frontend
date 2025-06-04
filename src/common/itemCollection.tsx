@@ -4,11 +4,16 @@ import Util from "../others/util";
 import ErrorFallback from "./errorFallBack";
 import Table from "./table";
 import { Spinner } from "react-bootstrap";
-import { GridRowSelectionModel } from '@mui/x-data-grid';
-import PluseIcon from '@material-ui/icons/Add';  // Add icon
-import GroupEmailDialog from '../components/GroupEmailDialog';
-import { EmailTemplateService } from '../services/emailTemplateService'; // Import the EmailTemplateService
-import { EmailTemplate } from '../models/emailTemplate'; // Import EmailTemplate model
+import { GridRowSelectionModel } from "@mui/x-data-grid";
+import PluseIcon from "@material-ui/icons/Add"; // Add icon
+import GroupEmailDialog from "../components/GroupEmailDialog";
+import { EmailTemplateService } from "../services/emailTemplateService"; // Import the EmailTemplateService
+import { EmailTemplate } from "../models/emailTemplate"; // Import EmailTemplate model
+import Drawer from "@mui/material/Drawer";
+import { Button, Grid } from "@mui/material";
+import MultiSelectDropdown from "../elements/multiSelectDropdown";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 type params = {
   isNotListingPage?: boolean;
@@ -50,15 +55,22 @@ type params = {
   customActions?: any;
   propNameforDelete?: string;
   displayTableHeaderasSingler?: boolean;
-  onSave?:any;
-  onSelectionModelChange?: (newSelection: GridRowSelectionModel) => void; // Add this
+  onSave?: any;
+  onSelectionModelChange?: any; // Add this
   checkboxSelection?: boolean; // Ensure checkboxSelection is handled
-  enableCheckboxSelection?: boolean; 
+  enableCheckboxSelection?: boolean;
+  openGroupEmailDialog?: any;
+  excludeColumnsForExport?: any;
 };
 
 const ItemCollection: React.FC<params> = (props) => {
   console.log("ItemCollection - props: ", props);
-
+  const [excludeColumnsForExport, setExcludeColumnsForExport] = useState(
+    (props.excludeColumnsForExport ?? []).concat([
+      "renderValueinCustomFormat",
+      "id",
+    ])
+  );
   const [defaultSortField, setDefaultSortField] = useState(
     props.defaultSortField ? props.defaultSortField : "modifiedOn"
   );
@@ -72,8 +84,14 @@ const ItemCollection: React.FC<params> = (props) => {
   const [isClone, setIsClone] = useState(false);
   const [itemsBySubURL, setItemsBySubURL] = useState(props.itemsBySubURL);
   const [itemsByPostURL, setItemsByPostURL] = useState(props.itemsByPostURL);
+  const [selectedColumns, setSelectedColumns] = useState<any[]>([]);
+  const [dataToExport, setDataToExport] = useState<any[]>([]);
+  const [totalColumns, setTotalColumns] = useState<
+    { key: string; label: string; selected?: boolean }[]
+  >([]);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedItemUser, setSelectedItemUser] = useState(
-   Util.clone(props.selectedItem ?? new props.itemType())
+    Util.clone(props.selectedItem ?? new props.itemType())
   );
 
   const {
@@ -85,7 +103,6 @@ const ItemCollection: React.FC<params> = (props) => {
     api,
     displayTableHeaderasSingler,
     enableCheckboxSelection = false,
-    
   } = props;
   const [canAdd, setCanAdd] = useState(
     props.canAdd != null ? props.canAdd : true
@@ -148,6 +165,7 @@ const ItemCollection: React.FC<params> = (props) => {
   };
   // If any translations need to be handled after receiving the itemList then postLoada method can be called from derived components
   const postLoadData = (data?: any) => {
+    populateColumnsForExport(data);
     return props.postLoadData ? props.postLoadData(data) : data;
   };
 
@@ -185,28 +203,48 @@ const ItemCollection: React.FC<params> = (props) => {
   const [isSaveorUpdateClicked, setIsSaveorUpdateClicked] = useState(false);
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [groupEmailDialogOpen, setGroupEmailDialogOpen] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplate | null>(null);
+  const [selectedTemplate, setSelectedTemplate] =
+    useState<EmailTemplate | null>(null);
   useEffect(() => {
     // Fetch templates using the EmailTemplateService
     const templateService = new EmailTemplateService(ErrorBoundary);
-    templateService.getEmailTemplates()
+    templateService
+      .getEmailTemplates()
       .then((res: EmailTemplate[]) => {
         setTemplates(res);
       })
-      .catch(err => {
-        console.error('Error fetching templates:', err);
+      .catch((err) => {
+        console.error("Error fetching templates:", err);
       });
   }, []);
+
   useEffect(() => {
     let rowData = props.rowData ?? [];
-    rowData?.forEach(
-      (item: any) => {
-        item.updatedBy = Util.getUserNameById(item?.modifiedBy ?? item?.createdBy);
-        item.updatedDate = item.modifiedDate ?? item.createdDate;
-      }
-    );
+    rowData?.forEach((item: any) => {
+      item.updatedBy = Util.getUserNameById(
+        item?.modifiedBy ?? item?.createdBy
+      );
+      item.updatedDate = item.modifiedDate ?? item.createdDate;
+    });
     setRowData([...rowData]);
   }, [props.rowData]);
+
+  const populateColumnsForExport = (data: Array<any>) => {
+    if (data?.length > 0) {
+      const firstItem = data[0];
+
+      const dynamicColumns = Object.keys(firstItem)
+        ?.filter((i) => !(excludeColumnsForExport ?? []).includes(i))
+        ?.map((key) => ({
+          key,
+          label: key
+            .replace(/([A-Z])/g, " $1")
+            .replace(/^./, (str) => str.toUpperCase()), // optional: prettify key names
+        }));
+      setDataToExport(data);
+      setTotalColumns(dynamicColumns);
+    }
+  };
 
   useEffect(() => {
     setRenderFooter(props.renderFooter);
@@ -231,16 +269,16 @@ const ItemCollection: React.FC<params> = (props) => {
 
   const handleSelectionChange = (newSelection: GridRowSelectionModel) => {
     console.log("Selection Changed in ItemCollection: ", newSelection);
-    setSelectedRows(newSelection);  // Update the state with new selection
+    setSelectedRows(newSelection);
+    props.onSelectionModelChange(newSelection); // Update the state with new selection
   };
   // Function to set the selected template
   const handleTemplateSelect = (template: EmailTemplate) => {
     setSelectedTemplate(template); // Update state with selected template data
   };
   const openGroupEmailDialog = () => {
-    setGroupEmailDialogOpen(true);
+    props.openGroupEmailDialog(true);
   };
-
 
   const baseRowTransformFn = (item: any) => {
     return {
@@ -267,7 +305,7 @@ const ItemCollection: React.FC<params> = (props) => {
     itemType: itemType,
     rowData: rowData,
     onSelectionModelChange: handleSelectionChange,
-   // checkboxSelection: true,
+    // checkboxSelection: true,
     checkboxSelection: enableCheckboxSelection,
     renderRightActions: renderRightActions,
     renderIndications: renderIndications,
@@ -320,54 +358,107 @@ const ItemCollection: React.FC<params> = (props) => {
       props.reloadDataOnSignalNotificationIndicator,
   };
 
-//   const onSave = (addUpdateItem: any, item: any, postbySubURL: string = "") => {
-//     if (isSaveorUpdateClicked) {
-//       return;
-//     }
-//     setIsSaveorUpdateClicked(true);
-//     console.log(`onSubmit - addUpdate${itemName}: `, addUpdateItem);
-//     let result = Util.isNullOrUndefinedOrEmpty(postbySubURL)
-//       ? api.postOrPutItem(addUpdateItem)
-//       : api.postItemBySubURL(addUpdateItem, postbySubURL);
-//     let promise = new Promise<any>(
-//       (resolve, reject) =>
-//         result &&
-//         result
-//           .then((res: any) => {
-//             console.log(`${itemName}: ${item.name} successfully added!`);
-//             setIsSaveorUpdateClicked(false);
-//             setDialogIsOpen(false);
-//             resolve(res);
-//           })
-//           .catch((err: AxiosError) => {
-//             console.log(
-//               `${itemName}: ${item.name} add failed! error: - ${err}`
-//             );
-//             setDialogIsOpen(false);
-//             setIsSaveorUpdateClicked(false);
-//             reject(err);
-//           })
-//     );
+  const handleExportToExcel = async () => {
+    try {
+      if (selectedColumns.length == 0) {
+        alert("Please select atleast one column to proceed");
+        return;
+      }
 
-//     return promise;
-//   };
+      setDrawerOpen(false);
 
+      setSelectedColumns([]);
 
-// Conditionally Render the Send Group Email Button
-const renderSendGroupEmailButton = () => (
-  selectedRows.length > 0 && (
-    <div style={{ textAlign: 'right', marginBottom: '16px' }}>
-      <button
-        type="button"
-        className="btn btn-success"
-        onClick={openGroupEmailDialog} 
-        style={{ marginRight: "16px" }}
+      const rowdataToExport = dataToExport.map((deal: any) => {
+        const row: any = {};
+
+        // Loop through the selectedColumns and dynamically assign values to the row
+        selectedColumns.forEach((sColumn: { name: string; value: string }) => {
+          // Check if the key exists in the deal object and assign the value
+          if ((deal[sColumn.value] as any) !== undefined) {
+            row[sColumn.name] = deal[sColumn.value] as any;
+          } else {
+            row[sColumn.name] = "N/A"; // Default value if data is missing
+          }
+        });
+
+        return row;
+      });
+
+      const worksheet = XLSX.utils.json_to_sheet(rowdataToExport);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, props.itemName + "s");
+
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
+      const data = new Blob([excelBuffer], {
+        type: "application/octet-stream",
+      });
+      saveAs(data, `All_Deals_${new Date().toISOString()}.xlsx`);
+    } catch (err) {
+      console.error("Error exporting all deals:", err);
+      alert("Something went wrong while exporting. Please try again.");
+    }
+  };
+
+  const getFiltersList = () => {
+    return (
+      totalColumns.map((item: any) => ({
+        name: item.label,
+        value: item.key,
+      })) ?? []
+    );
+  };
+
+  const onColumnSelection = (columns: any) => {
+    let selectedColumns: Array<any> = [];
+    columns?.split(",")?.forEach((c: any) => {
+      let columnItem = totalColumns.find((cItem: any) => cItem.label === c);
+      if (columnItem) {
+        columnItem.selected = true;
+        selectedColumns.push(columnItem);
+      }
+    });
+
+    setSelectedColumns(
+      (selectedColumns.map((item: any) => ({
+        name: item.label,
+        value: item.key,
+      })) ?? []) as any
+    );
+  };
+
+  // Conditionally Render the Send Group Email Button
+  const renderExportButton = () => (
+    <div
+      style={{ textAlign: "right", marginRight: "16px", marginBottom: "16px" }}
+    >
+      <Button
+        variant="contained"
+        onClick={(e: any) => setDrawerOpen(true)}
+        disabled={selectedRows.length > 0 && isLoading}
       >
-        + Send Group Email
-      </button>
+        Export
+      </Button>
     </div>
-  )
-);
+  );
+
+  // Conditionally Render the Send Group Email Button
+  const renderSendGroupEmailButton = () =>
+    selectedRows.length > 0 && (
+      <div style={{ textAlign: "right", marginBottom: "16px" }}>
+        <button
+          type="button"
+          className="btn btn-success"
+          onClick={openGroupEmailDialog}
+          style={{ marginRight: "16px" }}
+        >
+          + Send Group Email
+        </button>
+      </div>
+    );
   const addorUpdateItem = () => {
     return (
       <>
@@ -375,16 +466,20 @@ const renderSendGroupEmailButton = () => (
           <div className="container-fluid">
             <div className="row toolbarview-row">
               <div className="col-sm-5 toolbarview-actions">
-                <h4>{itemName+" List"}</h4>
+                <h4>{itemName + " List"}</h4>
               </div>
-              <div className="col-sm-7 toolbarview-summery" hidden={!canAdd}>
+              <div className="col-sm-7 toolbarview-summery">
                 <div className="toolbarview-actionsrow">
                   {renderSendGroupEmailButton()}
-                  
+                  {canExport ? renderExportButton() : null}
                   <button
                     type="button"
                     className="btn btn-success"
-                    onClick={(e: any) =>{setSelectedItemUser(new props.itemType()) ; setDialogIsOpen(true)}}
+                    hidden={!canAdd}
+                    onClick={(e: any) => {
+                      setSelectedItemUser(new props.itemType());
+                      setDialogIsOpen(true);
+                    }}
                   >
                     + New {itemName}
                   </button>
@@ -407,22 +502,77 @@ const renderSendGroupEmailButton = () => (
         <>
           {addorUpdateItem()}
           <div className="contactlist-row">
-            <div className="container-fluid">             
-              <Table {...tableListProps} />   
-                     
+            <div className="container-fluid">
+              <Table {...tableListProps} />
             </div>
-            <GroupEmailDialog 
-              open={groupEmailDialogOpen} 
+            <GroupEmailDialog
+              open={groupEmailDialogOpen}
               onClose={() => setGroupEmailDialogOpen(false)}
               selectedRecipients={selectedRows.map((id) => {
-                const item = props.rowData.find((row: { personID: number; email: string }) => row.personID === id);
-                return item ? item.email : '';
+                const item = props.rowData.find(
+                  (row: { personID: number; email: string }) =>
+                    row.personID === id
+                );
+                return item ? item.email : "";
               })}
               selectedTemplate={selectedTemplate} // Pass the selected template here
               templates={templates} // Pass the templates here
               onTemplateSelect={handleTemplateSelect} // Pass the handler here
             />
           </div>
+
+          <Drawer
+            anchor="right"
+            open={drawerOpen}
+            onClose={() => setDrawerOpen(false)}
+          >
+            <div
+              style={{
+                width: "320px",
+                height: "100vh",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <div style={{ flex: 1, overflowY: "auto", padding: "16px" }}>
+                <div
+                  hidden={selectedRows.length > 0}
+                  style={{ marginBottom: "24px" }}
+                >
+                  <h4>Columns</h4>
+                  <MultiSelectDropdown
+                    list={getFiltersList()}
+                    selectedList={selectedColumns}
+                    onItemChange={(e: any) => onColumnSelection(e)}
+                  />
+                </div>
+
+                <Grid
+                  container
+                  spacing={2}
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
+                  {/* <Grid item>
+                    <Button variant="contained" onClick={handlePreview}>
+                      Preview
+                    </Button>
+                  </Grid> */}
+
+                  <Grid item>
+                    <Button
+                      variant="contained"
+                      fullWidth
+                      hidden={selectedRows.length > 0}
+                      onClick={(e: any) => handleExportToExcel()}
+                    >
+                      Export
+                    </Button>
+                  </Grid>
+                </Grid>
+              </div>
+            </div>
+          </Drawer>
         </>
       )}
     </ErrorBoundary>

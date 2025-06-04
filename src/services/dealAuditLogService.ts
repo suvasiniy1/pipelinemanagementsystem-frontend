@@ -14,4 +14,8 @@ export class DealAuditLogService extends BaseService<DealAuditLog>{
     postAuditLog(item:PostAuditLog, axiosCancel?: CancelTokenSource){
         return this.postItemBySubURL(item, `LogAuditEvent`, null as any, true, axiosCancel)
     }
+
+    getDealTimeLine(dealId:number, axiosCancel?: CancelTokenSource){
+        return this.getItemsBySubURL(`GetDealTimeline/${dealId}`, axiosCancel)
+    }
 }

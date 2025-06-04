@@ -16,16 +16,23 @@ import { DeleteDialog } from "../../../../../common/deleteDialog";
 import { toast } from "react-toastify";
 import LocalStorageUtil from "../../../../../others/LocalStorageUtil";
 import Constants from "../../../../../others/constants";
+import DoneIcon from "@mui/icons-material/Done";
 
 type params = {
   showPipeLineFilters: any;
   setShowPipeLineFilters: any;
-  selectedFilterObj:any;
-  setSelectedFilterObj:any;
+  selectedFilterObj: any;
+  setSelectedFilterObj: any;
 };
 
 const FilterDropdown = (props: params) => {
-  const { showPipeLineFilters, setShowPipeLineFilters, selectedFilterObj, setSelectedFilterObj, ...others } = props;
+  const {
+    showPipeLineFilters,
+    setShowPipeLineFilters,
+    selectedFilterObj,
+    setSelectedFilterObj,
+    ...others
+  } = props;
   const [selectedFilter, setSelectedFilter] = useState<DealFilter>(
     new DealFilter()
   );
@@ -60,6 +67,10 @@ const FilterDropdown = (props: params) => {
     }
   }, [dialogIsOpen]);
 
+  useEffect(()=>{
+    if(selectedFilterObj?.id>0){onFilterSelection(selectedFilterObj)}
+  },[selectedFilterObj])
+
   useEffect(() => {
     loadDealFilters();
   }, []);
@@ -72,7 +83,11 @@ const FilterDropdown = (props: params) => {
       .then((res) => {
         if (res) {
           setFilters(res);
-          LocalStorageUtil.setItemObject(Constants.Deal_FILTERS, JSON.stringify(res));
+          if(selectedFilterObj) onFilterSelection(selectedFilterObj);
+          LocalStorageUtil.setItemObject(
+            Constants.Deal_FILTERS,
+            JSON.stringify(res)
+          );
           setIsLoading(false);
         }
       })
@@ -102,6 +117,17 @@ const FilterDropdown = (props: params) => {
       });
   };
 
+  const onFilterSelection=(item:DealFilter)=>{
+    
+    setFilters((prevFilters) =>
+      prevFilters.map((filter) =>
+        filter.id === item.id
+          ? { ...filter, isSelected: true }
+          : { ...filter, isSelected: false }
+      )
+    );
+  }
+
   return isLoading ? (
     <div className="alignCenter">
       <Spinner />
@@ -121,13 +147,24 @@ const FilterDropdown = (props: params) => {
               // onMouseLeave={(e: any) => handlePipeLineEdit()}
             >
               {filters?.map((item, index) => (
-                <>                   
+                <>
                   <li key={index}>
-                      <button className="pipeselectlink" onClick={(e: React.MouseEvent) => setSelectedFilterObj(item)} type="button">
-                          {item.name}{" "}
-                      </button>
-                      <div className="pipeselect-btns">
-                        <span
+                    <a hidden={item.isSelected}>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+                    <a className="filterowner-tick" hidden={!item.isSelected}>
+                      <DoneIcon />
+                    </a>
+                    <button
+                      className="pipeselectlink"
+                      onClick={(e: React.MouseEvent) => {
+                        onFilterSelection(item);
+                        setSelectedFilterObj(item);
+                      }}
+                      type="button"
+                    >
+                      {item.name}{" "}
+                    </button>
+                    <div className="pipeselect-btns">
+                      <span
                         className="pl-4"
                         onClick={(e: any) => {
                           setDialogIsOpen(true);
@@ -146,8 +183,8 @@ const FilterDropdown = (props: params) => {
                       >
                         <FontAwesomeIcon icon={faDeleteLeft} />
                       </span>
-                        </div>
-                        {/* <span className="pipeselect-editlink" hidden={!item.canEdit}>
+                    </div>
+                    {/* <span className="pipeselect-editlink" hidden={!item.canEdit}>
                 <FontAwesomeIcon icon={faPencil} />
               </span> */}
                   </li>

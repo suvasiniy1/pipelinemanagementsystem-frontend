@@ -37,14 +37,14 @@ export class Deal extends AuditItem {
   status?: string; // Add this if it's not already there
   isClosed!: boolean; // Add this if it's not already there
   openDealsCount?: number;
-  ownerName!:string;
+  ownerName!: string;
   newContact?: {
     personName: string; // This is required
     email?: string; // Required
     phone?: string; // Required
-    reason?:string;
-    comments?:string;
-};
+    reason?: string;
+    comments?: string;
+  };
   // constructor(dealID: number = null as any,
   //     contactPersonID: number = null as any,
   //     organizationID: number = null as any,
@@ -128,8 +128,39 @@ export class DealCustomFields extends AuditItem {
   customFieldId!: number;
   dealID!: number;
   customField!: string;
-  customFieldType!:string;
+  customFieldType!: string;
   customFieldValue!: string;
   customSelectValues!: string;
-  pipelineId!:string;
+  pipelineId!: string;
 }
+
+export interface DealTimeLine {
+  dealId: number;
+  eventType: string;
+  eventDescription: string;
+  eventDate: string;
+  timeline:string;
+  activityDetail: string;
+  callDateTime: string;
+  contactNumber: string;
+  duration: number;
+  eventTypeId:number;
+}
+
+export enum EntitType {
+  Deal = 1,
+  Note = 2,
+  Email = 3,
+  Task = 4,
+  Comment = 8
+}
+
+export class DealExport {
+  minAmount!: any
+  assignedToId!: any
+  pipelineIDs!: string
+  startDate!: any
+  endDate!: any
+  stageId!: any
+}
+

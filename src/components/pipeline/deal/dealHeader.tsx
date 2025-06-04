@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { DealAddEditDialog } from "./dealAddEditDialog";
 import SelectDropdown from "../../../elements/SelectDropdown";
 import { PipeLine } from "../../../models/pipeline";
-import { display, width } from "@xstyled/styled-components";
+import { display, marginLeft, width } from "@xstyled/styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCaretDown,
@@ -19,7 +19,7 @@ import {
   faEye,
   faCircleInfo,
   faGrip,
-  faFilter,
+  faFilter
 } from "@fortawesome/free-solid-svg-icons";
 import OutsideClickHandler from "react-outside-click-handler";
 import { Stage } from "../../../models/stage";
@@ -28,6 +28,14 @@ import FilterDropdown from "./dealFilters/filterDropdown/filterDropdown";
 import { DealFilter } from "../../../models/dealFilters";
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import StarIcon from '@mui/icons-material/Star';
+import DoneIcon from '@mui/icons-material/Done';
+import { Utility } from "../../../models/utility";
+import Constants from "../../../others/constants";
+import LocalStorageUtil from "../../../others/LocalStorageUtil";
 
 type params = {
   canAddDeal: boolean;
@@ -41,6 +49,8 @@ type params = {
   setViewType: any;
   selectedFilterObj:any;
   setSelectedFilterObj:any;
+  setSelectedUserId:any;
+  selectedUserId:any;
 };
 export const DealHeader = (props: params) => {
   const navigate = useNavigate();
@@ -56,13 +66,20 @@ export const DealHeader = (props: params) => {
     setViewType,
     selectedFilterObj,
     setSelectedFilterObj,
+    setSelectedUserId,
+    selectedUserId,
     ...others
   } = props;
   const [pipeLinesList, setPipeLinesList] = useState(props.pipeLinesList);
   const [showPipeLineDropdown, setShowPipeLineDropdown] = useState(false);
   const [showPipeLineFilters, setShowPipeLineFilters] = useState(false);
+  const [selectedViewType, setSelectedViewType]=useState("kanban");
   const [canEdit, setCanEdit] = useState(false);
-
+  const utility: Utility = JSON.parse(
+    LocalStorageUtil.getItemObject(Constants.UTILITY) as any
+  );
+  const [users, setUsers]=useState<Array<any>>(utility.users);
+  
   useEffect(() => {
     setPipeLinesList(props.pipeLinesList);
   }, [props.pipeLinesList]);
@@ -172,13 +189,35 @@ export const DealHeader = (props: params) => {
     );
   };
 
+  useEffect(()=>{
+    setUsers((prevUsers) =>
+      prevUsers.map((user) =>
+        user.id === selectedUserId
+          ? { ...user, isSelected: true }
+          : { ...user, isSelected: false }
+      )
+    );
+  },[selectedUserId])
+
+  const onPersonSelection=(userName:string)=>{
+    setSelectedUserId(users.find(u=>u.name===userName)?.id as any);
+    setSelectedFilterObj(null as any);
+    setUsers((prevUsers) =>
+      prevUsers.map((user) =>
+        user.name === userName
+          ? { ...user, isSelected: true }
+          : { ...user, isSelected: false }
+      )
+    );
+  }
+
   return (
     <>
       <div className="pipe-toolbar pt-3 pb-3">
         <div className="container-fluid">
           <div className="row toolbarview-row">
             <div className="col-sm-5 toolbarview-actions">
-              <div className="toolbarview-filtersrow">
+              <div className="toolbarview-filtersrow" hidden={selectedViewType!="kanban"}>
                 <div className="pipeselectbtngroup">
                   <div
                     className="pipeselectbox variantselectbox"
@@ -188,7 +227,7 @@ export const DealHeader = (props: params) => {
                   >
                     <button className="pipeselect" type="button">
                       <FontAwesomeIcon icon={faChartSimple} />{" "}
-                      <span>{selectedItem?.pipelineName ?? "Select"}{" "}</span>
+                      <span>{selectedItem?.pipelineName ?? "Select"} </span>
                       <FontAwesomeIcon icon={faCaretDown} />
                     </button>
                     <div
@@ -210,24 +249,118 @@ export const DealHeader = (props: params) => {
                   >
                     <button className="pipeselect" type="button">
                       <FontAwesomeIcon icon={faChartSimple} />{" "}
-                      <span>{selectedFilterObj?.name ?? "Select"}{" "}</span>
-                      <FontAwesomeIcon icon={faCaretDown} />
+                      <span>{selectedFilterObj?.name ?? users.find(u=>u.id===selectedUserId)?.name ?? "Select"} </span>
                     </button>
                     <div
                       className="pipeselectcontent pipeselectfilter"
                       hidden={!showPipeLineFilters}
                     >
-                      <FilterDropdown
-                        showPipeLineFilters={showPipeLineFilters}
-                        setShowPipeLineFilters={setShowPipeLineFilters}
-                        selectedFilterObj={selectedFilterObj}
-                        setSelectedFilterObj={setSelectedFilterObj}
-                      />
+                      <ul
+                        className="nav nav-tabs pipefilternav-tabs"
+                        id="myTab"
+                        role="tablist"
+                      >
+                        <li className="nav-item" role="presentation">
+                          <button
+                            className="nav-link active"
+                            id="filters-tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#filters"
+                            type="button"
+                            role="tab"
+                            aria-controls="filters"
+                            aria-selected="true"
+                          >
+                            <span>
+                              <FilterListIcon />
+                            </span>
+                            Filtes
+                          </button>
+                        </li>
+                        <li className="nav-item" role="presentation">
+                          <button
+                            className="nav-link"
+                            id="owners-tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#owners"
+                            type="button"
+                            role="tab"
+                            aria-controls="owners"
+                            aria-selected="false"
+                          >
+                            <span>
+                              <PersonOutlineIcon />
+                            </span>
+                            Owners
+                          </button>
+                        </li>
+                      </ul>
+                      <div
+                        className="tab-content pipefiltertab-content"
+                        id="myTabContent"
+                      >
+                        <div
+                          className="tab-pane fade show active"
+                          id="filters"
+                          role="tabpanel"
+                          aria-labelledby="filters-tab"
+                        >
+                          <FilterDropdown
+                            showPipeLineFilters={showPipeLineFilters}
+                            setShowPipeLineFilters={setShowPipeLineFilters}
+                            selectedFilterObj={selectedFilterObj}
+                            setSelectedFilterObj={setSelectedFilterObj}
+                          />
+                        </div>
+                        <div
+                          className="tab-pane fade"
+                          id="owners"
+                          role="tabpanel"
+                          aria-labelledby="owners-tab"
+                        >
+                          <div className="pipeselectpadlr filterownersbox">
+                            {users
+                              .filter((u) => u.isActive)
+                              .map((item, index) => (
+                                <>
+                                  <ul className="pipeselectlist filterownerslist">
+                                    <li>
+                                      <div
+                                        className="filterownerli-row"
+                                        key={index}
+                                        onClick={(e:any)=>onPersonSelection(item.name)}
+                                      >
+                                        <AccountCircleIcon className="userCircleIcon" />
+                                        <span>{item.name}</span>
+                                        <div className="filterownerli-icon">
+                                          {/* <a className="filterowner-star">
+                                            <StarIcon />
+                                          </a> */}
+                                          <a className="filterowner-tick" hidden={!item.isSelected}>
+                                            <DoneIcon />
+                                          </a>
+                                        </div>
+                                      </div>
+                                    </li>
+                                  </ul>
+                                </>
+                              ))}
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
                 <div className="pipefilterbtn">
-                  <div className="filterbtn"><a className="btn" href="javascript:void(0);" onClick={(e:any)=>setSelectedFilterObj(null)}><FilterAltOffIcon /></a></div>
+                  <div className="filterbtn">
+                    <a
+                      className="btn"
+                      href="javascript:void(0);"
+                      onClick={(e: any) => {setSelectedUserId(null); setSelectedFilterObj(null)}}
+                    >
+                      <FilterAltOffIcon />
+                    </a>
+                  </div>
                 </div>
 
                 {/* <div className="pipeselectbox selecteveryonebox">
@@ -249,12 +382,12 @@ export const DealHeader = (props: params) => {
                     </Dropdown.Toggle>
                     <Dropdown.Menu className="toolgrip-dropdown">
                       <Dropdown.Item
-                        onClick={(e: any) => props.setViewType("list")}
+                        onClick={(e: any) => {setSelectedViewType("list"); props.setViewType("list")}}
                       >
                         List View
                       </Dropdown.Item>
                       <Dropdown.Item
-                        onClick={(e: any) => props.setViewType("kanban")}
+                        onClick={(e: any) => {setSelectedViewType("kanban"); props.setViewType("kanban")}}
                       >
                         Kanban View
                       </Dropdown.Item>

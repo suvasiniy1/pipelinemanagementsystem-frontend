@@ -72,7 +72,7 @@ export const AppRouter = () => {
         <Route path="/Campaigns" element={<CampaignList />} />
         <Route path="/CampaignDetails" element={<CampaignDetails />} />
         <Route path="/users" element={<UsersList />}/>
-        <Route path="/Person" element={<PersonList />}/>
+        <Route path="/Person" element={<AuthProvider><PersonList /></AuthProvider>}/>
         <Route path="/profile" element={<ProfilePage/>} />
         <Route path="/Reporting" element={<ReportingDashboard />}/>
         <Route path="/Enquiries" element={<EnquiryFormList />}/>

@@ -12,11 +12,12 @@ import { deleteEmail, getSentEmails, sendEmail } from "./emailService"; // Assum
 import SentEmailsList from "./sentEmailsList";
 import { DealAuditLogService } from "../../../../../services/dealAuditLogService";
 import { ErrorBoundary } from "react-error-boundary";
-import { PostAuditLog } from "../../../../../models/dealAutidLog";
+import { DealEmailLog, PostAuditLog } from "../../../../../models/dealAutidLog";
 import { EmailTemplateService } from "../../../../../services/emailTemplateService";
 import LocalStorageUtil from "../../../../../others/LocalStorageUtil";
 import Constants from "../../../../../others/constants";
 import { DealService } from "../../../../../services/dealService";
+import { DealEmailLogService } from "../../../../../services/dealEmailLogService";
 
 type params = {
   dealId: any;
@@ -32,6 +33,7 @@ function EmailActivities(props: params) {
   const [selectedEmail, setSelectedEmail] = useState<any>();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const auditLogsvc = new DealAuditLogService(ErrorBoundary);
+  const dealEmailLogService = new DealEmailLogService(ErrorBoundary)
   const emailTemplateSvc = new EmailTemplateService(ErrorBoundary);
   const [personEmail, setPersonEmail] = useState("");
   useEffect(() => {
@@ -166,14 +168,22 @@ function EmailActivities(props: params) {
         setEmailSent(true);
         setDialogIsOpen(false);
         toast.success("Email sent successfully");
-        let auditLogObj = {
-          ...new PostAuditLog(),
-          eventType: "email Send",
-          dealId: dealId,
-        };
-        auditLogObj.createdBy = Util.UserProfile()?.userId;
-        auditLogObj.eventDescription = "A new email was sent for the deal";
-        await auditLogsvc.postAuditLog(auditLogObj);
+        let dealEmailObj:DealEmailLog=new DealEmailLog();
+        
+        dealEmailObj.dealId = dealId;
+        dealEmailObj.emailBody = emailObj.body;
+        dealEmailObj.emailTo = emailObj.toAddress;
+        dealEmailObj.emailDate = new Date();
+        dealEmailObj.createdBy = Util.UserProfile()?.userId;
+        // = {
+        //   ...new DealEmailLog(),
+        //   eventType: "email Send",
+        //   dealId: dealId,
+        // };
+
+        // auditLogObj.createdBy = auditLogObj.userId = Util.UserProfile()?.userId;
+        // auditLogObj.eventDescription = "A new email was sent for the deal";
+        await dealEmailLogService.postDealEmailLog(dealEmailObj);
         fetchData();
       }
       else{
@@ -335,7 +345,7 @@ const fileToBase64 = (file: any) => {
 
 export const prepareEmailBody = async (
   emailObj: EmailCompose,
-  dealId: number,
+  dealId?: number,
   attachments?:any
 ) => {
   return JSON.stringify({

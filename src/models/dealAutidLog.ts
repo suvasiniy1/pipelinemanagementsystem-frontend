@@ -17,3 +17,12 @@ export class PostAuditLog extends AuditItem {
   eventDate!: string;
   userId!: number;
 }
+
+export class DealEmailLog extends AuditItem{
+  id!: number;
+  dealId!: number;
+  emailTo!: string;
+  emailBody!: string;
+  emailDate!: Date;
+}
+

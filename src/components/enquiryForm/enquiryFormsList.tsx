@@ -24,10 +24,12 @@ const EnquiryFormList = () => {
             itemName={"Enquiries"}
             canDoActions={false}
             canAdd={false}
+            canExport={true}
             itemType={EnquiryForm}
             columnMetaData={columnMetaData}
             api={new EnquiryFormService(ErrorBoundary)}
             itemsBySubURL={"GetEnquiryForms"}
+            excludeColumnsForExport={["enquiryFormID"]}
         />
     );
 };

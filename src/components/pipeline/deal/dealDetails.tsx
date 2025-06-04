@@ -154,6 +154,7 @@ export const DealDetails = () => {
         setError(err);
       });
   }, []);
+
   const fetchDealData = async (dealId: number, pipelineId: number) => {
     setIsLoading(true);
     try {
@@ -207,16 +208,16 @@ export const DealDetails = () => {
 const closeMoveDealDialog = () => setIsDealsModalOpen(false);
 
   // Use the useLocation hook instead of the global location object
-  useEffect(() => {
-    const searchParams = new URLSearchParams(location.search);
+  // useEffect(() => {
+  //   const searchParams = new URLSearchParams(location.search);
   
-    const newDealId = searchParams.get("id");
-    const newPipelineId = searchParams.get("pipeLineId");
+  //   const newDealId = searchParams.get("id");
+  //   const newPipelineId = searchParams.get("pipeLineId");
 
-    if (newDealId && newPipelineId) {
-      fetchDealData(Number(newDealId), Number(newPipelineId)); // Fetch new deal data based on new params
-    }
-  }, [location.search]); // Listen for changes to the URL search params
+  //   if (newDealId && newPipelineId) {
+  //     fetchDealData(Number(newDealId), Number(newPipelineId)); // Fetch new deal data based on new params
+  //   }
+  // }, [location.search]); // Listen for changes to the URL search params
 
 
   const onDealModified = () => {
