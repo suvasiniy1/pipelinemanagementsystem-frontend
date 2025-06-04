@@ -29,4 +29,8 @@ export class DealService extends BaseService<Deal>{
         const apiUrl = IsMockService() ? 'mockData/searchDeals.json' : 'Deal/Search';
         return this.getItems(axiosCancel, `${apiUrl}?searchTerm=${searchTerm}`);
     }
+    syncCallLogs(payload: any, axiosCancel?: CancelTokenSource) {
+        return this.postItemBySubURL(payload, 'SyncCallLogs');
+      }
+      
 }

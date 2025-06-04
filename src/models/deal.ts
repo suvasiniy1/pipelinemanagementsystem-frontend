@@ -114,6 +114,7 @@ export class Deal extends AuditItem {
   MissedCallReason: string = "Not Provided";
   RecordingUrl: string = "";
   Status: string = "Pending";
+  medicalForm: string | undefined;
 }
 
 export class DealMove {

@@ -1,7 +1,7 @@
 window.config = {
 
-//  ServicesBaseURL: "http://localhost:5127/api",
-  ServicesBaseURL: "https://www.y1crm.com/PLMSDev/api",
+  ServicesBaseURL: "http://localhost:5127/api",
+//  ServicesBaseURL: "https://www.y1crm.com/PLMSDev/api",
   DefaultStages: [
     "Qualified",
     "Conact Made",
@@ -49,9 +49,11 @@ window.config = {
       NavItems: [
         "Stages",
         "deal",
-        "pipeline",
-        "Activities",
-        "profile"
+    "pipeline",
+    "pipeline/edit",
+    "Activities",
+    "profile",
+    "Email",   
       ],
     },
     {
