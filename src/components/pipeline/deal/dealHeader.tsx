@@ -78,7 +78,7 @@ export const DealHeader = (props: params) => {
   const utility: Utility = JSON.parse(
     LocalStorageUtil.getItemObject(Constants.UTILITY) as any
   );
-  const [users, setUsers]=useState<Array<any>>(utility.users);
+  const [users, setUsers]=useState<Array<any>>(utility?.users);
   
   useEffect(() => {
     setPipeLinesList(props.pipeLinesList);
@@ -200,7 +200,7 @@ export const DealHeader = (props: params) => {
   },[selectedUserId])
 
   const onPersonSelection=(userName:string)=>{
-    setSelectedUserId(users.find(u=>u.name===userName)?.id as any);
+    setSelectedUserId(users?.find(u=>u.name===userName)?.id as any);
     setSelectedFilterObj(null as any);
     setUsers((prevUsers) =>
       prevUsers.map((user) =>
@@ -249,7 +249,7 @@ export const DealHeader = (props: params) => {
                   >
                     <button className="pipeselect" type="button">
                       <FontAwesomeIcon icon={faChartSimple} />{" "}
-                      <span>{selectedFilterObj?.name ?? users.find(u=>u.id===selectedUserId)?.name ?? "Select"} </span>
+                      <span>{selectedFilterObj?.name ?? users?.find(u=>u.id===selectedUserId)?.name ?? "Select"} </span>
                     </button>
                     <div
                       className="pipeselectcontent pipeselectfilter"
@@ -320,7 +320,7 @@ export const DealHeader = (props: params) => {
                         >
                           <div className="pipeselectpadlr filterownersbox">
                             {users
-                              .filter((u) => u.isActive)
+                              ?.filter((u) => u.isActive)
                               .map((item, index) => (
                                 <>
                                   <ul className="pipeselectlist filterownerslist">

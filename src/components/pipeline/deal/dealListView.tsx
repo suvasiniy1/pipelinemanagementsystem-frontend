@@ -1,4 +1,4 @@
-import { Button, Grid } from '@mui/material';
+import { Button, Grid } from "@mui/material";
 import Checkbox from "@mui/material/Checkbox";
 import Drawer from "@mui/material/Drawer";
 import { AxiosError } from "axios";
@@ -19,6 +19,7 @@ import { DealService } from "../../../services/dealService";
 import { PipeLineService } from "../../../services/pipeLineService";
 import { StageService } from "../../../services/stageService";
 import { DealExportPrview } from "./dealExportPreview";
+import axios from "axios";
 
 type Params = {
   pipeLineId: number;
@@ -38,6 +39,9 @@ const DealListView = (props: Params) => {
   const [selectedPipeLines, setSelectedPipeLines] = useState<Array<any>>([]);
   const [previewData, setPreviewData] = useState<any[]>([]); // Preview data for export
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
+  const [to, setTo] = useState<string>("");
+  const [message, setMessage] = useState("");
+  const [response, setResponse] = useState(null);
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: string;
@@ -170,7 +174,21 @@ const DealListView = (props: Params) => {
     }
   };
 
+  useEffect(() => {
+    
+    if (selectedRows.length > 0 && dealsList.length > 0) {
+      const selectedPhones = dealsList
+        .filter((deal: any) => selectedRows.includes(deal.dealID))
+        .map((deal: any) => deal.phone)
+        .join(",");
+  
+      setTo(selectedPhones);
+    }
+  }, [selectedRows]);
+  
+
   const handleRowSelection = (id: number) => {
+    
     const updatedSelections = selectedRows.includes(id)
       ? selectedRows.filter((rowId) => rowId !== id)
       : [...selectedRows, id];
@@ -195,7 +213,6 @@ const DealListView = (props: Params) => {
 
   const handleExportToExcel = async () => {
     try {
-      
       if (
         selectedPipeLines.length == 0 &&
         !selectedStartDate &&
@@ -307,7 +324,6 @@ const DealListView = (props: Params) => {
   };
 
   const onColumnSelection = (columns: any) => {
-    
     let selectedColumns: Array<any> = [];
     columns?.split(",")?.forEach((c: any) => {
       let columnItem = totalColumns.find((cItem: any) => cItem.label === c);
@@ -329,8 +345,7 @@ const DealListView = (props: Params) => {
     if (dates.length > 0) {
       setSelectedStartDate(dates[0]);
       setSelectedEndDate(dates[1]);
-    }
-    else{
+    } else {
       setSelectedStartDate(null as any);
       setSelectedEndDate(null as any);
     }
@@ -343,7 +358,7 @@ const DealListView = (props: Params) => {
     }
     const previewRows = dealsList.map((deal: any) => {
       const row: any = {};
-      
+
       selectedColumns.forEach((col: any) => {
         let value = deal[col.value];
 
@@ -372,6 +387,32 @@ const DealListView = (props: Params) => {
 
     setPreviewData(previewRows);
     setDialogIsOpen(true);
+  };
+
+  const sendSMS = async () => {
+    try {
+      const res = await axios.post(window?.config?.SMSServiceURL, {
+        to,
+        message,
+      });
+      setResponse(res.data);
+      handleSMSResponse(res.data);
+      setMessage(null as any);
+      setDrawerOpen(false);
+
+    } catch (err) {
+      //   setResponse({ success: false, error: err.message });
+      
+    }
+  };
+
+  const handleSMSResponse = (response: any) => {
+    
+    if(response.status==="success"){
+      toast.success("✅ Message sent successfully to all recipients.");
+    }else{
+      toast.error(response.message);
+    }
   };
 
   return (
@@ -494,11 +535,6 @@ const DealListView = (props: Params) => {
             }}
           >
             <div style={{ flex: 1, overflowY: "auto", padding: "16px" }}>
-              <h2 style={{ marginBottom: "8px" }}>Bulk Actions</h2>
-              <p style={{ marginBottom: "24px" }}>
-                {selectedRows.length} deals selected
-              </p>
-
               <div
                 hidden={selectedRows.length > 0}
                 style={{ marginBottom: "24px" }}
@@ -542,9 +578,36 @@ const DealListView = (props: Params) => {
                 alignItems="center"
               >
                 <Grid item>
-                  <Button variant="contained" onClick={handlePreview}>
-                    Preview
-                  </Button>
+                  <div
+                    className="p-4 border rounded shadow bg-white"
+                    style={{ maxWidth: "400px" }}
+                  >
+                    <h2 style={{ marginBottom: "8px" }}>Bulk Actions</h2>
+                    <p style={{ marginBottom: "24px" }}>
+                      {selectedRows.length} deals selected
+                    </p>
+
+                    <div className="mb-3">
+                      <label
+                        htmlFor="messageInput"
+                        className="form-label fw-bold"
+                      >
+                        Message Body
+                      </label>
+                      <textarea
+                        id="messageInput"
+                        className="form-control"
+                        placeholder="Type your message here..."
+                        rows={4}
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                      />
+                    </div>
+
+                    <button className="btn btn-primary w-100" onClick={sendSMS}>
+                      Send SMS
+                    </button>
+                  </div>
                 </Grid>
 
                 <Grid item>

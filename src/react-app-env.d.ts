@@ -12,6 +12,7 @@ declare global {
             RedirectUri:string;
             HomePage:string;
             NavItemActiveColor:string;
+            SMSServiceURL:string;
         }
     }
 }
