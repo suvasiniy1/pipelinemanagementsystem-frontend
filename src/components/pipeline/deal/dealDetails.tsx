@@ -41,6 +41,8 @@ import DealOverView from "./overview/dealOverView";
 import DealDetailsCustomFields from "./dealDetailsCustomFields";
 import DealsDialog from "./DealsDialog";
 import JustCallComponent from "./justcall";
+import MedicalFormEmailDialog from "./activities/email/MedicalFormEmailDialog";
+import { sendMedicalFormEmail } from "../../../models/medicalFormEmailService";
 
 
 export const DealDetails = () => {
@@ -82,6 +84,9 @@ export const DealDetails = () => {
   const [openDealsCount, setOpenDealsCount] = useState(dealItem.openDealsCount || 0);
   const [dealsData, setDealsData] = useState<Deal[]>([]); 
   const [dealValue, setDealValue] = useState(dealItem.value);
+  const [isEditingMedicalForm, setIsEditingMedicalForm] = useState(false);
+  const [tempMedicalFormValue, setTempMedicalFormValue] = useState(dealItem.medicalForm ?? "None");
+
 
   useEffect(() => {}, [dealItem]);
 
@@ -286,8 +291,41 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
       console.error("Login failed", error);
     }
   };
-
-
+  const handleMedicalFormYesClick = () => {
+    if (!dealItem.email) {
+      toast.warning("No email found for the patient.");
+      return;
+    }
+  
+    const emailObj = {
+      to: dealItem.email,
+      from: "wlforms@transforminglives.co.uk",
+      bcc: [
+        "y1capitalyogi@gmail.com",
+        "suenorton54321@btinternet.com"
+      ],
+      subject: "test email from yogi - Complete Your Medical History Form – Transform",
+      body: `
+  <p>Dear ${dealItem.personName || "Patient"},</p>
+  <p>Thank you for choosing Transform to support your weight loss journey.</p>
+  <p>To ensure we provide the best care possible, we kindly ask you to complete your medical history form by clicking the link below:</p>
+  <p><a href="https://weightloss.transforminglives.co.uk/mounjaro-medical-history-form/">Click here to fill out your form</a></p>
+  <p>Completing the form promptly allows us to move forward with your personalised treatment plan and ensures a smooth next step in your journey.</p>
+  <p>Kind regards,<br/>Transform Weight Loss Team</p>
+`
+    };
+    
+    setSelectedEmail(emailObj);
+    setDialogToOpen("MedicalFormEmailDialog");
+  
+    if (accounts.length === 0) {
+      onLoginConfirm();
+    } else {
+      setDialogIsOpen(true);
+    }
+  };
+  
+  
   return (
     <>
       {error && <UnAuthorized error={error as any} />}
@@ -552,6 +590,55 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
                         <div className="details-label">Treatment -</div>
                         <div className="details-value">{dealItem.treatmentName || "-"}</div>
                       </div>
+                      <div className="details-row">
+  <div className="details-label">Medical_Form</div>
+  <div className="details-value" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+    {isEditingMedicalForm ? (
+      <>
+        <div className="btn-group" role="group">
+          <button
+            className={`btn btn-sm ${tempMedicalFormValue === "None" ? "btn-primary" : "btn-outline-primary"}`}
+            onClick={() => setTempMedicalFormValue("None")}
+          >
+            (None)
+          </button>
+          <button
+            className={`btn btn-sm ${tempMedicalFormValue === "Yes" ? "btn-primary" : "btn-outline-primary"}`}
+            onClick={() => {
+              setTempMedicalFormValue("Yes");
+              handleMedicalFormYesClick(); // immediately trigger email
+              setIsEditingMedicalForm(false); // exit edit mode
+            }}
+          >
+            Yes
+          </button>
+          <button
+            className={`btn btn-sm ${tempMedicalFormValue === "No" ? "btn-primary" : "btn-outline-primary"}`}
+            onClick={() => {
+              setTempMedicalFormValue("No");
+              setIsEditingMedicalForm(false); // exit edit mode
+            }}
+          >
+            No
+          </button>
+        </div>
+        <button className="btn btn-link btn-sm text-danger" onClick={() => setIsEditingMedicalForm(false)}>
+          Cancel
+        </button>
+      </>
+    ) : (
+      <>
+        <span>{tempMedicalFormValue}</span>
+        <FontAwesomeIcon
+          icon={faPencil}
+          style={{ cursor: "pointer" }}
+          onClick={() => setIsEditingMedicalForm(true)}
+        />
+      </>
+    )}
+  </div>
+</div>
+
                     </div>
                     <div className=" appdeal-dtrow">
                       <DealDetailsCustomFields
@@ -601,34 +688,67 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
                 </div>
               </div>
             </div>
-            {dialogIsOpen &&
-              (dialogToOpen === "NotesAddEdit" ? (
-                <NotesAddEdit
-                  dialogIsOpen={dialogIsOpen}
-                  dealId={dealId}
-                  setDialogIsOpen={setDialogIsOpen}
-                />
-              ) : dialogToOpen === "EmailComposeDialog" ? (
-                <EmailComposeDialog
-                  personEmail={dealItem.email}
-                  fromAddress={accounts[0]}
-                  dialogIsOpen={dialogIsOpen}
-                  onCloseDialog={(e: any) => setSelectedEmail(null as any)}
-                  selectedItem={selectedEmail ?? new EmailCompose()}
-                  setSelectedItem={setSelectedEmail}
-                  setDialogIsOpen={setDialogIsOpen}
-                  onSave={(e: any) => {
-                    handleSendEmail(e);
-                  }}
-                />
-              ) : dialogToOpen === "TaskAddEdit" ? (
-                <TaskAddEdit
-                  dialogIsOpen={dialogIsOpen}
-                  dealId={dealId}
-                  taskItem={selectedTaskItem}
-                  setDialogIsOpen={setDialogIsOpen}
-                />
-              ) : null)}
+            {dialogIsOpen && (
+  <>
+    {dialogToOpen === "NotesAddEdit" && (
+      <NotesAddEdit
+        dialogIsOpen={dialogIsOpen}
+        dealId={dealId}
+        setDialogIsOpen={setDialogIsOpen}
+      />
+    )}
+
+    {dialogToOpen === "EmailComposeDialog" && (
+      <EmailComposeDialog
+        personEmail={dealItem.email}
+        fromAddress={accounts[0]}
+        dialogIsOpen={dialogIsOpen}
+        onCloseDialog={(e: any) => setSelectedEmail(null)}
+        selectedItem={selectedEmail ?? new EmailCompose()}
+        setSelectedItem={setSelectedEmail}
+        setDialogIsOpen={setDialogIsOpen}
+        onSave={handleSendEmail}
+      />
+    )}
+
+    {dialogToOpen === "MedicalFormEmailDialog" && (
+  <MedicalFormEmailDialog
+  dialogIsOpen={dialogIsOpen}
+  selectedItem={selectedEmail}
+  onCloseDialog={() => setDialogIsOpen(false)}
+  onSend={async (emailObj: any) => {
+    try {
+      console.log("📤 Sending Payload:", emailObj);
+      console.log("📤 Type of bcc:", typeof emailObj.bcc);
+      console.log("📤 Is Array?", Array.isArray(emailObj.bcc));
+  
+      // 🛠️ Fix if somehow it's a string
+      if (typeof emailObj.bcc === "string") {
+        emailObj.bcc = emailObj.bcc.split(",").map((s: string) => s.trim());
+      }
+  
+      await sendMedicalFormEmail(emailObj);
+      toast.success("Medical form email sent!");
+      setDialogIsOpen(false);
+    } catch (error: any) {
+      console.error("❌ Send email failed:", error?.response?.data || error.message);
+      toast.error("Failed to send email.");
+    }
+  }}
+/>
+
+    )}
+
+    {dialogToOpen === "TaskAddEdit" && (
+      <TaskAddEdit
+        dialogIsOpen={dialogIsOpen}
+        dealId={dealId}
+        taskItem={selectedTaskItem}
+        setDialogIsOpen={setDialogIsOpen}
+      />
+    )}
+  </>
+)}
               {/* Deals Dialog */}
               <DealsDialog
   show={isDealsModalOpen}
@@ -649,7 +769,7 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
               setDealItem={setDealItem}
               onDealModified={(e: any) => onStageModified(e)}
             />
-            {selectedPhoneNumber ? <JustCallComponent phoneNumber={selectedPhoneNumber} setPhoneNumber={setSelectedPhoneNmber}/> : null }
+            {selectedPhoneNumber ? <JustCallComponent phoneNumber={selectedPhoneNumber} setPhoneNumber={setSelectedPhoneNmber}  dealItem={dealItem}/> : null }
           </div>
         </div>
       )}

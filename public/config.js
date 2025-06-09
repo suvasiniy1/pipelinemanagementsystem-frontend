@@ -1,6 +1,4 @@
 window.config = {
-
-//  ServicesBaseURL: "http://localhost:5127/api",
   ServicesBaseURL: "https://www.y1crm.com/PLMS/api",
   SMSServiceURL:"http://localhost:5127/send-sms",
   DefaultStages: [
@@ -50,9 +48,11 @@ window.config = {
       NavItems: [
         "Stages",
         "deal",
-        "pipeline",
-        "Activities",
-        "profile"
+    "pipeline",
+    "pipeline/edit",
+    "Activities",
+    "profile",
+    "Email",   
       ],
     },
     {

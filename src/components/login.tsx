@@ -146,19 +146,28 @@ const Login = () => {
                 Constants.USER_PROFILE,
                 res as any
               );
+              console.log("User Role from response:", res?.role); // 👈 Add this line
               LocalStorageUtil.setItem(Constants.USER_Role, res?.role as any);
+              const profile = {
+                user: res.user,
+                email: res.email,
+                userId: res.userId,
+                role: res.role, // ✅ use role or roleId
+              };
+              LocalStorageUtil.setItemObject(Constants.USER_PROFILE, profile);
+              console.log("Saved user profile after login:", profile);
               navigate("/pipeline");
             } else if (res?.twoFactorRequired) {
               toast.success(
                 "2FA code sent to your email! Please check your inbox."
               );
-
-              // Store partial user profile in local storage even if 2FA is required
               LocalStorageUtil.setItemObject(Constants.USER_PROFILE, {
                 user: res.user,
                 email: res.email,
                 userId: res.userId,
+                role: res.role, // ✅ this is correct
               });
+          
               setTwoFactorRequired(true);
               setUserId(res.userId);
               setEmail(res.email);

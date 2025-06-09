@@ -35,4 +35,8 @@ export class DealService extends BaseService<Deal>{
     exportDeal(exportDeal:DealExport, axiosCancel?: CancelTokenSource){
         return this.postItemBySubURL(exportDeal, `ExportDeal`)
     }
+    syncCallLogs(payload: any, axiosCancel?: CancelTokenSource) {
+        return this.postItemBySubURL(payload, 'SyncCallLogs');
+      }
+      
 }

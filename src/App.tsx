@@ -16,9 +16,12 @@ import Util from "./others/util";
 import ChangePassword from "./components/profiles/changePassword";
 
 function App() {
-  Util.loadNavItemsForUser(
-    LocalStorageUtil.getItem(Constants.USER_Role) as any
-  );
+  useEffect(() => {
+    const role = LocalStorageUtil.getItem(Constants.USER_Role);
+    if (role) {
+      Util.loadNavItemsForUser(parseInt(role));
+    }
+  }, []);
   const navigate = useNavigate();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState<any>(
