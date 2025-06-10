@@ -68,6 +68,7 @@ const CallsActivities: React.FC<CallsActivitiesProps> = ({ callHistory }) => {
                 <strong>Status:</strong> {call.status || "Pending"}
             </p>
         )}
+        
         {call.status === "missed" && (
             <p>
                 <strong>Missed Call Reason:</strong> {call.missedCallReason || "Not Provided"}
