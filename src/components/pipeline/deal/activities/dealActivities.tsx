@@ -25,6 +25,7 @@ import EmailActivites from "./email/emailActivites";
 import NotesList from "./notes/notesList";
 import TasksList from "./tasks/tasksList";
 import { Spinner } from "react-bootstrap";
+import parse, { domToReact } from "html-react-parser";
 
 // Define the structure of a Call object based on the API response
 type Call = {
@@ -67,6 +68,15 @@ const DealActivities = (props: params) => {
   const dealAuditLogSvc = new DealAuditLogService(ErrorBoundary);
   const [dealTimeLines, setDealTimeLines] = useState<Array<DealTimeLine>>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const allowedTags = ["b", "i", "u", "strong", "em"];
+
+  const options = {
+    replace: (domNode: any) => {
+      if (domNode.type === "tag" && !allowedTags.includes(domNode.name)) {
+        return <>{domToReact(domNode.children, options)}</>; // Flatten unwanted tags
+      }
+    },
+  };
 
   const fetchCallHistory = async () => {
     try {
@@ -188,7 +198,6 @@ const DealActivities = (props: params) => {
                             <div className="appboxdatameta-service">
                               &nbsp;&nbsp;({item.timeline})
                             </div>
-                            
 
                             {/* <div className="appboxdatameta-name">
                               <FiberManualRecordIcon /> Linda Sehni
@@ -208,7 +217,9 @@ const DealActivities = (props: params) => {
                         <div className="appboxdatarow-foot">
                           <div className="appboxdatafoot-call">
                             <div className="appboxdatafoot-calltext">
-                              <span>{item.activityDetail}</span>
+                              <span>
+                                {parse(item.activityDetail || "", options)}
+                              </span>
                             </div>
                           </div>
                           <div className="appboxdata-meta appboxdata-footmeta">
