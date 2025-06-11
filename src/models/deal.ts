@@ -38,6 +38,7 @@ export class Deal extends AuditItem {
   isClosed!: boolean; // Add this if it's not already there
   openDealsCount?: number;
   ownerName!: string;
+  callHistory: CallHistoryEntry[] = []; 
   newContact?: {
     personName: string; // This is required
     email?: string; // Required
@@ -115,7 +116,35 @@ export class Deal extends AuditItem {
   RecordingUrl: string = "";
   Status: string = "Pending";
   medicalForm: string | undefined;
+
 }
+// Define the CallHistoryEntry type to avoid any issues with missing fields
+export type CallHistoryEntry = {
+  assignedTo: string;
+  receivedOn: string;
+  campaign: {
+    id: number;
+    name: string;
+    type: string; // Added this to match API expectations
+  };
+  contactName: string;
+  contactEmail: string;
+  contactNumber: string;
+  id: number;
+  justCallNumber: string;
+  agentName: string;
+  callDate: string;
+  callTime: string;
+  type: string;
+  recording: string;
+  callInfo: {
+    direction: string;
+    disposition: string;
+    notes: string;
+    recording: string; // Ensure recording exists
+    type: string; // Ensure type exists
+  };
+};
 
 export class DealMove {
   newStageId!: number;

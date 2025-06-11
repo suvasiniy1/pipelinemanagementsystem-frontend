@@ -220,24 +220,74 @@ const closeMoveDealDialog = () => setIsDealsModalOpen(false);
   // }, [location.search]); // Listen for changes to the URL search params
 
 
-  const onDealModified = () => {
-    console.log("Updated dealItem:", dealItem);
-    // Only convert to Date if operationDate is not null
-    const operationDate = dealItem.operationDate ? new Date(dealItem.operationDate) : null;
+ const onDealModified = () => {
+    console.log("Updated dealItem before API call:", dealItem);
 
-    dealSvc
-      .putItemBySubURL(
-        { ...dealItem,value: dealValue, operationDate },
-        "" + dealItem.dealID
-      )
-      .then((res) => {
-        console.log("API Response:", res);
-        toast.success("Deal updated successfully.");
-        loadDealItem();
-      })
-      .catch((err) => {
-        setError(err);
-      });
+    // Ensure required fields exist
+   const updatedDealItem = {
+    ...dealItem,
+    value: dealValue,
+    operationDate: dealItem.operationDate ? new Date(dealItem.operationDate) : null,
+    callHistory: dealItem.callHistory?.map((call: { 
+        assignedTo: any; 
+        receivedOn: any; 
+        campaign: { id: any; name: any; type: any }; 
+        contactName: any; 
+        contactEmail: any; 
+        callInfo: { direction: any; disposition: any; notes: any; recording: any; type: any }; 
+        agentName: any;
+        callDate: any;
+        callTime: any;
+        contactNumber: any;
+        id: any;
+        justCallNumber: any;
+    }) => ({
+        assignedTo: call.assignedTo ?? "Default User",
+        receivedOn: call.receivedOn ?? new Date().toISOString(),
+        
+        campaign: typeof call.campaign === "object"
+            ? {
+                id: call.campaign.id && !isNaN(parseInt(call.campaign.id)) ? parseInt(call.campaign.id, 10) : 0,
+                name: call.campaign.name ?? "Default Campaign",
+                type: call.campaign.type ?? "Unknown Type" // Ensure `type` is included
+            }
+            : { id: "0", name: "Default Campaign", type: "Unknown Type" },
+
+        contactName: call.contactName ?? "Unknown",
+        contactEmail: call.contactEmail ?? "No Email Provided",
+        contactNumber: call.contactNumber ?? "No Contact Number",
+        id: call.id ? String(call.id) : "Unknown", // Ensure `id` is a string
+        justCallNumber: call.justCallNumber ?? "Unknown",
+        agentName: call.agentName ?? "Unknown Agent",
+        callDate: call.callDate ?? new Date().toISOString(),
+        callTime: call.callTime ?? new Date().toISOString(),
+        
+        type: call.callInfo?.type ?? "Unknown Type",
+        recording: call.callInfo?.recording ?? "No Recording Available",
+
+        callInfo: {
+            direction: call.callInfo?.direction ?? "Not Specified",
+            disposition: call.callInfo?.disposition ?? "No Disposition Provided",
+            notes: call.callInfo?.notes ?? "No Notes Available",
+            recording: call.callInfo?.recording ?? "No Recording Available", 
+            type: call.callInfo?.type ?? "Unknown Type" // Ensure `type` is included
+        }
+    })) ?? [],
+};
+
+console.log("Final payload being sent:", JSON.stringify(updatedDealItem.callHistory, null, 2));
+
+dealSvc
+  .putItemBySubURL(updatedDealItem, "" + dealItem.dealID)
+  .then((res) => {
+    console.log("API Response:", res);
+    toast.success("Deal updated successfully.");
+    loadDealItem();
+  })
+  .catch((err) => {
+    console.error("API Error:", err);
+    setError(err);
+  });
 };
   const onStageModified = (stageId: number) => {
     dealSvc

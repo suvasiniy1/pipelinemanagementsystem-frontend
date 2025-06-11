@@ -168,6 +168,14 @@ function EmailActivities(props: params) {
         setEmailSent(true);
         setDialogIsOpen(false);
         toast.success("Email sent successfully");
+        let auditLogObj = {
+  ...new PostAuditLog(),
+  eventType: "email Send",
+  dealId: dealId,
+};
+auditLogObj.createdBy = Util.UserProfile()?.userId;
+auditLogObj.eventDescription = "A new email was sent for the deal";
+await auditLogsvc.postAuditLog(auditLogObj);
         let dealEmailObj:DealEmailLog=new DealEmailLog();
         
         dealEmailObj.dealId = dealId;
@@ -175,6 +183,7 @@ function EmailActivities(props: params) {
         dealEmailObj.emailTo = emailObj.toAddress;
         dealEmailObj.emailDate = new Date();
         dealEmailObj.createdBy = Util.UserProfile()?.userId;
+        dealEmailObj.createdDate = new Date();
         // = {
         //   ...new DealEmailLog(),
         //   eventType: "email Send",
