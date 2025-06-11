@@ -20,6 +20,7 @@ import { PipeLineService } from "../../../services/pipeLineService";
 import { StageService } from "../../../services/stageService";
 import { DealExportPrview } from "./dealExportPreview";
 import axios from "axios";
+import Util from "../../../others/util";
 
 type Params = {
   pipeLineId: number;
@@ -39,6 +40,7 @@ const DealListView = (props: Params) => {
   const [selectedPipeLines, setSelectedPipeLines] = useState<Array<any>>([]);
   const [previewData, setPreviewData] = useState<any[]>([]); // Preview data for export
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
+  const [isMessageEmpty, setIsMessageEmpty] = useState(false);
   const [to, setTo] = useState<string>("");
   const [message, setMessage] = useState("");
   const [response, setResponse] = useState(null);
@@ -167,10 +169,8 @@ const DealListView = (props: Params) => {
   const toggleSelectAll = () => {
     if (selectedRows.length === dealsList.length) {
       setSelectedRows([]);
-      setDrawerOpen(false);
     } else {
       setSelectedRows(dealsList.map((deal) => deal.dealID));
-      setDrawerOpen(true);
     }
   };
 
@@ -194,7 +194,6 @@ const DealListView = (props: Params) => {
       : [...selectedRows, id];
 
     setSelectedRows(updatedSelections);
-    setDrawerOpen(updatedSelections.length > 0);
   };
 
   const handlePageChange = (newPage: number) => {
@@ -390,6 +389,10 @@ const DealListView = (props: Params) => {
   };
 
   const sendSMS = async () => {
+    if(Util.isNullOrUndefinedOrEmpty(message)){
+      setIsMessageEmpty(true)
+      return;
+    }
     try {
       const res = await axios.post(window?.config?.SMSServiceURL, {
         to,
@@ -430,6 +433,14 @@ const DealListView = (props: Params) => {
                 style={{ marginBottom: "16px" }}
               >
                 Export
+              </Button>
+              <Button
+                variant="contained"
+                onClick={(e: any) => setDrawerOpen(true)}
+                disabled={selectedRows.length == 0}
+                style={{ marginBottom: "16px", marginLeft: "10px" }}
+              >
+                Send SMS
               </Button>
             </div>
             <div className="pdlisttable-scroll">
@@ -581,6 +592,7 @@ const DealListView = (props: Params) => {
                   <div
                     className="p-4 border rounded shadow bg-white"
                     style={{ maxWidth: "400px" }}
+                    hidden={selectedRows.length == 0}
                   >
                     <h2 style={{ marginBottom: "8px" }}>Bulk Actions</h2>
                     <p style={{ marginBottom: "24px" }}>
@@ -602,6 +614,12 @@ const DealListView = (props: Params) => {
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                       />
+                      <p
+                        hidden={!Util.isNullOrUndefinedOrEmpty(message) || !isMessageEmpty}
+                        className="text-danger"
+                      >
+                        Please enter message body
+                      </p>
                     </div>
 
                     <button className="btn btn-primary w-100" onClick={sendSMS}>
