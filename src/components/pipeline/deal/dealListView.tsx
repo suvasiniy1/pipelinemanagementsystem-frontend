@@ -227,6 +227,7 @@ const DealListView = (props: Params) => {
   };
 
   const handlePageChange = (newPage: number) => {
+    setIsLoading(true);
     setCurrentPage(newPage);
     setSelectedRows([]);
     setDrawerOpen(false);
@@ -452,7 +453,16 @@ const DealListView = (props: Params) => {
     item.operationDate = moment(item.operationDate).format(
       window.config.DateFormat
     );
-    return item;
+    item.value =
+      userRole === 1
+        ? item.value && !isNaN(Number(item.value))
+          ? `£${item.value}`
+          : "N/A"
+        : "£0";
+    return {...item,
+      organization:getOrganizationName(item.organizationID),
+      contactPerson:getOrganizationName(item.contactPersonID)
+    };
   };
 
   const updateRowData = () => {
