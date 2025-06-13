@@ -68,7 +68,8 @@ const DealActivities = (props: params) => {
   const dealAuditLogSvc = new DealAuditLogService(ErrorBoundary);
   const [dealTimeLines, setDealTimeLines] = useState<Array<DealTimeLine>>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const allowedTags = ["b", "i", "u", "strong", "em"];
+  // Added heading and span tags to allowedTags for better parsing in extractSubjectFromHtml
+  const allowedTags = ["b", "i", "u", "strong", "em", "p", "div", "br", "h1", "h2", "h3", "h4", "h5", "h6", "span"];
 
   const options = {
     replace: (domNode: any) => {
@@ -116,15 +117,16 @@ const DealActivities = (props: params) => {
       let res = await dealAuditLogSvc.getDealTimeLine(dealId);
       setDealTimeLines(res as any);
       setIsLoading(false);
-    } catch {}
+    } catch (error) {
+      console.error("Error fetching deal timelines:", error);
+    }
   };
 
   useEffect(() => {
     if (!dealId) return;
     featchDealTimeLines();
     fetchCallHistory();
-    setIsLoading(false);
-  }, []);
+  }, [dealId]);
 
   const getEventIcon = (eventType: number) => {
     let icon;
@@ -150,6 +152,136 @@ const DealActivities = (props: params) => {
     return icon;
   };
 
+  /**
+   * Helper function to extract a potential subject from raw HTML content.
+   * It prioritizes heading tags, then significant text blocks, and finally
+   * a plain text line heuristic.
+   * @param htmlString The raw HTML content from activityDetail.
+   * @returns An object containing the extracted subject and the potentially adjusted body HTML.
+   */
+  const extractSubjectFromHtml = (htmlString: string): { subject: string; body: string } => {
+ const tempDiv = document.createElement('div');
+tempDiv.innerHTML = htmlString;
+
+let extractedSubject = "";
+let processedBodyHtml = htmlString; 
+
+
+ const headingElements = tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6');
+for (const element of Array.from(headingElements)) {
+const textContent = element.textContent?.trim();
+
+if (textContent && textContent.length > 5 && textContent.length < 200 && !textContent.includes('<') && !textContent.includes('>')) {
+ extractedSubject = textContent;
+
+ element.remove(); 
+ processedBodyHtml = tempDiv.innerHTML; 
+ break;
+ }
+}
+
+
+ if (!extractedSubject) {
+ const potentialSubjectElements = tempDiv.querySelectorAll('p, div, span');
+for (const element of Array.from(potentialSubjectElements)) {
+ const textContent = element.textContent?.trim();
+
+ if (textContent && textContent.length > 5 && textContent.length < 200 && !textContent.includes('<') && !textContent.includes('>')) {
+ extractedSubject = textContent;
+ element.remove(); 
+processedBodyHtml = tempDiv.innerHTML; 
+ break;
+}
+}
+ }
+
+
+ if (!extractedSubject) {
+const plainText = tempDiv.textContent || ""; // Get all text content
+        const lines = plainText.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
+
+        if (lines.length > 0 && lines[0].length > 5 && lines[0].length < 150) {
+            extractedSubject = lines[0];
+            const subjectEscaped = extractedSubject.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+            const regex = new RegExp(`(<p[^>]*>\\s*)?${subjectEscaped}(\\s*<\\/p>)?`, 'i');
+
+            const tempHtmlWithoutSubject = htmlString.replace(regex, '').trim(); 
+            processedBodyHtml = tempHtmlWithoutSubject;
+        }
+ }
+
+
+ if (!extractedSubject || extractedSubject.toLowerCase() === "email" || extractedSubject.toLowerCase() === "hi" || extractedSubject.toLowerCase() === "hello user") {
+extractedSubject = "Email Activity";
+ }
+
+ return { subject: extractedSubject, body: processedBodyHtml };
+ };
+
+  const renderEmailContent = (item: DealTimeLine) => {
+    let subject = "";
+    let body = "";
+    let toRecipients = "";
+    let emailAddress = ""; // Added emailAddress for sender display
+
+    try {
+      const outerParsed = JSON.parse(item.activityDetail || "");
+
+      if (outerParsed && typeof outerParsed.message === 'string') {
+        const innerMessage = JSON.parse(outerParsed.message);
+        subject = innerMessage.subject || "";
+        body = innerMessage.body || "";
+        toRecipients = innerMessage.toRecipients
+          ? JSON.parse(innerMessage.toRecipients).join(', ')
+          : '';
+        emailAddress = innerMessage.emailAddress || ""; 
+      } else {
+
+        const { subject: extractedSubject, body: extractedBody } = extractSubjectFromHtml(item.activityDetail || "");
+        subject = extractedSubject;
+        body = extractedBody;
+
+      }
+    } catch (e) {
+      console.warn("Error parsing activityDetail as JSON for email, falling back to HTML heuristic:", e);
+
+      const { subject: extractedSubject, body: extractedBody } = extractSubjectFromHtml(item.activityDetail || "");
+      subject = extractedSubject;
+      body = extractedBody;
+
+    }
+
+    return (
+      <div className="email-structured-content">
+        <div className="email-header-line">
+          {subject ? (
+            <h3>{subject}</h3> // Use h3 for the subject
+          ) : (
+            <h4></h4> // Generic title if no clear subject
+          )}
+        </div>
+        {/* Display sender information */}
+        {emailAddress && (
+          <p className="email-from-line">
+            <strong>From:</strong> {emailAddress}
+          </p>
+        )}
+        {/* Only show "To" if available and not empty */}
+        {toRecipients && toRecipients.length > 0 && (
+          <p className="email-to-line">
+            <strong>To:</strong> {toRecipients}
+          </p>
+        )}
+        <div className="email-body-content">
+          {parse(body, options)} {/* Parse the HTML body */}
+        </div>
+        <p className="email-attachments-line">No attachments available.</p>
+      </div>
+    );
+  };
+
+
   return (
     <>
       {isLoading ? (
@@ -162,17 +294,20 @@ const DealActivities = (props: params) => {
           defaultActiveKey={defaultActiveKey}
           transition={false}
           onSelect={(e: any) => {
-            featchDealTimeLines();
+            // Only re-fetch if the active key is 'activity_sub' as that's where timelines are displayed
+            if (e === "activity_sub") {
+              featchDealTimeLines();
+            }
             setdefaultActiveKey(e);
           }}
           id="noanim-tab-example"
           className="mb-5 activity-subtab"
         >
           <Tab eventKey="activity_sub" title="Activity">
-            {defaultActiveKey == "activity_sub" && (
+            {defaultActiveKey === "activity_sub" && (
               <AuthProvider>
                 {dealTimeLines.map((item, index) => (
-                  <div className="appboxdata">
+                  <div className="appboxdata" key={index}> {/* Added key prop */}
                     <div className="appboxdata-row">
                       <div className="lineroundicon PhoneInTalkOutlinedIcon">
                         {getEventIcon(item.eventTypeId) as any}
@@ -180,14 +315,9 @@ const DealActivities = (props: params) => {
                       <div className="appboxdata-rowdata">
                         <div className="appboxdatarow-head">
                           <div className="appboxdatarow-headrow">
-                            <h2>{item.eventType}</h2>
-                            {/* <div className="treedot-div">
-                              <a className="treedot-btn">
-                                <PushPinOutlinedIcon />{" "}
-                                <MoreHorizOutlinedIcon />{" "}
-                                <UnfoldMoreOutlinedIcon />
-                              </a>
-                            </div> */}
+                            <h2>
+                              {item.eventTypeId === EntitType.Email ? "Email" : item.eventType}
+                            </h2>
                           </div>
                           <div className="appboxdata-meta appboxdata-headmeta">
                             <div className="appboxdatameta-date">
@@ -198,51 +328,26 @@ const DealActivities = (props: params) => {
                             <div className="appboxdatameta-service">
                               &nbsp;&nbsp;({item.timeline})
                             </div>
-
-                            {/* <div className="appboxdatameta-name">
-                              <FiberManualRecordIcon /> Linda Sehni
-                            </div>
-                            <div className="appboxdatameta-leadname">
-                              <PersonOutlineIcon /> Megan Clarke
-                            </div>
-                            <div className="appboxdatameta-clinic">
-                              <CorporateFareIcon /> Transform Weightloss
-                            </div>
-                            <div className="appboxdatameta-service">
-                              <PaidOutlinedIcon /> Gastric Sleeve
-                            </div> */}
                           </div>
                         </div>
 
                         <div className="appboxdatarow-foot">
                           <div className="appboxdatafoot-call">
                             <div className="appboxdatafoot-calltext">
-                              <span>
-                                {parse(item.activityDetail || "", options)}
-                              </span>
+                              {item.eventTypeId === EntitType.Email ? (
+                                renderEmailContent(item) // Pass the entire item to renderEmailContent
+                              ) : (
+                                parse(item.activityDetail || "", options)
+                              )}
                             </div>
                           </div>
                           <div className="appboxdata-meta appboxdata-footmeta">
-                            {/* <div className="appboxdatameta-date">
-                              {moment(item.callDateTime).format(
-                                "MM-DD-YYYY hh:mm:ss a"
-                              )}
-                            </div> */}
-                            {/* <div className="appboxdatameta-name">
-                              <FiberManualRecordIcon /> Linda Sehni
-                            </div> */}
                             <div
                               className="appboxdatameta-leadname"
                               hidden={!item.contactNumber}
                             >
                               <PersonOutlineIcon /> {item.contactNumber}
                             </div>
-                            {/* <div className="appboxdatameta-clinic">
-                              <CorporateFareIcon /> Transform Weightloss
-                            </div>
-                            <div className="appboxdatameta-service">
-                              <PaidOutlinedIcon /> Gastric Sleeve
-                            </div> */}
                           </div>
                         </div>
                       </div>
@@ -253,16 +358,15 @@ const DealActivities = (props: params) => {
             )}
           </Tab>
           <Tab eventKey="notes" title="Notes">
-            {defaultActiveKey == "notes" && (
+            {defaultActiveKey === "notes" && (
               <NotesList dealId={dealItem.dealID} />
             )}
           </Tab>
           <Tab
             eventKey="email"
             title="Email"
-            hidden={defaultActiveKey != "email"}
           >
-            {defaultActiveKey == "email" && (
+            {defaultActiveKey === "email" && (
               <AuthProvider>
                 <EmailActivites dealId={dealItem.dealID} />
               </AuthProvider>
@@ -274,7 +378,7 @@ const DealActivities = (props: params) => {
             )}
           </Tab>
           <Tab eventKey="tasks" title="Tasks">
-            {defaultActiveKey == "tasks" && (
+            {defaultActiveKey === "tasks" && (
               <AuthProvider>
                 <TasksList dealId={dealItem.dealID} />
               </AuthProvider>
