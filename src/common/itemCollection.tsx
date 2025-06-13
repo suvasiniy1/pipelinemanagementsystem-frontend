@@ -61,6 +61,10 @@ type params = {
   enableCheckboxSelection?: boolean;
   openGroupEmailDialog?: any;
   excludeColumnsForExport?: any;
+  customRowData?: boolean;
+  hidePagination?: boolean;
+  isCustomHeaderActions?: any;
+  customHeaderActions?: any;
 };
 
 const ItemCollection: React.FC<params> = (props) => {
@@ -74,6 +78,11 @@ const ItemCollection: React.FC<params> = (props) => {
   const [defaultSortField, setDefaultSortField] = useState(
     props.defaultSortField ? props.defaultSortField : "modifiedOn"
   );
+
+  const [customRowData, setCustomRowData] = useState(
+    props.customRowData ?? false
+  );
+
   const [dialogIsOpen, setDialogIsOpen] = useState(
     props.dialogIsOpen ? props.dialogIsOpen : false
   );
@@ -102,7 +111,6 @@ const ItemCollection: React.FC<params> = (props) => {
     viewAddEditComponent,
     api,
     displayTableHeaderasSingler,
-    enableCheckboxSelection = false,
   } = props;
   const [canAdd, setCanAdd] = useState(
     props.canAdd != null ? props.canAdd : true
@@ -306,7 +314,7 @@ const ItemCollection: React.FC<params> = (props) => {
     rowData: rowData,
     onSelectionModelChange: handleSelectionChange,
     // checkboxSelection: true,
-    checkboxSelection: enableCheckboxSelection,
+    checkboxSelection: props.checkboxSelection ?? false,
     renderRightActions: renderRightActions,
     renderIndications: renderIndications,
     renderFooter: renderFooter,
@@ -327,6 +335,8 @@ const ItemCollection: React.FC<params> = (props) => {
     addButtonName: addButtonName,
     canExport: canExport,
     canShowDropdownForFilter: canShowDropdownForFilter,
+    customRowData: customRowData,
+    hidePagination: props.hidePagination,
     customActions: customActions,
     viewAddEditComponentProps: {
       dialogIsOpen: dialogIsOpen,
@@ -468,23 +478,29 @@ const ItemCollection: React.FC<params> = (props) => {
               <div className="col-sm-5 toolbarview-actions">
                 <h4>{itemName + " List"}</h4>
               </div>
-              <div className="col-sm-7 toolbarview-summery">
-                <div className="toolbarview-actionsrow">
-                  {renderSendGroupEmailButton()}
-                  {canExport ? renderExportButton() : null}
-                  <button
-                    type="button"
-                    className="btn btn-success"
-                    hidden={!canAdd}
-                    onClick={(e: any) => {
-                      setSelectedItemUser(new props.itemType());
-                      setDialogIsOpen(true);
-                    }}
-                  >
-                    + New {itemName}
-                  </button>
+              {props.isCustomHeaderActions ? (
+                props.customHeaderActions()
+              ) : (
+                <div
+                  className="col-sm-7 toolbarview-summery"
+                >
+                  <div className="toolbarview-actionsrow">
+                    {renderSendGroupEmailButton()}
+                    {canExport ? renderExportButton() : null}
+                    <button
+                      type="button"
+                      className="btn btn-success"
+                      hidden={!canAdd}
+                      onClick={(e: any) => {
+                        setSelectedItemUser(new props.itemType());
+                        setDialogIsOpen(true);
+                      }}
+                    >
+                      + New {itemName}
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>

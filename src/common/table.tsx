@@ -114,6 +114,8 @@ export interface TableListProps {
   serviceAPI: any;
   checkboxSelection?: boolean;
   onSelectionModelChange?: (newSelection: GridRowSelectionModel) => void;
+  customRowData?:boolean;
+  hidePagination?:boolean;
 }
 
 export interface ViewEditProps {
@@ -170,30 +172,33 @@ const Table: React.FC<TableListProps> = (props) => {
   }, []);
 
   const loadData = () => {
-    setIsLoading(true);
-    (props.itemsBySubURL
-      ? props.serviceAPI.getItemsBySubURL(props.itemsBySubURL)
-      : props.serviceAPI.getItems()
-    )
-      .then((res: Array<any>) => {
-        console.log("res  " + JSON.stringify(res));
-        res.forEach((r, index) => {
-          r.id = r.id ?? index + 1;
-          return r;
+    if(!props.customRowData){
+      setIsLoading(true);
+      (props.itemsBySubURL
+        ? props.serviceAPI.getItemsBySubURL(props.itemsBySubURL)
+        : props.serviceAPI.getItems()
+      )
+        .then((res: Array<any>) => {
+          console.log("res  " + JSON.stringify(res));
+          res.forEach((r, index) => {
+            r.id = r.id ?? index + 1;
+            return r;
+          });
+          res = processRowData(res);
+          var transformedRowData = res?.map((r: any) => {
+            return props.rowTransformFn(r);
+          });
+          setRowData(transformedRowData);
+          props.postLoadData(transformedRowData);
+          setIsLoading(false);
+          setLoadRowData(false);
+        })
+        .catch((err: any) => {
+          setIsLoading(false);
+          toast.error("Unable to retreive list");
         });
-        res = processRowData(res);
-        var transformedRowData = res?.map((r: any) => {
-          return props.rowTransformFn(r);
-        });
-        setRowData(transformedRowData);
-        props.postLoadData(transformedRowData);
-        setIsLoading(false);
-        setLoadRowData(false);
-      })
-      .catch((err: any) => {
-        setIsLoading(false);
-        toast.error("Unable to retreive list");
-      });
+    }
+
   };
 
   const processRowData = (rowData: Array<any>) => {
@@ -456,6 +461,7 @@ const Table: React.FC<TableListProps> = (props) => {
           getRowClassName={(params) =>
             params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
           }
+          hideFooterPagination={props.hidePagination ?? false}
           initialState={{
             pagination: {
               paginationModel: {
@@ -463,7 +469,6 @@ const Table: React.FC<TableListProps> = (props) => {
               },
             },
           }}
-          pagination={true}
           pageSizeOptions={[5, 10, 20, 50]}
           disableRowSelectionOnClick
         />

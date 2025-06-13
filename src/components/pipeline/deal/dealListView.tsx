@@ -1,12 +1,16 @@
+import { faGrip } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button, Grid } from "@mui/material";
-import Checkbox from "@mui/material/Checkbox";
 import Drawer from "@mui/material/Drawer";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 import { saveAs } from "file-saver";
+import moment from "moment";
 import { useEffect, useState } from "react";
+import Dropdown from "react-bootstrap/Dropdown";
 import { ErrorBoundary } from "react-error-boundary";
 import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
+import ItemCollection from "../../../common/itemCollection";
 import { UnAuthorized } from "../../../common/unauthorized";
 import { DateRangePicker } from "../../../elements/dateRangePicker";
 import MultiSelectDropdown from "../../../elements/multiSelectDropdown";
@@ -15,18 +19,30 @@ import { PipeLine } from "../../../models/pipeline";
 import { Utility } from "../../../models/utility";
 import Constants from "../../../others/constants";
 import LocalStorageUtil from "../../../others/LocalStorageUtil";
+import Util from "../../../others/util";
 import { DealService } from "../../../services/dealService";
 import { PipeLineService } from "../../../services/pipeLineService";
 import { StageService } from "../../../services/stageService";
 import { DealExportPrview } from "./dealExportPreview";
-import axios from "axios";
-import Util from "../../../others/util";
+import { DealAddEditDialog } from "./dealAddEditDialog";
 
 type Params = {
   pipeLineId: number;
+  setViewType: any;
+  onSaveChanges: any;
+  pipeLinesList: any;
+  selectedStageId: any;
 };
 
 const DealListView = (props: Params) => {
+  const {
+    pipeLineId,
+    setViewType,
+    onSaveChanges,
+    pipeLinesList,
+    selectedStageId,
+    ...others
+  } = props;
   const [dealsList, setDealsList] = useState<Array<Deal>>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [pageSize, setPageSize] = useState(10);
@@ -40,6 +56,7 @@ const DealListView = (props: Params) => {
   const [selectedPipeLines, setSelectedPipeLines] = useState<Array<any>>([]);
   const [previewData, setPreviewData] = useState<any[]>([]); // Preview data for export
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
+  const [openAddDealDialog, setOpenAddDealDialog] = useState(false);
   const [isMessageEmpty, setIsMessageEmpty] = useState(false);
   const [to, setTo] = useState<string>("");
   const [message, setMessage] = useState("");
@@ -58,14 +75,34 @@ const DealListView = (props: Params) => {
   const dealSvc = new DealService(ErrorBoundary);
   const pipeLineSvc = new PipeLineService(ErrorBoundary);
 
-  const allColumns: Array<any> = [
-    { key: "stageName", label: "Stage" },
-    { key: "treatmentName", label: "Treatment Name" },
-    { key: "value", label: "Value" },
-    { key: "organization", label: "Organisation" },
-    { key: "contactPerson", label: "Contact Person" },
-    { key: "expectedCloseDate", label: "Expected Close Date" },
-    { key: "operationDate", label: "Next Activity Date" },
+  const columnMetaData = [
+    { columnName: "stageName", columnHeaderName: "Stage", width: 150 },
+    {
+      columnName: "treatmentName",
+      columnHeaderName: "Treatment Name",
+      width: 150,
+    },
+    { columnName: "value", columnHeaderName: "Value" },
+    {
+      columnName: "organization",
+      columnHeaderName: "Organisation",
+      width: 150,
+    },
+    {
+      columnName: "contactPerson",
+      columnHeaderName: "Contact Person",
+      width: 150,
+    },
+    {
+      columnName: "expectedCloseDate",
+      columnHeaderName: "Expected Close Date",
+      width: 150,
+    },
+    {
+      columnName: "operationDate",
+      columnHeaderName: "Next Activity Date",
+      width: 150,
+    },
   ];
 
   const [selectedColumns, setSelectedColumns] = useState<any[]>([]);
@@ -175,28 +212,22 @@ const DealListView = (props: Params) => {
   };
 
   useEffect(() => {
-    
     if (selectedRows.length > 0 && dealsList.length > 0) {
       const selectedPhones = dealsList
         .filter((deal: any) => selectedRows.includes(deal.dealID))
         .map((deal: any) => deal.phone)
         .join(",");
-  
+
       setTo(selectedPhones);
     }
   }, [selectedRows]);
-  
 
-  const handleRowSelection = (id: number) => {
-    
-    const updatedSelections = selectedRows.includes(id)
-      ? selectedRows.filter((rowId) => rowId !== id)
-      : [...selectedRows, id];
-
-    setSelectedRows(updatedSelections);
+  const handleRowSelection = (id: any) => {
+    setSelectedRows(id);
   };
 
   const handlePageChange = (newPage: number) => {
+    setIsLoading(true);
     setCurrentPage(newPage);
     setSelectedRows([]);
     setDrawerOpen(false);
@@ -389,8 +420,8 @@ const DealListView = (props: Params) => {
   };
 
   const sendSMS = async () => {
-    if(Util.isNullOrUndefinedOrEmpty(message)){
-      setIsMessageEmpty(true)
+    if (Util.isNullOrUndefinedOrEmpty(message)) {
+      setIsMessageEmpty(true);
       return;
     }
     try {
@@ -402,30 +433,154 @@ const DealListView = (props: Params) => {
       handleSMSResponse(res.data);
       setMessage(null as any);
       setDrawerOpen(false);
-
     } catch (err) {
       //   setResponse({ success: false, error: err.message });
-      
     }
   };
 
   const handleSMSResponse = (response: any) => {
-    
-    if(response.status==="success"){
+    if (response.status === "success") {
       toast.success("✅ Message sent successfully to all recipients.");
-    }else{
+    } else {
       toast.error(response.message);
     }
   };
 
+  const rowTransform = (item: Deal) => {
+    item.expectedCloseDate = moment(item.expectedCloseDate).format(
+      window.config.DateFormat
+    );
+    item.operationDate = moment(item.operationDate).format(
+      window.config.DateFormat
+    );
+    item.value =
+      userRole === 1
+        ? item.value && !isNaN(Number(item.value))
+          ? `£${item.value}`
+          : "N/A"
+        : "£0";
+    return {...item,
+      organization:getOrganizationName(item.organizationID),
+      contactPerson:getOrganizationName(item.contactPersonID)
+    };
+  };
+
+  const updateRowData = () => {
+    return dealsList.map((item, index) => ({
+      ...rowTransform(item),
+      id: item.dealID || `deal-${index}`,
+    }));
+  };
+
+  const customHeaderActions = () => {
+    return (
+      <>
+        <div className="col-sm-7 toolbarview-summery">
+          <div className="toolbarview-actionsrow">
+            <div className="d-flex toolbutton-group">
+              <Dropdown className="toolgrip-dropdownbox">
+                <Dropdown.Toggle
+                  className="toolpipebtn activetoolbtn"
+                  variant="success"
+                  id="dropdown-toolgrip"
+                >
+                  <FontAwesomeIcon icon={faGrip} />
+                </Dropdown.Toggle>
+                <Dropdown.Menu className="toolgrip-dropdown">
+                  <Dropdown.Item
+                    onClick={(e: any) => {
+                      props.setViewType("list");
+                    }}
+                  >
+                    List View
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    onClick={(e: any) => {
+                      props.setViewType("kanban");
+                    }}
+                  >
+                    Kanban View
+                  </Dropdown.Item>
+                  {/* <Dropdown.Item href="#/action-3">Add New List View</Dropdown.Item> */}
+                </Dropdown.Menu>
+              </Dropdown>
+            </div>
+
+            {addorUpdateDeal()}
+
+            <Button
+              variant="contained"
+              onClick={(e: any) => setDrawerOpen(true)}
+              disabled={selectedRows.length > 0}
+              style={{ marginRight: "10px" }}
+            >
+              Export
+            </Button>
+            <Button
+              variant="contained"
+              onClick={(e: any) => setDrawerOpen(true)}
+              disabled={selectedRows.length == 0}
+            >
+              Send SMS
+            </Button>
+          </div>
+        </div>
+      </>
+    );
+  };
+
+  const addorUpdateDeal = () => {
+    return (
+      <>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={(e: any) => setOpenAddDealDialog(true)}
+          style={{ marginLeft: "10px", marginRight: "10px" }}
+          sx={{ backgroundColor: 'primary.main', color: 'white' }}
+        >
+          + New Deal
+        </Button>
+      </>
+    );
+  };
+
   return (
     <>
+      <ItemCollection
+        itemName={"Deals"}
+        itemType={Deal}
+        columnMetaData={columnMetaData}
+        canAdd={false}
+        canExport={false}
+        canDoActions={false}
+        viewAddEditComponent={null}
+        checkboxSelection={true}
+        rowData={updateRowData()}
+        customRowData={true}
+        hidePagination={true}
+        isCustomHeaderActions={true}
+        customHeaderActions={customHeaderActions}
+        onSelectionModelChange={handleRowSelection}
+      />
+      <div className="pagination">
+        <Button
+          disabled={currentPage === 1}
+          onClick={() => handlePageChange(currentPage - 1)}
+        >
+          Previous
+        </Button>
+        <Button
+          disabled={dealsList.length === 0}
+          onClick={() => handlePageChange(currentPage + 1)}
+        >
+          Next
+        </Button>
+      </div>
       <div className="pdstage-area">
-        <div className="container-fluid">
+        {/* <div className="container-fluid">
           <div className="pdlist-row">
             <div className="table-controls">
-              {/* Export to Excel Button */}
-              {/* <ImportExportRoundedIcon onClick={(e:any)=>setDrawerOpen(true)}/> */}
               <Button
                 variant="contained"
                 onClick={(e: any) => setDrawerOpen(true)}
@@ -528,7 +683,7 @@ const DealListView = (props: Params) => {
               </Button>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {error && <UnAuthorized error={error as any} />}
 
@@ -615,7 +770,10 @@ const DealListView = (props: Params) => {
                         onChange={(e) => setMessage(e.target.value)}
                       />
                       <p
-                        hidden={!Util.isNullOrUndefinedOrEmpty(message) || !isMessageEmpty}
+                        hidden={
+                          !Util.isNullOrUndefinedOrEmpty(message) ||
+                          !isMessageEmpty
+                        }
                         className="text-danger"
                       >
                         Please enter message body
@@ -653,6 +811,15 @@ const DealListView = (props: Params) => {
             onConfirmClick={(e: any) => handleExportToExcel()}
           />
         </div>
+      )}
+      {openAddDealDialog && (
+        <DealAddEditDialog
+          dialogIsOpen={openAddDealDialog}
+          setDialogIsOpen={setOpenAddDealDialog}
+          onSaveChanges={(e: any) => props.onSaveChanges()}
+          selectedStageId={selectedStageId}
+          pipeLinesList={pipeLinesList}
+        />
       )}
     </>
   );
