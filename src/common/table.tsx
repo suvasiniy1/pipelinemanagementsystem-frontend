@@ -316,6 +316,8 @@ const Table: React.FC<TableListProps> = (props) => {
           headerClassName: "wordWrap",
           headerAlign: "left",
           height: 500,
+          hideable : metaDataIter.hidden,
+          hidden: metaDataIter.hidden ? false : true,
           width: metaDataIter.width,
           flex: metaDataIter.flex !== null ? metaDataIter.flex : 1,
           renderCell: metaDataIter.renderCell,
@@ -420,6 +422,13 @@ const Table: React.FC<TableListProps> = (props) => {
 
   const columnsMetaData = generateGridColDef();
 
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState<Record<string, boolean>>(
+    columnMetaData.reduce((acc, col) => {
+      acc[col.columnName] = !col.hidden; // hidden: true => visible: false
+      return acc;
+    }, {} as Record<string, boolean>)
+  );
+
   return (
     <Grid
       item
@@ -456,6 +465,8 @@ const Table: React.FC<TableListProps> = (props) => {
         <StripedDataGrid
           rows={rowData}
           columns={columnsMetaData as any}
+          columnVisibilityModel={columnVisibilityModel}
+          onColumnVisibilityModelChange={(newModel) => setColumnVisibilityModel(newModel)}
           checkboxSelection={checkboxSelection} // Enable checkbox selection
           onRowSelectionModelChange={handleSelectionChange}
           getRowClassName={(params) =>

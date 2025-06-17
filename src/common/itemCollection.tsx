@@ -301,6 +301,39 @@ const ItemCollection: React.FC<params> = (props) => {
     };
   };
 
+  const allFields = Object.keys(new itemType());
+  
+    // Build a Set for quick lookup
+    const defaultFieldsSet = new Set(
+      columnMetaData.map((f:any) => f.columnName)
+    );
+  
+    // Step 1: Add default fields in order
+    const sortedFields = [
+      ...columnMetaData.map((field:any) => ({
+        columnName: field.columnName,
+        columnHeaderName: field.columnHeaderName,
+        width: field.width,
+        hidden: false, // default visible
+      })),
+    ];
+  
+    // Step 2: Add remaining fields (not in defaultVisibleFields)
+    allFields.forEach((field) => {
+      if (!defaultFieldsSet.has(field)) {
+        sortedFields.push({
+          columnName: field,
+          columnHeaderName: field
+            .replace(/([A-Z])/g, " $1")
+            .replace(/^./, (s: string) => s.toUpperCase()),
+          width: 200,
+          hidden: true, // initially hidden
+        });
+      }
+    });
+  
+  const updatedColumnMetaData = sortedFields;
+
   const tableListProps: any = {
     isNotListingPage: props.isNotListingPage,
     canProcessRowData: canProcessRowData,
@@ -318,7 +351,7 @@ const ItemCollection: React.FC<params> = (props) => {
     renderRightActions: renderRightActions,
     renderIndications: renderIndications,
     renderFooter: renderFooter,
-    columnMetaData: columnMetaData,
+    columnMetaData: updatedColumnMetaData,
     hiddenColumns: "",
     viewAddEditComponent: viewAddEditComponent,
     itemsBySubURL: itemsBySubURL,
