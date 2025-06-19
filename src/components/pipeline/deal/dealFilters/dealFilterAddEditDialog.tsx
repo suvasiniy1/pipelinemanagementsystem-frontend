@@ -1,37 +1,46 @@
-import React, { useEffect, useState } from "react";
-import { FormProvider, useForm, useFormContext } from "react-hook-form";
-import { AddEditDialog } from "../../../../common/addEditDialog";
 import { yupResolver } from "@hookform/resolvers/yup";
-import Util from "../../../../others/util";
-import * as Yup from "yup";
-import { toast } from "react-toastify";
-import { Rule, ConditionCSV, DealFilter } from "../../../../models/dealFilters";
 import RemoveCircleIcon from "@material-ui/icons/RemoveCircle";
-import { DealFiltersService } from "../../../../services/dealFiltersService";
-import { ErrorBoundary } from "react-error-boundary";
-import { DatePickerWithValidation } from "../../../../elements/datePicker";
+import React, { useEffect, useState } from "react";
 import Picker from "react-datepicker";
-import LocalStorageUtil from "../../../../others/LocalStorageUtil";
-import Constants from "../../../../others/constants";
+import { ErrorBoundary } from "react-error-boundary";
+import { FormProvider, useForm, useFormContext } from "react-hook-form";
+import { toast } from "react-toastify";
+import * as Yup from "yup";
+import { AddEditDialog } from "../../../../common/addEditDialog";
+import { ConditionCSV, DealFilter, Rule } from "../../../../models/dealFilters";
 import { DotdigitalCampagin } from "../../../../models/dotdigitalCampagin";
 import { JustcallCampagin } from "../../../../models/justcallCampagin";
-import { JustcallCampaignService } from "../../../../services/justCallCampaignService";
+import LocalStorageUtil from "../../../../others/LocalStorageUtil";
+import Constants from "../../../../others/constants";
+import Util from "../../../../others/util";
+import { DealFiltersService } from "../../../../services/dealFiltersService";
+
+const getOperators = (isValueType: false) => {
+  
+  return isValueType
+    ? operatorOptions.concat(operatorsForNumberType)
+    : operatorOptions;
+};
+
+const operatorsForNumberType = [
+  { label: "greater than", value: ">" },
+  { label: "less than", value: "<" },
+  { label: "greater than or equal to", value: ">=" },
+  { label: "less than or equal to", value: "<=" },
+];
 
 const operatorOptions = [
-  { label: "is empty", value: "IS NULL" },
-  { label: "is not empty", value: "IS NOT NULL" },
-  { label: "is", value: "=" },
-  { label: "is not", value: "!=" },
-  { label: "is later than", value: ">" },
-  { label: "is earlier than", value: "<" },
-  { label: "is exactly or later than", value: ">=" },
-  { label: "is exactly or earlier than", value: "<=" },
+  { label: "is empty (null)", value: "IS NULL" },
+  { label: "is not empty (not null)", value: "IS NOT NULL" },
+  { label: "equals", value: "=" },
+  { label: "does not equal", value: "!=" },
 ];
+
 
 const dealStatusList = [
   { value: "1", label: "Open" },
   { value: "2", label: "Won" },
-  { value: "3", label: "Lost" }, 
+  { value: "3", label: "Lost" },
   { value: "4", label: "Closed" },
   { value: "5", label: "Deleted" },
 ];
@@ -39,15 +48,15 @@ const dealStatusList = [
 const fieldOptions = [
   { value: "1", label: "Title" },
   { value: "2", label: "Creator" },
-  { value: "ContactPersonID", label: "Owner" },
-  { value: "4", label: "Value" },
-  { value: "6", label: "Probability" },
+  { value: "ContactPersonID", label: "Owner", isNumberType: true },
+  { value: "4", label: "Value", isNumberType: true },
+  { value: "6", label: "Probability", isNumberType: true },
   { value: "7", label: "Organization" },
   { value: "8", label: "Pipeline" },
-  { value: "AssigntoId", label: "Assign to" },
-  { value: "stageid", label: "Stage" },
+  { value: "AssigntoId", label: "Assign to", isNumberType: true },
+  { value: "stageid", label: "Stage", isNumberType: true },
   { value: "11", label: "Label" },
-  { value: "statusid", label: "Status" },
+  { value: "statusid", label: "Status", isNumberType: true },
   { value: "13", label: "Deal created" },
   { value: "14", label: "Update time" },
   { value: "15", label: "Last stage change" },
@@ -85,11 +94,11 @@ const filterTypeOptions = [
   { value: "activity", label: "Activity" },
 ];
 
-const filterTypes=[
+const filterTypes = [
   { value: "justCall", label: "JustCall" },
   { value: "dotDigital", label: "DotDigital" },
-  { value: "others", label: "Others" }
-]
+  { value: "others", label: "Others" },
+];
 
 // Condition schema
 const conditionSchema = Yup.object().shape({
@@ -171,15 +180,26 @@ const FilterCondition: React.FC<FilterConditionProps> = ({
   const attributeError = (errors[conditionType] as any)?.[index]?.field;
   const operatorError = (errors[conditionType] as any)?.[index]?.operator;
   const valueError = (errors[conditionType] as any)?.[index]?.value;
+  const [operatorsList, setOperatorsList] = useState<Array<any>>([]);
   interface Pipeline {
-    pipelineID: string; 
+    pipelineID: string;
     pipelineName: string;
   }
-  
+
   useEffect(() => {
+    
     setValue(`${conditionType}.${index}.object`, condition.object);
     setValue(`${conditionType}.${index}.field`, condition.field);
-    setValue(`${conditionType}.${index}.operator`, condition.operator);
+    setOperatorsList(
+      getOperators(
+        fieldOptions.find((i) => i.value == condition.field)
+          ?.isNumberType as any
+      )
+    );
+    setTimeout(() => {
+      setValue(`${conditionType}.${index}.operator`, condition.operator);
+    }, 10);
+
     setValue(`${conditionType}.${index}.value`, condition.value);
   }, [condition, setValue, index, conditionType]);
 
@@ -188,62 +208,67 @@ const FilterCondition: React.FC<FilterConditionProps> = ({
   useEffect(() => {
     setPipelines(getPipelines());
   }, []);
-  
+
   const getPipelines = (): Pipeline[] => {
-    const res = JSON.parse(localStorage.getItem("getAllPipeLinesAndStages") || "[]");
+    const res = JSON.parse(
+      localStorage.getItem("getAllPipeLinesAndStages") || "[]"
+    );
     return res.map((pipeline: any) => ({
-      pipelineID: pipeline.pipelineStages?.[0]?.pipelineID || "", 
+      pipelineID: pipeline.pipelineStages?.[0]?.pipelineID || "",
       pipelineName: pipeline.pipelineName || "Unknown Pipeline",
     }));
   };
-  
+
   const getAllPipeLinesAndStages = (): Array<{
     pipeLine: string;
     pipelineID: string | null;
     stages: Array<{ stageID: string; stageName: string }>;
   }> => {
     let list: Array<any> = [];
-    const res = JSON.parse(localStorage.getItem("getAllPipeLinesAndStages") || "[]");
+    const res = JSON.parse(
+      localStorage.getItem("getAllPipeLinesAndStages") || "[]"
+    );
     console.log("Raw pipelines with stages:", res); // Log raw data for debugging
-  
+
     res.forEach((pipeline: any) => {
       const obj = {
         pipeLine: pipeline.pipelineName || "Unknown Pipeline",
         pipelineID: pipeline.pipelineStages?.[0]?.pipelineID || null, // Extract pipelineID from the first stage
-        stages: (pipeline.pipelineStages || []).map((stage: { stageID: string; stageName: string }) => ({
-          stageID: stage.stageID || "Unknown Stage ID",
-          stageName: stage.stageName || "Unknown Stage Name",
-        })),
+        stages: (pipeline.pipelineStages || []).map(
+          (stage: { stageID: string; stageName: string }) => ({
+            stageID: stage.stageID || "Unknown Stage ID",
+            stageName: stage.stageName || "Unknown Stage Name",
+          })
+        ),
       };
       list.push(obj);
     });
-  
+
     return list;
   };
- 
 
   const valueJSX = (key: string) => {
     console.log("key is.... " + key);
     switch (key) {
       case "8": // Pipeline
-      return (
-        <select
-          className="form-control"
-          disabled={!getValues(`${conditionType}.${index}.field`)}
-          value={getValues(`${conditionType}.${index}.value`) || ""}
-          {...register(`${conditionType}.${index}.value`)}
-          onChange={(e) =>
-            setValue(`${conditionType}.${index}.value`, e.target.value)
-          }
-        >
-          <option value="">Select</option>
-          {pipelines.map((pipeline) => (
-            <option key={pipeline.pipelineID} value={pipeline.pipelineID}>
-              {pipeline.pipelineName}
-            </option>
-          ))}
-        </select>
-      );
+        return (
+          <select
+            className="form-control"
+            disabled={!getValues(`${conditionType}.${index}.field`)}
+            value={getValues(`${conditionType}.${index}.value`) || ""}
+            {...register(`${conditionType}.${index}.value`)}
+            onChange={(e) =>
+              setValue(`${conditionType}.${index}.value`, e.target.value)
+            }
+          >
+            <option value="">Select</option>
+            {pipelines.map((pipeline) => (
+              <option key={pipeline.pipelineID} value={pipeline.pipelineID}>
+                {pipeline.pipelineName}
+              </option>
+            ))}
+          </select>
+        );
       case "stageid":
         return (
           <select
@@ -267,7 +292,11 @@ const FilterCondition: React.FC<FilterConditionProps> = ({
                   {item.pipeLine}
                 </option>
                 {item.stages.map((stage: any) => (
-                  <option className="pl-4" key={stage.stageID} value={stage.stageID}>
+                  <option
+                    className="pl-4"
+                    key={stage.stageID}
+                    value={stage.stageID}
+                  >
                     &nbsp; &nbsp; {stage.stageName}
                   </option>
                 ))}
@@ -382,6 +411,12 @@ const FilterCondition: React.FC<FilterConditionProps> = ({
           {...register(`${conditionType}.${index}.field`)}
           disabled={!getValues(`${conditionType}.${index}.object`)}
           onChange={(e: any) => {
+            setOperatorsList(
+              getOperators(
+                fieldOptions.find((i) => i.value == e.target.value)
+                  ?.isNumberType as any
+              )
+            );
             setValue(`${conditionType}.${index}.operator`, null);
             setValue(`${conditionType}.${index}.value`, null);
             setValue(`${conditionType}.${index}.field`, e.target.value);
@@ -405,7 +440,7 @@ const FilterCondition: React.FC<FilterConditionProps> = ({
           {...register(`${conditionType}.${index}.operator`)}
         >
           <option value="">Select</option>
-          {operatorOptions.map((option) => (
+          {operatorsList.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
@@ -465,10 +500,18 @@ const DealFilterAddEditDialog = (props: params) => {
   const [selectedFilter, setSelectedFilter] = useState(
     props.selectedFilter ?? new DealFilter()
   );
-  const [isDotDigitalSelected, setIsDotDigitalSelected]=useState(false);
-  const [isJustCallSelected, setisJustCallSelected]=useState(false);
-  const dotDigitalCampaignList = JSON.parse(LocalStorageUtil.getItemObject(Constants.DOT_DIGITAL_CAMPAIGNSLIST) as any ?? []);
-  const justCallCampaignList = JSON.parse(LocalStorageUtil.getItemObject(Constants.JUST_CALL_CAMPAIGNSLIST) as any ?? []);
+  const [isDotDigitalSelected, setIsDotDigitalSelected] = useState(false);
+  const [isJustCallSelected, setisJustCallSelected] = useState(false);
+  const dotDigitalCampaignList = JSON.parse(
+    (LocalStorageUtil.getItemObject(
+      Constants.DOT_DIGITAL_CAMPAIGNSLIST
+    ) as any) ?? []
+  );
+  const justCallCampaignList = JSON.parse(
+    (LocalStorageUtil.getItemObject(
+      Constants.JUST_CALL_CAMPAIGNSLIST
+    ) as any) ?? []
+  );
 
   const [allConditions, setAllConditions] = useState<Condition[]>([
     { object: "", field: "", operator: "", value: null as any },
@@ -514,7 +557,7 @@ const DealFilterAddEditDialog = (props: params) => {
       obj.anyConditions = obj.conditions.find((i) => i.glue === "OR")
         ?.conditionList as any;
       setAnyConditions(obj.anyConditions ?? []);
-      onFilterTypeChange(selectedFilter.filterType)
+      onFilterTypeChange(selectedFilter.filterType);
     }
 
     if (dialogIsOpen) {
@@ -615,70 +658,80 @@ const DealFilterAddEditDialog = (props: params) => {
     });
   };
 
-  const buildConditionsArray = (glue: string, list: Array<any>, objList: Array<any>) => {
+  const buildConditionsArray = (
+    glue: string,
+    list: Array<any>,
+    objList: Array<any>
+  ) => {
     let condition = new Rule();
     condition.glue = glue;
     condition.conditionList = [];
-  
-    const pipelines = JSON.parse(localStorage.getItem("getAllPipeLinesAndStages") || "[]").map((pipeline: any) => ({
+
+    const pipelines = JSON.parse(
+      localStorage.getItem("getAllPipeLinesAndStages") || "[]"
+    ).map((pipeline: any) => ({
       pipelineID: pipeline.pipelineID || null,
       pipelineName: pipeline.pipelineName || "Unknown Pipeline",
     }));
-  
+
     list.forEach((ac, index) => {
       let objItem = objList[index];
       let conditionCSV = new ConditionCSV();
-  
+
       conditionCSV = { ...objItem };
       conditionCSV.extraValue = objItem.value; // Default extraValue
-  
-      if (objItem.field === "8") { // Check for Pipeline field
+
+      if (objItem.field === "8") {
+        // Check for Pipeline field
         console.log("Pipelines: ", pipelines);
         console.log("Pipeline value from objItem: ", objItem.value);
-  
+
         const pipeline = pipelines.find(
-          (p: any) => p.pipelineID === objItem.value || p.pipelineName === objItem.value
+          (p: any) =>
+            p.pipelineID === objItem.value || p.pipelineName === objItem.value
         );
-  
+
         if (pipeline) {
           console.log("Matched Pipeline: ", pipeline);
-          conditionCSV.value = pipeline.pipelineID; 
-          conditionCSV.extraValue = pipeline.pipelineName; 
+          conditionCSV.value = pipeline.pipelineID;
+          conditionCSV.extraValue = pipeline.pipelineName;
         } else {
           console.log("No matching pipeline found!");
           conditionCSV.value = objItem.value || "";
         }
       }
-  
+
       console.log("Condition CSV before pushing:", conditionCSV);
       condition.conditionList.push(conditionCSV);
     });
-  
+
     console.log("Final Condition Object:", condition);
     return condition;
   };
 
-  
-  const onFilterTypeChange=(type:any)=>{
+  const onFilterTypeChange = (type: any) => {
     setValue("filterAction", null as any);
-    setIsDotDigitalSelected(type==="dotDigital");
-    setisJustCallSelected(type==="justCall");
-   }
+    setIsDotDigitalSelected(type === "dotDigital");
+    setisJustCallSelected(type === "justCall");
+  };
 
-  const getDotDigitalProgramsList=()=>{
-   return dotDigitalCampaignList.map((item: DotdigitalCampagin) => ({
-      name: item.name,
-      value: item.id,
-    })) ?? []
-  }
-  const getJustCallCampaignList=()=>{
-    
-    return justCallCampaignList.map((item: JustcallCampagin) => ({
-       name: item.name,
-       value: item.id,
-     })) ?? []
-   }
- 
+  const getDotDigitalProgramsList = () => {
+    return (
+      dotDigitalCampaignList.map((item: DotdigitalCampagin) => ({
+        name: item.name,
+        value: item.id,
+      })) ?? []
+    );
+  };
+  const getJustCallCampaignList = () => {
+    return (
+      justCallCampaignList.map((item: JustcallCampagin) => ({
+        name: item.name,
+        value: item.id,
+      })) ?? []
+    );
+  };
+
   return (
     <FormProvider {...methods}>
       <AddEditDialog
@@ -866,14 +919,14 @@ const DealFilterAddEditDialog = (props: params) => {
                     className="form-control"
                     defaultValue={getValues("filterType")}
                     {...methods.register("filterType")}
-                    onChange={(e:any)=>onFilterTypeChange(e.target.value)}
+                    onChange={(e: any) => onFilterTypeChange(e.target.value)}
                   >
                     <option value="">Select</option>
-                    {
-                      filterTypes.map((item, index)=>(
-                        <option key={index} value={item.value}>{item.label}</option>
-                      ))
-                    }
+                    {filterTypes.map((item, index) => (
+                      <option key={index} value={item.value}>
+                        {item.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div className="col-2"></div>
@@ -884,28 +937,34 @@ const DealFilterAddEditDialog = (props: params) => {
                     defaultValue={getValues("filterAction")}
                     hidden={!isDotDigitalSelected}
                     {...methods.register("filterAction")}
-                    onChange={(e:any)=>setValue("filterAction", e.target.value)}
+                    onChange={(e: any) =>
+                      setValue("filterAction", e.target.value)
+                    }
                   >
                     <option value="">Select</option>
-                    {
-                      getDotDigitalProgramsList().map((item:any, index:any)=>(
-                        <option key={index} value={item.value}>{item.name}</option>
-                      ))
-                    }
+                    {getDotDigitalProgramsList().map(
+                      (item: any, index: any) => (
+                        <option key={index} value={item.value}>
+                          {item.name}
+                        </option>
+                      )
+                    )}
                   </select>
                   <select
                     className="form-control"
                     defaultValue={getValues("filterAction")}
                     hidden={!isJustCallSelected}
                     {...methods.register("filterAction")}
-                    onChange={(e:any)=>setValue("filterAction", e.target.value)}
+                    onChange={(e: any) =>
+                      setValue("filterAction", e.target.value)
+                    }
                   >
                     <option value="">Select</option>
-                    {
-                      getJustCallCampaignList().map((item:any, index:any)=>(
-                        <option key={index} value={item.value}>{item.name}</option>
-                      ))
-                    }
+                    {getJustCallCampaignList().map((item: any, index: any) => (
+                      <option key={index} value={item.value}>
+                        {item.name}
+                      </option>
+                    ))}
                   </select>
                   <input
                     className="form-control"
