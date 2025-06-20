@@ -23,10 +23,10 @@ const getOperators = (isValueType: false) => {
 };
 
 const operatorsForNumberType = [
-  { label: "greater than", value: ">" },
-  { label: "less than", value: "<" },
-  { label: "greater than or equal to", value: ">=" },
-  { label: "less than or equal to", value: "<=" },
+  { label: ">", value: ">" },
+  { label: "<", value: "<" },
+  { label: ">=", value: ">=" },
+  { label: "<=", value: "<=" },
 ];
 
 const operatorOptions = [
