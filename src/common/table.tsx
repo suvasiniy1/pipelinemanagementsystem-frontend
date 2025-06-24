@@ -201,12 +201,25 @@ const Table: React.FC<TableListProps> = (props) => {
 
   };
 
+  const isISODateString = (value: any): boolean => {
+    return (
+      typeof value === "string" &&
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[\+\-]\d{2}:\d{2})?$/.test(value)
+    );
+  };
+
   const processRowData = (rowData: Array<any>) => {
     rowData.forEach((r) => {
+      // Add modifiedBy using fallback logic
       r.modifiedBy = Util.getUserNameById(r.updatedBy ?? r.createdBy);
-      r.modifiedDate = moment(r.updatedDate ?? r.createdDate).format(
-        window.config.DateFormat
-      );
+  
+      // Loop through properties and format ISO date strings
+      Object.keys(r).forEach((key) => {
+        const value = r[key];
+        if (isISODateString(value)) {
+          r[key] = moment(value).format(window.config.DateFormat);
+        }
+      });
     });
     return rowData;
   };

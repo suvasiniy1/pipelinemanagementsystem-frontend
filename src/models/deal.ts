@@ -39,7 +39,7 @@ export class Deal extends AuditItem {
   openDealsCount?: number;
   ownerName!: string;
   callHistory: CallHistoryEntry[] = []; 
-  WonTime!:string;
+  wonTime!:string;
   newContact?: {
     personName: string; // This is required
     email?: string; // Required

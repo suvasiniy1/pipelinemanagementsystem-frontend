@@ -459,17 +459,43 @@ const DealListView = (props: Params) => {
           ? `£${item.value}`
           : "N/A"
         : "£0";
-    return {...item,
-      organization:getOrganizationName(item.organizationID),
-      contactPerson:getOrganizationName(item.contactPersonID)
+    return {
+      ...item,
+      organization: getOrganizationName(item.organizationID),
+      contactPerson: getOrganizationName(item.contactPersonID),
     };
   };
 
   const updateRowData = () => {
-    return dealsList.map((item, index) => ({
+    return processRowData(dealsList).map((item, index) => ({
       ...rowTransform(item),
       id: item.dealID || `deal-${index}`,
     }));
+  };
+
+  const isISODateString = (value: any): boolean => {
+    return (
+      typeof value === "string" &&
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[\+\-]\d{2}:\d{2})?$/.test(
+        value
+      )
+    );
+  };
+
+  const processRowData = (rowData: Array<any>) => {
+    rowData.forEach((r) => {
+      // Add modifiedBy using fallback logic
+      r.modifiedBy = Util.getUserNameById(r.updatedBy ?? r.createdBy);
+
+      // Loop through properties and format ISO date strings
+      Object.keys(r).forEach((key) => {
+        const value = r[key];
+        if (isISODateString(value)) {
+          r[key] = moment(value).format(window.config.DateFormat);
+        }
+      });
+    });
+    return rowData;
   };
 
   const customHeaderActions = () => {
@@ -537,7 +563,7 @@ const DealListView = (props: Params) => {
           color="primary"
           onClick={(e: any) => setOpenAddDealDialog(true)}
           style={{ marginLeft: "10px", marginRight: "10px" }}
-          sx={{ backgroundColor: 'primary.main', color: 'white' }}
+          sx={{ backgroundColor: "primary.main", color: "white" }}
         >
           + New Deal
         </Button>
@@ -578,113 +604,6 @@ const DealListView = (props: Params) => {
         </Button>
       </div>
       <div className="pdstage-area">
-        {/* <div className="container-fluid">
-          <div className="pdlist-row">
-            <div className="table-controls">
-              <Button
-                variant="contained"
-                onClick={(e: any) => setDrawerOpen(true)}
-                disabled={selectedRows.length > 0}
-                style={{ marginBottom: "16px" }}
-              >
-                Export
-              </Button>
-              <Button
-                variant="contained"
-                onClick={(e: any) => setDrawerOpen(true)}
-                disabled={selectedRows.length == 0}
-                style={{ marginBottom: "16px", marginLeft: "10px" }}
-              >
-                Send SMS
-              </Button>
-            </div>
-            <div className="pdlisttable-scroll">
-              <table className="pdlist-table">
-                <thead>
-                  <tr>
-                    <th>
-                      <Checkbox
-                        indeterminate={
-                          selectedRows.length > 0 &&
-                          selectedRows.length < dealsList.length
-                        }
-                        checked={
-                          selectedRows.length === dealsList.length &&
-                          dealsList.length > 0
-                        }
-                        onChange={toggleSelectAll}
-                      />
-                    </th>
-                    <th onClick={() => handleSort("stageName")}>Stage</th>
-                    <th onClick={() => handleSort("treatmentName")}>
-                      Treatment Name
-                    </th>
-                    <th onClick={() => handleSort("value")}>Value</th>
-                    <th>Organisation</th>
-                    <th onClick={() => handleSort("contactPersonName")}>
-                      Contact Person
-                    </th>
-                    <th>Expected Close Date</th>
-                    <th>Next Activity Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dealsList.length > 0 ? (
-                    dealsList.map((d) => (
-                      <tr key={d.dealID}>
-                        <td>
-                          <Checkbox
-                            checked={selectedRows.includes(d.dealID)}
-                            onChange={() => handleRowSelection(d.dealID)}
-                          />
-                        </td>
-                        <td>{d.stageName}</td>
-                        <td>{d.treatmentName || "N/A"}</td>
-                        <td>
-                          {userRole === 1
-                            ? d.value && !isNaN(Number(d.value))
-                              ? `£${d.value}`
-                              : "N/A"
-                            : "£0"}
-                        </td>
-                        <td>{getOrganizationName(d.organizationID)}</td>
-                        <td>{getContactPersonName(d.contactPersonID)}</td>
-                        <td>
-                          {d.expectedCloseDate
-                            ? new Date(d.expectedCloseDate).toLocaleDateString()
-                            : "N/A"}
-                        </td>
-                        <td>
-                          {d.operationDate
-                            ? new Date(d.operationDate).toLocaleDateString()
-                            : "N/A"}
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={8} style={{ textAlign: "center" }}>
-                        No deals found.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-            <div className="pagination">
-              <Button
-                disabled={currentPage === 1}
-                onClick={() => handlePageChange(currentPage - 1)}
-              >
-                Previous
-              </Button>
-              <Button onClick={() => handlePageChange(currentPage + 1)}>
-                Next
-              </Button>
-            </div>
-          </div>
-        </div> */}
-
         {error && <UnAuthorized error={error as any} />}
 
         <Drawer
