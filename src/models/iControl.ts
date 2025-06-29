@@ -44,6 +44,7 @@ export interface IControl {
   showDelete?: boolean | false;
   showEdit?:boolean | false;
   pipelineIds?:string;
+  pipelineId?: number; // ✅ ADD THIS LINE
   bindable?:string;
 }
 

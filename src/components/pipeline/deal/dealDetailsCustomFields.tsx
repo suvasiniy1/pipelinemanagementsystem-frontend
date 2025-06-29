@@ -18,6 +18,7 @@ import { ElementType, IControl } from "../../../models/iControl";
 interface Params {
   dealItem: Deal;
   setDealItem: (deal: Deal) => void;
+  originalCustomFields?: DealCustomFields[]; // ✅ Add this
 }
 
 type FormValues = {
@@ -50,17 +51,18 @@ const DealDetailsCustomFields = ({ dealItem }: Params) => {
     loadCustomFields();
   }, []);
 
-  const loadCustomFields = () => {
+const loadCustomFields = () => {
   setIsLoading(true);
 
-  customFieldsService.getCustomFields(dealItem.dealID, dealItem.pipelineID)
+  customFieldsService
+    .getCustomFields(dealItem.dealID, dealItem.pipelineID)
     .then((res: any) => {
       const fields: IControl[] = [];
       const selectedObj: FormValues = {};
       const dealPipelineIdStr = dealItem.pipelineID.toString();
 
       const filteredFields = res.customFields.filter((cf: DealCustomFields) => {
-        const ids = cf.pipelineIds?.split(",").map(p => p.trim()) ?? [];
+        const ids = cf.pipelineIds?.split(",").map((p) => p.trim()) ?? [];
 
         if (ids.length === 0 && cf.pipelineId) {
           return String(cf.pipelineId) === dealPipelineIdStr;
@@ -84,7 +86,11 @@ const DealDetailsCustomFields = ({ dealItem }: Params) => {
           isRequired: true,
           elementSize: 9,
           type: isDropdown ? ElementType.dropdown : ElementType.textbox,
-          pipelineIds: cf.pipelineIds ?? "",
+          pipelineIds: cf.pipelineIds
+            ? cf.pipelineIds
+            : cf.pipelineId
+            ? String(cf.pipelineId)
+            : "",
           options: [],
         };
 
@@ -96,6 +102,7 @@ const DealDetailsCustomFields = ({ dealItem }: Params) => {
           try {
             let rawOptions = cf.options;
 
+            // Attempt to parse deeply nested JSON strings
             while (typeof rawOptions === "string") {
               rawOptions = JSON.parse(rawOptions);
             }
@@ -107,7 +114,7 @@ const DealDetailsCustomFields = ({ dealItem }: Params) => {
             console.warn(`⚠️ Failed to parse options for '${cf.customField}'`, e);
           }
 
-          // ✅ Convert all dropdown options to IControl shape { key, value }
+          // Convert to { key, value } format
           const dropdownOptions = parsedOptions.map((opt: any) => {
             const key = typeof opt === "string" ? opt : opt.key ?? opt.name ?? opt.value;
             const value = typeof opt === "string" ? opt : opt.value ?? key;
@@ -116,21 +123,15 @@ const DealDetailsCustomFields = ({ dealItem }: Params) => {
 
           field.options = dropdownOptions;
 
-          const matched = dropdownOptions.find(opt =>
-            String(opt.value ?? "").toLowerCase() === String(cf.customFieldValue ?? "").toLowerCase()
+          const matched = dropdownOptions.find(
+            (opt) =>
+              String(opt.value ?? "").toLowerCase() ===
+              String(cf.customFieldValue ?? "").toLowerCase()
           );
 
           const selectedValue = matched?.value ?? "";
           selectedObj[valueKey] = selectedValue;
           setValue(valueKey, selectedValue);
-
-          console.log("Dropdown Match Debug", {
-            fieldKey: cf.customField,
-            customFieldValue: cf.customFieldValue,
-            dropdownOptions,
-            matched,
-            selectedValue,
-          });
         } else {
           const val = cf.customFieldValue ?? "";
           selectedObj[valueKey] = val;
@@ -156,8 +157,6 @@ const DealDetailsCustomFields = ({ dealItem }: Params) => {
       setIsLoading(false);
     });
 };
-
-
 
   const onChange = (value: any, item: any) => {
     const index = customFields.findIndex((f) => f.key === item.key);
@@ -300,6 +299,8 @@ const DealDetailsCustomFields = ({ dealItem }: Params) => {
           setDialogIsOpen={setDialogIsOpen}
           onFieldsSubmit={() => {}}
           refreshCustomFields={loadCustomFields}
+          originalCustomFields={originalCustomFields} 
+
         />
       )}
 

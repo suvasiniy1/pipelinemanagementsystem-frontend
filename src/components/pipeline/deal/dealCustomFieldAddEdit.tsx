@@ -4,7 +4,7 @@ import * as Yup from "yup";
 import { useEffect, useRef, useState } from "react";
 import { AddEditDialog } from "../../../common/addEditDialog";
 import GenerateElements from "../../../common/generateElements";
-import { ElementType, ElementTypeMap, IControl } from "../../../models/iControl";
+import { ElementType, IControl } from "../../../models/iControl";
 import Util from "../../../others/util";
 import { toast } from "react-toastify";
 import { PipeLine } from "../../../models/pipeline";
@@ -20,6 +20,8 @@ interface Params {
   selectedFieldIndex: number;
   onFieldsSubmit: (index: number) => void;
   refreshCustomFields: () => void;
+  originalCustomFields: DealCustomFields[]; // ✅ Add this line
+
 }
 
 const DealCustomFieldAddEdit = ({
@@ -30,6 +32,7 @@ const DealCustomFieldAddEdit = ({
   selectedFieldIndex,
   onFieldsSubmit,
   refreshCustomFields,
+  originalCustomFields, 
 }: Params) => {
   const [selectedItem, setSelectedItem] = useState<any>({});
   const allPipeLinesList: Array<PipeLine> = JSON.parse(localStorage.getItem("allPipeLines") || "[]");
@@ -41,6 +44,7 @@ const DealCustomFieldAddEdit = ({
   const customFieldsService = new CustomFieldService(ErrorBoundary);
   const hasSubmitted = useRef(false);
   const [isSaving, setIsSaving] = useState(false);
+
   const controlsList: Array<IControl> = [
     { key: "Field Name", value: "fieldName", isRequired: true, isControlInNewLine: true },
     { key: "Field Type", value: "fieldType", isRequired: true, type: ElementType.dropdown, isControlInNewLine: true },
@@ -50,90 +54,107 @@ const DealCustomFieldAddEdit = ({
   const schema = Yup.object().shape({
     fieldName: Yup.string().required("Field name is required"),
     fieldType: Yup.string().required("Field type is required"),
-    pipelineIds: Yup.array().of(Yup.string().required()).min(1, "At least one pipeline is required"),
+    pipelineIds: Yup.array().of(Yup.string()).min(1, "At least one pipeline is required"),
   });
 
   const methods = useForm({ resolver: yupResolver(schema) });
   const { handleSubmit, setValue } = methods;
 
   const onChange = (value: any, item: any) => {
-    if (item.key === "Field Type") setFieldType(value);
-    if (item.key === "PipeLine") {
-      const arrayVal = Array.isArray(value) ? value : typeof value === "string" ? value.split(",").map(v => v.trim()) : [];
-      setValue("pipelineIds" as never, arrayVal as never);
+  if (item.key === "Field Type") {
+    setFieldType(value);
+  }
+
+  if (item.key === "PipeLine") {
+    let idArray: string[] = [];
+
+    if (Array.isArray(value)) {
+      idArray = value.map((v: any) =>
+        typeof v === "object" ? String(v.value) : String(v)
+      );
+    } else if (typeof value === "string") {
+      idArray = value.split(",").map((v) => v.trim());
     }
-  };
+
+    setValue("pipelineIds" as never, idArray as never); // ✅ set array
+  }
+};
+
 
   const oncloseDialog = () => setDialogIsOpen(false);
 
   useEffect(() => {
   if (selectedFieldIndex >= 0) {
     const field = customFields[selectedFieldIndex];
+    let pipelineIdString = "";
 
-    // 🛠 Parse pipelineIds safely
-    const pipelineIds = Array.isArray(field.pipelineIds)
-      ? field.pipelineIds.map(String)
-      : typeof field.pipelineIds === "string"
-        ? field.pipelineIds.split(",").map(p => p.trim()).filter(Boolean)
-        : [];
+    if (typeof field.pipelineIds === "string") {
+      pipelineIdString = field.pipelineIds;
+    } else if (Array.isArray(field.pipelineIds)) {
+      pipelineIdString = (field.pipelineIds as string[]).join(",");
+    } else if (typeof field.pipelineIds === "number") {
+      pipelineIdString = String(field.pipelineIds);
+    } else if ("pipelineId" in field && field.pipelineId !== undefined) {
+      pipelineIdString = String((field as any).pipelineId);
+    }
 
-    // 🛠 Correct fieldType mapping
-    const elementTypeKey = Object.entries(ElementType)
-      .find(([key, val]) => val === field.type)?.[0] ?? "";
+    const pipelineIdArray = pipelineIdString
+      .split(",")
+      .map((p) => p.trim())
+      .filter(Boolean);
 
-    console.log("DEBUG selectedItem", {
-      fieldName: field.key,
-      fieldType: elementTypeKey,
-      pipelineIds,
-    });
+    const selectedList = pipelineIdArray
+      .map((id) => allPipeLinesList.find((p) => p.pipelineID === +id))
+      .filter(Boolean) as PipeLine[];
+
+    setSelectedPipeLines(selectedList);
+    setValue("pipelineIds" as never, pipelineIdArray as never); // ✅ set as array
+
+    const elementTypeKey =
+      Object.entries(ElementType).find(([, val]) => val === field.type)?.[0] ?? "";
 
     setSelectedItem({
       fieldName: field.key,
       fieldType: elementTypeKey,
-      pipelineIds,
+      pipelineIds: pipelineIdArray,
     });
 
     setValue("fieldName" as never, field.key as never);
     setValue("fieldType" as never, elementTypeKey as never);
-    setValue("pipelineIds" as never, pipelineIds as never);
     setFieldType(elementTypeKey);
 
-    // 🛠 Handle dropdown options
-    const dropdownOptions = (field.options || []).map(opt =>
+    const dropdownOptions = (field.options || []).map((opt) =>
       typeof opt === "string" ? opt : opt.key ?? opt.value
     );
     setOptionsList(dropdownOptions);
-
-    // 🛠 Populate selected pipelines
-    const selectedList = pipelineIds
-      .map(id => allPipeLinesList.find(p => p.pipelineID === +id))
-      .filter(Boolean) as PipeLine[];
-
-    setSelectedPipeLines(selectedList);
   } else {
-    // Reset form
     setSelectedItem({});
     setValue("fieldName" as never, "" as never);
     setValue("fieldType" as never, "" as never);
-    setValue("pipelineIds" as never, [] as never);
+    setValue("pipelineIds" as never, [] as never); // ✅ clear as array
     setOptionsList([]);
     setOptionInput("");
     setFieldType("");
     setSelectedPipeLines([]);
   }
 }, [selectedFieldIndex]);
-
-
+    
+      
   const onSubmit = async (item: any) => {
     if (isSaving) return;
     setIsSaving(true);
 
     try {
-      const pipelineIdsArray = item.pipelineIds ?? [];
-      const pipelineIds = pipelineIdsArray.join(",");
-      const updatedFields = [...customFields];
+      const pipelineIdsArray = typeof item.pipelineIds === "string"
+  ? item.pipelineIds.split(",").map((p: string) => p.trim()).filter(Boolean)
+  : Array.isArray(item.pipelineIds)
+  ? item.pipelineIds.map(String)
+  : [];
+       const updatedFields = [...customFields];
+      const isDuplicate = updatedFields.some(
+        (i, index) => i.key === item.fieldName && selectedFieldIndex !== index
+      );
 
-      const isDuplicate = updatedFields.some((i, index) => i.key === item.fieldName && selectedFieldIndex !== index);
       if (isDuplicate && selectedFieldIndex === -1) {
         toast.warn("Custom field with same Name already exists.");
         setIsSaving(false);
@@ -148,9 +169,11 @@ const DealCustomFieldAddEdit = ({
         showEdit: true,
         isRequired: true,
         elementSize: 9,
-        pipelineIds,
-       type: ElementType[fieldType as keyof typeof ElementType],
-        options: ["dropdown", "singleOption"].includes(fieldType.toLowerCase()) ? optionsList.map(opt => ({ key: opt, value: opt })) : undefined,
+        pipelineIds: pipelineIdsArray, // ✅ fixed here
+        type: ElementType[fieldType as keyof typeof ElementType],
+        options: ["dropdown", "singleOption"].includes(fieldType.toLowerCase())
+          ? optionsList.map((opt) => ({ key: opt, value: opt }))
+          : undefined,
       };
 
       if (selectedFieldIndex === -1) {
@@ -161,6 +184,7 @@ const DealCustomFieldAddEdit = ({
 
       setCustomFields([...updatedFields]);
       await saveCustomField(newField);
+
       toast.success(`Custom field ${selectedFieldIndex >= 0 ? "updated" : "added"} successfully ✅`);
       refreshCustomFields();
       setDialogIsOpen(false);
@@ -170,34 +194,43 @@ const DealCustomFieldAddEdit = ({
   };
 
   const saveCustomField = async (item: IControl) => {
-    const pipelineIdList = typeof item.pipelineIds === "string"
-      ? item.pipelineIds.split(",").map(p => p.trim()).filter(p => p)
-      : [];
+  const pipelineIdList = typeof item.pipelineIds === "string"
+    ? item.pipelineIds.split(",").map((p) => p.trim())
+    : Array.isArray(item.pipelineIds)
+    ? item.pipelineIds
+    : [];
 
-    const fullPipelineIds = pipelineIdList.join(",");
-    const isDropdown = ["singleoption", "dropdown"].includes((item.type || "").toLowerCase());
+  const fullPipelineIds = pipelineIdList.join(",");
 
-    const payload: DealCustomFields = {
-      customFieldId: item.id ?? 0,
-      dealID: 0,
-      customField: item.key,
-      customFieldType: item.type || "textbox",
-      customFieldValue: "",
-      customSelectValues: "",
-      options: isDropdown && optionsList.length ? JSON.stringify(optionsList.map(opt => ({ key: opt, value: opt }))) : undefined,
-      pipelineId: "0",
-      pipelineIds: fullPipelineIds,
-      createdBy: Util.UserProfile()?.userId,
-      updatedDate: new Date(),
-      userId: Util.UserProfile()?.userId,
-      createdDate: new Date(),
-      modifiedDate: new Date(),
-      modifiedBy: Util.UserProfile()?.userId,
-      updatedBy: Util.UserProfile()?.userId,
-    };
+  const isDropdown = ["singleoption", "dropdown"].includes((item.type || "").toLowerCase());
 
-    await customFieldsService.postItem(payload);
+  const matchingOriginal = originalCustomFields.find(f => f.customField === item.key);
+
+  const payload: DealCustomFields = {
+    customFieldId: item.id ?? matchingOriginal?.customFieldId ?? 0,
+    dealID: 0,
+    customField: item.key,
+    customFieldType: item.type || "textbox",
+    customFieldValue: "",
+    customSelectValues: "",
+    options: isDropdown && optionsList.length
+      ? JSON.stringify(optionsList.map((opt) => ({ key: opt, value: opt })))
+      : undefined,
+    pipelineId: Number(pipelineIdList[0]) || 0,
+    pipelineIds: fullPipelineIds,
+    createdBy: Util.UserProfile()?.userId,
+    updatedDate: new Date(),
+    userId: Util.UserProfile()?.userId,
+    createdDate: new Date(),
+    modifiedDate: new Date(),
+    modifiedBy: Util.UserProfile()?.userId,
+    updatedBy: Util.UserProfile()?.userId,
   };
+
+  await customFieldsService.postItem(payload);
+};
+
+
 
   const getDropdownValues = (item: any) => {
     if (item.key === "Field Type") {
@@ -210,11 +243,21 @@ const DealCustomFieldAddEdit = ({
         })
         .map(([key, value]) => ({ name: value, value: key }));
     }
-    if (item.key === "PipeLine") return allPipeLinesList.map(pl => ({ name: pl.pipelineName, value: pl.pipelineID }));
+    if (item.key === "PipeLine") {
+      return allPipeLinesList.map((pl) => ({ name: pl.pipelineName, value: pl.pipelineID }));
+    }
     return [];
   };
 
-  const getSelectedList = () => selectedPipeLines.map(pl => ({ name: pl.pipelineName, value: pl.pipelineID }));
+  const getSelectedList = (field?: any) => {
+  if (field?.key === "PipeLine") {
+    return selectedPipeLines.map((pl) => ({
+      name: pl.pipelineName,
+      value: pl.pipelineID,
+    }));
+  }
+  return [];
+};
 
   return (
     <FormProvider {...methods}>
@@ -279,8 +322,8 @@ const DealCustomFieldAddEdit = ({
                 onClick={() => {
                   const newOptions = optionInput
                     .split("\n")
-                    .map(opt => opt.trim())
-                    .filter(opt => opt && !optionsList.includes(opt));
+                    .map((opt) => opt.trim())
+                    .filter((opt) => opt && !optionsList.includes(opt));
                   if (newOptions.length > 0) {
                     setOptionsList([...optionsList, ...newOptions]);
                     setOptionInput("");
