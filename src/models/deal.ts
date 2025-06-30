@@ -161,7 +161,9 @@ export class DealCustomFields extends AuditItem {
   customFieldType!: string;
   customFieldValue!: string;
   customSelectValues!: string;
-  pipelineId!: string;
+  pipelineId!: number;
+  pipelineIds?: string; 
+  options?: string | Array<{ key: string; value: string }>; // <-- Add this line
 }
 
 export interface DealTimeLine {

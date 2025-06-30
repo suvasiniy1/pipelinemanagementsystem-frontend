@@ -1,4 +1,5 @@
 export interface IControl {
+   id?: number;
   key: string;
   value: string;
   type?: ElementType;
@@ -43,6 +44,7 @@ export interface IControl {
   showDelete?: boolean | false;
   showEdit?:boolean | false;
   pipelineIds?:string;
+  pipelineId?: number; // ✅ ADD THIS LINE
   bindable?:string;
 }
 
@@ -55,6 +57,7 @@ export enum ElementType {
   "textbox" = "Text Box",
   "textarea" = "Text Area",
   "dropdown" = "Dropdown",
+  "singleOption" = "Dropdown",
   "multiSelectDropdown" = "Multiselect Dropdown",
   "slider" = "Slider",
   "password" = "Password Field",

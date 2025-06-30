@@ -13,197 +13,218 @@ import { CustomDealFieldsService } from "../../../services/customDealFieldsServi
 import { ErrorBoundary } from "react-error-boundary";
 import { Spinner } from "react-bootstrap";
 import { DeleteDialog } from "../../../common/deleteDialog";
+import { ElementType, IControl } from "../../../models/iControl";
 
-type params = {
+interface Params {
   dealItem: Deal;
-  setDealItem: any;
+  setDealItem: (deal: Deal) => void;
+  originalCustomFields?: DealCustomFields[]; // ✅ Add this
+}
+
+type FormValues = {
+  [key: string]: string;
 };
-const DealDetailsCustomFields = (props: params) => {
-  const { dealItem, setDealItem, ...others } = props;
+
+const DealDetailsCustomFields = ({ dealItem }: Params) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [customFields, setCustomFields] = useState([]);
+  const [customFields, setCustomFields] = useState<IControl[]>([]);
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
-  const [selectedFieldIndex, setSelectedFieldIndex] = useState<any>(-1);
-  const [isCustomFieldModified, setIsCustomFieldModified]=useState(false);
-  const [originalCustomFields, setOriginalCustomFields] = useState<
-    Array<DealCustomFields>
-  >([]);
+  const [selectedFieldIndex, setSelectedFieldIndex] = useState<number>(-1);
+  const [originalCustomFields, setOriginalCustomFields] = useState<DealCustomFields[]>([]);
+  const [selectedItem, setSelectedItem] = useState<FormValues>({});
+
   const customFieldsService = new CustomDealFieldsService(ErrorBoundary);
-  const getValidationsSchema = (list: Array<any>) => {
-    return Yup.object().shape({
-      ...Util.buildValidations(list),
-    });
-  };
 
-  const [formOptions, setFormOptions] = useState({
-    resolver: yupResolver(getValidationsSchema(customFields)),
+  const methods = useForm<FormValues>({
+    resolver: yupResolver(Yup.object().shape(Util.buildValidations(customFields))),
   });
-  const methods = useForm(formOptions);
-  const {
-    handleSubmit,
-    unregister,
-    trigger,
-    clearErrors,
-    getValues,
-    setValue,
-    register,
-  } = methods;
 
-  const onChange = (value: any, item: any) => {
-    
-    let hasValueModified=false;
-    let index = customFields.findIndex((i:any)=>i.key===item.key);
-    setValue(("value" + index+1) as never, value as never);
-    originalCustomFields.forEach((originalItem, index) => {
-      if (hasValueModified) return;
-      hasValueModified =
-        originalItem.customSelectValues !=
-        getValues(("value" + index+1) as never);
-    });
-    setIsCustomFieldModified(originalCustomFields.length!=customFields.length || hasValueModified)
-  };
+  const { getValues, setValue, register } = methods;
 
-  const getSelectedList = (e: any) => {
-    return [];
-  };
-
-  useEffect(()=>{
-    if(!dialogIsOpen){
-      setSelectedFieldIndex(-1 as any);
-    }
-  }, [dialogIsOpen])
+  const getListofItemsForDropdown = (item: IControl) => {
+  const match = customFields.find(f => f.key === item.key);
+  return match?.options?.map(opt => ({ name: opt.key, value: opt.value })) ?? [];
+};
 
   useEffect(() => {
     loadCustomFields();
   }, []);
 
-  const loadCustomFields = () => {
-    setIsLoading(true);
-    customFieldsService
-      .getCustomFields(dealItem.dealID, dealItem.pipelineID)
-      .then((res: any) => {
-        let customFieldsList: Array<any> = [];
-        res.customFields.forEach((i: DealCustomFields) => {
-          setValue(
-            ("value" + (customFieldsList.length+1)) as never,
-            i.customFieldValue as never
-          );
-          let obj: any = {};
-          obj.key = i.customField;
-          obj.value = "value" + (customFieldsList.length+1);
-          obj.isControlInNewLine = obj.showDelete = obj.showEdit = obj.isRequired = true;
-          obj.pipelineId =i.pipelineId;
-          obj.elementSize = 9;
-          obj.type =
-            i.customFieldType == "textbox" ? null : i.customFieldType;
-          customFieldsList.push(obj);
-        });
-        setOriginalCustomFields(res.customFields);
-        setCustomFields([...customFieldsList] as any);
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        toast.error("Error retreving custom fields for selected Deal");
-        setIsLoading(false);
+const loadCustomFields = () => {
+  setIsLoading(true);
+
+  customFieldsService
+    .getCustomFields(dealItem.dealID, dealItem.pipelineID)
+    .then((res: any) => {
+      const fields: IControl[] = [];
+      const selectedObj: FormValues = {};
+      const dealPipelineIdStr = dealItem.pipelineID.toString();
+
+      const filteredFields = res.customFields.filter((cf: DealCustomFields) => {
+        const ids = cf.pipelineIds?.split(",").map((p) => p.trim()) ?? [];
+
+        if (ids.length === 0 && cf.pipelineId) {
+          return String(cf.pipelineId) === dealPipelineIdStr;
+        }
+
+        if (ids.length === 0) return true;
+
+        return ids.includes(dealPipelineIdStr);
       });
+
+      filteredFields.forEach((cf: DealCustomFields, index: number) => {
+        const valueKey = `value${index + 1}`;
+        const isDropdown = ["singleoption", "dropdown"].includes(cf.customFieldType?.toLowerCase?.() ?? "");
+
+        const field: IControl = {
+          key: cf.customField,
+          value: valueKey,
+          isControlInNewLine: true,
+          showDelete: true,
+          showEdit: true,
+          isRequired: true,
+          elementSize: 9,
+          type: isDropdown ? ElementType.dropdown : ElementType.textbox,
+          pipelineIds: cf.pipelineIds
+            ? cf.pipelineIds
+            : cf.pipelineId
+            ? String(cf.pipelineId)
+            : "",
+          options: [],
+        };
+
+        register(valueKey);
+
+        if (isDropdown) {
+          let parsedOptions: any[] = [];
+
+          try {
+            let rawOptions = cf.options;
+
+            // Attempt to parse deeply nested JSON strings
+            while (typeof rawOptions === "string") {
+              rawOptions = JSON.parse(rawOptions);
+            }
+
+            if (Array.isArray(rawOptions)) {
+              parsedOptions = rawOptions;
+            }
+          } catch (e) {
+            console.warn(`⚠️ Failed to parse options for '${cf.customField}'`, e);
+          }
+
+          // Convert to { key, value } format
+          const dropdownOptions = parsedOptions.map((opt: any) => {
+            const key = typeof opt === "string" ? opt : opt.key ?? opt.name ?? opt.value;
+            const value = typeof opt === "string" ? opt : opt.value ?? key;
+            return { key: String(key), value: String(value) };
+          });
+
+          field.options = dropdownOptions;
+
+          const matched = dropdownOptions.find(
+            (opt) =>
+              String(opt.value ?? "").toLowerCase() ===
+              String(cf.customFieldValue ?? "").toLowerCase()
+          );
+
+          const selectedValue = matched?.value ?? "";
+          selectedObj[valueKey] = selectedValue;
+          setValue(valueKey, selectedValue);
+        } else {
+          const val = cf.customFieldValue ?? "";
+          selectedObj[valueKey] = val;
+          setValue(valueKey, val);
+        }
+
+        fields.push(field);
+      });
+
+      console.log("✅ Deal pipeline ID:", dealPipelineIdStr);
+      console.log("✅ Raw customFields from API:", res.customFields);
+      console.log("✅ Filtered fields for current pipeline:", filteredFields);
+      console.log("✅ Fields ready to render:", fields);
+
+      setOriginalCustomFields(res.customFields);
+      setCustomFields(fields);
+      setSelectedItem(selectedObj);
+      setIsLoading(false);
+    })
+    .catch((err) => {
+      console.error("❌ Failed to load custom fields", err);
+      toast.error("Failed to load custom fields");
+      setIsLoading(false);
+    });
+};
+
+  const onChange = (value: any, item: any) => {
+    const index = customFields.findIndex((f) => f.key === item.key);
+    const valueKey = `value${index + 1}`;
+    setValue(valueKey, value);
+    setSelectedItem((prev) => ({ ...prev, [valueKey]: value }));
   };
 
-  useEffect(() => {
-    setFormOptions({
-      resolver: yupResolver(getValidationsSchema(customFields)),
-    });
-    setIsCustomFieldModified(originalCustomFields.length!=customFields.length);
-  }, [customFields.length]);
-
   const deleteCustomField = () => {
-    
     setShowDeleteDialog(false);
-    let controlsList = customFields;
-    let customField = customFields[selectedFieldIndex] as any;
-    let id = originalCustomFields.find((o) => o.customField === customField.key)
-      ?.customFieldId as any;
+    const field = customFields[selectedFieldIndex];
+    const id = originalCustomFields.find((o) => o.customField === field.key)?.customFieldId ?? 0;
+
     if (id > 0) {
-      customFieldsService
-        .delete(id)
-        .then((res) => {
-          if (res) {
-            setValue(
-              ("value" + (selectedFieldIndex + 1)) as never,
-             null as never
-            );
-            toast.success("Custom field deleted successfully");
-            clearErrors();
-            controlsList.splice(selectedFieldIndex, 1);
-            setCustomFields([...controlsList]);
-            loadCustomFields();
-          }
-        })
-        .catch((err) => {
-          toast.error("Unable to delete custom field");
-        });
+      customFieldsService.delete(id).then(() => {
+        toast.success("Custom field deleted");
+        const updatedFields = [...customFields];
+        updatedFields.splice(selectedFieldIndex, 1);
+        setCustomFields(updatedFields);
+        loadCustomFields();
+      }).catch(() => {
+        toast.error("Delete failed");
+      });
     } else {
-      controlsList.splice(selectedFieldIndex, 1);
-      setCustomFields([...controlsList]);
-      clearErrors();
+      const updatedFields = [...customFields];
+      updatedFields.splice(selectedFieldIndex, 1);
+      setCustomFields(updatedFields);
     }
   };
 
   const saveCustomFields = () => {
-    //trigger().then((valid) => {
-      //if (valid) {
-      
-        let customFieldsList: Array<DealCustomFields> = [];
-        customFields.forEach((field: any, index) => {
-          let obj = new DealCustomFields();
-          obj.customFieldId = field.id ?? originalCustomFields.find((o) => o.customField === field.key)
-            ?.customFieldId as any;
-          obj.dealID = dealItem.dealID;
-          obj.customField = field.key;
-          obj.customFieldType = field.type;
-          obj.customFieldValue = getValues(field.value as never);
-          obj.createdBy = Util.UserProfile()?.userId;
-          customFieldsList.push(obj);
-        });
-        console.log(customFieldsList);
-        setIsLoading(true);
-        customFieldsService
-          .postItemBySubURL(customFieldsList, "")
-          .then((res) => {
-            setIsLoading(false);
-            if (res) {
-              toast.success("Deal custom fields added/updated successfully");
-              loadCustomFields();
-            }
-          })
-          .catch((err) => {
-            toast.error("Unable to add custom field, please verify");
-            setIsLoading(false);
-          });
-      //}
-    //});
-    return null;
-  };
+  const fieldsToSave: DealCustomFields[] = customFields.map((field, index) => {
+    const cf = new DealCustomFields();
+    cf.customFieldId = field.id ?? originalCustomFields.find(o => o.customField === field.key)?.customFieldId ?? 0;
+    cf.dealID = dealItem.dealID;
+    cf.customField = field.key;
 
-  const hideDeleteDialog = () => {
-    setShowDeleteDialog(false);
-  };
+    const isDropdown = field.type === ElementType.dropdown || field.type?.toLowerCase?.() === "singleoption";
 
-  const canSave=(selectedFieldIndex:number)=>{
-    let hasValueModified=false;
-    originalCustomFields.forEach((originalItem, index)=>{
-      if(hasValueModified) return;
-      let currentItem = customFields[index] as any;
-      hasValueModified = (originalItem.customSelectValues !=currentItem.value) ||  originalItem.customFieldValue !=currentItem.customFieldValue
+    cf.customFieldType = isDropdown ? "singleOption" : "textbox";
+    cf.customFieldValue = getValues(field.value);
+    cf.createdBy = Util.UserProfile()?.userId;
+
+    if (isDropdown && Array.isArray(field.options)) {
+      cf.options = JSON.stringify(
+        field.options.map(opt =>
+          typeof opt === "string" ? { key: opt, value: opt } : opt
+        )
+      );
+    }
+
+    cf.pipelineIds = field.pipelineIds ?? "";
+
+    return cf;
+  });
+
+  setIsLoading(true);
+
+  customFieldsService.postItemBySubURL(fieldsToSave, "")
+    .then(() => {
+      toast.success("Custom fields saved successfully");
+      loadCustomFields();
     })
-    setIsCustomFieldModified(originalCustomFields.length!=customFields.length || hasValueModified);
-    setValue(
-      ("value" + (selectedFieldIndex+1)) as never,
-      null as never
-    );
-    register(("value" + (selectedFieldIndex+1)) as never);
-
-  }
+    .catch(() => {
+      toast.error("Failed to save custom fields");
+    })
+    .finally(() => setIsLoading(false));
+};
 
   return (
     <FormProvider {...methods}>
@@ -216,50 +237,50 @@ const DealDetailsCustomFields = (props: params) => {
           </button>
         </div>
       </div>
+
       {isLoading ? (
         <div className="alignCenter">
           <Spinner />
         </div>
       ) : (
         <>
-          <div hidden={customFields.length == 0}>
-            {
-              <GenerateElements
-                controlsList={customFields}
-                selectedItem={new DealCustomFields()}
-                onChange={(value: any, item: any) => onChange(value, item)}
-                getSelectedList={(e: any) => getSelectedList(e)}
-                onElementDelete={(e: any) => {
-                  setSelectedFieldIndex(e);
-                  setShowDeleteDialog(true);
-                }}
-                onElementEdit={(e: any) => {
-                  setSelectedFieldIndex(e);
-                  setDialogIsOpen(true);
-                }}
-              />
-            }
-          </div>
+          {customFields.length > 0 && (
+            <GenerateElements
+              controlsList={customFields}
+              selectedItem={selectedItem}
+              onChange={onChange}
+              getSelectedList={() => []}
+              getListofItemsForDropdown={getListofItemsForDropdown}
+              onElementDelete={(index: number) => {
+                setSelectedFieldIndex(index);
+                setShowDeleteDialog(true);
+              }}
+              onElementEdit={(index: number) => {
+                setSelectedFieldIndex(index);
+                setDialogIsOpen(true);
+              }}
+            />
+          )}
 
           <div>
-            <div hidden={customFields.length > 0}>
-              <p>Add custom fields to include more details about the deal.</p>
-            </div>
-
+            {customFields.length === 0 && <p>Add custom fields to include more deal information.</p>}
             <div className="d-flex">
               <div className="col-sm-10 pt-4">
-                <button
-                  className="btn btn-secondary btn-sm"
-                  onClick={(e: any) => setDialogIsOpen(true)}
-                >
-                  + Custom Field
-                </button>
+               <button
+  className="btn btn-secondary btn-sm"
+  onClick={() => {
+    setSelectedFieldIndex(-1);  // <== Ensure it's reset for 'Add'
+    setDialogIsOpen(true);
+  }}
+>
+  + Custom Field
+</button>
               </div>
               <div className="col-sm-2 pt-4">
                 <button
-                  disabled={customFields.length == 0}
+                  disabled={customFields.length === 0}
                   className="btn btn-primary btn-sm"
-                  onClick={(e: any) => saveCustomFields()}
+                  onClick={saveCustomFields}
                 >
                   Save
                 </button>
@@ -276,19 +297,22 @@ const DealDetailsCustomFields = (props: params) => {
           setCustomFields={setCustomFields}
           dialogIsOpen={dialogIsOpen}
           setDialogIsOpen={setDialogIsOpen}
-          onFieldsSubmit={(e:any)=>canSave(e)}
+          onFieldsSubmit={() => {}}
+          refreshCustomFields={loadCustomFields}
+          originalCustomFields={originalCustomFields} 
+
         />
       )}
 
       {showDeleteDialog && (
         <DeleteDialog
-          itemType={"Custom Field"}
-          itemName={"Custom Field"}
+          itemType="Custom Field"
+          itemName="Custom Field"
           dialogIsOpen={showDeleteDialog}
-          closeDialog={hideDeleteDialog}
+          closeDialog={() => setShowDeleteDialog(false)}
           onConfirm={deleteCustomField}
           isPromptOnly={false}
-          actionType={"Delete"}
+          actionType="Delete"
         />
       )}
     </FormProvider>
