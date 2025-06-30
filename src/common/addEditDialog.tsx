@@ -20,6 +20,8 @@ type Props = {
   isFullscreen?: boolean;
   showSaveButton?: boolean;
   canClose?: boolean;
+  hideBody?:boolean;
+  position?:string;
 };
 
 export const AddEditDialog: React.FC<Props> = (props) => {
@@ -38,6 +40,8 @@ export const AddEditDialog: React.FC<Props> = (props) => {
     customFooter,
     onFormChange,
     disabled,
+    hideBody,
+    position,
     showSaveButton = true,
     ...rest
   } = props;
@@ -58,7 +62,7 @@ export const AddEditDialog: React.FC<Props> = (props) => {
   return (
     <div>
       <Modal
-        className="modalpopup modalpopupadddeal"
+        className={`modalpopup modalpopupadddeal ${position === "top" ? "modal-top" : ""}`}
         animation={false}
         show={dialogIsOpen}
         onHide={closeDialog}
@@ -67,7 +71,7 @@ export const AddEditDialog: React.FC<Props> = (props) => {
         fullscreen={fullScreen}
         backdrop="static"
         keyboard={false} // this was added to disable click outside of Modal window
-        centered
+        centered={position !== "top"} // only center if not top
       >
         {!canClose && !Util.isNullOrUndefinedOrEmpty(canClose)? (
           <Modal.Header className="modalhead">
@@ -82,7 +86,7 @@ export const AddEditDialog: React.FC<Props> = (props) => {
             </Modal.Title>
           </Modal.Header>
         )}
-        <Modal.Body className="modalbody">
+        <Modal.Body className="modalbody" hidden={hideBody}>
           <form
             className="DialogForm"
             id="AddEditForm"

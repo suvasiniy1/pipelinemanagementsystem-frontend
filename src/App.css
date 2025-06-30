@@ -3624,3 +3624,10 @@ select {
 .modalpopupadddeal {
   z-index: 9999 !important;
 }
+
+.modal-top .modal-dialog {
+  margin: 1rem auto !important;
+  top: -20px;
+  position: relative;
+  transform: none !important;
+}

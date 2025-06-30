@@ -51,6 +51,8 @@ type params = {
   setSelectedFilterObj:any;
   setSelectedUserId:any;
   selectedUserId:any;
+  dealFilterDialogIsOpen:any;
+  setDealFilterDialogIsOpen:any;
 };
 export const DealHeader = (props: params) => {
   const navigate = useNavigate();
@@ -68,6 +70,8 @@ export const DealHeader = (props: params) => {
     setSelectedFilterObj,
     setSelectedUserId,
     selectedUserId,
+    dealFilterDialogIsOpen,
+    setDealFilterDialogIsOpen,
     ...others
   } = props;
   const [pipeLinesList, setPipeLinesList] = useState(props.pipeLinesList);
@@ -92,6 +96,10 @@ export const DealHeader = (props: params) => {
     setDialogIsOpen(false);
     props.onDealDialogClose();
   };
+
+  useEffect(()=>{
+    setShowPipeLineFilters(false);
+  },[])
 
   const addorUpdateStage = () => {
     return (
@@ -132,6 +140,7 @@ export const DealHeader = (props: params) => {
       else l.canEdit = false;
     });
     setPipeLinesList([...list]);
+    setShowPipeLineFilters(false); 
   };
 
   const pipeLinesJSX = () => {
@@ -217,7 +226,10 @@ export const DealHeader = (props: params) => {
         <div className="container-fluid">
           <div className="row toolbarview-row">
             <div className="col-sm-5 toolbarview-actions">
-              <div className="toolbarview-filtersrow" hidden={selectedViewType!="kanban"}>
+              <div
+                className="toolbarview-filtersrow"
+                hidden={selectedViewType != "kanban"}
+              >
                 <div className="pipeselectbtngroup">
                   <div
                     className="pipeselectbox variantselectbox"
@@ -249,7 +261,11 @@ export const DealHeader = (props: params) => {
                   >
                     <button className="pipeselect" type="button">
                       <FontAwesomeIcon icon={faChartSimple} />{" "}
-                      <span>{selectedFilterObj?.name ?? users?.find(u=>u.id===selectedUserId)?.name ?? "Select"} </span>
+                      <span>
+                        {selectedFilterObj?.name ??
+                          users?.find((u) => u.id === selectedUserId)?.name ??
+                          "Select"}{" "}
+                      </span>
                     </button>
                     <div
                       className="pipeselectcontent pipeselectfilter"
@@ -310,6 +326,8 @@ export const DealHeader = (props: params) => {
                             setShowPipeLineFilters={setShowPipeLineFilters}
                             selectedFilterObj={selectedFilterObj}
                             setSelectedFilterObj={setSelectedFilterObj}
+                            setDialogIsOpen={setDealFilterDialogIsOpen}
+                            dialogIsOpen={dealFilterDialogIsOpen}
                           />
                         </div>
                         <div
@@ -328,7 +346,9 @@ export const DealHeader = (props: params) => {
                                       <div
                                         className="filterownerli-row"
                                         key={index}
-                                        onClick={(e:any)=>onPersonSelection(item.name)}
+                                        onClick={(e: any) =>
+                                          onPersonSelection(item.name)
+                                        }
                                       >
                                         <AccountCircleIcon className="userCircleIcon" />
                                         <span>{item.name}</span>
@@ -336,7 +356,10 @@ export const DealHeader = (props: params) => {
                                           {/* <a className="filterowner-star">
                                             <StarIcon />
                                           </a> */}
-                                          <a className="filterowner-tick" hidden={!item.isSelected}>
+                                          <a
+                                            className="filterowner-tick"
+                                            hidden={!item.isSelected}
+                                          >
                                             <DoneIcon />
                                           </a>
                                         </div>
@@ -356,7 +379,10 @@ export const DealHeader = (props: params) => {
                     <a
                       className="btn"
                       href="javascript:void(0);"
-                      onClick={(e: any) => {setSelectedUserId(null); setSelectedFilterObj(null)}}
+                      onClick={(e: any) => {
+                        setSelectedUserId(null);
+                        setSelectedFilterObj(null);
+                      }}
                     >
                       <FilterAltOffIcon />
                     </a>
@@ -382,12 +408,18 @@ export const DealHeader = (props: params) => {
                     </Dropdown.Toggle>
                     <Dropdown.Menu className="toolgrip-dropdown">
                       <Dropdown.Item
-                        onClick={(e: any) => {setSelectedViewType("list"); props.setViewType("list")}}
+                        onClick={(e: any) => {
+                          setSelectedViewType("list");
+                          props.setViewType("list");
+                        }}
                       >
                         List View
                       </Dropdown.Item>
                       <Dropdown.Item
-                        onClick={(e: any) => {setSelectedViewType("kanban"); props.setViewType("kanban")}}
+                        onClick={(e: any) => {
+                          setSelectedViewType("kanban");
+                          props.setViewType("kanban");
+                        }}
                       >
                         Kanban View
                       </Dropdown.Item>

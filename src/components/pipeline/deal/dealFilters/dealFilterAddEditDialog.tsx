@@ -480,6 +480,7 @@ type params = {
   selectedStageId?: any;
   selectedFilter: DealFilter;
   setSelectedFilter: any;
+  onPreview:any;
 };
 
 // Main FilterEditor Component
@@ -500,8 +501,10 @@ const DealFilterAddEditDialog = (props: params) => {
   const [selectedFilter, setSelectedFilter] = useState(
     props.selectedFilter ?? new DealFilter()
   );
+  const [showPreview, setShowPreview]=useState(selectedFilter.isPreview ?? false);
   const [isDotDigitalSelected, setIsDotDigitalSelected] = useState(false);
   const [isJustCallSelected, setisJustCallSelected] = useState(false);
+  const [previewResponse, setPreviewResponse]=useState<any>();
   const dotDigitalCampaignList = JSON.parse(
     (LocalStorageUtil.getItemObject(
       Constants.DOT_DIGITAL_CAMPAIGNSLIST
@@ -600,6 +603,7 @@ const DealFilterAddEditDialog = (props: params) => {
   const oncloseDialog = () => {
     setDialogIsOpen(false);
     setSelectedFilter(new DealFilter());
+    props.setSelectedFilter(null);
   };
 
   useEffect(() => {
@@ -624,14 +628,21 @@ const DealFilterAddEditDialog = (props: params) => {
     // let dealFilter = { ...obj, isPublic: obj.visibility === "Public" };
     // filtersList.push(dealFilter);
     // localStorage.setItem("dealFilters", JSON.stringify(filtersList));
+    continueToSave(obj);
+  };
+
+
+  const continueToSave=(obj: any, isPreview:boolean=false)=>{
     let dealFilter = new DealFilter();
-    dealFilter.id = selectedFilter.id;
+    let actulFilterId = (!selectedFilter.isPreview && !isPreview) ? selectedFilter.id : 0 ;
+    dealFilter.id = selectedFilter.isPreview ? selectedFilter.id ?? 0 : selectedFilter.actulFilterId ?? 0;
     dealFilter.isPublic = obj.visibility === "Public";
+    dealFilter.isPreview = isPreview;
     dealFilter.createdBy = Util.UserProfile()?.userId;
     dealFilter.modifiedBy = Util.UserProfile()?.userId;
     dealFilter.createdDate = new Date();
     dealFilter.conditions = [];
-    dealFilter.name = obj.name;
+    dealFilter.name = isPreview ? obj.name + "_clone" : obj.name;
     dealFilter.filterType = obj.filterType;
     dealFilter.filterAction = obj.filterAction ?? "N/A";
 
@@ -647,7 +658,13 @@ const DealFilterAddEditDialog = (props: params) => {
     }
 
     dealFiltersSvc.saveDealFilters(dealFilter).then((res) => {
-      if (res) {
+      
+      if(res?.result){
+        setSelectedFilter({...res.result, actulFilterId:actulFilterId});
+        props.setSelectedFilter({...res.result, actulFilterId:actulFilterId});
+      }
+
+      if (res?.result && !isPreview) {
         toast.success(
           `Deal filter ${
             selectedFilter.id > 0 ? " updated " : " created "
@@ -656,7 +673,7 @@ const DealFilterAddEditDialog = (props: params) => {
         props.onSaveChanges();
       }
     });
-  };
+  }
 
   const buildConditionsArray = (
     glue: string,
@@ -732,6 +749,51 @@ const DealFilterAddEditDialog = (props: params) => {
     );
   };
 
+  const handlePreview=(item:any)=>{
+    setShowPreview(true);
+    continueToSave(item, true);
+    props.onPreview();
+  }
+
+  const customFooter = () => {
+    return (
+      <>
+        <div className="modalfootbar">
+          <button
+            className="btn btn-secondary btn-sm me-2"
+            onClick={(e:any)=>{setDialogIsOpen(false); props.setSelectedFilter(null)}}
+            id="closeDialog"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSubmit(handlePreview)}
+            className="btn btn-success btn-sm me-2"
+            id="closeDialog"
+            hidden={showPreview}
+          >
+            Preview
+          </button>
+          <button
+            onClick={(e:any)=>setShowPreview(false)}
+            className="btn btn-success btn-sm me-2"
+            id="closeDialog"
+            hidden={!showPreview}
+          >
+            ContinueEditing
+          </button>
+          <button
+            onClick={handleSubmit(onSubmit)}
+            className="btn btn-primary btn-sm me-2"
+            id="closeDialog"
+          >
+            Save
+          </button>
+        </div>
+      </>
+    );
+  };
+
   return (
     <FormProvider {...methods}>
       <AddEditDialog
@@ -740,11 +802,13 @@ const DealFilterAddEditDialog = (props: params) => {
         dialogSize={"xl"}
         closeDialog={oncloseDialog}
         onClose={oncloseDialog}
-        onSave={handleSubmit(onSubmit)}
+        customFooter={customFooter()}
+        hideBody={showPreview}
+        position={showPreview ? "top" : ""}
       >
         {
           <>
-            <div className="filter-editor">
+            <div className="filter-editor" hidden={showPreview}>
               {/* ALL conditions section */}
               <h6 className="pb-2">
                 Show deals that match ALL of these conditions:

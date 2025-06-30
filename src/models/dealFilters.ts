@@ -12,6 +12,8 @@ export class DealFilter extends AuditItem {
     allConditions:Array<any>=[];
     anyConditions:Array<any>=[];
     isSelected!:boolean;
+    isPreview!:boolean;
+    actulFilterId!:number;
   }
   
   export class Rule {

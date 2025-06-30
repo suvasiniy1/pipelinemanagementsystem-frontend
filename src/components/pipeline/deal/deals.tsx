@@ -80,6 +80,8 @@ export const Deals = (props: params) => {
       : null
   );
   const [selectedUserId, setSelectedUserId] = useState<any>();
+  const [dealFilterDialogIsOpen, setDealFilterDialogIsOpen] = useState((selectedFilterObj as DealFilter)?.isPreview ?? false);
+  
   // useEffect(() => {
   //
   //     if(+pipeLineId>0) loadStages(pipeLineId);
@@ -293,6 +295,7 @@ export const Deals = (props: params) => {
         )
     )
       .then((res) => {
+        setIsLoading(false);
         let sortedStages = Util.sortList(res.stages, "stageOrder");
         let totalDealsList: Array<Deal> = [];
         sortedStages.forEach((s: Stage) => {
@@ -300,15 +303,14 @@ export const Deals = (props: params) => {
             totalDealsList.push(d);
           });
         });
-
         setTotalDeals([...totalDealsList]);
         setStages(sortedStages);
         setOriginalStages(sortedStages);
-        setIsLoading(false);
         setIsLoadingMore(false);
       })
       .catch((err) => {
         setCustomError("No deals under selected combination" as any);
+        // toast.warn("No deals under selected combination" );
         setTotalDeals([]);
         setStages([]);
         setOriginalStages([]);
@@ -318,10 +320,14 @@ export const Deals = (props: params) => {
   };
 
   useEffect(() => {
+    
     LocalStorageUtil.setItem(Constants.FILTER_ID, selectedFilterObj?.id);
     if (selectedFilterObj?.id > 0 || selectedUserId > 0) {
       if (selectedFilterObj?.id > 0) {
         setSelectedUserId(null as any);
+      }
+      if((selectedFilterObj as DealFilter).isPreview){
+        setDealFilterDialogIsOpen(true);
       }
       loadDealsByFilter();
     }
@@ -351,6 +357,8 @@ export const Deals = (props: params) => {
                 setSelectedFilterObj={setSelectedFilterObj}
                 selectedUserId={selectedUserId}
                 setSelectedUserId={setSelectedUserId}
+                setDealFilterDialogIsOpen={setDealFilterDialogIsOpen}
+                dealFilterDialogIsOpen={dealFilterDialogIsOpen}
               />
             ) : null}
             {viewType === "kanban" ? (

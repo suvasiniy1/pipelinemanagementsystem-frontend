@@ -19,10 +19,12 @@ import Constants from "../../../../../others/constants";
 import DoneIcon from "@mui/icons-material/Done";
 
 type params = {
-  showPipeLineFilters: any;
-  setShowPipeLineFilters: any;
+  showPipeLineFilters?: any;
+  setShowPipeLineFilters?: any;
   selectedFilterObj: any;
   setSelectedFilterObj: any;
+  dialogIsOpen:any;
+  setDialogIsOpen:any;
 };
 
 const FilterDropdown = (props: params) => {
@@ -31,13 +33,14 @@ const FilterDropdown = (props: params) => {
     setShowPipeLineFilters,
     selectedFilterObj,
     setSelectedFilterObj,
+    dialogIsOpen,
+    setDialogIsOpen,
     ...others
   } = props;
   const [selectedFilter, setSelectedFilter] = useState<DealFilter>(
-    new DealFilter()
+    props.selectedFilterObj ?? new DealFilter()
   );
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [dialogIsOpen, setDialogIsOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const dealFiltersSvc = new DealFiltersService(ErrorBoundary);
@@ -64,12 +67,15 @@ const FilterDropdown = (props: params) => {
   useEffect(() => {
     if (!dialogIsOpen) {
       setSelectedFilter(new DealFilter());
+      setShowPipeLineFilters(false); 
     }
   }, [dialogIsOpen]);
 
-  useEffect(()=>{
-    if(selectedFilterObj?.id>0){onFilterSelection(selectedFilterObj)}
-  },[selectedFilterObj])
+  useEffect(() => {
+    if (selectedFilterObj?.id > 0) {
+      onFilterSelection(selectedFilterObj);
+    }
+  }, [selectedFilterObj]);
 
   useEffect(() => {
     loadDealFilters();
@@ -83,7 +89,7 @@ const FilterDropdown = (props: params) => {
       .then((res) => {
         if (res) {
           setFilters(res);
-          if(selectedFilterObj) onFilterSelection(selectedFilterObj);
+          if (selectedFilterObj) onFilterSelection(selectedFilterObj);
           LocalStorageUtil.setItemObject(
             Constants.Deal_FILTERS,
             JSON.stringify(res)
@@ -117,8 +123,7 @@ const FilterDropdown = (props: params) => {
       });
   };
 
-  const onFilterSelection=(item:DealFilter)=>{
-    
+  const onFilterSelection = (item: DealFilter) => {
     setFilters((prevFilters) =>
       prevFilters.map((filter) =>
         filter.id === item.id
@@ -126,7 +131,9 @@ const FilterDropdown = (props: params) => {
           : { ...filter, isSelected: false }
       )
     );
-  }
+
+    setShowPipeLineFilters(false);
+  };
 
   return isLoading ? (
     <div className="alignCenter">
@@ -134,22 +141,22 @@ const FilterDropdown = (props: params) => {
     </div>
   ) : (
     <>
+      {/* Wrap only the dropdown content */}
       <OutsideClickHandler
         onOutsideClick={(event: any) => {
           event?.stopPropagation();
           setShowPipeLineFilters(false);
         }}
       >
-        <div className="pipeselectcontentinner">
-          <div className="pipeselectpadlr">
-            <ul
-              className="pipeselectlist"
-              // onMouseLeave={(e: any) => handlePipeLineEdit()}
-            >
-              {filters?.map((item, index) => (
-                <>
+        {showPipeLineFilters && ( // optional double-check
+          <div className="pipeselectcontentinner">
+            <div className="pipeselectpadlr">
+              <ul className="pipeselectlist">
+                {filters?.map((item, index) => (
                   <li key={index}>
-                    <a hidden={item.isSelected}>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+                    <a hidden={item.isSelected}>
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </a>
                     <a className="filterowner-tick" hidden={!item.isSelected}>
                       <DoneIcon />
                     </a>
@@ -161,14 +168,16 @@ const FilterDropdown = (props: params) => {
                       }}
                       type="button"
                     >
-                      {item.name}{" "}
+                      {item.name}
                     </button>
                     <div className="pipeselect-btns">
                       <span
                         className="pl-4"
                         onClick={(e: any) => {
+                          e.stopPropagation(); // VERY important
                           setDialogIsOpen(true);
                           setSelectedFilter(item);
+                          setShowPipeLineFilters(false); // also optional here
                         }}
                         style={{ paddingLeft: 10, paddingRight: 10 }}
                       >
@@ -177,46 +186,55 @@ const FilterDropdown = (props: params) => {
                       <span
                         className="pl-4"
                         onClick={(e: any) => {
+                          e.stopPropagation(); // VERY important
                           setSelectedFilter(item);
                           setShowDeleteDialog(true);
+                          setShowPipeLineFilters(false);
                         }}
                       >
                         <FontAwesomeIcon icon={faDeleteLeft} />
                       </span>
                     </div>
-                    {/* <span className="pipeselect-editlink" hidden={!item.canEdit}>
-                <FontAwesomeIcon icon={faPencil} />
-              </span> */}
                   </li>
-                </>
-              ))}
-            </ul>
+                ))}
+              </ul>
+            </div>
+            <div className="add-new-filter">
+              <button
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  setDialogIsOpen(true);
+                  setShowPipeLineFilters(false);
+                }}
+              >
+                Add new filter
+              </button>
+            </div>
           </div>
-          <div className="add-new-filter">
-            <button onClick={(e: React.MouseEvent) => setDialogIsOpen(true)}>
-              Add new filter
-            </button>
-          </div>
-        </div>
+        )}
       </OutsideClickHandler>
+
+      {/* Modals should live outside to avoid re-opening */}
       {dialogIsOpen && (
         <DealFilterAddEditDialog
           dialogIsOpen={dialogIsOpen}
           setDialogIsOpen={setDialogIsOpen}
+          onPreview={(e:any)=>setShowPipeLineFilters(false)}
           onSaveChanges={(e: any) => {
             loadDealFilters();
             setDialogIsOpen(false);
           }}
           selectedFilter={selectedFilter as any}
-          setSelectedFilter={setSelectedFilter}
+          setSelectedFilter={setSelectedFilterObj}
         />
       )}
+
       {showDeleteDialog && (
         <DeleteDialog
           itemType={"Deal Filter"}
           itemName={"Deal Filter"}
           dialogIsOpen={showDeleteDialog}
-          closeDialog={hideDeleteDialog}
+          closeDialog={() => setShowDeleteDialog(false)}
           onConfirm={onDeleteConfirm}
           isPromptOnly={false}
           actionType={"Delete"}
