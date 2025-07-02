@@ -16,26 +16,43 @@ import Util from "../../../../others/util";
 import { DealFiltersService } from "../../../../services/dealFiltersService";
 
 const getOperators = (isValueType: false) => {
-  
   return isValueType
     ? operatorOptions.concat(operatorsForNumberType)
     : operatorOptions;
 };
 
 const operatorsForNumberType = [
-  { label: ">", value: ">" },
-  { label: "<", value: "<" },
-  { label: ">=", value: ">=" },
-  { label: "<=", value: "<=" },
+  { label: "Greater than", value: ">" },
+  { label: "Less than", value: "<" },
+  { label: "Greater than or equal to", value: ">=" },
+  { label: "Less than or equal to", value: "<=" },
 ];
 
 const operatorOptions = [
-  { label: "is empty (null)", value: "IS NULL" },
-  { label: "is not empty (not null)", value: "IS NOT NULL" },
-  { label: "equals", value: "=" },
-  { label: "does not equal", value: "!=" },
+  { label: "Is empty", value: "IS NULL" },
+  { label: "Is not empty", value: "IS NOT NULL" },
+  { label: "Equals", value: "=" },
+  { label: "Does not equal", value: "!=" },
 ];
 
+const dateValues = [
+  { label: "Last Quarter", value: "lastQuarter" },
+  { label: "Next Quarter", value: "nextQuarter" },
+  { label: "This Quarter", value: "thisQuarter" },
+  { label: "Last Month", value: "lastMonth" },
+  { label: "Next Month", value: "nextMonth" },
+  { label: "This Month", value: "thisMonth" },
+  { label: "Last Week", value: "lastWeek" },
+  { label: "Next Week", value: "nextWeek" },
+  { label: "This Week", value: "thisWeek" },
+  { label: "Last Year", value: "lastYear" },
+  { label: "Next Year", value: "nextYear" },
+  { label: "This Year", value: "thisYear" },
+  { label: "6 Months Ago", value: "6MonthsAgo" },
+  { label: "5 Months Ago", value: "5MonthsAgo" },
+  { label: "4 Months Ago", value: "4MonthsAgo" },
+  { label: "3 Months Ago", value: "3MonthsAgo" },
+];
 
 const dealStatusList = [
   { value: "1", label: "Open" },
@@ -57,16 +74,16 @@ const fieldOptions = [
   { value: "stageid", label: "Stage", isNumberType: true },
   { value: "11", label: "Label" },
   { value: "statusid", label: "Status", isNumberType: true },
-  { value: "13", label: "Deal created" },
-  { value: "14", label: "Update time" },
-  { value: "15", label: "Last stage change" },
-  { value: "16", label: "Next activity date" },
-  { value: "17", label: "Last activity date" },
-  { value: "18", label: "Won time" },
-  { value: "19", label: "Last email received" },
-  { value: "20", label: "Last email sent" },
-  { value: "21", label: "Lost time" },
-  { value: "22", label: "Deal closed on" },
+  { value: "13", label: "Deal created", isDateType: true },
+  { value: "14", label: "Update time", isDateType: true },
+  { value: "15", label: "Last stage change", isDateType: true },
+  { value: "16", label: "Next activity date", isDateType: true },
+  { value: "17", label: "Last activity date", isDateType: true },
+  { value: "18", label: "Won time", isDateType: true },
+  { value: "19", label: "Last email received", isDateType: true },
+  { value: "20", label: "Last email sent", isDateType: true },
+  { value: "21", label: "Lost time", isDateType: true },
+  { value: "22", label: "Deal closed on", isDateType: true },
   { value: "23", label: "Lost reason" },
   { value: "24", label: "Visible to" },
   // { value: "26", label: "Total activities" },
@@ -180,6 +197,11 @@ const FilterCondition: React.FC<FilterConditionProps> = ({
   const attributeError = (errors[conditionType] as any)?.[index]?.field;
   const operatorError = (errors[conditionType] as any)?.[index]?.operator;
   const valueError = (errors[conditionType] as any)?.[index]?.value;
+  
+  const isDate = !isNaN(
+    new Date(getValues(`${conditionType}.${index}.value`)).getTime()
+  );
+  const [useExactDate, setUseExactDate] = useState(isDate ?? false);
   const [operatorsList, setOperatorsList] = useState<Array<any>>([]);
   interface Pipeline {
     pipelineID: string;
@@ -187,7 +209,6 @@ const FilterCondition: React.FC<FilterConditionProps> = ({
   }
 
   useEffect(() => {
-    
     setValue(`${conditionType}.${index}.object`, condition.object);
     setValue(`${conditionType}.${index}.field`, condition.field);
     setOperatorsList(
@@ -332,30 +353,57 @@ const FilterCondition: React.FC<FilterConditionProps> = ({
       case "21":
       case "22":
         return (
-          <Picker
-            placeholderText="MM/DD/YYYY hh:mm:ss a"
-            showIcon
-            dateFormat={"MM/d/yyyy h:mm aa"}
-            disabled={!getValues(`${conditionType}.${index}.field`)}
-            selected={getValues(`${conditionType}.${index}.value`)}
-            className="form-control"
-            {...register(`${conditionType}.${index}.value`)}
-            onChange={(e: any) =>
-              setValue(`${conditionType}.${index}.value`, e)
-            }
-          />
-          // <select
-          //   className="form-control"
-          //   defaultValue={`${conditionType}.${index}.value`}
-          //   {...register(`${conditionType}.${index}.value`)}
-          // >
-          //   <option value="">Select</option>
-          //   {getDropdownListforValueJSX(key).map((option) => (
-          //     <option key={option.value} value={option.value}>
-          //       {option.label}
-          //     </option>
-          //   ))}
-          // </select>
+          <div className="row align-items-center">
+            <div className="col">
+              {useExactDate ? (
+                <Picker
+                  placeholderText="MM/DD/YYYY hh:mm:ss a"
+                  showIcon
+                  dateFormat={"MM/d/yyyy h:mm aa"}
+                  disabled={!getValues(`${conditionType}.${index}.field`)}
+                  selected={getValues(`${conditionType}.${index}.value`)}
+                  className="form-control"
+                  onChange={(e: any) =>
+                    setValue(`${conditionType}.${index}.value`, e)
+                  }
+                />
+              ) : (
+                <select
+                  className="form-control"
+                  value={getValues(`${conditionType}.${index}.value`) || ""}
+                  {...register(`${conditionType}.${index}.value`)}
+                >
+                  <option value="">Select</option>
+                  {dateValues.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+
+            <div className="col-auto">
+              <div className="form-check">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id={`useExactDate-${index}`}
+                  checked={useExactDate}
+                  onChange={(e) => {
+                    setValue(`${conditionType}.${index}.value`, null);
+                    setUseExactDate(e.target.checked);
+                  }}
+                />
+                <label
+                  className="form-check-label"
+                  htmlFor={`useExactDate-${index}`}
+                >
+                  Use exact date
+                </label>
+              </div>
+            </div>
+          </div>
         );
 
       default:
@@ -383,7 +431,7 @@ const FilterCondition: React.FC<FilterConditionProps> = ({
 
   return (
     <div className="form-group row pb-2">
-      <div className="col-3">
+      <div className="col-2">
         <select
           className="form-control"
           defaultValue={`${conditionType}.${index}.object`}
@@ -451,11 +499,11 @@ const FilterCondition: React.FC<FilterConditionProps> = ({
         {<p className="error-text text-danger">{operatorError?.message}</p>}
       </div>
 
-      <div className="col-2">
+      <div className="col-4">
         {valueJSX(getValues(`${conditionType}.${index}.field`))}
         {<p className="error-text text-danger">{valueError?.message}</p>}
       </div>
-      <div className="col-2" style={{ alignContent: "center" }}>
+      <div className="col-1" style={{ alignContent: "center" }}>
         {conditionType === "allConditions" ? "AND" : "OR"}
         <button
           hidden={conditionsLength == 1 && conditionType === "allConditions"}
@@ -480,7 +528,7 @@ type params = {
   selectedStageId?: any;
   selectedFilter: DealFilter;
   setSelectedFilter: any;
-  onPreview:any;
+  onPreview: any;
 };
 
 // Main FilterEditor Component
@@ -501,10 +549,12 @@ const DealFilterAddEditDialog = (props: params) => {
   const [selectedFilter, setSelectedFilter] = useState(
     props.selectedFilter ?? new DealFilter()
   );
-  const [showPreview, setShowPreview]=useState(selectedFilter.isPreview ?? false);
+  const [showPreview, setShowPreview] = useState(
+    selectedFilter.isPreview ?? false
+  );
   const [isDotDigitalSelected, setIsDotDigitalSelected] = useState(false);
   const [isJustCallSelected, setisJustCallSelected] = useState(false);
-  const [previewResponse, setPreviewResponse]=useState<any>();
+  const [previewResponse, setPreviewResponse] = useState<any>();
   const dotDigitalCampaignList = JSON.parse(
     (LocalStorageUtil.getItemObject(
       Constants.DOT_DIGITAL_CAMPAIGNSLIST
@@ -525,7 +575,7 @@ const DealFilterAddEditDialog = (props: params) => {
     resolver: yupResolver(anyConditions.length > 0 ? formSchema2 : formSchema1),
     defaultValues: {
       name: "",
-      visibility: "",
+      visibility: "Private",
       allConditions: [
         { object: "", field: "", operator: "", value: null as any },
       ],
@@ -547,7 +597,7 @@ const DealFilterAddEditDialog = (props: params) => {
     let obj = {
       ...selectedFilter,
       visibility: Util.isNullOrUndefinedOrEmpty(selectedFilter.isPublic)
-        ? null
+        ? "Private"
         : selectedFilter.isPublic
         ? "Public"
         : "Private",
@@ -613,7 +663,7 @@ const DealFilterAddEditDialog = (props: params) => {
       ),
       defaultValues: {
         name: "",
-        visibility: "",
+        visibility: "Private",
         allConditions: [
           { object: "", field: "", operator: "", value: null as any },
         ],
@@ -631,11 +681,14 @@ const DealFilterAddEditDialog = (props: params) => {
     continueToSave(obj);
   };
 
-
-  const continueToSave=(obj: any, isPreview:boolean=false)=>{
+  const continueToSave = (obj: any, isPreview: boolean = false) => {
+    
     let dealFilter = new DealFilter();
-    let actulFilterId = (!selectedFilter.isPreview && !isPreview) ? selectedFilter.id : 0 ;
-    dealFilter.id = selectedFilter.isPreview ? selectedFilter.id ?? 0 : selectedFilter.actulFilterId ?? 0;
+    let actulFilterId =
+      !selectedFilter.isPreview && !isPreview ? selectedFilter.id : 0;
+    dealFilter.id = selectedFilter.isPreview
+      ? selectedFilter.id ?? 0
+      : selectedFilter.actulFilterId ?? actulFilterId;
     dealFilter.isPublic = obj.visibility === "Public";
     dealFilter.isPreview = isPreview;
     dealFilter.createdBy = Util.UserProfile()?.userId;
@@ -658,10 +711,12 @@ const DealFilterAddEditDialog = (props: params) => {
     }
 
     dealFiltersSvc.saveDealFilters(dealFilter).then((res) => {
-      
-      if(res?.result){
-        setSelectedFilter({...res.result, actulFilterId:actulFilterId});
-        props.setSelectedFilter({...res.result, actulFilterId:actulFilterId});
+      if (res?.result) {
+        setSelectedFilter({ ...res.result, actulFilterId: actulFilterId });
+        props.setSelectedFilter({
+          ...res.result,
+          actulFilterId: actulFilterId,
+        });
       }
 
       if (res?.result && !isPreview) {
@@ -673,7 +728,7 @@ const DealFilterAddEditDialog = (props: params) => {
         props.onSaveChanges();
       }
     });
-  }
+  };
 
   const buildConditionsArray = (
     glue: string,
@@ -749,11 +804,11 @@ const DealFilterAddEditDialog = (props: params) => {
     );
   };
 
-  const handlePreview=(item:any)=>{
+  const handlePreview = (item: any) => {
     setShowPreview(true);
     continueToSave(item, true);
     props.onPreview();
-  }
+  };
 
   const customFooter = () => {
     return (
@@ -761,21 +816,38 @@ const DealFilterAddEditDialog = (props: params) => {
         <div className="modalfootbar">
           <button
             className="btn btn-secondary btn-sm me-2"
-            onClick={(e:any)=>{setDialogIsOpen(false); props.setSelectedFilter(null)}}
+            onClick={(e: any) => {
+              setDialogIsOpen(false);
+              props.setSelectedFilter(null);
+            }}
             id="closeDialog"
           >
             Cancel
           </button>
           <button
-            onClick={handleSubmit(handlePreview)}
+            onClick={(e) => {
+              const currentName = getValues("name");
+              if (!currentName || currentName.trim() === "") {
+                const autoGeneratedName = `Auto Filter - ${new Date()
+                  .toISOString()
+                  .slice(0, 19)
+                  .replace("T", " ")}`;
+                setValue("name", autoGeneratedName, {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                });
+              }
+              handleSubmit(handlePreview)(e);
+            }}
             className="btn btn-success btn-sm me-2"
             id="closeDialog"
             hidden={showPreview}
           >
             Preview
           </button>
+
           <button
-            onClick={(e:any)=>setShowPreview(false)}
+            onClick={(e: any) => setShowPreview(false)}
             className="btn btn-success btn-sm me-2"
             id="closeDialog"
             hidden={!showPreview}
@@ -958,7 +1030,7 @@ const DealFilterAddEditDialog = (props: params) => {
                   <label>Visibility:</label>
                   <select
                     className="form-control"
-                    value={visibility}
+                    defaultValue={visibility}
                     {...methods.register("visibility")}
                     onChange={(e) =>
                       setVisibility(e.target.value as "Private" | "Public")
