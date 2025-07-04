@@ -43,6 +43,7 @@ const DealDetailsCustomFields = ({ dealItem }: Params) => {
   const { getValues, setValue, register } = methods;
 
   const getListofItemsForDropdown = (item: IControl) => {
+    
   const match = customFields.find(f => f.key === item.key);
   return match?.options?.map(opt => ({ name: opt.key, value: opt.value })) ?? [];
 };
@@ -60,7 +61,7 @@ const loadCustomFields = () => {
       const fields: IControl[] = [];
       const selectedObj: FormValues = {};
       const dealPipelineIdStr = dealItem.pipelineID.toString();
-
+      
       const filteredFields = res.customFields.filter((cf: DealCustomFields) => {
         const ids = cf.pipelineIds?.split(",").map((p) => p.trim()) ?? [];
 

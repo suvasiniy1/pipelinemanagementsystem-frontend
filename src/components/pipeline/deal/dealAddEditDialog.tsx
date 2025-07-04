@@ -70,15 +70,15 @@ export const DealAddEditDialog = (props: params) => {
         { key: "Organization", value: "organizationID", sidebyItem: "Probability Of Winning", type: ElementType.dropdown, isRequired: true },
         { key: "Probability Of Winning", value: "probability", type: ElementType.textbox, isSideByItem: true, isRequired: true },
         { key: "Title", value: "title", sidebyItem: "Expected Close Date", type: ElementType.textbox, isRequired: true },
-        { key: "Expected Close Date", value: "expectedCloseDate", type: ElementType.datepicker, isSideByItem: true, isRequired: false },
+        { key: "Expected Close Date", value: "expectedCloseDate", type: ElementType.datepicker, isSideByItem: true, isRequired: true },
     ];
     
     const controlsList2: Array<IControl> = [
         { key: "Pipeline", value: "pipelineID", type: ElementType.dropdown, isRequired: true, sidebyItem: "Operation Date" },
-        { key: "Operation Date", value: "operationDate", type: ElementType.datepicker, isSideByItem: true, isRequired: false },
+        { key: "Operation Date", value: "operationDate", type: ElementType.datepicker, isSideByItem: true, isRequired: true },
         { key: "Stage", value: "stageID", type: ElementType.custom, isRequired: true, sidebyItem: "PA Name", disabled: !Util.isNullOrUndefinedOrEmpty(selectedStageId) },
         { key: "PA Name", value: "paName", type: ElementType.textbox, isSideByItem: true, isRequired: false },
-        { key: "Pipeline Type", value: "pipelineTypeID", type: ElementType.dropdown, isRequired: false, sidebyItem: "Lead Source" },
+        { key: "Pipeline Type", value: "pipelineTypeID", type: ElementType.dropdown, isRequired: true, sidebyItem: "Lead Source" },
         { key: "Lead Source", value: "leadSourceID", type: ElementType.dropdown, isSideByItem: true, isRequired: true },
         { key: "Clinic", value: "clinicID", type: ElementType.dropdown, isRequired: true, sidebyItem: "Phone" },
         { key: "Phone", value: "phone", type: ElementType.textbox, isSideByItem: true, isRequired: true },
@@ -163,6 +163,7 @@ export const DealAddEditDialog = (props: params) => {
    
 
     useEffect(() => {
+        
         setIsLoading(true);
         sourceSvc.getSources().then(res => {
             const sourceList = (res as Array<{ sourceName: string, sourceID: number }>).map(source => ({
@@ -208,6 +209,7 @@ export const DealAddEditDialog = (props: params) => {
         if (selectedPipeLineId > 0) stagesSvc.getStages(selectedPipeLineId).then(items => {
             let sortedStages = Util.sortList(items.stageDtos, "stageOrder");
             setStages(sortedStages);
+            setValue("stageID" as never, items.stageDtos[0]?.stageID as never);
             setSelectedItem({ ...selectedItem, "pipelineID": +selectedPipeLineId, "stageID": selectedStageId ?? items.stageDtos[0]?.stageID });
             setIsLoading(false);
         }).catch(err => {
@@ -228,6 +230,8 @@ export const DealAddEditDialog = (props: params) => {
     };
     
     const onChange = (value: any, item: any) => {
+        
+
         if (item.key === "Pipeline") {
             setSelectedItem({ ...selectedItem, "pipelineID": +value > 0 ? +value : null as any });
             setStages([])
@@ -264,7 +268,7 @@ export const DealAddEditDialog = (props: params) => {
             <div className="col-sm-6 pipelinestage-selector pipelinestage-active" aria-disabled={isLoading}>
                 {
                     stages.map((sItem, sIndex) => (
-                        <div key={sIndex} className={'pipelinestage ' + (sItem.stageID == selectedItem.stageID ? 'pipelinestage-current' : '')} aria-label={sItem.stageName} title={sItem.stageName} onClick={(e: any) => setSelectedItem({ ...selectedItem, "stageID": sItem.stageID })}></div>
+                        <div key={sIndex} className={'pipelinestage ' + (sItem.stageID == selectedItem.stageID ? 'pipelinestage-current' : '')} aria-label={sItem.stageName} title={sItem.stageName} onClick={(e: any) => {setValue("stageID" as never, sItem.stageID as never); setSelectedItem({ ...selectedItem, "stageID": sItem.stageID })}}></div>
                     ))
                 }
             </div>
@@ -273,6 +277,7 @@ export const DealAddEditDialog = (props: params) => {
     const { handleSubmit, resetField, setValue, setError } = methods;
     
     const onSubmit = (item: any) => {
+        
         console.log("Form item submitted: ", item);
         console.log("Selected item state: ", selectedItem);
     
@@ -374,91 +379,113 @@ export const DealAddEditDialog = (props: params) => {
                 </div>
             );
         }
+
         if (item.key === "Contact Person") {
-            return (
-<AsyncSelect<ContactOption>
-    cacheOptions
-    loadOptions={fetchContacts} // Function to fetch contacts
-    defaultOptions // Show default options on focus
-    onChange={(newValue: any) => {
-        if (!newValue) return;
+          return (
+            <AsyncSelect<ContactOption>
+              cacheOptions
+              loadOptions={fetchContacts} // Function to fetch contacts
+              defaultOptions // Show default options on focus
+              onChange={(newValue: any) => {
+                
+                let value = +newValue?.value > 0 ? +newValue?.value : null;
+                setSelectedItem({ ...selectedItem, "contactPersonID": value as any });
+                setValue("contactPersonID" as never, value as never);
+                if (!newValue) return;
 
-        if (newValue.isNew) {
-            // Handle new contact creation
-            setSelectedContact(null); // Clear selected contact
-            setSelectedItem((prev: SelectedItem) => ({
-                ...prev,
-                contactPersonID: -1, // Temporary ID for new contact
-                newContact: {
-                    personName: newValue.inputValue || "",
-                    email: "",
-                    phone: "",
-                },
-            }));
+                if (newValue.isNew) {
+                  // Handle new contact creation
+                  setSelectedContact(null); // Clear selected contact
+                  setSelectedItem((prev: SelectedItem) => ({
+                    ...prev,
+                    contactPersonID: -1, // Temporary ID for new contact
+                    newContact: {
+                      personName: newValue.inputValue || "",
+                      email: "",
+                      phone: "",
+                    },
+                  }));
 
-            // Clear phone and email for new contacts
-            setValue("phone"  as never, ""  as never);
-            setValue("email"  as never, ""  as never);
-        } else {
-            // Handle selecting an existing contact
-            setSelectedContact(newValue.details); // Save selected contact
-            setSelectedItem((prev: SelectedItem) => ({
-                ...prev,
-                contactPersonID: newValue.value, // Save contact ID
-                phone: newValue.details?.phone || "",
-                email: newValue.details?.email || "",
-            }));
+                  // Clear phone and email for new contacts
+                  setValue("phone" as never, "" as never);
+                  setValue("email" as never, "" as never);
+                } else {
+                  // Handle selecting an existing contact
+                  setSelectedContact(newValue.details); // Save selected contact
+                  setSelectedItem((prev: SelectedItem) => ({
+                    ...prev,
+                    contactPersonID: newValue.value, // Save contact ID
+                    phone: newValue.details?.phone || "",
+                    email: newValue.details?.email || "",
+                  }));
 
-            // Update form fields with existing contact details
-            setValue("phone" as never, (newValue.details?.phone || "") as never);
-            setValue("email" as never, (newValue.details?.email || "") as never);
-        }
-    }}
-    onInputChange={(inputValue: any, actionMeta: { action: string; }) => {
-        if (actionMeta.action === "input-change") {
-            // Update the typed input in the state
-            setSelectedItem((prev: SelectedItem) => ({
-                ...prev,
-                newContact: {
-                    ...(prev.newContact || {}),
-                    personName: inputValue,
-                },
-            }));
+                  // Update form fields with existing contact details
+                  setValue(
+                    "phone" as never,
+                    (newValue.details?.phone || "") as never
+                  );
+                  setValue(
+                    "email" as never,
+                    (newValue.details?.email || "") as never
+                  );
+                }
+              }}
+              onInputChange={(
+                inputValue: any,
+                actionMeta: { action: string }
+              ) => {
+                if (actionMeta.action === "input-change") {
+                  // Update the typed input in the state
+                  setSelectedItem((prev: SelectedItem) => ({
+                    ...prev,
+                    newContact: {
+                      ...(prev.newContact || {}),
+                      personName: inputValue,
+                    },
+                  }));
 
-            // Clear phone and email when typing a new contact name
-            setValue("phone" as never, "" as never);
-            setValue("email" as never, "" as never);
+                  // Clear phone and email when typing a new contact name
+                  setValue("phone" as never, "" as never);
+                  setValue("email" as never, "" as never);
 
-            // Clear selectedContact to avoid conflicts
-            setSelectedContact(null);
-        }
-    }}
-    placeholder="Search or Add Contact"
-    value={
-        selectedContact // Use selectedContact if available
-            ? { label: selectedContact.personName, value: selectedContact.contactPersonID }
-            : selectedItem.newContact?.personName // Use typed input for new contacts
-            ? { label: selectedItem.newContact.personName, value: "new" }
-            : null // Fallback for no selection
-    }
-    noOptionsMessage={() => "Type to search or add a new contact"}
-    styles={{
-        option: (provided: any, state: { data: { isNew: any; }; isFocused: any; }) => {
-            const isAddNewOption = state.data.isNew;
-            return {
-                ...provided,
-                backgroundColor: state.isFocused
-                    ? isAddNewOption
-                        ? "#e0f3ff" // Light blue for "Add new" hover
-                        : "#f0f0f0" // Default hover color
-                    : "white",
-                color: isAddNewOption ? "#007bff" : "black", // Blue text for "Add new"
-                fontWeight: isAddNewOption ? "bold" : "normal", // Bold for "Add new"
-            };
-        },
-    } as any}
-/>
-            );
+                  // Clear selectedContact to avoid conflicts
+                  setSelectedContact(null);
+                }
+              }}
+              placeholder="Search or Add Contact"
+              value={
+                selectedContact // Use selectedContact if available
+                  ? {
+                      label: selectedContact.personName,
+                      value: selectedContact.contactPersonID,
+                    }
+                  : selectedItem.newContact?.personName // Use typed input for new contacts
+                  ? { label: selectedItem.newContact.personName, value: "new" }
+                  : null // Fallback for no selection
+              }
+              noOptionsMessage={() => "Type to search or add a new contact"}
+              styles={
+                {
+                  option: (
+                    provided: any,
+                    state: { data: { isNew: any }; isFocused: any }
+                  ) => {
+                    const isAddNewOption = state.data.isNew;
+                    return {
+                      ...provided,
+                      backgroundColor: state.isFocused
+                        ? isAddNewOption
+                          ? "#e0f3ff" // Light blue for "Add new" hover
+                          : "#f0f0f0" // Default hover color
+                        : "white",
+                      color: isAddNewOption ? "#007bff" : "black", // Blue text for "Add new"
+                      fontWeight: isAddNewOption ? "bold" : "normal", // Bold for "Add new"
+                    };
+                  },
+                } as any
+              }
+            />
+          );
         }
     
         return null; // Return null for other keys if no custom element is needed
@@ -489,20 +516,20 @@ export const DealAddEditDialog = (props: params) => {
         }
     }
 
-    const customFooter = () => {
-        return (
-            <>
-                <div className='modalfootbar'>
-                    {/* <div className="modelfootcountcol me-2">
-                        <div className="modelfootcount me-2">1608/10000</div>
-                        <button className="modelinfobtn"><i className="rs-icon rs-icon-info"></i></button>
-                    </div> */}
-                    <button onClick={oncloseDialog} className="btn btn-secondary btn-sm me-2" id="closeDialog">Cancel</button>
-                    <button type="submit" className={`btn btn-primary btn-sm save`} onClick={handleSubmit(onSubmit)}>{"Save"}</button>
-                </div>
-            </>
-        )
-    }
+    // const customFooter = () => {
+    //     return (
+    //         <>
+    //             <div className='modalfootbar'>
+    //                 {/* <div className="modelfootcountcol me-2">
+    //                     <div className="modelfootcount me-2">1608/10000</div>
+    //                     <button className="modelinfobtn"><i className="rs-icon rs-icon-info"></i></button>
+    //                 </div> */}
+    //                 <button onClick={oncloseDialog} className="btn btn-secondary btn-sm me-2" id="closeDialog">Cancel</button>
+    //                 <button type="submit" className={`btn btn-primary btn-sm save`} onClick={handleSubmit(onSubmit)}>{"Save"}</button>
+    //             </div>
+    //         </>
+    //     )
+    // }
 
     return (
         <>
@@ -512,8 +539,11 @@ export const DealAddEditDialog = (props: params) => {
                         header={"Add Deal"}
                         closeDialog={oncloseDialog}
                         onClose={oncloseDialog}
-                        onSave={handleSubmit(onSubmit)}
-                        customFooter={customFooter()}
+                        onSave={handleSubmit(onSubmit, (errors) => {
+                            console.log("Validation Errors:", errors);
+                          })}
+                          
+                        // customFooter={customFooter()}
                         disabled={isLoading}>
                         {
                             <>

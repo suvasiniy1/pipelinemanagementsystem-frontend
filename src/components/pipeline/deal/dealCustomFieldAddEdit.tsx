@@ -20,8 +20,7 @@ interface Params {
   selectedFieldIndex: number;
   onFieldsSubmit: (index: number) => void;
   refreshCustomFields: () => void;
-  originalCustomFields: DealCustomFields[]; // ✅ Add this line
-
+  originalCustomFields: DealCustomFields[];
 }
 
 const DealCustomFieldAddEdit = ({
@@ -32,10 +31,12 @@ const DealCustomFieldAddEdit = ({
   selectedFieldIndex,
   onFieldsSubmit,
   refreshCustomFields,
-  originalCustomFields, 
+  originalCustomFields,
 }: Params) => {
   const [selectedItem, setSelectedItem] = useState<any>({});
-  const allPipeLinesList: Array<PipeLine> = JSON.parse(localStorage.getItem("allPipeLines") || "[]");
+  const allPipeLinesList: Array<PipeLine> = JSON.parse(
+    localStorage.getItem("allPipeLines") || "[]"
+  );
 
   const [selectedPipeLines, setSelectedPipeLines] = useState<PipeLine[]>([]);
   const [fieldType, setFieldType] = useState<string>("");
@@ -46,111 +47,148 @@ const DealCustomFieldAddEdit = ({
   const [isSaving, setIsSaving] = useState(false);
 
   const controlsList: Array<IControl> = [
-    { key: "Field Name", value: "fieldName", isRequired: true, isControlInNewLine: true },
-    { key: "Field Type", value: "fieldType", isRequired: true, type: ElementType.dropdown, isControlInNewLine: true },
-    { key: "PipeLine", value: "pipelineIds", isRequired: true, type: ElementType.multiSelectDropdown, isControlInNewLine: true, bindable: "value" },
+    {
+      key: "Field Name",
+      value: "fieldName",
+      isRequired: true,
+      isControlInNewLine: true,
+    },
+    {
+      key: "Field Type",
+      value: "fieldType",
+      isRequired: true,
+      type: ElementType.dropdown,
+      isControlInNewLine: true,
+    },
+    {
+      key: "PipeLine",
+      value: "pipelineIds",
+      isRequired: true,
+      type: ElementType.multiSelectDropdown,
+      isControlInNewLine: true,
+      bindable: "value",
+    },
   ];
 
   const schema = Yup.object().shape({
     fieldName: Yup.string().required("Field name is required"),
     fieldType: Yup.string().required("Field type is required"),
-    pipelineIds: Yup.array().of(Yup.string()).min(1, "At least one pipeline is required"),
+    pipelineIds: Yup.array()
+      .of(Yup.string())
+      .min(1, "At least one pipeline is required"),
   });
 
   const methods = useForm({ resolver: yupResolver(schema) });
-  const { handleSubmit, setValue } = methods;
+  const { handleSubmit, setValue, watch } = methods;
+
+  // ✅ Sync selectedPipeLines with pipelineIds field
+  useEffect(() => {
+    const subscription = watch((value, { name }) => {
+      if (name === "pipelineIds" && Array.isArray(value.pipelineIds)) {
+        const selectedList = value.pipelineIds
+          .map((id: any) => allPipeLinesList.find((p) => p.pipelineID === +id))
+          .filter(Boolean) as PipeLine[];
+        setSelectedPipeLines(selectedList);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [watch]);
 
   const onChange = (value: any, item: any) => {
-  if (item.key === "Field Type") {
-    setFieldType(value);
-  }
-
-  if (item.key === "PipeLine") {
-    let idArray: string[] = [];
-
-    if (Array.isArray(value)) {
-      idArray = value.map((v: any) =>
-        typeof v === "object" ? String(v.value) : String(v)
-      );
-    } else if (typeof value === "string") {
-      idArray = value.split(",").map((v) => v.trim());
+    if (item.key === "Field Type") {
+      setFieldType(value);
     }
 
-    setValue("pipelineIds" as never, idArray as never); // ✅ set array
-  }
-};
+    if (item.key === "PipeLine") {
+      let idArray: string[] = [];
 
+      if (Array.isArray(value)) {
+        idArray = value.map((v: any) =>
+          typeof v === "object" ? String(v.value) : String(v)
+        );
+      } else if (typeof value === "string") {
+        idArray = value.split(",").map((v) => v.trim());
+      }
+
+      setValue("pipelineIds" as never, idArray as never);
+    }
+  };
 
   const oncloseDialog = () => setDialogIsOpen(false);
 
   useEffect(() => {
-  if (selectedFieldIndex >= 0) {
-    const field = customFields[selectedFieldIndex];
-    let pipelineIdString = "";
+    if (selectedFieldIndex >= 0) {
+      const field = customFields[selectedFieldIndex];
+      let pipelineIdString = "";
 
-    if (typeof field.pipelineIds === "string") {
-      pipelineIdString = field.pipelineIds;
-    } else if (Array.isArray(field.pipelineIds)) {
-      pipelineIdString = (field.pipelineIds as string[]).join(",");
-    } else if (typeof field.pipelineIds === "number") {
-      pipelineIdString = String(field.pipelineIds);
-    } else if ("pipelineId" in field && field.pipelineId !== undefined) {
-      pipelineIdString = String((field as any).pipelineId);
+      if (typeof field.pipelineIds === "string") {
+        pipelineIdString = field.pipelineIds;
+      } else if (Array.isArray(field.pipelineIds)) {
+        pipelineIdString = (field.pipelineIds as string[]).join(",");
+      } else if (typeof field.pipelineIds === "number") {
+        pipelineIdString = String(field.pipelineIds);
+      } else if ("pipelineId" in field && field.pipelineId !== undefined) {
+        pipelineIdString = String((field as any).pipelineId);
+      }
+
+      const pipelineIdArray = pipelineIdString
+        .split(",")
+        .map((p) => p.trim())
+        .filter(Boolean);
+
+      const selectedList = pipelineIdArray
+        .map((id) => allPipeLinesList.find((p) => p.pipelineID === +id))
+        .filter(Boolean) as PipeLine[];
+
+      setSelectedPipeLines(selectedList);
+      setValue("pipelineIds" as never, pipelineIdArray as never);
+
+      const elementTypeKey =
+        Object.entries(ElementType).find(([_, val]) => val === field.type)?.[0] ?? "";
+
+      setSelectedItem({
+        fieldName: field.key,
+        fieldType: elementTypeKey,
+        pipelineIds: pipelineIdArray,
+      });
+
+      setValue("fieldName" as never, field.key as never);
+      setValue("fieldType" as never, elementTypeKey as never);
+      setFieldType(elementTypeKey);
+
+      const dropdownOptions = (field.options || []).map((opt) =>
+        typeof opt === "string" ? opt : opt.key ?? opt.value
+      );
+      setOptionsList(dropdownOptions);
+    } else {
+      setSelectedItem({});
+      setValue("fieldName" as never, "" as never);
+      setValue("fieldType" as never, "" as never);
+      setValue("pipelineIds" as never, [] as never);
+      setOptionsList([]);
+      setOptionInput("");
+      setFieldType("");
+      setSelectedPipeLines([]);
+    }
+  }, [selectedFieldIndex]);
+
+  const onSubmit = async (item: any) => {
+    if (fieldType === "dropdown" && optionsList.length === 0) {
+      toast.warn("Please add at least one option to proceed further");
+      return;
     }
 
-    const pipelineIdArray = pipelineIdString
-      .split(",")
-      .map((p) => p.trim())
-      .filter(Boolean);
-
-    const selectedList = pipelineIdArray
-      .map((id) => allPipeLinesList.find((p) => p.pipelineID === +id))
-      .filter(Boolean) as PipeLine[];
-
-    setSelectedPipeLines(selectedList);
-    setValue("pipelineIds" as never, pipelineIdArray as never); // ✅ set as array
-
-    const elementTypeKey =
-      Object.entries(ElementType).find(([, val]) => val === field.type)?.[0] ?? "";
-
-    setSelectedItem({
-      fieldName: field.key,
-      fieldType: elementTypeKey,
-      pipelineIds: pipelineIdArray,
-    });
-
-    setValue("fieldName" as never, field.key as never);
-    setValue("fieldType" as never, elementTypeKey as never);
-    setFieldType(elementTypeKey);
-
-    const dropdownOptions = (field.options || []).map((opt) =>
-      typeof opt === "string" ? opt : opt.key ?? opt.value
-    );
-    setOptionsList(dropdownOptions);
-  } else {
-    setSelectedItem({});
-    setValue("fieldName" as never, "" as never);
-    setValue("fieldType" as never, "" as never);
-    setValue("pipelineIds" as never, [] as never); // ✅ clear as array
-    setOptionsList([]);
-    setOptionInput("");
-    setFieldType("");
-    setSelectedPipeLines([]);
-  }
-}, [selectedFieldIndex]);
-    
-      
-  const onSubmit = async (item: any) => {
     if (isSaving) return;
     setIsSaving(true);
-
     try {
-      const pipelineIdsArray = typeof item.pipelineIds === "string"
-  ? item.pipelineIds.split(",").map((p: string) => p.trim()).filter(Boolean)
-  : Array.isArray(item.pipelineIds)
-  ? item.pipelineIds.map(String)
-  : [];
-       const updatedFields = [...customFields];
+      const pipelineIdsArray =
+        typeof item.pipelineIds === "string"
+          ? item.pipelineIds.split(",").map((p: string) => p.trim()).filter(Boolean)
+          : Array.isArray(item.pipelineIds)
+          ? item.pipelineIds.map(String)
+          : [];
+
+      const updatedFields = [...customFields];
       const isDuplicate = updatedFields.some(
         (i, index) => i.key === item.fieldName && selectedFieldIndex !== index
       );
@@ -163,13 +201,15 @@ const DealCustomFieldAddEdit = ({
 
       const newField: IControl = {
         key: item.fieldName,
-        value: `value${selectedFieldIndex === -1 ? updatedFields.length + 1 : selectedFieldIndex + 1}`,
+        value: `value${
+          selectedFieldIndex === -1 ? updatedFields.length + 1 : selectedFieldIndex + 1
+        }`,
         isControlInNewLine: true,
         showDelete: true,
         showEdit: true,
         isRequired: true,
         elementSize: 9,
-        pipelineIds: pipelineIdsArray, // ✅ fixed here
+        pipelineIds: pipelineIdsArray,
         type: ElementType[fieldType as keyof typeof ElementType],
         options: ["dropdown", "singleOption"].includes(fieldType.toLowerCase())
           ? optionsList.map((opt) => ({ key: opt, value: opt }))
@@ -185,7 +225,9 @@ const DealCustomFieldAddEdit = ({
       setCustomFields([...updatedFields]);
       await saveCustomField(newField);
 
-      toast.success(`Custom field ${selectedFieldIndex >= 0 ? "updated" : "added"} successfully ✅`);
+      toast.success(
+        `Custom field ${selectedFieldIndex >= 0 ? "updated" : "added"} successfully ✅`
+      );
       refreshCustomFields();
       setDialogIsOpen(false);
     } finally {
@@ -194,43 +236,45 @@ const DealCustomFieldAddEdit = ({
   };
 
   const saveCustomField = async (item: IControl) => {
-  const pipelineIdList = typeof item.pipelineIds === "string"
-    ? item.pipelineIds.split(",").map((p) => p.trim())
-    : Array.isArray(item.pipelineIds)
-    ? item.pipelineIds
-    : [];
+    const pipelineIdList =
+      typeof item.pipelineIds === "string"
+        ? item.pipelineIds.split(",").map((p) => p.trim())
+        : Array.isArray(item.pipelineIds)
+        ? item.pipelineIds
+        : [];
 
-  const fullPipelineIds = pipelineIdList.join(",");
+    const fullPipelineIds = pipelineIdList.join(",");
 
-  const isDropdown = ["singleoption", "dropdown"].includes((item.type || "").toLowerCase());
+    const isDropdown = ["singleoption", "dropdown"].includes(
+      (item.type || "").toLowerCase()
+    );
 
-  const matchingOriginal = originalCustomFields.find(f => f.customField === item.key);
+    const matchingOriginal = originalCustomFields.find(
+      (f) => f.customField === item.key
+    );
 
-  const payload: DealCustomFields = {
-    customFieldId: item.id ?? matchingOriginal?.customFieldId ?? 0,
-    dealID: 0,
-    customField: item.key,
-    customFieldType: item.type || "textbox",
-    customFieldValue: "",
-    customSelectValues: "",
-    options: isDropdown && optionsList.length
+    const payload: DealCustomFields = {
+      customFieldId: item.id ?? matchingOriginal?.customFieldId ?? 0,
+      dealID: 0,
+      customField: item.key,
+      customFieldType: item.type || "textbox",
+      customFieldValue: "",
+      customSelectValues:isDropdown && optionsList.length
       ? JSON.stringify(optionsList.map((opt) => ({ key: opt, value: opt })))
-      : undefined,
-    pipelineId: Number(pipelineIdList[0]) || 0,
-    pipelineIds: fullPipelineIds,
-    createdBy: Util.UserProfile()?.userId,
-    updatedDate: new Date(),
-    userId: Util.UserProfile()?.userId,
-    createdDate: new Date(),
-    modifiedDate: new Date(),
-    modifiedBy: Util.UserProfile()?.userId,
-    updatedBy: Util.UserProfile()?.userId,
+      : "",
+      pipelineId: Number(pipelineIdList[0]) || 0,
+      pipelineIds: fullPipelineIds,
+      createdBy: Util.UserProfile()?.userId,
+      updatedDate: new Date(),
+      userId: Util.UserProfile()?.userId,
+      createdDate: new Date(),
+      modifiedDate: new Date(),
+      modifiedBy: Util.UserProfile()?.userId,
+      updatedBy: Util.UserProfile()?.userId,
+    };
+
+    await customFieldsService.postItem(payload);
   };
-
-  await customFieldsService.postItem(payload);
-};
-
-
 
   const getDropdownValues = (item: any) => {
     if (item.key === "Field Type") {
@@ -244,46 +288,43 @@ const DealCustomFieldAddEdit = ({
         .map(([key, value]) => ({ name: value, value: key }));
     }
     if (item.key === "PipeLine") {
-      return allPipeLinesList.map((pl) => ({ name: pl.pipelineName, value: pl.pipelineID }));
+      return allPipeLinesList.map((pl) => ({
+        name: pl.pipelineName,
+        value: pl.pipelineID,
+      }));
     }
     return [];
   };
 
   const getSelectedList = (field?: any) => {
-  if (field?.key === "PipeLine") {
-    return selectedPipeLines.map((pl) => ({
-      name: pl.pipelineName,
-      value: pl.pipelineID,
-    }));
-  }
-  return [];
-};
+    if (field?.key === "PipeLine") {
+      return selectedPipeLines.map((pl) => ({
+        name: pl.pipelineName,
+        value: pl.pipelineID,
+      }));
+    }
+    return [];
+  };
 
-  return (
-    <FormProvider {...methods}>
-      <AddEditDialog
-        dialogIsOpen={dialogIsOpen}
-        header="Add Custom Field"
-        dialogSize="lg"
-        closeDialog={oncloseDialog}
-        onClose={oncloseDialog}
-        onSave={handleSubmit(onSubmit)}
-        customSaveChangesButtonName={selectedFieldIndex >= 0 ? "Update" : "Save"}
-      >
-        <GenerateElements
-          controlsList={controlsList.slice(0, 2)}
-          selectedItem={selectedItem}
-          onChange={onChange}
-          getListofItemsForDropdown={getDropdownValues}
-          getSelectedList={getSelectedList}
-        />
-
+  const customHTMLControl = () => {
+    return (
+      <>
         {["dropdown", "singleOption"].includes(fieldType?.toLowerCase?.()) && (
           <div style={{ marginTop: "1rem" }}>
-            <label><strong>Options (required)</strong></label>
+            <label>
+              <strong>Options (required)</strong>
+            </label>
             <ul style={{ listStyle: "none", paddingLeft: 0, marginBottom: "1rem" }}>
               {optionsList.map((opt, idx) => (
-                <li key={idx} style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.25rem" }}>
+                <li
+                  key={idx}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    marginBottom: "0.25rem",
+                  }}
+                >
                   <span style={{ width: "1rem" }}>☰</span>
                   <input
                     type="text"
@@ -299,14 +340,15 @@ const DealCustomFieldAddEdit = ({
                   <button
                     type="button"
                     className="btn btn-sm btn-danger"
-                    onClick={() => setOptionsList(optionsList.filter((_, i) => i !== idx))}
+                    onClick={() =>
+                      setOptionsList(optionsList.filter((_, i) => i !== idx))
+                    }
                   >
                     🗑
                   </button>
                 </li>
               ))}
             </ul>
-
             <div style={{ display: "flex", gap: "0.5rem" }}>
               <textarea
                 value={optionInput}
@@ -335,7 +377,31 @@ const DealCustomFieldAddEdit = ({
             </div>
           </div>
         )}
+      </>
+    );
+  };
 
+  return (
+    <FormProvider {...methods}>
+      <AddEditDialog
+        dialogIsOpen={dialogIsOpen}
+        header="Add Custom Field"
+        dialogSize="lg"
+        closeDialog={oncloseDialog}
+        onClose={oncloseDialog}
+        onSave={handleSubmit(onSubmit)}
+        customSaveChangesButtonName={
+          selectedFieldIndex >= 0 ? "Update" : "Save"
+        }
+      >
+        <GenerateElements
+          controlsList={controlsList.slice(0, 2)}
+          selectedItem={selectedItem}
+          onChange={onChange}
+          getListofItemsForDropdown={getDropdownValues}
+          getSelectedList={getSelectedList}
+        />
+        {fieldType === "dropdown" ? customHTMLControl() : null}
         <GenerateElements
           controlsList={controlsList.slice(2)}
           selectedItem={selectedItem}
