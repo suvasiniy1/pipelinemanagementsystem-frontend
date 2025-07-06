@@ -42,6 +42,8 @@ export interface IControl {
   options?: { key: string; value: string }[];
   defaultValue?: any;
   showDelete?: boolean | false;
+  disableDelete?: boolean | false;
+  disableEdit?: boolean | false;
   showEdit?:boolean | false;
   pipelineIds?:string;
   pipelineId?: number; // ✅ ADD THIS LINE

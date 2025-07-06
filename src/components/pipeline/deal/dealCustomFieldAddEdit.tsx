@@ -211,9 +211,7 @@ const DealCustomFieldAddEdit = ({
         elementSize: 9,
         pipelineIds: pipelineIdsArray,
         type: ElementType[fieldType as keyof typeof ElementType],
-        options: ["dropdown", "singleOption"].includes(fieldType.toLowerCase())
-          ? optionsList.map((opt) => ({ key: opt, value: opt }))
-          : undefined,
+        options: [],
       };
 
       if (selectedFieldIndex === -1) {
@@ -223,7 +221,9 @@ const DealCustomFieldAddEdit = ({
       }
 
       setCustomFields([...updatedFields]);
-      await saveCustomField(newField);
+      await saveCustomField({...newField, options:["dropdown", "singleOption"].includes(fieldType.toLowerCase())
+        ? optionsList.map((opt) => ({ key: opt, value: opt }))
+        : undefined});
 
       toast.success(
         `Custom field ${selectedFieldIndex >= 0 ? "updated" : "added"} successfully ✅`
@@ -250,20 +250,20 @@ const DealCustomFieldAddEdit = ({
     );
 
     const matchingOriginal = originalCustomFields.find(
-      (f) => f.customField === item.key
+      (f) => f.fieldName === item.key
     );
 
     const payload: DealCustomFields = {
-      customFieldId: item.id ?? matchingOriginal?.customFieldId ?? 0,
-      dealID: 0,
-      customField: item.key,
-      customFieldType: item.type || "textbox",
-      customFieldValue: "",
-      customSelectValues:isDropdown && optionsList.length
+      id: item.id ?? matchingOriginal?.id ?? 0,
+      dealFieldId : 0,
+      dealId: 0,
+      fieldName: item.key,
+      fieldType: item.type || "textbox",
+      fieldValue: "",
+      options:isDropdown && optionsList.length
       ? JSON.stringify(optionsList.map((opt) => ({ key: opt, value: opt })))
       : "",
       pipelineId: Number(pipelineIdList[0]) || 0,
-      pipelineIds: fullPipelineIds,
       createdBy: Util.UserProfile()?.userId,
       updatedDate: new Date(),
       userId: Util.UserProfile()?.userId,

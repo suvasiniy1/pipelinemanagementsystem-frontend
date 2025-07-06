@@ -280,6 +280,7 @@ const GenerateElements: React.FC<props> = (props) => {
                     <div hidden={!item.showDelete} className="col-sm-2">
                       <button
                         className="editstage-deletebtn"
+                        disabled={item.disableDelete}
                         onClick={(e: any) => {
                           if (props.onElementDelete) onElementDelete(index);
                         }}
