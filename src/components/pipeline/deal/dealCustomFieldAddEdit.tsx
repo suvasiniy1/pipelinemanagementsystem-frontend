@@ -95,8 +95,12 @@ const DealCustomFieldAddEdit = ({
   }, [watch]);
 
   const onChange = (value: any, item: any) => {
+    
     if (item.key === "Field Type") {
       setFieldType(value);
+      setValue("fieldType" as never, value as never);
+      setSelectedItem({ ...selectedItem, fieldType: value });
+      setOptionsList([]);
     }
 
     if (item.key === "PipeLine") {
@@ -117,6 +121,7 @@ const DealCustomFieldAddEdit = ({
   const oncloseDialog = () => setDialogIsOpen(false);
 
   useEffect(() => {
+    
     if (selectedFieldIndex >= 0) {
       const field = customFields[selectedFieldIndex];
       let pipelineIdString = "";
@@ -144,12 +149,16 @@ const DealCustomFieldAddEdit = ({
       setValue("pipelineIds" as never, pipelineIdArray as never);
 
       const elementTypeKey =
-        Object.entries(ElementType).find(([_, val]) => val === field.type)?.[0] ?? "";
+        Object.entries(ElementType).find(
+          ([_, val]) => val === field.type
+        )?.[0] ?? "";
 
+      
       setSelectedItem({
         fieldName: field.key,
         fieldType: elementTypeKey,
         pipelineIds: pipelineIdArray,
+        id: field.id,
       });
 
       setValue("fieldName" as never, field.key as never);
@@ -170,7 +179,7 @@ const DealCustomFieldAddEdit = ({
       setFieldType("");
       setSelectedPipeLines([]);
     }
-  }, [selectedFieldIndex]);
+  }, []);
 
   const onSubmit = async (item: any) => {
     if (fieldType === "dropdown" && optionsList.length === 0) {
@@ -183,7 +192,10 @@ const DealCustomFieldAddEdit = ({
     try {
       const pipelineIdsArray =
         typeof item.pipelineIds === "string"
-          ? item.pipelineIds.split(",").map((p: string) => p.trim()).filter(Boolean)
+          ? item.pipelineIds
+              .split(",")
+              .map((p: string) => p.trim())
+              .filter(Boolean)
           : Array.isArray(item.pipelineIds)
           ? item.pipelineIds.map(String)
           : [];
@@ -202,7 +214,9 @@ const DealCustomFieldAddEdit = ({
       const newField: IControl = {
         key: item.fieldName,
         value: `value${
-          selectedFieldIndex === -1 ? updatedFields.length + 1 : selectedFieldIndex + 1
+          selectedFieldIndex === -1
+            ? updatedFields.length + 1
+            : selectedFieldIndex + 1
         }`,
         isControlInNewLine: true,
         showDelete: true,
@@ -210,7 +224,7 @@ const DealCustomFieldAddEdit = ({
         isRequired: true,
         elementSize: 9,
         pipelineIds: pipelineIdsArray,
-        type: ElementType[fieldType as keyof typeof ElementType],
+        type: item.fieldType,
         options: [],
       };
 
@@ -221,12 +235,17 @@ const DealCustomFieldAddEdit = ({
       }
 
       setCustomFields([...updatedFields]);
-      await saveCustomField({...newField, options:["dropdown", "singleOption"].includes(fieldType.toLowerCase())
-        ? optionsList.map((opt) => ({ key: opt, value: opt }))
-        : undefined});
+      await saveCustomField({
+        ...newField,
+        options: ["dropdown", "singleOption", "multiSelectDropdown"].includes(fieldType.toLowerCase())
+          ? optionsList.map((opt) => ({ key: opt, value: opt }))
+          : undefined,
+      });
 
       toast.success(
-        `Custom field ${selectedFieldIndex >= 0 ? "updated" : "added"} successfully ✅`
+        `Custom field ${
+          selectedFieldIndex >= 0 ? "updated" : "added"
+        } successfully ✅`
       );
       refreshCustomFields();
       setDialogIsOpen(false);
@@ -245,8 +264,8 @@ const DealCustomFieldAddEdit = ({
 
     const fullPipelineIds = pipelineIdList.join(",");
 
-    const isDropdown = ["singleoption", "dropdown"].includes(
-      (item.type || "").toLowerCase()
+    const isDropdown = ["singleoption", "dropdown", "multiSelectDropdown"].includes(
+      (item.type || "")
     );
 
     const matchingOriginal = originalCustomFields.find(
@@ -254,16 +273,18 @@ const DealCustomFieldAddEdit = ({
     );
 
     const payload: DealCustomFields = {
-      id: item.id ?? matchingOriginal?.id ?? 0,
-      dealFieldId : 0,
+      id: selectedItem.id ?? matchingOriginal?.id ?? 0,
+      dealFieldId: 0,
       dealId: 0,
       fieldName: item.key,
       fieldType: item.type || "textbox",
       fieldValue: "",
-      options:isDropdown && optionsList.length
-      ? JSON.stringify(optionsList.map((opt) => ({ key: opt, value: opt })))
-      : "",
-      pipelineId: Number(pipelineIdList[0]) || 0,
+      options:
+        isDropdown && optionsList.length
+          ? JSON.stringify(optionsList.map((opt) => ({ key: opt, value: opt })))
+          : "",
+      pipelineId: 0,
+      pipelineIds: Array.from(pipelineIdList, (x) => x).join(","),
       createdBy: Util.UserProfile()?.userId,
       updatedDate: new Date(),
       userId: Util.UserProfile()?.userId,
@@ -280,13 +301,15 @@ const DealCustomFieldAddEdit = ({
     if (item.key === "Field Type") {
       const seen = new Set<string>();
       return Object.entries(ElementType)
-        .filter(([_, label]) => {
-          if (seen.has(label)) return false;
+        .filter(([key, label]) => {
+          if (key === "custom") return false; // ❌ Skip "custom"
+          if (seen.has(label)) return false; // ❌ Skip duplicate labels
           seen.add(label);
           return true;
         })
         .map(([key, value]) => ({ name: value, value: key }));
     }
+
     if (item.key === "PipeLine") {
       return allPipeLinesList.map((pl) => ({
         name: pl.pipelineName,
@@ -307,14 +330,21 @@ const DealCustomFieldAddEdit = ({
   };
 
   const customHTMLControl = () => {
+    debugger
     return (
       <>
-        {["dropdown", "singleOption"].includes(fieldType?.toLowerCase?.()) && (
+        {["dropdown", "singleOption", "multiSelectDropdown"].includes(fieldType) && (
           <div style={{ marginTop: "1rem" }}>
             <label>
               <strong>Options (required)</strong>
             </label>
-            <ul style={{ listStyle: "none", paddingLeft: 0, marginBottom: "1rem" }}>
+            <ul
+              style={{
+                listStyle: "none",
+                paddingLeft: 0,
+                marginBottom: "1rem",
+              }}
+            >
               {optionsList.map((opt, idx) => (
                 <li
                   key={idx}
@@ -401,7 +431,9 @@ const DealCustomFieldAddEdit = ({
           getListofItemsForDropdown={getDropdownValues}
           getSelectedList={getSelectedList}
         />
-        {fieldType === "dropdown" ? customHTMLControl() : null}
+        {fieldType === "dropdown" || fieldType === "multiSelectDropdown"
+          ? customHTMLControl()
+          : null}
         <GenerateElements
           controlsList={controlsList.slice(2)}
           selectedItem={selectedItem}

@@ -14,6 +14,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { Spinner } from "react-bootstrap";
 import { DeleteDialog } from "../../../common/deleteDialog";
 import { ElementType, IControl } from "../../../models/iControl";
+import { CustomFieldService } from "../../../services/customFieldService";
 
 interface Params {
   dealItem: Deal;
@@ -36,7 +37,8 @@ const DealDetailsCustomFields = ({ dealItem }: Params) => {
   >([]);
   const [selectedItem, setSelectedItem] = useState<FormValues>({});
 
-  const customFieldsService = new CustomDealFieldsService(ErrorBoundary);
+  const customDealFieldsService = new CustomDealFieldsService(ErrorBoundary);
+  const customFieldsService = new CustomFieldService(ErrorBoundary);
 
   const methods = useForm<FormValues>({
     resolver: yupResolver(
@@ -60,27 +62,15 @@ const DealDetailsCustomFields = ({ dealItem }: Params) => {
   const loadCustomFields = () => {
     setIsLoading(true);
 
-    customFieldsService
+    customDealFieldsService
       .getCustomFields(dealItem.dealID, dealItem.pipelineID)
       .then((res: any) => {
-        
+        debugger
         const fields: IControl[] = [];
         const selectedObj: FormValues = {};
-        const dealPipelineIdStr = dealItem.pipelineID.toString();
 
         const filteredFields = res.customFields.filter(
-          (cf: DealCustomFields) => {
-            cf.pipelineId = ""+cf.pipelineId;
-            const ids = cf.pipelineId?.split(",").map((p:any) => p.trim()) ?? [];
-
-            if (ids.length === 0 && cf.pipelineId) {
-              return String(cf.pipelineId) === dealPipelineIdStr;
-            }
-
-            if (ids.length === 0) return true;
-
-            return ids.includes(dealPipelineIdStr);
-          }
+          (cf: DealCustomFields) =>cf.pipelineId==dealItem.pipelineID
         );
 
         filteredFields.forEach((cf: DealCustomFields, index: number) => {
@@ -91,20 +81,17 @@ const DealDetailsCustomFields = ({ dealItem }: Params) => {
           );
 
           const field: IControl = {
+            id:cf.id,
             key: cf.fieldName,
             value: valueKey,
             isControlInNewLine: true,
-            disableDelete: cf.dealFieldId <= 0,
+            // disableDelete: cf.dealFieldId <= 0,
             showDelete: true,
             showEdit: true,
             isRequired: true,
             elementSize: 9,
-            type: isDropdown ? ElementType.dropdown : ElementType.textbox,
-            pipelineIds: cf.pipelineId
-              ? cf.pipelineId
-              : cf.pipelineId
-              ? String(cf.pipelineId)
-              : "",
+            type: ElementType[cf.fieldType as keyof typeof ElementType],
+            pipelineId: cf.pipelineId,
             options: cf.options?.split(","),
           };
 
@@ -164,7 +151,7 @@ const DealDetailsCustomFields = ({ dealItem }: Params) => {
           fields.push(field);
         });
 
-        console.log("✅ Deal pipeline ID:", dealPipelineIdStr);
+        console.log("✅ Deal pipeline ID:", dealItem.pipelineID);
         console.log("✅ Raw customFields from API:", res.customFields);
         console.log("✅ Filtered fields for current pipeline:", filteredFields);
         console.log("✅ Fields ready to render:", fields);
@@ -182,6 +169,7 @@ const DealDetailsCustomFields = ({ dealItem }: Params) => {
   };
 
   const onChange = (value: any, item: any) => {
+    debugger
     const index = customFields.findIndex((f) => f.key === item.key);
     const valueKey = `value${index + 1}`;
     setValue(valueKey, value);
@@ -226,7 +214,8 @@ const DealDetailsCustomFields = ({ dealItem }: Params) => {
           0;
         cf.dealId = dealItem.dealID;
         cf.fieldName = field.key;
-
+        cf.dealFieldId = originalCustomFields.find((o) => o.fieldName === field.key)
+        ?.dealFieldId as any;
         const isDropdown =
           field.type === ElementType.dropdown ||
           field.type?.toLowerCase?.() === "singleoption";
@@ -243,7 +232,7 @@ const DealDetailsCustomFields = ({ dealItem }: Params) => {
           );
         }
 
-        cf.pipelineId = field.pipelineIds ?? "";
+        cf.pipelineId = ""+field.pipelineId ?? "";
 
         return cf;
       }
@@ -251,7 +240,7 @@ const DealDetailsCustomFields = ({ dealItem }: Params) => {
 
     setIsLoading(true);
 
-    customFieldsService
+    customDealFieldsService
       .postItemBySubURL(fieldsToSave, "")
       .then(() => {
         toast.success("Custom fields saved successfully");
