@@ -232,7 +232,7 @@ const DealDetailsCustomFields = ({ dealItem }: Params) => {
           );
         }
 
-        cf.pipelineId = ""+field.pipelineId ?? "";
+        cf.pipelineId = "" + (field.pipelineId ?? "");
 
         return cf;
       }
