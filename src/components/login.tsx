@@ -172,12 +172,12 @@ const Login = () => {
               setUserId(res.userId);
               setEmail(res.email);
             } else {
-              setLoginError(res as any);
-              setIsIncorrectCredentails(res);
+              setLoginError("The username and password are invalid or the username does not exist!" as any);
+              setIsIncorrectCredentails(true);
             }
           })
           .catch((err) => {
-            
+              
             setLoading(false);
             toast.error(err);
           });
