@@ -102,6 +102,7 @@ const UsersAddEditDialog: React.FC<any> = (props) => {
       isSideByItem: true,
     },
   ];
+  
 
   const getValidationsSchema = (list: Array<any>) => {
     return Yup.object().shape({
@@ -139,6 +140,20 @@ const UsersAddEditDialog: React.FC<any> = (props) => {
   }, []);
 
   const onChange = (value: any, item: any) => {
+     const field = item.value;
+
+  // Set the value normally
+  setValue(field as never, value as never);
+
+  // Auto-generate username when first or last name is entered
+  if (field === "firstName" || field === "lastName") {
+    const firstName = field === "firstName" ? value : (methods.getValues() as any)["firstName"];
+    const lastName = field === "lastName" ? value : (methods.getValues() as any)["lastName"];
+    if (firstName && lastName) {
+      const generatedUsername = `${firstName.toLowerCase()}.${lastName.toLowerCase()}`;
+      setValue("userName" as never, generatedUsername as never);
+    }
+  }
     if (item.value === "roleID") {
       setValue("roleID" as never, Number(value) as never);
     }
@@ -199,7 +214,9 @@ const UsersAddEditDialog: React.FC<any> = (props) => {
       // obj.createdBy = Util.UserProfile()?.userId;
       obj.Id = obj.userId ?? 0; 
       obj.userId = obj.userId ?? 0;
-      obj.createdDate = obj.createdDate || new Date().toISOString();
+      obj.createdDate = obj.createdDate
+  ? new Date(obj.createdDate)
+  : new Date();
       obj.modifiedDate = null as any;
       // Add SecurityStamp and ConcurrencyStamp fields
       obj.securityStamp = obj.securityStamp || generateRandomStamp(); // Placeholder function
