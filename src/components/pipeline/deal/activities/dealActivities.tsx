@@ -26,6 +26,7 @@ import NotesList from "./notes/notesList";
 import TasksList from "./tasks/tasksList";
 import { Spinner } from "react-bootstrap";
 import parse, { domToReact } from "html-react-parser";
+import TrackChangesIcon from "@mui/icons-material/TrackChanges";
 
 // Define the structure of a Call object based on the API response
 type Call = {
@@ -129,28 +130,34 @@ const DealActivities = (props: params) => {
   }, [dealId]);
 
   const getEventIcon = (eventType: number) => {
-    let icon;
-    switch (eventType) {
-      case EntitType.Task:
-        icon = <CorporateFareIcon />;
-        break;
-      case EntitType.Note:
-        icon = <StickyNote2OutlinedIcon />;
-        break;
-      case EntitType.Email:
-        icon = <EmailOutlinedIcon />;
-        break;
-      case EntitType.Deal:
-        icon = <PaidOutlinedIcon />;
-        break;
-      case EntitType.Comment:
-        icon = <FiberManualRecordIcon />;
-        break;
-      default:
-        icon = <PhoneInTalkOutlinedIcon />;
-    }
-    return icon;
-  };
+  let icon;
+  switch (eventType) {
+    case EntitType.Task:
+      icon = <CorporateFareIcon />;
+      break;
+    case EntitType.Note:
+      icon = <StickyNote2OutlinedIcon />;
+      break;
+    case EntitType.Email:
+      icon = <EmailOutlinedIcon />;
+      break;
+    case EntitType.Deal:
+      icon = <TrackChangesIcon />;
+      break;
+    case EntitType.Comment:
+      icon = <FiberManualRecordIcon />;
+      break;
+    case 7: // Pipeline Updated
+      icon = <TrackChangesIcon />;
+      break;
+    case 9: // Stage Updated
+      icon = <TrackChangesIcon />;
+      break;
+    default:
+      icon = <PhoneInTalkOutlinedIcon />; // fallback
+  }
+  return icon;
+};
 
   /**
    * Helper function to extract a potential subject from raw HTML content.
@@ -304,59 +311,61 @@ extractedSubject = "Email Activity";
           className="mb-5 activity-subtab"
         >
           <Tab eventKey="activity_sub" title="Activity">
-            {defaultActiveKey === "activity_sub" && (
-              <AuthProvider>
-                {dealTimeLines.map((item, index) => (
-                  <div className="appboxdata" key={index}> {/* Added key prop */}
-                    <div className="appboxdata-row">
-                      <div className="lineroundicon PhoneInTalkOutlinedIcon">
-                        {getEventIcon(item.eventTypeId) as any}
-                      </div>
-                      <div className="appboxdata-rowdata">
-                        <div className="appboxdatarow-head">
-                          <div className="appboxdatarow-headrow">
-                            <h2>
-                              {item.eventTypeId === EntitType.Email ? "Email" : item.eventType}
-                            </h2>
-                          </div>
-                          <div className="appboxdata-meta appboxdata-headmeta">
-                            <div className="appboxdatameta-date">
-                              {moment(item.eventDate).format(
-                                "MM-DD-YYYY hh:mm:ss a"
-                              )}
-                            </div>
-                            <div className="appboxdatameta-service">
-                              &nbsp;&nbsp;({item.timeline})
-                            </div>
-                          </div>
-                        </div>
+  {defaultActiveKey === "activity_sub" && (
+    <AuthProvider>
+      {dealTimeLines.map((item, index) => {
+        const isBasicLog =
+          item.eventTypeId === EntitType.Deal ||
+          item.eventTypeId === 7 || // Pipeline
+          item.eventTypeId === 9;   // Stage
 
-                        <div className="appboxdatarow-foot">
-                          <div className="appboxdatafoot-call">
-                            <div className="appboxdatafoot-calltext">
-                              {item.eventTypeId === EntitType.Email ? (
-                                renderEmailContent(item) // Pass the entire item to renderEmailContent
-                              ) : (
-                                parse(item.activityDetail || "", options)
-                              )}
-                            </div>
-                          </div>
-                          <div className="appboxdata-meta appboxdata-footmeta">
-                            <div
-                              className="appboxdatameta-leadname"
-                              hidden={!item.contactNumber}
-                            >
-                              <PersonOutlineIcon /> {item.contactNumber}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+        return (
+          <div className={`appboxdata ${isBasicLog ? "basic-log" : ""}`} key={index}>
+            <div className="appboxdata-row">
+              <div className="lineroundicon PhoneInTalkOutlinedIcon">
+                {getEventIcon(item.eventTypeId)}
+              </div>
+
+              <div className={`appboxdata-rowdata ${isBasicLog ? "unified-log" : "highlight-box"}`}>
+                <div className="appboxdatarow-head">
+                  <div className="appboxdatarow-headrow">
+                    <h2>{item.eventTypeId === EntitType.Email ? "Email" : item.eventType}</h2>
+                  </div>
+                  <div className="appboxdata-meta appboxdata-headmeta">
+                    <div className="appboxdatameta-date">
+                      {moment(item.eventDate).format("MM-DD-YYYY hh:mm:ss a")}
+                    </div>
+                    <div className="appboxdatameta-service">
+                      &nbsp;&nbsp;({item.timeline})
                     </div>
                   </div>
-                ))}
-              </AuthProvider>
-            )}
-          </Tab>
+                </div>
+
+                <div className="appboxdatarow-foot">
+                  <div className="appboxdatafoot-call">
+                    <div className="appboxdatafoot-calltext">
+                      {item.eventTypeId === EntitType.Email
+                        ? renderEmailContent(item)
+                        : parse(item.activityDetail || "", options)}
+                    </div>
+                  </div>
+                  <div className="appboxdata-meta appboxdata-footmeta">
+                    <div
+                      className="appboxdatameta-leadname"
+                      hidden={!item.contactNumber}
+                    >
+                      <PersonOutlineIcon /> {item.contactNumber}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </AuthProvider>
+  )}
+</Tab>
           <Tab eventKey="notes" title="Notes">
             {defaultActiveKey === "notes" && (
               <NotesList dealId={dealItem.dealID} />
