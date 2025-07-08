@@ -53,6 +53,8 @@ type params = {
   selectedUserId:any;
   dealFilterDialogIsOpen:any;
   setDealFilterDialogIsOpen:any;
+  pipeLineId:any;
+  setPipeLineId:any;
 };
 export const DealHeader = (props: params) => {
   const navigate = useNavigate();
@@ -72,6 +74,8 @@ export const DealHeader = (props: params) => {
     selectedUserId,
     dealFilterDialogIsOpen,
     setDealFilterDialogIsOpen,
+    pipeLineId,
+    setPipeLineId,
     ...others
   } = props;
   const [pipeLinesList, setPipeLinesList] = useState(props.pipeLinesList);
@@ -160,7 +164,7 @@ export const DealHeader = (props: params) => {
               {pipeLinesList.map((item, index) => (
                 <li
                   key={index}
-                  onClick={(e: any) => {setSelectedFilterObj(null); setSelectedItem(item)}}
+                  onClick={(e: any) => {setSelectedFilterObj(null);setPipeLineId(item.pipelineID); setSelectedItem(item)}}
                   onMouseOver={(e: any) => handlePipeLineEdit(index)}
                 >
                   <button className="pipeselectlink" type="button">
@@ -444,6 +448,7 @@ export const DealHeader = (props: params) => {
           setDialogIsOpen={(e: any) => onDialogClose()}
           onSaveChanges={(e: any) => props.onSaveChanges()}
           selectedStageId={selectedStageId}
+          selectedPipeLineId={selectedItem?.pipelineID}
           pipeLinesList={pipeLinesList}
         />
       )}

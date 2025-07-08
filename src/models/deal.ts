@@ -155,15 +155,15 @@ export class DealMove {
 }
 
 export class DealCustomFields extends AuditItem {
-  customFieldId!: number;
-  dealID!: number;
-  customField!: string;
-  customFieldType!: string;
-  customFieldValue!: string;
-  customSelectValues!: string;
-  pipelineId!: number;
-  pipelineIds?: string; 
-  options?: string | Array<{ key: string; value: string }>; // <-- Add this line
+  id!: number;
+  dealFieldId!: number;
+  fieldName!: string;
+  fieldType!: string;
+  fieldValue!: string;
+  pipelineId!: any;
+  pipelineIds!: any;
+  dealId!: number;
+  options!: any;
 }
 
 export interface DealTimeLine {

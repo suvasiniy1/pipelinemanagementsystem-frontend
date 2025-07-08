@@ -346,6 +346,8 @@ export const Deals = (props: params) => {
               <DealHeader
                 canAddDeal={pipeLines.length > 0}
                 onSaveChanges={(e: any) => loadPipeLines()}
+                setPipeLineId={setPipeLineId}
+                pipeLineId={pipeLineId}
                 selectedItem={selectedItem as any}
                 setSelectedItem={(e: any) => setSelectedItem(e)}
                 pipeLinesList={pipeLines}
