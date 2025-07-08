@@ -255,6 +255,7 @@ const DealCustomFieldAddEdit = ({
   };
 
   const saveCustomField = async (item: IControl) => {
+    
     const pipelineIdList =
       typeof item.pipelineIds === "string"
         ? item.pipelineIds.split(",").map((p) => p.trim())
@@ -281,7 +282,7 @@ const DealCustomFieldAddEdit = ({
       fieldValue: "",
       options:
         isDropdown && optionsList.length
-          ? JSON.stringify(optionsList.map((opt) => ({ key: opt, value: opt })))
+          ? Array.from(optionsList, x=>x).join(",")
           : "",
       pipelineId: 0,
       pipelineIds: Array.from(pipelineIdList, (x) => x).join(","),
@@ -294,15 +295,16 @@ const DealCustomFieldAddEdit = ({
       updatedBy: Util.UserProfile()?.userId,
     };
 
-    await customFieldsService.postItem(payload);
+    await customFieldsService.postItem({...payload, options:Array.from(optionsList, x=>x).join(",")});
   };
 
+  let excludedList = ["checkbox", "custom", "slider","datepicker"];
   const getDropdownValues = (item: any) => {
     if (item.key === "Field Type") {
       const seen = new Set<string>();
       return Object.entries(ElementType)
         .filter(([key, label]) => {
-          if (key === "custom") return false; // ❌ Skip "custom"
+          if (excludedList.includes(key)) return false; // ❌ Skip "few"
           if (seen.has(label)) return false; // ❌ Skip duplicate labels
           seen.add(label);
           return true;
@@ -330,7 +332,7 @@ const DealCustomFieldAddEdit = ({
   };
 
   const customHTMLControl = () => {
-    debugger
+    
     return (
       <>
         {["dropdown", "singleOption", "multiSelectDropdown"].includes(fieldType) && (
