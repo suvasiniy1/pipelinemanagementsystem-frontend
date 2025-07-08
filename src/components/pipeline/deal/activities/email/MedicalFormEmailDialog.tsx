@@ -31,6 +31,7 @@ const MedicalFormEmailDialog = ({ dialogIsOpen, selectedItem, onCloseDialog, onS
         onSave={methods.handleSubmit(onSubmit)}
         closeDialog={onCloseDialog}
         onClose={onCloseDialog}
+        customSaveChangesButtonName="Send"
       >
         <GenerateElements
           controlsList={controlsList}
