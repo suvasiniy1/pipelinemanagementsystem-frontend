@@ -52,7 +52,7 @@ const DealOverView = (props: params) => {
   const [isDealLost, setIsDealLost]=useState(false);
   const removeSpecificTags = (html: string | null | undefined): string => {
     if (!html) return ""; // Handle null or undefined input
-    return html.replace(/<\/?p>/g, ""); // Remove <p> and </p> tags
+    return html.replace(/<[^>]+>/g, "");
   };
 
   useEffect(() => {

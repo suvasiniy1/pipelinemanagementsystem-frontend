@@ -65,7 +65,7 @@ const DealDetailsCustomFields = ({ dealItem }: Params) => {
     customDealFieldsService
       .getCustomFields(dealItem.dealID, dealItem.pipelineID)
       .then((res: any) => {
-        debugger
+        
         const fields: IControl[] = [];
         const selectedObj: FormValues = {};
 
@@ -92,7 +92,7 @@ const DealDetailsCustomFields = ({ dealItem }: Params) => {
             elementSize: 9,
             type: ElementType[cf.fieldType as keyof typeof ElementType],
             pipelineId: cf.pipelineId,
-            options: cf.options?.split(","),
+            options: JSON.parse(cf.options)?.split(","),
           };
 
           selectedObj[valueKey]=cf.fieldValue;
@@ -169,7 +169,7 @@ const DealDetailsCustomFields = ({ dealItem }: Params) => {
   };
 
   const onChange = (value: any, item: any) => {
-    debugger
+    
     const index = customFields.findIndex((f) => f.key === item.key);
     const valueKey = `value${index + 1}`;
     setValue(valueKey, value);

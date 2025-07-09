@@ -31,7 +31,7 @@ export class UserCredentails {
   constructor(
     userName: string = null as any,
     passwordHash: string = null as any,
-    email: string = "test" as any,
+    email: string = "" as any,
     userId: number = 0
   ) {
     this.userId = userId;
@@ -67,12 +67,12 @@ const Login = () => {
 
   const [controlsList, setControlsList] = useState<Array<IControl>>([
     {
-      key: "User Name",
-      value: "userName",
+      key: "Email",
+      value: "email",
       isRequired: true,
       tabIndex: 1,
       isFocus: true,
-      placeHolder: "User Name",
+      placeHolder: "Email",
       isControlInNewLine: true,
       elementSize: 12,
     },
@@ -107,6 +107,7 @@ const Login = () => {
   const onSubmitClick = async (item: any) => {
     let obj = Util.toClassObject(new UserCredentails(), item);
     obj.password = obj.passwordHash;
+    obj.userName = obj.email;
     setLoading(true);
 
     // Only use the username and password
@@ -196,17 +197,17 @@ const Login = () => {
   const onChange = (value: any, item: any) => {
     
     let obj = { ...selectedItem };
-    if (item.value == "userName") obj.userName = value;
+    if (item.value == "email") obj.email = value;
     if (item.value == "passwordHash") obj.passwordHash = value;
 
     setSelectedItem(obj);
-    setDisableLogin(Util.isNullOrUndefinedOrEmpty(obj.userName) || Util.isNullOrUndefinedOrEmpty(obj.passwordHash));
+    setDisableLogin(Util.isNullOrUndefinedOrEmpty(obj.email) || Util.isNullOrUndefinedOrEmpty(obj.passwordHash));
 
     let cntrlList = [...controlsList];
     cntrlList[1].isRequired = obj.userName !== "developer";
-    cntrlList[1].disabled=Util.isNullOrUndefinedOrEmpty(obj.userName);
+    cntrlList[1].disabled=Util.isNullOrUndefinedOrEmpty(obj.email);
     setControlsList([...cntrlList]);
-    setValue("userName" as never, obj.userName as never);
+    setValue("email" as never, obj.email as never);
     setValue("passwordHash" as never, obj.passwordHash as never);
   };
 
@@ -226,10 +227,17 @@ const Login = () => {
             LocalStorageUtil.setItem(Constants.USER_LOGGED_IN, "true");
             LocalStorageUtil.setItem(Constants.ACCESS_TOKEN, res?.token);
             LocalStorageUtil.setItem(Constants.User_Name, res?.user);
-            LocalStorageUtil.setItem(
-              Constants.TOKEN_EXPIRATION_TIME,
-              convertTZ(res?.expires)
+           LocalStorageUtil.setItem(Constants.USER_Role, res?.role);
+           LocalStorageUtil.setItem(
+            Constants.TOKEN_EXPIRATION_TIME,
+           convertTZ(res?.expires)
             );
+             LocalStorageUtil.setItemObject(Constants.USER_PROFILE, {
+                user: res.user,
+                email: res.email,
+               userId: res.userId,
+               role: res.role
+             });
             navigate("/pipeline"); // Navigate to the next screen after successful verification
           } else {
             toast.error("Invalid verification code.");
