@@ -175,7 +175,7 @@ function EmailActivities(props: params) {
 };
 auditLogObj.createdBy = Util.UserProfile()?.userId;
 auditLogObj.eventDescription = "A new email was sent for the deal";
-await auditLogsvc.postAuditLog(auditLogObj);
+//await auditLogsvc.postAuditLog(auditLogObj);
         let dealEmailObj:DealEmailLog=new DealEmailLog();
         
         dealEmailObj.dealId = dealId;
