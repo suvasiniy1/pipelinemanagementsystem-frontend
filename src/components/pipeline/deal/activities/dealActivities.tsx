@@ -226,67 +226,72 @@ extractedSubject = "Email Activity";
  return { subject: extractedSubject, body: processedBodyHtml };
  };
 
-  const renderEmailContent = (item: DealTimeLine) => {
-    let subject = "";
-    let body = "";
-    let toRecipients = "";
-    let emailAddress = ""; // Added emailAddress for sender display
+  const EmailItemRenderer = ({ item }: { item: DealTimeLine }) => {
+  const [isCollapsed, setIsCollapsed] = useState(true);
+  let subject = "";
+  let body = "";
+  let toRecipients = "";
+  let emailAddress = "";
 
-    try {
-      const outerParsed = JSON.parse(item.activityDetail || "");
-
-      if (outerParsed && typeof outerParsed.message === 'string') {
-        const innerMessage = JSON.parse(outerParsed.message);
-        subject = innerMessage.subject || "";
-        body = innerMessage.body || "";
-        toRecipients = innerMessage.toRecipients
-          ? JSON.parse(innerMessage.toRecipients).join(', ')
-          : '';
-        emailAddress = innerMessage.emailAddress || ""; 
-      } else {
-
-        const { subject: extractedSubject, body: extractedBody } = extractSubjectFromHtml(item.activityDetail || "");
-        subject = extractedSubject;
-        body = extractedBody;
-
-      }
-    } catch (e) {
-      console.warn("Error parsing activityDetail as JSON for email, falling back to HTML heuristic:", e);
-
-      const { subject: extractedSubject, body: extractedBody } = extractSubjectFromHtml(item.activityDetail || "");
-      subject = extractedSubject;
-      body = extractedBody;
-
+  try {
+    const outerParsed = JSON.parse(item.activityDetail || "");
+    if (outerParsed && typeof outerParsed.message === "string") {
+      const innerMessage = JSON.parse(outerParsed.message);
+      subject = innerMessage.subject || "";
+      body = innerMessage.body || "";
+      toRecipients = innerMessage.toRecipients
+        ? JSON.parse(innerMessage.toRecipients).join(", ")
+        : "";
+      emailAddress = innerMessage.emailAddress || "";
+    } else {
+      const extracted = extractSubjectFromHtml(item.activityDetail || "");
+      subject = extracted.subject;
+      body = extracted.body;
     }
+  } catch (e) {
+    const extracted = extractSubjectFromHtml(item.activityDetail || "");
+    subject = extracted.subject;
+    body = extracted.body;
+  }
 
-    return (
-      <div className="email-structured-content">
-        <div className="email-header-line">
-          {subject ? (
-            <h3>{subject}</h3> // Use h3 for the subject
-          ) : (
-            <h4></h4> // Generic title if no clear subject
-          )}
-        </div>
-        {/* Display sender information */}
-        {emailAddress && (
-          <p className="email-from-line">
-            <strong>From:</strong> {emailAddress}
-          </p>
-        )}
-        {/* Only show "To" if available and not empty */}
-        {toRecipients && toRecipients.length > 0 && (
-          <p className="email-to-line">
-            <strong>To:</strong> {toRecipients}
-          </p>
-        )}
-        <div className="email-body-content">
-          {parse(body, options)} {/* Parse the HTML body */}
-        </div>
-        <p className="email-attachments-line">No attachments available.</p>
+  return (
+    <div className="email-structured-content" style={{ background: "#fffde7", padding: "10px", borderRadius: "5px" }}>
+  <div
+    className="email-header-line d-flex justify-content-between align-items-center"
+    style={{ cursor: "pointer" }}
+    onClick={() => setIsCollapsed(!isCollapsed)}
+  >
+    <div style={{ fontWeight: 600 }}>{subject || "Email Activity"}</div> {/* Subject in bold */}
+    <UnfoldMoreOutlinedIcon
+      style={{
+        transform: isCollapsed ? "rotate(0deg)" : "rotate(180deg)",
+        transition: "transform 0.2s"
+      }}
+    />
+  </div>
+
+  {!isCollapsed && (
+    <>
+      {emailAddress && (
+        <p className="email-from-line" style={{ fontWeight: 400 }}>
+          <strong>From:</strong> {emailAddress}
+        </p>
+      )}
+      {toRecipients && (
+        <p className="email-to-line" style={{ fontWeight: 400 }}>
+          <strong>To:</strong> {toRecipients}
+        </p>
+      )}
+      <div className="email-body-content" style={{ fontWeight: 400 }}>
+        {parse(body, options)}
       </div>
-    );
-  };
+      <p className="email-attachments-line">No attachments available.</p>
+    </>
+  )}
+</div>
+  );
+};
+
 
 
   return (
@@ -344,9 +349,11 @@ extractedSubject = "Email Activity";
                 <div className="appboxdatarow-foot">
                   <div className="appboxdatafoot-call">
                     <div className="appboxdatafoot-calltext">
-                      {item.eventTypeId === EntitType.Email
-                        ? renderEmailContent(item)
-                        : parse(item.activityDetail || "", options)}
+                      {item.eventTypeId === EntitType.Email ? (
+  <EmailItemRenderer item={item} />
+) : (
+  parse(item.activityDetail || "", options)
+)}
                     </div>
                   </div>
                   <div className="appboxdata-meta appboxdata-footmeta">
