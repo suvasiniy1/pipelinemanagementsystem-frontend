@@ -27,7 +27,7 @@
 .colheadprofilerow{display: flex; align-items: center; justify-content: end;}
 .headsearchrow{justify-content: center; max-width: 500px; position: relative; margin: 0 !important;}
 .headsearchrow .headsearch{width: 100%;}
-.colheadsearch{width: 400px;}
+.colheadsearch{width: 500px; padding-left: 200px;}
 .colheadsearch .form-control {width: 100%; border-radius: 40px; height: 40px; padding: 10px 20px 10px 40px;}
 .headinput{position: relative;}
 .headinput .rs-icon{position: absolute; left: 10px; top: 10px;font-size: 18px;}

@@ -23,7 +23,9 @@ const EmailConfigurationList = () => {
       columnHeaderName: "Last Modified Date",
       width: 100,
     },
+    { columnName: "toAddress", columnHeaderName: "To Address", width: 200 },
   ];
+
 
   return (
     <ItemCollection

@@ -110,8 +110,10 @@ const UsersList = () => {
   };
 
   const customActions = (item: any) => {
-    // return authContext.isTenantUser || authContext.isSuperAdmin || authContext.isEnterpriseAdmin? <>
-
+    const userProfile = Util.UserProfile();
+    const currentUserId = userProfile?.userId;
+    const rowUserId = item?.row?.userId;
+    const isCurrentUser = currentUserId && rowUserId && String(currentUserId) === String(rowUserId);
     return (
       <>
         <Button
@@ -119,9 +121,10 @@ const UsersList = () => {
           startIcon={<LockResetIcon />}
           title="Reset Password"
           onClick={(event) => {
-            resetPassword(item.row);
+            if (!isCurrentUser) resetPassword(item.row);
           }}
           className="rowActionIcon"
+          disabled={isCurrentUser}
         ></Button>
       </>
     );

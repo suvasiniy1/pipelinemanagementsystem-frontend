@@ -209,15 +209,26 @@ const Table: React.FC<TableListProps> = (props) => {
   };
 
   const processRowData = (rowData: Array<any>) => {
+    // Sort by modifiedDate (or createdDate) descending, including time
+    rowData.sort((a, b) => {
+      // Use original ISO string for sorting (before formatting)
+      const rawA = a.modifiedDateRaw || a.modifiedDate || a.createdDateRaw || a.createdDate || 0;
+      const rawB = b.modifiedDateRaw || b.modifiedDate || b.createdDateRaw || b.createdDate || 0;
+      const dateA = Date.parse(rawA);
+      const dateB = Date.parse(rawB);
+      return dateB - dateA;
+    });
     rowData.forEach((r) => {
       // Add modifiedBy using fallback logic
       r.modifiedBy = Util.getUserNameById(r.updatedBy ?? r.createdBy);
-  
+      // Save original ISO string for sorting
+      if (isISODateString(r.modifiedDate)) r.modifiedDateRaw = r.modifiedDate;
+      if (isISODateString(r.createdDate)) r.createdDateRaw = r.createdDate;
       // Loop through properties and format ISO date strings
       Object.keys(r).forEach((key) => {
         const value = r[key];
         if (isISODateString(value)) {
-          r[key] = moment(value).format(window.config.DateFormat);
+          r[key] = moment(value).format('DD/MM/YYYY');
         }
       });
     });
@@ -366,14 +377,18 @@ const Table: React.FC<TableListProps> = (props) => {
         <strong>Actions</strong>
       ),
       renderCell: (cellValues) => {
+        // Prevent edit/delete for current user in users list
+        const isUserList = props.itemName === 'User' || props.itemType?.name === 'User';
+        const currentUserId = userProfile?.userId;
+        const rowUserId = cellValues.row?.userId;
+        const isCurrentUser = isUserList && currentUserId && rowUserId && String(currentUserId) === String(rowUserId);
         return (
           <>
             <Button
-              // variant="contained"
               color="primary"
               startIcon={<EditIcon />}
               title="Edit"
-              id={`${
+              id={`$${
                 propNameforSelector
                   ? "editItem_" +
                     getSelectedItemfromCellValues(cellValues)[
@@ -382,16 +397,16 @@ const Table: React.FC<TableListProps> = (props) => {
                   : "editItem"
               }`}
               onClick={(event) => {
-                onClickEditListener(event, cellValues, false);
+                if (!isCurrentUser) onClickEditListener(event, cellValues, false);
               }}
               className="rowActionIcon"
+              disabled={isCurrentUser}
             ></Button>
             {/* <Button
-              // variant="contained"
               color="primary"
               startIcon={<PluseIcon />}
               title="Clone"
-              id={`${
+              id={`$${
                 propNameforSelector
                   ? "cloneItem_" +
                     getSelectedItemfromCellValues(cellValues)[
@@ -404,13 +419,11 @@ const Table: React.FC<TableListProps> = (props) => {
               }}
               className="rowActionIcon"
             ></Button> */}
-
             <Button
-              // variant="contained"
               color="primary"
               startIcon={<DeleteIcon />}
               title="Delete"
-              id={`${
+              id={`$${
                 propNameforSelector
                   ? "deleteItem_" +
                     getSelectedItemfromCellValues(cellValues)[
@@ -419,9 +432,10 @@ const Table: React.FC<TableListProps> = (props) => {
                   : "deleteItem"
               }`}
               onClick={(event) => {
-                onClickDeleteListener(event, cellValues);
+                if (!isCurrentUser) onClickDeleteListener(event, cellValues);
               }}
               className="rowActionIcon"
+              disabled={isCurrentUser}
             ></Button>
             {props.customActions ? props.customActions(cellValues) : null}
           </>

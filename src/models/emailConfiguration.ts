@@ -3,6 +3,7 @@ import { AuditItem } from "./base/AuditNamedItem";
 export class EmailConfiguration extends AuditItem {
   id!: number;
   emailtemplateId!: number;
+  name!: string;
   fromName!: string;
   fromAddress!: string;
   replytoaddress!: string;

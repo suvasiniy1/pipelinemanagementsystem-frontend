@@ -67,100 +67,7 @@ const PersonAddEditDialog: React.FC<ViewEditProps> = (props) => {
     const { errors } = methods.formState;
     console.log('Validation errors:', errors);
 
-    useEffect(() => {
-        console.log('SelectedItem changed:', selectedItem); // Debug log
-        personSvc.getOrganizations().then((fetchedOrgs) => {
-            console.log('Fetched organizations:', fetchedOrgs); // Debug log
-            if (fetchedOrgs && fetchedOrgs.length > 0) {
-                const orgOptions = fetchedOrgs.map((org: Organization) => ({
-                    value: org.organizationID ? org.organizationID.toString() : '',
-                    name: org.name,
-                }));
-                setOrganizations(orgOptions);
-                if (selectedItem?.organizationID) {
-                    console.log('Setting organizationID value:', selectedItem.organizationID); // Debug log
-                    setValue('organizationID' as never, selectedItem.organizationID.toString() as never);
-                }
-            } else {
-                console.warn('No organizations fetched from the API');
-            }
-        }).catch(error => {
-            console.error('Error fetching organizations:', error);
-        });
-        personSvc.getLabels().then((response) => {
-            console.log('Fetched labels:', response); // Debug log
-            if (response && Array.isArray(response) && response.length > 0) {
-                const resOptions = response.map((res: Label) => ({
-                    value: res.labelID ? res.labelID.toString() : '',
-                    name: res.labelName,
-                }));
-                setLabels(resOptions);
-                if (selectedItem?.labelID) {
-                    console.log('Setting labelID value:', selectedItem.labelID); // Debug log
-                    setValue('labelID' as never, selectedItem.labelID.toString() as never);
-                }
-            } else {
-                console.warn('No labels fetched from the API');
-            }
-        }).catch(error => {
-            console.error('Error fetching labels:', error);
-        });
-        personSvc.getOwners().then((response) => {
-            console.log('Fetched users:', response); // Debug log
-            if (response && Array.isArray(response) && response.length > 0) {
-                const resOptions = response.map((res: User) => ({
-                    value: res.userId ? res.userId.toString() : '', // Correctly map userId
-                    name: res.userName,
-                }));
-                setOwners(resOptions);
-                if (selectedItem?.userId) { // Use ownerID instead of userId
-                    console.log('Setting ownerID value:', selectedItem.userId); // Debug log
-                    setValue('userID' as never, selectedItem.userId.toString() as never);
-                }
-            } else {
-                console.warn('No users fetched from the API');
-            }            
-        }).catch(error => {
-            console.error('Error fetching users:', error);
-        });
-       
-        personSvc.getSources().then((response) => {
-            console.log('Fetched sources:', response); // Debug log
-            if (response && Array.isArray(response) && response.length > 0) {
-                const resOptions = response.map((res: Source) => ({
-                    value: res.sourceID ? res.sourceID.toString() : '',
-                    name: res.sourceName,
-                }));
-                setSources(resOptions);
-                if (selectedItem?.sourceID) {
-                    console.log('Setting sourceID value:', selectedItem.sourceID); // Debug log
-                    setValue('sourceID' as never, selectedItem.sourceID.toString() as never);
-                }
-            } else {
-                console.warn('No sources fetched from the API');
-            }
-        }).catch(error => {
-            console.error('Error fetching source:', error);
-        });
-        personSvc.getVisibilityGroups().then((response) => {
-            console.log('Fetched visibility groups:', response); // Debug log
-            if (response && Array.isArray(response) && response.length > 0) {
-                const resOptions = response.map((res: VisibilityGroup) => ({
-                    value: res.visibilityGroupID ? res.visibilityGroupID.toString() : '',
-                    name: res.visibilityGroupName,
-                }));
-                setVisibilityGroups(resOptions);
-                if (selectedItem?.visibilityGroupID) {
-                    console.log('Setting visibility group value:', selectedItem.visibilityGroupID); // Debug log
-                    setValue('visibilityGroupID' as never, selectedItem.visibilityGroupID.toString() as never);
-                }
-            } else {
-                console.warn('No visibility group from the API');
-            }
-        }).catch(error => {
-            console.error('Error fetching visibility group:', error);
-        });
-    }, [selectedItem, setValue]);
+    // Removed duplicate API calls - using Promise.all approach below
 
     const oncloseDialog = () => {
         setDialogIsOpen(false);
@@ -185,57 +92,6 @@ const PersonAddEditDialog: React.FC<ViewEditProps> = (props) => {
             setValue('visibilityGroupID' as never, value as never);
         }
     }
-
-    useEffect(() => {
-        if (!selectedItem) return;
-    
-        console.log('Selected item:', selectedItem);
-        console.log('Available labels:', labels);
-        console.log('Available organizations:', organizations);
-        console.log('Available owners:', owners);
-    
-        // Find and set label if it exists in roles
-        const label = labels.find(r => r.name === selectedItem.labelName);
-        if (label) {
-            setValue('labelID' as never, Number(label.value) as never); 
-            console.log('Setting labelID value:', label.value);
-        } else {
-            console.warn('label not found for labelName:', selectedItem.labelName);
-        }
-        //owner
-        const owner = owners.find(r => r.name === selectedItem.userName);
-       if (owner) {
-        setValue('userID' as never, Number(owner.value) as never); 
-        console.log('Setting ownerID value:', owner.value);
-       } else {
-        console.warn('owner not found for userName:', selectedItem.userName);
-       }
-     
-        //source
-        const source = sources.find(r => r.name === selectedItem.sourceName);
-        if (source) {
-            setValue('sourceID' as never, Number(source.value) as never); 
-            console.log('Setting sourceID value:', source.value);
-        } else {
-            console.warn('source not found for sourceName:', selectedItem.sourceName);
-        }
-        //visbility
-        const visibilityGroup = visibilityGroups.find(r => r.name === selectedItem.visibilityGroupName);
-        if (visibilityGroup) {
-            setValue('visibilityGroupID' as never, Number(visibilityGroup.value) as never); 
-            console.log('Setting visibilityGroupID value:', visibilityGroup.value);
-        } else {
-            console.warn('visibilityGroup not found for visibilityGroupName:', selectedItem.visibilityGroupName);
-        }
-        // Find and set organizationID if it exists in organizations
-        const organization = organizations.find(o => o.name === selectedItem.name);
-        if (organization) {
-            setValue('organizationID' as never, Number(organization.value)as never); // Ensure organization.value is a string
-            console.log('Setting organizationID value:', organization.value);
-        } else {
-            console.warn('Organization not found for name:', selectedItem.name);
-        }
-    }, [selectedItem, labels,owners,sources,visibilityGroups, organizations, setValue]);
 
     useEffect(() => {
         const fetchLabelsAndOrganizations = async () => {
@@ -284,7 +140,24 @@ const PersonAddEditDialog: React.FC<ViewEditProps> = (props) => {
         };
     
         fetchLabelsAndOrganizations();
-    }, [personSvc]);
+    }, []);
+
+    // Set form values when selectedItem changes and data is loaded
+    useEffect(() => {
+        if (selectedItem && organizations.length > 0 && labels.length > 0 && owners.length > 0 && sources.length > 0 && visibilityGroups.length > 0) {
+            // Set all form values
+            setValue('personName' as never, (selectedItem.personName || '') as never);
+            setValue('firstName' as never, (selectedItem.firstName || '') as never);
+            setValue('lastName' as never, (selectedItem.lastName || '') as never);
+            setValue('email' as never, (selectedItem.email || '') as never);
+            setValue('phone' as never, (selectedItem.phone || '') as never);
+            setValue('organizationID' as never, (selectedItem.organizationID?.toString() || '') as never);
+            setValue('labelID' as never, (selectedItem.labelID?.toString() || '') as never);
+            setValue('userID' as never, (selectedItem.ownerID?.toString() || selectedItem.userId?.toString() || '') as never);
+            setValue('sourceID' as never, (selectedItem.sourceID?.toString() || '') as never);
+            setValue('visibilityGroupID' as never, (selectedItem.visibilityGroupID?.toString() || '') as never);
+        }
+    }, [selectedItem, organizations, labels, owners, sources, visibilityGroups, setValue]);
     
     const getListofItemsForDropdown = (item: any) => {
         if (item.value === 'labelID') {
@@ -322,6 +195,7 @@ const PersonAddEditDialog: React.FC<ViewEditProps> = (props) => {
     };
 
     const onSubmit = (item: any) => {
+        
         try {
             let obj: Person = { ...selectedItem };
             obj = Util.toClassObject(obj, item);
@@ -330,27 +204,36 @@ const PersonAddEditDialog: React.FC<ViewEditProps> = (props) => {
             obj.ownerID = item.userID !== null ? Number(item.userID) : 0;
             obj.visibilityGroupID = item.visibilityGroupID !== null ? Number(item.visibilityGroupID) : 0;
             obj.organizationID = item.organizationID !== null ? Number(item.organizationID) : 0;
-         
-          //  obj.createdBy = Util.UserProfile()?.userId;
             obj.personID = obj.personID ?? 0;
             const userProfile = Util.UserProfile();
-        const currentUserId = userProfile?.userId;
-        const now = new Date();
+            const currentUserId = userProfile?.userId;
+            const now = new Date();
 
-        if (obj.personID > 0) {
-            // Existing person
-            obj.createdBy = obj.ownerID;
-            obj.createdDate = obj.createdDate; 
-            obj.modifiedBy = obj.ownerID;
-            obj.modifiedDate = now;
-        } else {
-            // New person
-            obj.createdBy = obj.ownerID ;
-            obj.createdDate = now;
-        }
-           (obj.personID > 0 
+            // Fix: Ensure createdDate is null if empty string or invalid
+            if (
+                obj.createdDate === undefined ||
+                obj.createdDate === null ||
+                (typeof obj.createdDate === 'string' && (obj.createdDate === '' || isNaN(Date.parse(obj.createdDate))))
+            ) {
+                obj.createdDate = null as any;
+            }
+
+            if (obj.personID > 0) {
+                // Existing person: do not overwrite createdDate
+                obj.createdBy = obj.ownerID;
+                obj.modifiedBy = obj.ownerID;
+                obj.modifiedDate = now;
+            } else {
+                // New person: set createdDate to now
+                obj.createdBy = obj.ownerID;
+                obj.createdDate = now;
+            }
+
+            obj.createdDate = new Date(obj.createdDate || now);
+            obj.modifiedDate = new Date(obj.modifiedDate || now);
+            (obj.personID > 0 
                 ? personSvc.putItemBySubURL(obj, `${obj.personID}`) 
-                : personSvc.postItem(obj)).then(res=>{
+                : personSvc.postItem(obj)).then(res => {
                     toast.success(`Person ${obj.personID > 0 ? 'updated' : 'created'} successfully`);
                     setLoadRowData(true);
                     setDialogIsOpen(false);

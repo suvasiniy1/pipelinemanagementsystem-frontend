@@ -32,17 +32,18 @@ import { PostAuditLog } from "../../../../../models/dealAutidLog";
 import { DealAuditLogService } from "../../../../../services/dealAuditLogService";
 
 type params = {
-  dealId: number;
+  dealId?: number;
   dialogIsOpen: any;
   setDialogIsOpen: any;
   onSaveTask?: any;
   taskItem?: Tasks | null;
+  selectedItem?: Tasks | null;
   onCloseDialog?: any;
 };
 
 export const TaskAddEdit = (props: params) => {
-  const { dialogIsOpen, setDialogIsOpen, dealId, taskItem, ...Others } = props;
-  const [selectedItem, setSelectedItem] = useState(taskItem ?? new Tasks());
+  const { dialogIsOpen, setDialogIsOpen, dealId, taskItem, selectedItem: propsSelectedItem, ...Others } = props;
+  const [selectedItem, setSelectedItem] = useState(propsSelectedItem ?? taskItem ?? new Tasks());
   const [isLoading, setIsLoading] = useState(false);
   const typesList = ["To Do", "Email"];
   const prioritiesList = ["High", "Normal", "Low"];
@@ -110,18 +111,57 @@ export const TaskAddEdit = (props: params) => {
     },
   ];
 
-  useEffect(() => {
-    if (taskItem) {
-      setValue("dueDate" as never, taskItem.dueDate as never);
-      setValue("reminder" as never, taskItem.reminder as never);
-      setValue("taskDetails" as never, taskItem.taskDetails as never);
-      setUserGuID(taskItem.userGUID as any);
-    }
-  }, [taskItem]);
+  const isValidDate = (date: any) => {
+    if (!date) return false;
+    const d = new Date(date);
+    return d instanceof Date && !isNaN(d.getTime());
+  };
 
   useEffect(() => {
-    getAccessToken();
-  }, []);
+    const itemToEdit = propsSelectedItem ?? taskItem;
+    if (itemToEdit && utility?.users) {
+      // Map userName to user ID for assignedTo field
+      let assignedToId = itemToEdit.assignedTo || 0;
+      if (itemToEdit.userName) {
+        const user = utility.users.find(u => u.name === itemToEdit.userName);
+        if (user) {
+          assignedToId = user.id;
+        }
+      }
+      
+      // Create a clean copy with valid dates
+      const cleanItem = {
+        ...itemToEdit,
+        dueDate: isValidDate(itemToEdit.dueDate) ? new Date(itemToEdit.dueDate) : new Date(),
+        reminder: isValidDate(itemToEdit.reminder) ? new Date(itemToEdit.reminder) : new Date(),
+        // Ensure dropdown values are properly formatted
+        todo: itemToEdit.todo || "To Do",
+        priority: itemToEdit.priority || "Normal",
+        assignedTo: assignedToId
+      };
+      
+      setSelectedItem(cleanItem);
+      
+      // Use setTimeout to ensure form methods are available
+      setTimeout(() => {
+        setValue("name" as never, itemToEdit.name as never);
+        setValue("dueDate" as never, cleanItem.dueDate as never);
+        setValue("reminder" as never, cleanItem.reminder as never);
+        setValue("taskDetails" as never, itemToEdit.taskDetails as never);
+        setValue("todo" as never, cleanItem.todo as never);
+        setValue("priority" as never, cleanItem.priority as never);
+        setValue("assignedTo" as never, assignedToId as never);
+      }, 100);
+      
+      setUserGuID(itemToEdit.userGUID as any);
+    }
+  }, [taskItem, propsSelectedItem]);
+
+  useEffect(() => {
+    if (accounts && accounts.length > 0) {
+      getAccessToken();
+    }
+  }, [accounts]);
 
   useEffect(() => {
     if (accessToken && taskItem?.taskGUID) {
@@ -189,12 +229,21 @@ export const TaskAddEdit = (props: params) => {
     methods;
 
   const getAccessToken = async () => {
-    let res = await instance.acquireTokenSilent({
-      scopes: ["Calendars.ReadWrite.Shared"], // Adjust scopes as per your requirements
-      account: accounts[0],
-    });
+    try {
+      if (!accounts || accounts.length === 0) {
+        console.log("No accounts available for token acquisition");
+        return;
+      }
+      
+      let res = await instance.acquireTokenSilent({
+        scopes: ["Calendars.ReadWrite.Shared"], // Adjust scopes as per your requirements
+        account: accounts[0],
+      });
 
-    setAccessToken(res?.accessToken as any);
+      setAccessToken(res?.accessToken as any);
+    } catch (error) {
+      console.error("Error acquiring token:", error);
+    }
   };
 
   function getDurationInMinutes(startDate: any, endDate: any) {
@@ -353,18 +402,22 @@ export const TaskAddEdit = (props: params) => {
     addUpdateItem.modifiedBy = Util.UserProfile()?.userId;
     addUpdateItem.createdDate = new Date();
     Util.toClassObject(addUpdateItem, item);
-    addUpdateItem.dealId = dealId;
+    addUpdateItem.dealId = dealId ?? selectedItem.dealId ?? 0;
     addUpdateItem.startDate = taskItemObj?.startDateTime;
     addUpdateItem.taskId = selectedItem?.taskId ?? (0 as any);
-    addUpdateItem.dueDate = new Date(addUpdateItem.dueDate);
-    addUpdateItem.reminder = new Date(addUpdateItem.reminder);
+    addUpdateItem.dueDate = isValidDate(addUpdateItem.dueDate) ? new Date(addUpdateItem.dueDate) : new Date();
+    addUpdateItem.reminder = isValidDate(addUpdateItem.reminder) ? new Date(addUpdateItem.reminder) : new Date();
     console.log("addUpdateItem" + { ...addUpdateItem });
 
-    if (new Date(addUpdateItem.reminder) < new Date()) {
+    const reminderDate = new Date(addUpdateItem.reminder);
+    const dueDateObj = new Date(addUpdateItem.dueDate);
+    const currentDate = new Date();
+    
+    if (isValidDate(addUpdateItem.reminder) && reminderDate < currentDate) {
       toast.warning("Reminder cannot be lesser than current date");
       return;
     }
-    if (new Date(addUpdateItem.reminder) > new Date(addUpdateItem.dueDate)) {
+    if (isValidDate(addUpdateItem.reminder) && isValidDate(addUpdateItem.dueDate) && reminderDate > dueDateObj) {
       toast.warning("Reminder cannot be greater than due date");
       return;
     }
@@ -393,7 +446,7 @@ export const TaskAddEdit = (props: params) => {
               let auditLogObj = {
                 ...new PostAuditLog(),
                 eventType: "Task created",
-                dealId: dealId,
+                dealId: dealId ?? selectedItem.dealId ?? 0,
               };
               auditLogObj.createdBy = Util.UserProfile()?.userId;
               auditLogObj.eventDescription =
@@ -475,7 +528,7 @@ export const TaskAddEdit = (props: params) => {
         <FormProvider {...methods}>
           <AddEditDialog
             dialogIsOpen={dialogIsOpen}
-            header={"Add Task"}
+            header={(selectedItem?.taskId > 0 ? "Edit" : "Add") + " Task"}
             onSave={handleSubmit(onSubmit)}
             closeDialog={oncloseDialog}
             onClose={oncloseDialog}

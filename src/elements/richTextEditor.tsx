@@ -159,14 +159,18 @@ const RitechTextEditorWithValidation = (props: params) => {
         </div>
       )}
 
-      <input
-        type="text"
-        {...register(item.value)}
-        style={{ display: "none" }}
-      />
-      <p className="text-danger" id={`validationMsgfor_${item.value}`}>
-        {(errors as any)?.[item.value]?.message}
-      </p>
+      {item?.value && (
+        <>
+          <input
+            type="text"
+            {...register(item.value)}
+            style={{ display: "none" }}
+          />
+          <p className="text-danger" id={`validationMsgfor_${item.value}`}>
+            {(errors as any)?.[item.value]?.message}
+          </p>
+        </>
+      )}
     </>
   );
 };
@@ -286,10 +290,10 @@ const RichTextEditor = (props: params) => {
                     borderBottom: "1px solid #eee",
                   }}
                   onClick={(e) => {
-                    insertTextAtCursor(option.value); // Append selected option to editor
+                    insertTextAtCursor(option?.value); // Append selected option to editor
                   }}
                 >
-                  {option.name}
+                  {option?.name}
                 </div>
               ))}
             </div>

@@ -47,15 +47,20 @@ const NotesList = (props: params) => {
   }
 
   const deleteNote = () => {
-    notesSvc.deleteNote(selectedNoteId).then(res => {
-      toast.success("Note deleted successfully");
-      setShowDeleteDialog(false);
-      setSelectedNoteId(0);
-      loadNotes();
-    }).catch(err => {
-
-    })
-  }
+    notesSvc
+      .deleteNote(selectedNoteId)
+      .then((res) => {
+        toast.success("Note deleted successfully");
+        loadNotes();
+      })
+      .catch((err) => {
+        toast.error("Unable to delete note");
+      })
+      .finally(() => {
+        setSelectedNoteId(0);
+        setShowDeleteDialog(false);
+      });
+  };
 
   return (
     <>

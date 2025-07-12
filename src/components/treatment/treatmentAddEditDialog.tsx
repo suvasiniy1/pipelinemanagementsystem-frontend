@@ -73,7 +73,7 @@ const TreatmentAddEditDialog: React.FC<ViewEditProps> = (props) => {
     obj.createdBy = Util.UserProfile()?.userId;
     obj.treatmentID = obj.treatmentID ?? 0;
     if(obj.treatmentID>0){
-      obj.createdDate = selectedItem?.createdDate;
+      obj.createdDate = new Date(selectedItem?.createdDate);
       obj.modifiedBy = Util.UserProfile()?.userId;
       obj.modifiedDate = new Date();
     }

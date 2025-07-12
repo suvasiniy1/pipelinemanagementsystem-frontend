@@ -710,7 +710,7 @@ const DealFilterAddEditDialog = (props: params) => {
       );
     }
 
-    dealFiltersSvc.saveDealFilters(dealFilter).then((res) => {
+    dealFiltersSvc.saveDealFilters(dealFilter).then((res) => {  
       if (res?.result) {
         setSelectedFilter({ ...res.result, actulFilterId: actulFilterId });
         props.setSelectedFilter({

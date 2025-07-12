@@ -37,6 +37,7 @@ export class Deal extends AuditItem {
   status?: string; // Add this if it's not already there
   isClosed!: boolean; // Add this if it's not already there
   openDealsCount?: number;
+  statusID?:number;
   ownerName!: string;
   callHistory: CallHistoryEntry[] = []; 
   wonTime!:string;

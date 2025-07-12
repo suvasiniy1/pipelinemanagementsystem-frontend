@@ -178,6 +178,7 @@ const TemplatesAddEditDialog: React.FC<ViewEditProps> = (props) => {
     obj.body = JSON.stringify(selectedItem.body) as any;
     obj.footer = JSON.stringify(selectedItem.footer) as any;
     obj.createdBy = obj.id>0 ? obj.createdBy : Util.UserProfile()?.userId ;
+    obj.createdDate = new Date(obj.createdDate) || new Date();
     obj.modifiedBy = Util.UserProfile()?.userId;
     obj.modifiedDate = new Date();
     obj.id = obj.id ?? 0;
@@ -207,8 +208,8 @@ const TemplatesAddEditDialog: React.FC<ViewEditProps> = (props) => {
           <AddEditDialog
             dialogIsOpen={dialogIsOpen}
             dialogSize={"xl"}
-            isFullscreen={true}
-            header={"Add EmailConfiguration"}
+            isFullscreen={true} 
+            header={selectedItem && selectedItem.id > 0 ? 'Edit Template' : 'Add Template'}
             onSave={handleSubmit(onSubmit)}
             closeDialog={oncloseDialog}
             onClose={oncloseDialog}

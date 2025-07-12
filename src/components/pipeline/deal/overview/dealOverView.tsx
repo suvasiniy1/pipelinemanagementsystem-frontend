@@ -5,6 +5,8 @@ import {
   faPencil,
   faThumbsDown,
   faThumbsUp,
+  faCheckCircle,
+  faTimesCircle,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios, { AxiosError } from "axios";
@@ -92,26 +94,23 @@ const updateDealStatus = async (status: string) => {
 
     const statusIdMap: { [key: string]: number } = {
       "Open": 1,
-      "Won": 2,
-      "Lost": 3,
+      "Won": 3, // Won status
+      "Lost": 2, // Lost status (as per your requirement)
       "Closed": 4,
     };
 
     const updatedDeal = {
       ...dealItem,
-      StatusID: statusIdMap[status], 
+      statusID: statusIdMap[status], 
       isClosed,
-      ModifiedDate: new Date(),
+      modifiedDate: new Date(),
     };
 
     const response = await dealSvc.updateAllDeals([updatedDeal]);
 
     if (response) {
-      toast.success("Deal status updated successfully");
-      setTimeout(() => {
-        setDealItem({ ...dealItem, ...updatedDeal });
-        //onDealModified(status);
-      }, 100);
+      toast.success(`Deal marked as ${status}!`);
+      setDealItem({ ...dealItem, statusID: statusIdMap[status] });
     }
     else{
       toast.warning("Unable to update deal status");
@@ -129,8 +128,8 @@ const handleWonClick = () => {
 };
 
 const handleLostClick = () => {
-  //updateDealStatus('Lost');
-  setIsDealLost(true);
+  updateDealStatus('Lost');
+  setIsDealLost(false);
 };
 
   return (
@@ -151,28 +150,47 @@ const handleLostClick = () => {
                     </h1>
                   </div>
                   <div className="pdsdetail-topright">
-                    {/* <div className="rottingdays"><label className="rottingdays-label bg-danger">Rotting for {dealItem?.probability} days</label></div>
-                                                    <div className="pdsdetail-avatar">
-                                                        <div className="pdsavatar-row">
-                                                            <div className="pdsavatar-img"><FontAwesomeIcon icon={faCircleUser} /></div>
-                                                            <div className="pdsavatar-name">
-                                                                <div className='pdsavatar-ownername'><a href=''>{dealItem?.personName}</a></div>
-                                                                <div className='pdsavatar-owner'>Owner</div>
-                                                                <button className='ownerbutton'><FontAwesomeIcon icon={faSortDown} /></button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <button className="follower-button"><span className="followerlabel">1 follower</span><FontAwesomeIcon icon={faSortDown} /></button>
-                                                     */}
                     <div className="wonlost-btngroup">
-                      <button className="btn btn-success wonbtn" onClick={handleWonClick}>
+                      <button 
+                        className={`btn wonbtn ${
+                          dealItem?.statusID && dealItem.statusID !== 2 && dealItem.statusID !== 1 
+                            ? 'btn-success' 
+                            : 'btn-outline-success'
+                        }`}
+                        onClick={handleWonClick}
+                        style={{
+                          boxShadow: dealItem?.statusID && dealItem.statusID !== 2 && dealItem.statusID !== 1 
+                            ? '0 0 10px rgba(40, 167, 69, 0.5)' 
+                            : 'none',
+                          transform: dealItem?.statusID && dealItem.statusID !== 2 && dealItem.statusID !== 1 
+                            ? 'scale(1.1)' 
+                            : 'scale(1)'
+                        }}
+                      >
                         <span className="label">
                           <FontAwesomeIcon icon={faThumbsUp} />
+                          {dealItem?.statusID && dealItem.statusID !== 2 && dealItem.statusID !== 1 && ' WON'}
                         </span>
                       </button>
-                      <button className="btn btn-danger lostbtn" onClick={handleLostClick}>
+                      <button 
+                        className={`btn lostbtn ${
+                          dealItem?.statusID === 2 
+                            ? 'btn-danger' 
+                            : 'btn-outline-danger'
+                        }`}
+                        onClick={handleLostClick}
+                        style={{
+                          boxShadow: dealItem?.statusID === 2 
+                            ? '0 0 10px rgba(220, 53, 69, 0.5)' 
+                            : 'none',
+                          transform: dealItem?.statusID === 2 
+                            ? 'scale(1.1)' 
+                            : 'scale(1)'
+                        }}
+                      >
                         <span className="label">
                           <FontAwesomeIcon icon={faThumbsDown} />
+                          {dealItem?.statusID === 2 && ' LOST'}
                         </span>
                       </button>
                     </div>
@@ -225,18 +243,18 @@ const handleLostClick = () => {
                     <div className="whiteshadowbox datahighlightsbox">
                       <div className="tabcard-header">
                         <h2>Data Highlights</h2>
-                        <div className="tabcard-actions">
+                        {/* <div className="tabcard-actions">
                           <button className="summerysetting-btn">
                             <FontAwesomeIcon icon={faGear} />
                           </button>
-                        </div>
+                        </div> */}
                       </div>
                       <div className="tabcard-content">
                         <div className="datahighlights-list">
                           <div className="datahighlights-item">
                             <h3>Create Date</h3>
                             <div className="datahighlights-datetxt">
-                              {createdDate as any}
+                              { moment(createdDate).format("MM/DD/YYYY hh:mm:ss a")}
                             </div>
                           </div>
                           <div className="datahighlights-item">
@@ -253,7 +271,7 @@ const handleLostClick = () => {
                       </div>
                     </div>
 
-                    <div className="whiteshadowbox datahighlightsbox">
+                    {/* <div className="whiteshadowbox datahighlightsbox">
                       <div className="tabcard-header">
                         <h2>Recent activities</h2>
                       </div>
@@ -307,7 +325,7 @@ const handleLostClick = () => {
                           </Accordion>
                         </div>
                       </div>
-                    </div>
+                    </div> */}
                   </div>
                 </Tab>
                 <Tab

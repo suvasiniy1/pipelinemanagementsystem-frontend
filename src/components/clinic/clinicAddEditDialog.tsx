@@ -61,12 +61,13 @@ const ClinicAddEditDialog: React.FC<ViewEditProps> = (props) => {
   }
 
   const onSubmit = (item: any) => {
+    
     let obj: Clinic = { ...selectedItem };
     obj = Util.toClassObject(obj,item);
     obj.createdBy = Util.UserProfile()?.userId;
     obj.clinicID = obj.clinicID ?? 0;
     if(obj.clinicID>0){
-      obj.createdDate = selectedItem?.createdDate;
+      obj.createdDate = new Date(selectedItem?.createdDate);
       obj.modifiedBy = Util.UserProfile()?.userId;
       obj.modifiedDate = new Date();
     }

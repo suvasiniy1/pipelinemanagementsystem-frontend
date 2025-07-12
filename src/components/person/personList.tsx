@@ -438,6 +438,12 @@ const PersonList = () => {
       .getPersons()
       .then((res: Array<Person>) => {
         const transformedData = res.map(rowTransform);
+        // Sort by createdDate (or modifiedDate if you want most recently updated at top)
+        transformedData.sort((a, b) => {
+          const dateA = new Date(a.modifiedDate || a.createdDate || 0).getTime();
+          const dateB = new Date(b.modifiedDate || b.createdDate || 0).getTime();
+          return dateB - dateA; // Descending order
+        });
         setRowData((prevRowData) => {
           if (JSON.stringify(transformedData) !== JSON.stringify(prevRowData)) {
             return transformedData;

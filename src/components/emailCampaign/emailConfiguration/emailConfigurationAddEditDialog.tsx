@@ -22,9 +22,12 @@ import { EmailConfigurationService } from "../../../services/emailConfigurationS
 import { TemplateGrid } from "./templateGrid";
 import { ContacteService } from "../../../services/contactService";
 import { Contact } from "../../../models/contact";
+import { EmailStatus } from '../../../models/emailConfiguration';
+
 const steps = ["Template", "Settings"];
 
 const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
+  
   const {
     header,
     onSave,
@@ -51,10 +54,10 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
   const utility: Utility = JSON.parse(
     LocalStorageUtil.getItemObject(Constants.UTILITY) as any
   );
-  const statusList = ["Draft", "Scheduled", "Sent", "Archived"];
+  // const statusList = ["Draft", "Scheduled", "Sent", "Archived"];
   const controlsList1: Array<IControl> = [
     {
-      key: "From Name",
+      key: "From Name", 
       value: "fromName",
       isRequired: true,
       sidebyItem: "From Address",
@@ -119,9 +122,12 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
   ];
 
   const getValidationsSchema = (list: Array<any>) => {
-    return Yup.object().shape({
-      ...Util.buildValidations(list),
-    });
+    const validations = Util.buildValidations(list);
+    // Override toAddress validation to accept array for multi-select
+    if ((validations as any)?.toAddress) {
+      (validations as any).toAddress = Yup.array().min(1, 'To Address is required').required('To Address is required');
+    }
+    return Yup.object().shape(validations);
   };
 
   const [formOptions, setFormOptions] = useState({
@@ -161,20 +167,47 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
 
   useEffect(() => {
     if (selectedItem && selectedItem.id > 0) {
+      // Prepare selectedItem for all controls
       let obj = {
         ...selectedItem,
         optionType: selectedItem.sendNow ? "Send Now" : "Schedule",
-        scheduleOption: selectedItem.sendNow
-          ? (null as any)
-          : selectedItem.scheduleTime,
+        scheduleOption: selectedItem.sendNow ? (null as any) : selectedItem.scheduleTime,
       };
+      // Handle both toAddress and toaddress property names
+      const toAddressValue = obj.toAddress || (obj as any).toaddress || '';
+      
+      // Ensure To Address is an array of objects for multi-select
+      if (typeof toAddressValue === 'string' && toAddressValue.trim()) {
+        const personsList = contactsList.map(({ email }) => ({ name: email, value: email })) ?? [];
+        obj.toAddress = toAddressValue.split(',').map((email: string) => {
+          const trimmedEmail = email.trim();
+          const found = personsList.find((p) => p.value === trimmedEmail);
+          // If not found in contacts, create an object for it anyway
+          return found || { name: trimmedEmail, value: trimmedEmail };
+        }).filter(Boolean);
+      } else if (Array.isArray(toAddressValue)) {
+        // Already an array of objects
+        obj.toAddress = toAddressValue;
+      } else {
+        obj.toAddress = [];
+      }
+      // Ensure From Name and From Address are set as strings
+      obj.fromName = obj.fromName || '';
+      obj.fromAddress = obj.fromAddress || '';
+      // Ensure Status is a string (for dropdown binding)
+      obj.status = obj.status ? obj.status.toString() : '';
       setSelectedItem(obj);
       setSelectedId(obj.emailtemplateId);
       setTimeout(() => {
         controlsList1.forEach((c) => {
           resetValidationsOnLoad(c.value, obj[c.value]);
         });
-        setValue("scheduleOption" as never, selectedItem.scheduleTime as never);
+        setValue("scheduleOption" as never, obj.scheduleOption as never);
+        setValue("fromName" as never, obj.fromName as never);
+        setValue("fromAddress" as never, obj.fromAddress as never);
+        setValue("status" as never, obj.status as never);
+        setValue("toAddress" as never, obj.toAddress as never);
+        setValue("optionType" as never, obj.optionType as never);
         setIsLoading(false);
       }, 100);
     } else setIsLoading(false);
@@ -200,6 +233,7 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
     itemName?: any,
     isValidationOptional: boolean = false
   ) => {
+    
     if (!isValidationOptional) {
       setValue(item.value as never, value as never);
       if (value) unregister(item.value as never);
@@ -208,10 +242,34 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
     }
 
     if (item.key === "To Address") {
-      setSelectedItem({ ...selectedItem, toaddress: value });
+      // Always set as array for form binding and validation
+      let arr = value;
+      if (typeof arr === 'string') {
+        arr = arr.split(',').map((email: string) => {
+          const trimmedEmail = email.trim();
+          return trimmedEmail ? { name: trimmedEmail, value: trimmedEmail } : null;
+        }).filter(Boolean);
+      } else if (Array.isArray(arr)) {
+        arr = arr.filter((v: any) => v && v.value && v.value !== "");
+      } else if (!arr) {
+        arr = [];
+      } else {
+        arr = [arr];
+      }
+      setSelectedItem({ ...selectedItem, toAddress: arr });
+      setValue('toAddress' as never, arr as never);
     }
     if (item.key === "Schedule Option") {
       setSelectedItem({ ...selectedItem, scheduleOption: value });
+    }
+    if (item.key === "From Name") {
+      setSelectedItem({ ...selectedItem, fromName: value });
+    }
+    if (item.key === "From Address") {
+      setSelectedItem({ ...selectedItem, fromAddress: value });
+    }
+    if (item.key === "Status") {
+      setSelectedItem({ ...selectedItem, status: value });
     }
   };
 
@@ -219,6 +277,17 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
     setScheduleOptionType(e);
     setSelectedItem({ ...selectedItem, optionType: e });
     setSelectedItem({ ...selectedItem, scheduleOption: null as any });
+  };
+
+  // Helper to get status options from EmailStatus enum
+  const getStatusOptions = () => {
+    return Object.keys(EmailStatus)
+      .filter(key => isNaN(Number(key)) === false) // Only numeric keys
+      .map(key => {
+        const value = Number(key);
+        const name = EmailStatus[value as unknown as keyof typeof EmailStatus];
+        return { name, value };
+      });
   };
 
   const getDropdownvalues = (item: any) => {
@@ -245,14 +314,25 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
     }
 
     if (item.key === "Status") {
-      return statusList.map((item) => ({ name: item, value: item }));
+      return getStatusOptions();
     }
   };
 
   const onSubmit = (item: any) => {
     let obj: EmailConfiguration = { ...selectedItem };
     Util.toClassObject(obj, item);
+    
+    // Convert toAddress array back to comma-separated string
+    if (Array.isArray(item.toAddress)) {
+      obj.toAddress = item.toAddress.map((addr: any) => addr.value).join(',');
+    } else if (typeof item.toAddress === 'string') {
+      obj.toAddress = item.toAddress;
+    }
+    
     obj.createdBy = Util.UserProfile()?.userId;
+    obj.modifiedBy = obj.id > 0 ? Util.UserProfile()?.userId : null;
+    obj.createdDate = new Date(obj.createdDate) || new Date();
+    obj.modifiedDate = new Date(obj.modifiedDate) || new Date();
     obj.id = obj.id ?? 0;
     obj.scheduleTime =
       scheduleOptionType === "Send Now"
@@ -261,6 +341,7 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
     obj.sendNow = scheduleOptionType === "Send Now";
     obj.campaginId = obj.campaginId ?? 0;
     obj.emailtemplateId = selectedId as any;
+    obj.name = obj.fromName;
     console.log("ItemToSave");
     console.log(obj);
 
@@ -273,6 +354,7 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
           `Template ${obj.id > 0 ? "updated" : "created"}  successfully`
         );
         setDialogIsOpen(false);
+        setLoadRowData && setLoadRowData(true); // Trigger reload in parent/list
       })
       .catch((err) => {
         toast.error(`Unable to ${obj.id > 0 ? "update" : "save"} template`);
@@ -352,14 +434,23 @@ const EmailConfigurationAddEditDialog: React.FC<ViewEditProps> = (props) => {
   const getSelectedList = (item: IControl) => {
     let list: Array<any> = [];
     if (item.key === "To Address") {
-      var res = (selectedItem as EmailConfiguration).toAddress?.split(",");
-      let personsList = utility?.persons.map(({ email }) => ({
+      const toAddressVal = (selectedItem as EmailConfiguration).toAddress;
+      let personsList = contactsList.map(({ email }) => ({
         name: email,
         value: email,
       }));
-      res?.forEach((r) => {
-        list.push(personsList.find((p) => p.name === r));
-      });
+      if (typeof toAddressVal === 'string' && toAddressVal.trim()) {
+        var res = toAddressVal.split(",");
+        res?.forEach((r) => {
+          const trimmedEmail = r.trim();
+          const found = personsList.find((p) => p.value === trimmedEmail);
+          // If not found in contacts, create an object for it anyway
+          list.push(found || { name: trimmedEmail, value: trimmedEmail });
+        });
+      } else if (Array.isArray(toAddressVal)) {
+        // Already an array of objects
+        list = (toAddressVal as any[]).filter(Boolean);
+      }
     }
     return list;
   };

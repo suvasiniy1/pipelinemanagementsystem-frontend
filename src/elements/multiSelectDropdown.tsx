@@ -28,15 +28,19 @@ const MultiSelectDropdownWithValidations = (props: Params) => {
     formContextAvailable = false;
   }
 
-  const [options, setOptions] = useState([{ name: "Select All", value: "all" }, ...list]);
-  const [selectedValues, setSelectedValues] = useState(selectedList);
+  // Filter out any items without a 'name' property
+  const safeList = Array.isArray(list) ? list.filter((item) => item && typeof item.name === 'string') : [];
+  const safeSelectedList = Array.isArray(selectedList) ? selectedList.filter((item) => item && typeof item.name === 'string') : [];
+
+  const [options, setOptions] = useState([{ name: "Select All", value: "all" }, ...safeList]);
+  const [selectedValues, setSelectedValues] = useState(safeSelectedList);
 
   useEffect(() => {
-    setOptions([{ name: "Select All", value: "all" }, ...list]);
+    setOptions([{ name: "Select All", value: "all" }, ...safeList]);
   }, [list]);
 
   useEffect(() => {
-    setSelectedValues(selectedList);
+    setSelectedValues(safeSelectedList);
   }, [selectedList]);
 
   useEffect(() => {

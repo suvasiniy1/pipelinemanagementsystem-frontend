@@ -44,14 +44,21 @@ const TasksList = () => {
         }
     };
 
+    // Helper function to validate dates
+    const isValidDate = (date: any) => {
+        if (!date) return false;
+        const d = new Date(date);
+        return d instanceof Date && !isNaN(d.getTime());
+    };
+
     // Row transformation function
     const rowTransform = (item: Tasks, index: number) => {
-        const formattedCallDateTime = item.callDateTime
+        const formattedCallDateTime = isValidDate(item.callDateTime)
         ? new Date(item.callDateTime).toLocaleString("en-GB", { timeZone: "UTC" })
         : "Invalid Date";
 
     // Generate a truly unique ID using taskId and callDateTime timestamp
-    const uniqueId = item.taskId && item.callDateTime
+    const uniqueId = item.taskId && isValidDate(item.callDateTime)
         ? `${item.taskId}-${new Date(item.callDateTime).getTime()}`
         : `${item.taskId || "no-id"}-${index}`;
     
@@ -64,13 +71,13 @@ const TasksList = () => {
                 personName: item.personName || "No Contact",
                 phone: item.phone || "No Phone",
                 email: item.email || "No Email",
-                dueDate: item.dueDate
+                dueDate: isValidDate(item.dueDate)
             ? new Date(item.dueDate).toLocaleDateString("en-GB")
             : "No Due Date",
                 duration: item.duration || 0,
                 name: item.name || "No Call Type Available",
-                startDate: item.startDate ? new Date(item.startDate) : new Date(),
-                reminder: item.reminder ? new Date(item.reminder) : new Date(),
+                startDate: isValidDate(item.startDate) ? new Date(item.startDate) : null,
+                reminder: isValidDate(item.reminder) ? new Date(item.reminder) : null,
                 todo: item.todo || "",
                 priority: item.priority || "Normal",
                 assignedTo: item.assignedTo || 0,
@@ -83,11 +90,11 @@ const TasksList = () => {
                 userGUID: item.userGUID || "",
                 transactionId: item.transactionId || "",
                 createdBy: item.createdBy || 0,
-                createdDate: item.createdDate ? new Date(item.createdDate) : new Date(),
+                createdDate: isValidDate(item.createdDate) ? new Date(item.createdDate) : null,
                 modifiedBy: item.modifiedBy || 0,
-                modifiedDate: item.modifiedDate ? new Date(item.modifiedDate) : new Date(),
+                modifiedDate: isValidDate(item.modifiedDate) ? new Date(item.modifiedDate) : null,
                 updatedBy: item.updatedBy || 0,
-                updatedDate: item.updatedDate ? new Date(item.updatedDate) : new Date(),
+                updatedDate: isValidDate(item.updatedDate) ? new Date(item.updatedDate) : null,
             };
     };
     

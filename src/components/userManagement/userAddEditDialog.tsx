@@ -211,6 +211,7 @@ const UsersAddEditDialog: React.FC<any> = (props) => {
         item.organizationID !== null ? Number(item.organizationID) : 0;
       obj.lastLogin = new Date();
       obj.createdBy = String(Util.UserProfile()?.userId);
+      obj.modifiedBy = obj.userId > 0 ? String(Util.UserProfile()?.userId) : null;
       // obj.createdBy = Util.UserProfile()?.userId;
       obj.Id = obj.userId ?? 0; 
       obj.userId = obj.userId ?? 0;
