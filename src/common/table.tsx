@@ -503,9 +503,17 @@ const Table: React.FC<TableListProps> = (props) => {
           initialState={{
             pagination: {
               paginationModel: {
-                pageSize: 5,
+                pageSize: 10,
               },
             },
+            sorting: {
+               sortModel: [
+              {
+                  field: 'createdDate', // <-- Use your actual timestamp field here
+                   sort: 'desc',
+              },
+              ],
+          },
           }}
           pageSizeOptions={[5, 10, 20, 50]}
           disableRowSelectionOnClick

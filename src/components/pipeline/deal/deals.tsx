@@ -320,19 +320,20 @@ export const Deals = (props: params) => {
   };
 
   useEffect(() => {
-    
-    LocalStorageUtil.setItem(Constants.FILTER_ID, selectedFilterObj?.id);
-    if (selectedFilterObj?.id > 0 || selectedUserId > 0) {
-      if (selectedFilterObj?.id > 0) {
-        setSelectedUserId(null as any);
-      }
-      if((selectedFilterObj as DealFilter).isPreview){
-        setDealFilterDialogIsOpen(true);
-      }
-      loadDealsByFilter();
-    }
-  }, [selectedFilterObj, selectedUserId]);
+  LocalStorageUtil.setItem(Constants.FILTER_ID, selectedFilterObj?.id);
 
+  if (selectedFilterObj?.id > 0 || selectedUserId > 0) {
+    if (selectedFilterObj?.id > 0) {
+      setSelectedUserId(null as any);
+    }
+
+    if (selectedFilterObj && selectedFilterObj.isPreview) {
+      setDealFilterDialogIsOpen(true);
+    }
+
+    loadDealsByFilter();
+  }
+}, [selectedFilterObj, selectedUserId]);
   return (
     <>
       {isLoading ? (
