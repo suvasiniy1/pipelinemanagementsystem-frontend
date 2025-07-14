@@ -378,12 +378,12 @@ export const DealHeader = (props: params) => {
                     </div>
                   </div>
                 </div>
-                <div className="pipefilterbtn">
+                <div className="pipefilterbtn" style={{ position: 'relative', zIndex: 2001 }}>
                   <div className="filterbtn">
                     <a
                       className="btn"
                       href="javascript:void(0);"
-                      style={{ zIndex: 1000, pointerEvents: 'auto' }}
+                      style={{ zIndex: 2002, pointerEvents: 'auto', position: 'relative' }}
                       onClick={(e: any) => {
                         setSelectedUserId(null);
                         setSelectedFilterObj(null);
