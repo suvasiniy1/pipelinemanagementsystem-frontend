@@ -383,9 +383,17 @@ export const DealHeader = (props: params) => {
                     <a
                       className="btn"
                       href="javascript:void(0);"
+                      style={{ zIndex: 1000, pointerEvents: 'auto' }}
                       onClick={(e: any) => {
                         setSelectedUserId(null);
                         setSelectedFilterObj(null);
+                        if (props.pipeLinesList && props.pipeLinesList.length > 0) {
+                          props.setPipeLineId(props.pipeLinesList[0].pipelineID);
+                          props.setSelectedItem(props.pipeLinesList[0]);
+                        } else {
+                          props.setPipeLineId && props.setPipeLineId(null);
+                          props.setSelectedItem && props.setSelectedItem(null);
+                        }
                       }}
                     >
                       <FilterAltOffIcon />
@@ -455,3 +463,5 @@ export const DealHeader = (props: params) => {
     </>
   );
 };
+
+export default DealHeader;
