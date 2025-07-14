@@ -511,7 +511,7 @@ const PersonList = () => {
           rowData={rowData}
           openGroupEmailDialog={(e:any)=>handleMsalLogin()}
           onSelectionModelChange={(e:any)=>handleSelectionChange(e)}
-          enableCheckboxSelection={true}
+          checkboxSelection={true}
           // isLoading={isLoading}
         />
         {groupEmailDialogOpen && (

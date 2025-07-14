@@ -92,7 +92,7 @@ const DealDetailsCustomFields = ({ dealItem }: Params) => {
             elementSize: 9,
             type: ElementType[cf.fieldType as keyof typeof ElementType],
             pipelineId: cf.pipelineId,
-            options: JSON.parse(cf.options)?.split(","),
+            options: cf.options?.split(","),
           };
 
           selectedObj[valueKey]=cf.fieldValue;
