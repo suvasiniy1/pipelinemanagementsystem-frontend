@@ -49,8 +49,11 @@ const NotesList = (props: params) => {
   const deleteNote = () => {
     notesSvc
       .deleteNote(selectedNoteId)
-      .then((res) => {
-        toast.success("Note deleted successfully");
+      .then((res) => {        
+        if(res.success)
+          toast.success(res.message);
+        else
+          toast.error(res.message)
         loadNotes();
       })
       .catch((err) => {

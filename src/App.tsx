@@ -7,7 +7,7 @@ import Login from "./components/login";
 import { SideBar } from "./components/sidebar";
 import LocalStorageUtil from "./others/LocalStorageUtil";
 import Constants from "./others/constants";
-import { Container } from "react-bootstrap";
+import { Container, Spinner } from "react-bootstrap";
 import { Content } from "rsuite";
 import { HeaderComponent } from "./components/header/header";
 import { AppRouter } from "./others/appRouter";
@@ -16,11 +16,13 @@ import Util from "./others/util";
 import ChangePassword from "./components/profiles/changePassword";
 
 function App() {
+  const [navItemsLoaded, setNavItemsLoaded] = useState(false);
   useEffect(() => {
     const role = LocalStorageUtil.getItem(Constants.USER_Role);
     if (role) {
       Util.loadNavItemsForUser(parseInt(role));
     }
+    setNavItemsLoaded(true);
   }, []);
   const navigate = useNavigate();
   const location = useLocation();
@@ -111,7 +113,11 @@ function App() {
 
   return (
     <>
-      {IsChangePassword() ? (
+      {!navItemsLoaded ? (
+        <div className="alignCenter">
+          <Spinner />
+        </div>
+      ) : IsChangePassword() ? (
         <ChangePassword />
       ) : shouldShowSidebar() ? (
         IsNotAuthorized() ? (

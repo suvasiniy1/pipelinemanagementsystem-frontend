@@ -7,20 +7,20 @@ import { UserProfile } from "../models/userProfile";
 import { Utility } from "../models/utility";
 
 export default class Util {
+  static navItemsList: Array<any> = [];
 
-  static navItemsList:Array<any>=[];
+  public static loadNavItemsForUser = (role: number) => {
+    Util.navItemsList =
+      window.config.NavItemsForUser.find((i) => i.Role == role)?.NavItems ?? [];
+  };
 
-  public static loadNavItemsForUser=(role:number)=>{
-    Util.navItemsList = window.config.NavItemsForUser.find(i=>i.Role==role)?.NavItems ?? [];
-  }
-
-  public static isAuthorized=(item:string)=>{
-    
-    return true;
-    const authorized = Util.navItemsList.some(i => i.toLowerCase() === item.toLowerCase());
-  console.log(`🔐 Checking permission for "${item}" → ${authorized}`);
-  return authorized;
-  }
+  public static isAuthorized = (item: string) => {
+    const authorized = Util.navItemsList.some(
+      (i) => i.toLowerCase() === item.toLowerCase()
+    );
+    console.log(`🔐 Checking permission for "${item}" → ${authorized}`);
+    return authorized;
+  };
 
   public static capitalizeFirstLetter = (string: any) => {
     return string.charAt(0).toUpperCase() + string.slice(1);
@@ -32,7 +32,7 @@ export default class Util {
   };
 
   public static convertTZ = (dateTime: any) => {
-    return moment(new Date(Util.toLocalTimeZone(dateTime+"Z"))).format(
+    return moment(new Date(Util.toLocalTimeZone(dateTime + "Z"))).format(
       "MM/DD/YYYY hh:mm:ss a"
     ) as any;
   };
