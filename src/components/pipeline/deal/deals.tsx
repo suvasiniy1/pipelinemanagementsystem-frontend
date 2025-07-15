@@ -249,7 +249,6 @@ export const Deals = (props: params) => {
 
         setStages([...stagesList]);
 
-        setIsLoading(true);
         dealsSvc
           .putItemBySubURL(
             {

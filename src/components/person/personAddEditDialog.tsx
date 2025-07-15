@@ -38,6 +38,7 @@ const PersonAddEditDialog: React.FC<ViewEditProps> = (props) => {
     const [owners, setOwners] = useState<Array<{ name: string; value: string }>>([]);
     const [sources, setSources] = useState<Array<{ name: string; value: string }>>([]);
     const [visibilityGroups, setVisibilityGroups] = useState<Array<{ name: string; value: string }>>([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const controlsList: IControl[] = [
         { key: "Person Name", value: "personName", isRequired: true, isControlInNewLine: true, elementSize: 12 },
@@ -194,8 +195,9 @@ const PersonAddEditDialog: React.FC<ViewEditProps> = (props) => {
         return [];
     };
 
-    const onSubmit = (item: any) => {
-        
+    const onSubmit = async (item: any) => {
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         try {
             let obj: Person = { ...selectedItem };
             obj = Util.toClassObject(obj, item);
@@ -231,16 +233,17 @@ const PersonAddEditDialog: React.FC<ViewEditProps> = (props) => {
 
             obj.createdDate = new Date(obj.createdDate || now);
             obj.modifiedDate = new Date(obj.modifiedDate || now);
-            (obj.personID > 0 
-                ? personSvc.putItemBySubURL(obj, `${obj.personID}`) 
-                : personSvc.postItem(obj)).then(res => {
-                    toast.success(`Person ${obj.personID > 0 ? 'updated' : 'created'} successfully`);
-                    setLoadRowData(true);
-                    setDialogIsOpen(false);
-                });
-
+            const apiCall = obj.personID > 0
+                ? personSvc.putItemBySubURL(obj, `${obj.personID}`)
+                : personSvc.postItem(obj);
+            await apiCall;
+            toast.success(`Person ${obj.personID > 0 ? 'updated' : 'created'} successfully`);
+            setLoadRowData(true);
+            setDialogIsOpen(false);
         } catch (error) {
             console.error('Submit error:', error);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -253,6 +256,7 @@ const PersonAddEditDialog: React.FC<ViewEditProps> = (props) => {
                 onSave={handleSubmit(onSubmit)}
                 closeDialog={oncloseDialog}
                 onClose={oncloseDialog}
+                saveButtonProps={{ disabled: isSubmitting }}
             >
                 <div className="modelformfiledrow row">
                     <div>
