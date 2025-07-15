@@ -17,8 +17,8 @@ export const ProfilePage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [currentTime, setCurrentTime] = useState<string>("");
   const [isTwoFactorEnabled, setIsTwoFactorEnabled] = useState<boolean>(false); // Added state for 2FA
-  const [loading2FA, setLoading2FA] = useState<boolean>(false);
-  const [message, setMessage] = useState<string>("");
+
+
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -90,27 +90,6 @@ export const ProfilePage = () => {
     return () => clearInterval(interval); // Cleanup on unmount
   }, [userProfile]);
 
-  const handleTwoFactorToggle = async () => {
-    setLoading2FA(true);
-    const accountSvc = new AccountService(null); // Create an instance of AccountService
-    try {
-      const response = await accountSvc.enableTwoFactorAuthentication(); // Call the API to enable 2FA
-  
-      console.log("2FA Enable Response: ", response);
-  
-      if (response === "Two-Factor Authentication has been enabled.") {
-        setIsTwoFactorEnabled(true);
-        setMessage("Two-Factor Authentication has been enabled.");  // Set the success message
-      } else {
-        setMessage("Failed to enable Two-Factor Authentication.");
-      }
-    } catch (error) {
-      console.error("Error enabling 2FA:", error);
-      setMessage("An error occurred while enabling Two-Factor Authentication.");
-    } finally {
-      setLoading2FA(false);
-    }
-  };
   
 
   if (isLoading) return <p>Loading...</p>;
@@ -124,7 +103,7 @@ export const ProfilePage = () => {
     <div className="profile-page">
       <h1 className="profile-title">Profile</h1>
       <div className="profile-container">
-        <button className="edit-button">Edit</button>
+       
         <div className="profile-header">
           <div
             className="profile-picture"
@@ -177,17 +156,11 @@ export const ProfilePage = () => {
             <strong>Current Time</strong>
             <p>{currentTime}</p>
           </div>
-          <div className="profile-item">
-            <strong>Two-Factor Authentication</strong>
-            {isTwoFactorEnabled ? (
-              <p>Two-Factor Authentication is enabled</p>
-            ) : (
-              <button onClick={handleTwoFactorToggle} disabled={loading2FA}>
-                {loading2FA ? 'Enabling...' : 'Enable Two-Factor Authentication'}
-              </button>
-            )}
-          </div>
-          <p>{message}</p> {/* Display any message or error */}
+         <div className="profile-item">
+  <strong>Two-Factor Authentication</strong>
+  <p>{isTwoFactorEnabled ? "Enabled" : "Not Enabled"}</p>
+</div>
+        
         </div>
       </div>
     </div>

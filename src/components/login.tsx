@@ -323,7 +323,7 @@ const Login = () => {
                         onChange(value, item)
                       }
                     />
-                    <Form.Group className="mb-2" controlId="checkbox">
+                  {/*   <Form.Group className="mb-2" controlId="checkbox">
                       <Form.Check
                         type="checkbox"
                         checked={rememberMe}
@@ -334,7 +334,7 @@ const Login = () => {
                         tabIndex={3}
                         label="Remember me"
                       />
-                    </Form.Group>
+                    </Form.Group>*/}
                     {!loading ? (
                       <Button className="w-100" variant="primary" type="submit">
                         Log In
@@ -361,9 +361,12 @@ const Login = () => {
                         Forgot password?
                       </Button>
                     </div>
+                    {/* 
                     <div className="oraccessquickly text-center mt-3 mb-3">
                       <span>or access quickly</span>
                     </div>
+                    */}
+                    {/* 
                     <div className="oraccessquicklybtn">
                       <a className="btn" href="#">
                         Google
@@ -372,6 +375,7 @@ const Login = () => {
                         SSO
                       </a>
                     </div>
+                    */}
                   </>
                 )}
               </Form>
@@ -397,7 +401,6 @@ const Login = () => {
                 </div>
                 <div className="loginfooter-btmlink">
                   <ul className="loginfooter-link">
-                    <li>@ 2024 Pipedrive</li>
                     <li>
                       <a href="#">Terms of Service</a>
                     </li>
