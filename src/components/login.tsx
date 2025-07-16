@@ -288,9 +288,11 @@ const Login = () => {
                 <div className="logformsubtext p-2 text-center">
                   {loading ? "Please wait" : twoFactorRequired
                     ? "Enter the 2FA code sent to your email"
-                    : <span style={{ color: '#d32f2f', fontWeight: 'bold', background: '#fff0f0', borderRadius: '4px', padding: '6px 12px', display: 'inline-block', boxShadow: '0 1px 4px rgba(211,47,47,0.08)' }}>
-                        {loginError ?? "Please log in to continue."}
-                      </span>}
+                    : loginError
+                      ? <span style={{ color: '#d32f2f', fontWeight: 'bold', background: '#fff0f0', borderRadius: '4px', padding: '6px 12px', display: 'inline-block', boxShadow: '0 1px 4px rgba(211,47,47,0.08)' }}>
+                          {loginError}
+                        </span>
+                      : null}
                 </div>
                 {twoFactorRequired ? (
                   // If 2FA is required, show the verification code form
