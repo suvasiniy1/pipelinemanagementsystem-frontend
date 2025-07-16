@@ -32,18 +32,18 @@ function App() {
       : true
   );
 
-    const shouldShowSidebar = () => {
-        const { pathname } = location;
-        return !["/login", "/signup"].includes(pathname);
-    };
+  const shouldShowSidebar = () => {
+    const { pathname } = location;
+    return !["/login", "/signup"].includes(pathname);
+  };
 
-    const IsChangePassword = (): boolean => {
-        return location.pathname === "/changePassword";
-    };
-    const IsConfirmEmail = (): boolean => {
+  const IsChangePassword = (): boolean => {
+    return location.pathname === "/changePassword";
+  };
 
-        return location.pathname === "/confirm-email";
-    }
+  const IsConfirmEmail = (): boolean => {
+    return location.pathname === "/confirm-email";
+  };
 
   const IsNotAuthorized = (): boolean => {
     return !Util.isAuthorized(location.pathname.replace(/^\/+/, ""));
@@ -56,6 +56,10 @@ function App() {
     ) {
       clearLocalStorage();
       navigate("/login");
+    }
+
+    if (IsConfirmEmail()) {
+      navigate("/confirm-email");
     }
   }, []);
 
@@ -93,11 +97,13 @@ function App() {
       checkSession();
     };
 
-    events.forEach(event => window.addEventListener(event, activityHandler));
+    events.forEach((event) => window.addEventListener(event, activityHandler));
 
     return () => {
       // Cleanup event listeners on unmount
-      events.forEach(event => window.removeEventListener(event, activityHandler));
+      events.forEach((event) =>
+        window.removeEventListener(event, activityHandler)
+      );
     };
   }, []);
 
@@ -107,9 +113,9 @@ function App() {
     LocalStorageUtil.removeItem(Constants.TOKEN_EXPIRATION_TIME);
   };
 
-    useEffect(() => {
-        LocalStorageUtil.setItem(Constants.ISSIDEBAR_EXPANDED, !collapsed as any);
-    }, [collapsed]);
+  useEffect(() => {
+    LocalStorageUtil.setItem(Constants.ISSIDEBAR_EXPANDED, !collapsed as any);
+  }, [collapsed]);
 
   return (
     <>

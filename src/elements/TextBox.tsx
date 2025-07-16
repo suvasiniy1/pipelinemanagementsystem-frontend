@@ -53,7 +53,9 @@ const TextBox: React.FC<props> = (props) => {
           maxLength={item.max}
           tabIndex={item.tabIndex}
           title={
-            item.title
+            item.type===ElementType.password
+              ? null
+              : item.title
               ? item.title
               : selectedItem.id == 0
               ? generatePlaceHolder(item)
