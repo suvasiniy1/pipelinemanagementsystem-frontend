@@ -128,8 +128,7 @@ const handleWonClick = () => {
 };
 
 const handleLostClick = () => {
-  updateDealStatus('Lost');
-  setIsDealLost(false);
+  setIsDealLost(true);
 };
 
   return (
@@ -349,7 +348,7 @@ const handleLostClick = () => {
         header={"Deal Edit"} 
         selectedItem={dealItem} 
         setSelectedItem={setDealItem} 
-        onSave={undefined} 
+        onSave={(e:any)=>updateDealStatus('Lost')} 
         onClose={undefined} 
         closeDialog={setIsDealLost} 
         setLoadRowData={undefined} />

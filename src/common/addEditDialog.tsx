@@ -22,6 +22,7 @@ type Props = {
   canClose?: boolean;
   hideBody?:boolean;
   position?:string;
+  saveButtonProps?: React.ButtonHTMLAttributes<HTMLButtonElement>;
 };
 
 export const AddEditDialog: React.FC<Props> = (props) => {
@@ -51,12 +52,25 @@ export const AddEditDialog: React.FC<Props> = (props) => {
   const [fullScreen, setFullScreen] = useState<any>(
     props.isFullscreen ?? false
   );
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   useEffect(() => {
     setDialogIsOpen(props.dialogIsOpen);
   }, [props.dialogIsOpen]);
 
   const onFormChange1 = () => {
     if (props.onFormChange) props.onFormChange();
+  };
+
+  // Wrap onSave to restrict duplicate submissions if not handled by parent
+  const handleSave = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (props.saveButtonProps?.disabled || isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      if (onSave) await onSave(e);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -105,11 +119,13 @@ export const AddEditDialog: React.FC<Props> = (props) => {
             >
               Cancel
             </button>
-            {showSaveButton && ( // Conditionally render the Save button
+            {showSaveButton && (
               <button
                 type="submit"
                 className={`btn btn-primary btn-sm save${header}`}
-                onClick={onSave}
+                onClick={handleSave}
+                disabled={props.saveButtonProps?.disabled || isSubmitting}
+                {...props.saveButtonProps}
               >
                 {customSaveChangesButtonName
                   ? customSaveChangesButtonName

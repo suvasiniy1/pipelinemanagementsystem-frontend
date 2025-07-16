@@ -102,7 +102,6 @@ const UsersAddEditDialog: React.FC<any> = (props) => {
       isSideByItem: true,
     },
   ];
-  
 
   const getValidationsSchema = (list: Array<any>) => {
     return Yup.object().shape({
@@ -135,32 +134,35 @@ const UsersAddEditDialog: React.FC<any> = (props) => {
         organizations.find((i) => i.name === selectedItem["name"])
           ?.organizationID as never
       );
-    setValue("isActive" as never, selectedItem.isActive as never);
+      setValue("isActive" as never, selectedItem.isActive as never);
     }
   }, []);
 
   const onChange = (value: any, item: any) => {
-     const field = item.value;
+    const field = item.value;
 
-  // Set the value normally
-  setValue(field as never, value as never);
+    // Set the value normally
+    setValue(field as never, value as never);
 
-  // Auto-generate username when first or last name is entered
-  if (field === "firstName" || field === "lastName") {
-    const firstName = field === "firstName" ? value : (methods.getValues() as any)["firstName"];
-    const lastName = field === "lastName" ? value : (methods.getValues() as any)["lastName"];
-    if (firstName && lastName) {
-      const generatedUsername = `${firstName.toLowerCase()}.${lastName.toLowerCase()}`;
-      setValue("userName" as never, generatedUsername as never);
+    // Auto-generate username when first or last name is entered
+    if (field === "firstName" || field === "lastName") {
+      const firstName =
+        field === "firstName"
+          ? value
+          : (methods.getValues() as any)["firstName"];
+      const lastName =
+        field === "lastName" ? value : (methods.getValues() as any)["lastName"];
+      if (firstName && lastName) {
+        const generatedUsername = `${firstName.toLowerCase()}.${lastName.toLowerCase()}`;
+        setValue("userName" as never, generatedUsername as never);
+      }
     }
-  }
     if (item.value === "roleID") {
       setValue("roleID" as never, Number(value) as never);
     }
     if (item.value === "organizationID") {
       setValue("organizationID" as never, Number(value) as never);
-    }
-    else{
+    } else {
       setValue(item.value as never, value as never);
     }
   };
@@ -190,35 +192,48 @@ const UsersAddEditDialog: React.FC<any> = (props) => {
     );
   };
   const onSubmit = async (item: any) => {
+    
     try {
       let obj: User = { ...selectedItem };
       obj = Util.toClassObject(obj, item);
-      obj.passwordHash="test";
-    //  obj.isActive = item.isActive === "true" ? true : false;
+      obj.passwordHash = "test";
+      //  obj.isActive = item.isActive === "true" ? true : false;
 
- // Update only editable fields
- obj.firstName = item.firstName;
- obj.lastName = item.lastName;
- obj.email = item.email;
- obj.userName = item.userName;
- obj.phoneNumber = item.phoneNumber;
- obj.isActive = item.isActive === "true" || item.isActive === true;
-
-
+      // Update only editable fields
+      obj.firstName = item.firstName;
+      obj.lastName = item.lastName;
+      obj.email = item.email;
+      obj.userName = item.userName;
+      obj.phoneNumber = item.phoneNumber;
+      obj.isActive = item.isActive === "true" || item.isActive === true;
 
       obj.roleId = item.id !== null ? Number(item.id) : 0;
       obj.organizationId =
         item.organizationID !== null ? Number(item.organizationID) : 0;
       obj.lastLogin = new Date();
       obj.createdBy = String(Util.UserProfile()?.userId);
-      obj.modifiedBy = obj.userId > 0 ? String(Util.UserProfile()?.userId) : null;
+      obj.modifiedBy =
+        obj.userId > 0 ? String(Util.UserProfile()?.userId) : null;
       // obj.createdBy = Util.UserProfile()?.userId;
-      obj.Id = obj.userId ?? 0; 
+      obj.Id = obj.userId ?? 0;
       obj.userId = obj.userId ?? 0;
-      obj.createdDate = obj.createdDate
-  ? new Date(obj.createdDate)
-  : new Date();
-      obj.modifiedDate = null as any;
+
+      // Date handling
+      const isValidDate = (d: any) => {
+        if (!d) return false;
+        const dateObj = new Date(d);
+        return !isNaN(dateObj.getTime());
+      };
+      if (obj.userId > 0) {
+        // Existing user: preserve valid createdDate, set modifiedDate to now
+        obj.createdDate = isValidDate(obj.createdDate) ? new Date(obj.createdDate) : new Date() as any;
+        obj.modifiedDate = new Date();
+      } else {
+        // New user: set createdDate to now, modifiedDate to null
+        obj.createdDate = new Date();
+        obj.modifiedDate = null as any;
+      }
+
       // Add SecurityStamp and ConcurrencyStamp fields
       obj.securityStamp = obj.securityStamp || generateRandomStamp(); // Placeholder function
       obj.concurrencyStamp = obj.concurrencyStamp || generateRandomStamp(); // Placeholder function

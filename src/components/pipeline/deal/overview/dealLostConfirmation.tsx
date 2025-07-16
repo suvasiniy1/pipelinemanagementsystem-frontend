@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm, FormProvider } from "react-hook-form";
 import * as Yup from "yup";
@@ -30,6 +30,8 @@ const DealLostConfirmationDialog: React.FC<ViewEditProps> = (props) => {
   } = props;
 
   const dealSvc = new DealService(ErrorBoundary);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const submitRef = useRef(false);
 
   const lostDealReasons = [
     { value: "price_too_high", name: "Price Too High" },
@@ -82,6 +84,9 @@ const DealLostConfirmationDialog: React.FC<ViewEditProps> = (props) => {
   const onChange = (value: any, item: any) => {};
 
   const onSubmit = (item: any) => {
+    if (isSubmitting || submitRef.current) return;
+    setIsSubmitting(true);
+    submitRef.current = true;
     const updatedDeal = {
         ...selectedItem,
         StatusID: 2,
@@ -95,21 +100,25 @@ const DealLostConfirmationDialog: React.FC<ViewEditProps> = (props) => {
 
   const updateDealStatus = async (updatedDeal:Deal) => {
     try {
-
       const response = await dealSvc.updateAllDeals([updatedDeal]);
-
       if (response) {
-        toast.success("Deal status updated successfully");
         setTimeout(() => {
           setSelectedItem({ ...selectedItem, ...updatedDeal });
           setDialogIsOpen(false);
-        }, 100);
+          setIsSubmitting(false);
+          submitRef.current = false;
+          props.onSave();
+        }, 300);
       } else {
-        toast.warning("Unable to update deal status");
+        toast.warning("Unable to mark deal as lost");
+        setIsSubmitting(false);
+        submitRef.current = false;
       }
     } catch (error) {
-      console.error("Failed to update deal status", error);
-      toast.error("Failed to update deal status");
+      console.error("Unable to mark deal as lost", error);
+      toast.error("Unable to mark deal as lost");
+      setIsSubmitting(false);
+      submitRef.current = false;
     }
   };
 
@@ -134,6 +143,7 @@ const DealLostConfirmationDialog: React.FC<ViewEditProps> = (props) => {
             onSave={handleSubmit(onSubmit)}
             closeDialog={oncloseDialog}
             onClose={oncloseDialog}
+            saveButtonProps={{ disabled: isSubmitting }}
           >
             <>
               <div className="modelformfiledrow row">
