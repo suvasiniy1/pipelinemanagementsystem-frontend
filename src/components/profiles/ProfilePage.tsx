@@ -8,6 +8,8 @@ import { UnAuthorized } from "../../common/unauthorized";
 import "./ProfilePage.css"; // Import the CSS file for styling
 import { AccountService } from "../../services/accountService"; 
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+
 
 
 
@@ -17,7 +19,7 @@ export const ProfilePage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [currentTime, setCurrentTime] = useState<string>("");
   const [isTwoFactorEnabled, setIsTwoFactorEnabled] = useState<boolean>(false); // Added state for 2FA
-
+  const navigate = useNavigate();
 
 
   useEffect(() => {
@@ -101,7 +103,10 @@ export const ProfilePage = () => {
 
   return (
     <div className="profile-page">
-      <h1 className="profile-title">Profile</h1>
+       <button className="btn btn-secondary mb-3" onClick={() => navigate("/pipeline")}>
+    ← Back to Deals
+       </button>
+      <h1 className="profile-title"></h1>
       <div className="profile-container">
        
         <div className="profile-header">
