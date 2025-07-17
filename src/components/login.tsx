@@ -174,7 +174,7 @@ const Login = () => {
               setUserId(res.userId);
               setEmail(res.email);
             } else {
-              setLoginError("The username and password are invalid or the username does not exist!" as any);
+              setLoginError(res as any);
               setIsIncorrectCredentails(true);
             }
           })
@@ -289,7 +289,11 @@ const Login = () => {
                 <div className="logformsubtext p-2 text-center">
                   {loading ? "Please wait" : twoFactorRequired
                     ? "Enter the 2FA code sent to your email"
-                    : loginError ?? "Please log in to continue."}
+                    : loginError
+                      ? <span style={{ color: '#d32f2f', fontWeight: 'bold', background: '#fff0f0', borderRadius: '4px', padding: '6px 12px', display: 'inline-block', boxShadow: '0 1px 4px rgba(211,47,47,0.08)' }}>
+                          {loginError}
+                        </span>
+                      : null}
                 </div>
                 {twoFactorRequired ? (
                   // If 2FA is required, show the verification code form

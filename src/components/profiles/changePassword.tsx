@@ -69,9 +69,11 @@ const ChangePassword = () => {
   const validationsSchema = Yup.object().shape({
     passwordHash: Yup.string()
       .required("Password is required")
-      .min(6, "Password must be at least 6 characters long")
-      .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
-      .matches(/\d/, "Password must contain at least one number"),
+      .min(8, "Password must be at least 8 characters long")
+      .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).+$/,
+        "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+      ),
     confirmPasswordHash: Yup.string()
       .oneOf([Yup.ref("passwordHash")], "Passwords must match")
       .required("Confirm Password is required"),

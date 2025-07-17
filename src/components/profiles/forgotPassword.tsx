@@ -86,6 +86,7 @@ const ForgotPassword = (props: params) => {
       setError(err?.response?.data || 'Something went wrong.');
     } finally {
       setLoading(false);
+          setDialogIsOpen(false);
     }
   };
 
