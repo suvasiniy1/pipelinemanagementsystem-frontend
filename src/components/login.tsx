@@ -79,13 +79,14 @@ const Login = () => {
     {
       key: "Password",
       value: "passwordHash",
-      disabled: true,
+      readOnly: true,
       tabIndex: 2,
       placeHolder: "Password",
       isControlInNewLine: true,
       elementSize: 12,
       type: ElementType.password,
       showEyeIcon: false,
+      autoComplete:"new-password",
     },
   ]);
 

@@ -53,15 +53,20 @@ const TextBox: React.FC<props> = (props) => {
           maxLength={item.max}
           tabIndex={item.tabIndex}
           title={
-            item.title
-              ? item.title
-              : selectedItem.id == 0
-              ? generatePlaceHolder(item)
-              : selectedItem[item.value]
+            item.type === ElementType.password
+      ? ""
+      : item.title
+      ? item.title
+      : selectedItem.id == 0
+      ? generatePlaceHolder(item)
+      : selectedItem[item.value]
           }
           placeholder={item.placeHolder ?? generatePlaceHolder(item)}
           className="form-control"
-          autoComplete="on"
+          autoComplete={
+    item.type === ElementType.password ? "new-password" : "on"
+  }
+          spellCheck={false}
           autoFocus={item.isFocus}
           defaultValue={value ? value : selectedItem[item.value]}
           {...register(item.value)}

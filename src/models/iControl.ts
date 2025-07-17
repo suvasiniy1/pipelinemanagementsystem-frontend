@@ -48,6 +48,8 @@ export interface IControl {
   pipelineIds?:string;
   pipelineId?: number; // ✅ ADD THIS LINE
   bindable?:string;
+  readOnly?: boolean;
+  autoComplete?:string;
 }
 
 export enum CustomActionPosition {
