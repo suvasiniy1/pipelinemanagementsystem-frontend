@@ -30,7 +30,9 @@ const ConfirmEmail = () => {
     const token = getQueryParams("token");
 
     if (!userId || !token) {
-      setConfirmationMessage("Invalid email confirmation link.");
+      setConfirmationMessage(
+        "Invalid email confirmation link. Please check your email for the correct link or request a new one."
+      );
       setIsLoading(false);
       return;
     }
@@ -40,25 +42,28 @@ const ConfirmEmail = () => {
       .confirmEmail(userId, token)
       .then((response) => {
         if (response) {
-          setConfirmationMessage("Your email has been verified!");
+          setConfirmationMessage(
+            "Your email has been successfully verified. You can now log in and start using your account."
+          );
           setSuccess(true);
-          //   toast.success("Email confirmed successfully.");
         } else {
           setSuccess(false);
-          setConfirmationMessage("Email confirmation failed.");
-          //   toast.error("Email confirmation failed.");
+          setConfirmationMessage(
+            "We couldn't verify your email. The link may be invalid or expired. Please request a new verification email or contact support if the problem persists."
+          );
         }
       })
       .catch((error) => {
         console.error("Email confirmation error:", error);
         setSuccess(false);
-        setConfirmationMessage("An error occurred during email confirmation.");
-        // toast.error("An error occurred during email confirmation.");
+        setConfirmationMessage(
+          "We couldn't verify your email. The link may be invalid or expired. Please request a new verification email or contact support if the problem persists."
+        );
       })
       .finally(() => {
         setIsLoading(false);
       });
-  }, [location.search, userSvc]);
+  }, []);
 
   // Countdown and redirect effect with smooth progress
   useEffect(() => {
@@ -83,7 +88,10 @@ const ConfirmEmail = () => {
     );
   }
 
-  const progressPercent = Math.max(0, 100 - (elapsed / PROGRESS_DURATION) * 100);
+  const progressPercent = Math.max(
+    0,
+    100 - (elapsed / PROGRESS_DURATION) * 100
+  );
   const countdown = Math.ceil(PROGRESS_DURATION - elapsed);
 
   return (
@@ -112,6 +120,9 @@ const ConfirmEmail = () => {
           animation: "fadeInScale 0.7s",
           position: "relative",
           minWidth: 320,
+          maxWidth: 420,
+          wordBreak: 'break-word',
+          whiteSpace: 'pre-line',
         }}
       >
         {success ? (
@@ -135,7 +146,7 @@ const ConfirmEmail = () => {
             <h2 style={{ fontWeight: 700, marginBottom: 8 }}>
               Email Verified!
             </h2>
-            <p style={{ fontSize: 18, marginBottom: 16 }}>
+            <p style={{ fontSize: 18, marginBottom: 16, wordBreak: 'break-word', whiteSpace: 'pre-line' }}>
               {confirmationMessage}
             </p>
             <div style={{ fontSize: 16, color: "#333", marginBottom: 8 }}>
@@ -172,7 +183,13 @@ const ConfirmEmail = () => {
               viewBox="0 0 24 24"
               style={{ marginBottom: 16 }}
             >
-              <circle cx="12" cy="12" r="12" fill="#e94b4b" fillOpacity="0.15" />
+              <circle
+                cx="12"
+                cy="12"
+                r="12"
+                fill="#e94b4b"
+                fillOpacity="0.15"
+              />
               <path
                 d="M9 9l6 6M15 9l-6 6"
                 stroke="#e94b4b"
@@ -184,7 +201,9 @@ const ConfirmEmail = () => {
             <h2 style={{ fontWeight: 700, marginBottom: 8 }}>
               Email Verification Failed
             </h2>
-            <p style={{ fontSize: 18, marginBottom: 16 }}>{confirmationMessage}</p>
+            <p style={{ fontSize: 18, marginBottom: 16, wordBreak: 'break-word', whiteSpace: 'pre-line' }}>
+              {confirmationMessage}
+            </p>
             <div style={{ fontSize: 16, color: "#333", marginBottom: 8 }}>
               Redirecting you to the login page in{" "}
               <span style={{ fontWeight: 600 }}>{countdown}</span> second
