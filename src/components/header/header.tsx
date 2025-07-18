@@ -15,7 +15,7 @@ export const HeaderComponent = (props:params) => {
                     <div className="header-col colheadname">
                         <div className="colheadname-row">
                             <button className="sidemenuicon" onClick={(e:any)=>props.onExpandCollapseClick()}><FontAwesomeIcon icon={faBars} /></button>
-                            <h1 className="headname">Deals</h1>
+                            <h1 className="headname">Lead Management</h1>
                         </div>
                     </div>
                     <div className="header-col colheadsearch">

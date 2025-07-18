@@ -67,7 +67,6 @@ export const AppRouter = () => {
           }
         />
         <Route path="/Template" element={<TemplatesList />} />
-        <Route path="/Contact" element={<ContactsList />} />
         <Route path="/Email" element={<EmailConfigurationList />} />
         <Route path="/Campaigns" element={<CampaignList />} />
         <Route path="/CampaignDetails" element={<CampaignDetails />} />
@@ -75,7 +74,6 @@ export const AppRouter = () => {
         <Route path="/Person" element={<AuthProvider><PersonList /></AuthProvider>}/>
         <Route path="/profile" element={<ProfilePage/>} />
         <Route path="/Reporting" element={<ReportingDashboard />}/>
-        <Route path="/Enquiries" element={<EnquiryFormList />}/>
 
         <Route path="/Clinic" element={<ClinicList />}/>
         <Route path="/Source" element={<SourceList />}/>
