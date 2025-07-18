@@ -59,7 +59,8 @@ function App() {
     }
 
     if (IsConfirmEmail()) {
-      navigate("/confirm-email");
+      const queryString = location.search;
+    navigate(`/confirm-email${queryString}`);
     }
   }, []);
 
@@ -125,6 +126,10 @@ function App() {
         </div>
       ) : IsChangePassword() ? (
         <ChangePassword />
+      ) : IsConfirmEmail() ? (
+        <Content className="maincontentinner">
+          <AppRouter />
+        </Content>
       ) : shouldShowSidebar() ? (
         IsNotAuthorized() ? (
           <NotAuthorized />
