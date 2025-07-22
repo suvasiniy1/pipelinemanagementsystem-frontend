@@ -32,8 +32,8 @@ type params = {
   dialogIsOpen?: any;
   canDoActions?: boolean;
   filterRowDataFn?: any;
-  canShowClone?: any;
-  canShowDelete?: any;
+  canShowClone?: boolean;
+  canShowDelete?: boolean;
   defaultSortField?: string;
   selectedItem?: any;
   onDelete?: any;
@@ -473,34 +473,55 @@ const ItemCollection: React.FC<params> = (props) => {
     );
   };
 
+  // Shared style for both buttons
+  const toolbarButtonStyle: React.CSSProperties = {
+    minWidth: 140,
+    minHeight: 40,
+    fontWeight: 600,
+    padding: '0 24px',
+    borderRadius: 8,
+    boxSizing: 'border-box',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  };
+
+  // Detect sidebar state from localStorage
+  const isSidebarCollapsed = (() => {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const val = window.localStorage.getItem('ISSIDEBAR_EXPANDED');
+      return val === 'false' ? false : true;
+    }
+    return true;
+  })();
+
   // Conditionally Render the Send Group Email Button
   const renderExportButton = () => (
-    <div
-      style={{ textAlign: "right", marginRight: "16px", marginBottom: "16px" }}
+    <Button
+      variant="outlined"
+      color="secondary"
+      size="medium"
+      style={toolbarButtonStyle}
+      onClick={(e: any) => setDrawerOpen(true)}
+      disabled={selectedRows.length > 0 && isLoading}
     >
-      <Button
-        variant="contained"
-        onClick={(e: any) => setDrawerOpen(true)}
-        disabled={selectedRows.length > 0 && isLoading}
-      >
-        Export
-      </Button>
-    </div>
+      Export
+    </Button>
   );
 
   // Conditionally Render the Send Group Email Button
   const renderSendGroupEmailButton = () =>
     selectedRows.length > 0 && (
-      <div style={{ textAlign: "right", marginBottom: "16px" }}>
-        <button
-          type="button"
-          className="btn btn-success"
-          onClick={openGroupEmailDialog}
-          style={{ marginRight: "16px" }}
-        >
-          + Send Group Email
-        </button>
-      </div>
+      <Button
+        type="button"
+        variant="outlined"
+        color="secondary"
+        size="medium"
+        style={{ ...toolbarButtonStyle, marginRight: 12 }}
+        onClick={openGroupEmailDialog}
+      >
+        + Send Group Email
+      </Button>
     );
   const addorUpdateItem = () => {
     return (
@@ -517,12 +538,24 @@ const ItemCollection: React.FC<params> = (props) => {
                 <div
                   className="col-sm-7 toolbarview-summery"
                 >
-                  <div className="toolbarview-actionsrow">
+                  <div className="toolbarview-actionsrow" style={{
+                      display: 'flex',
+                      gap: 12,
+                      alignItems: 'center',
+                      justifyContent: isSidebarCollapsed ? 'flex-end' : 'flex-end',
+                      paddingRight: isSidebarCollapsed ? 24 : 60, // More padding when expanded
+                      width: '100%',
+                      flexWrap: 'wrap',
+                      boxSizing: 'border-box',
+                    }}>
                     {renderSendGroupEmailButton()}
                     {canExport ? renderExportButton() : null}
-                    <button
+                    <Button
                       type="button"
-                      className="btn btn-success"
+                      variant="contained"
+                      color="primary"
+                      size="medium"
+                      style={toolbarButtonStyle}
                       hidden={!canAdd}
                       onClick={(e: any) => {
                         setSelectedItemUser(new props.itemType());
@@ -530,7 +563,7 @@ const ItemCollection: React.FC<params> = (props) => {
                       }}
                     >
                       + New {itemName}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               )}
@@ -613,7 +646,8 @@ const ItemCollection: React.FC<params> = (props) => {
                       variant="contained"
                       fullWidth
                       hidden={selectedRows.length > 0}
-                      onClick={(e: any) => handleExportToExcel()}
+                      onClick={(e: any) => handleExportToExcel()
+                      }
                     >
                       Export
                     </Button>

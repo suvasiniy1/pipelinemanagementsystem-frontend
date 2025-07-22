@@ -334,6 +334,14 @@ const Table: React.FC<TableListProps> = (props) => {
           metaDataIter.columnHeaderName !== null
             ? metaDataIter.columnHeaderName
             : Util.capitalizeFirstChar(metaDataIter.columnName);
+        // If a custom renderCell is provided, use it. Otherwise, show N/A for empty values.
+        const defaultRenderCell = (params: GridCellParams) => {
+          const value = params.value;
+          if (value === null || value === undefined || value === "") {
+            return <span style={{ color: '#aaa' }}>N/A</span>;
+          }
+          return <span>{value != null ? String(value) : ""}</span>;
+        };
         return {
           field: metaDataIter.columnName,
           headerName: headerValue,
@@ -344,7 +352,7 @@ const Table: React.FC<TableListProps> = (props) => {
           hidden: metaDataIter.hidden ? false : true,
           width: metaDataIter.width,
           flex: metaDataIter.flex !== null ? metaDataIter.flex : 1,
-          renderCell: metaDataIter.renderCell,
+          renderCell: metaDataIter.renderCell || defaultRenderCell,
           renderHeader: (params: GridColumnHeaderParams) => {
             // console.log("renderHeader: ", params);
             // dataGridAPIRef = params.api;
@@ -370,7 +378,7 @@ const Table: React.FC<TableListProps> = (props) => {
       headerName: "Actions",
       headerAlign: "left",
       sortable: false,
-      width: 400,
+      width: 160,
       disableColumnMenu: true,
       disableReorder: true,
       renderHeader: (params: GridColumnHeaderParams) => (
@@ -443,7 +451,8 @@ const Table: React.FC<TableListProps> = (props) => {
       },
     };
 
-    if (canDoActions) columnDefs.push(actions);
+    // Ensure Actions column is last
+    if (canDoActions) columnDefs = [...columnDefs, actions];
     return columnDefs;
   };
 
@@ -499,24 +508,15 @@ const Table: React.FC<TableListProps> = (props) => {
           getRowClassName={(params) =>
             params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
           }
-          hideFooterPagination={props.hidePagination ?? false}
+          density="standard"
+          sx={{ minWidth: 800, height: 500 }}
+          pagination
           initialState={{
             pagination: {
-              paginationModel: {
-                pageSize: 10,
-              },
+              paginationModel: { pageSize: 8, page: 0 },
             },
-            sorting: {
-               sortModel: [
-              {
-                  field: 'createdDate', // <-- Use your actual timestamp field here
-                   sort: 'desc',
-              },
-              ],
-          },
           }}
-          pageSizeOptions={[5, 10, 20, 50]}
-          disableRowSelectionOnClick
+          pageSizeOptions={[8, 16, 32, 64]}
         />
       )}
     </Grid>

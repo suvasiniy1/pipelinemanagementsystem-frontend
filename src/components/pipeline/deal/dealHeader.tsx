@@ -36,6 +36,7 @@ import DoneIcon from '@mui/icons-material/Done';
 import { Utility } from "../../../models/utility";
 import Constants from "../../../others/constants";
 import LocalStorageUtil from "../../../others/LocalStorageUtil";
+import { Button } from "@mui/material";
 
 type params = {
   canAddDeal: boolean;
@@ -125,14 +126,17 @@ export const DealHeader = (props: params) => {
   const addorUpdateDeal = () => {
     return (
       <>
-        <button
+        <Button
           type="button"
-          className="btn btn-success"
+          variant="contained"
+          color="primary"
+          size="medium"
+          style={{ minWidth: 140, minHeight: 30, fontWeight: 600, padding: '0 24px', borderRadius: 8, boxSizing: 'border-box', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
           onClick={(e: any) => setDialogIsOpen(true)}
           disabled={!canAddDeal}
         >
           + New Deal
-        </button>
+        </Button>
       </>
     );
   };

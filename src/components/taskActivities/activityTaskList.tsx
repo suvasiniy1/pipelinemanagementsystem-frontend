@@ -155,22 +155,22 @@ const TasksList = () => {
 
     // Column metadata
     const columnMetaData = [
-        {
-            field: 'select',
-            columnName: 'select',
-            columnHeaderName: '',
-            width: 50,
-            sortable: false,
-            disableColumnMenu: true,
-            renderHeader: () => (
-                <Checkbox
-                    indeterminate={selectedRows.length > 0 && selectedRows.length < rowData.length}
-                    checked={selectedRows.length === rowData.length && rowData.length > 0}
-                    onChange={() => setSelectedRows(selectedRows.length === rowData.length ? [] : rowData.map(row => row.taskId))} // Select All or Deselect All
-                    inputProps={{ 'aria-label': 'select all rows' }}
-                />
-            ),
-        },
+        // {
+        //     field: 'select',
+        //     columnName: 'select',
+        //     columnHeaderName: '',
+        //     width: 50,
+        //     sortable: false,
+        //     disableColumnMenu: true,
+        //     renderHeader: () => (
+        //         <Checkbox
+        //             indeterminate={selectedRows.length > 0 && selectedRows.length < rowData.length}
+        //             checked={selectedRows.length === rowData.length && rowData.length > 0}
+        //             onChange={() => setSelectedRows(selectedRows.length === rowData.length ? [] : rowData.map(row => row.taskId))} // Select All or Deselect All
+        //             inputProps={{ 'aria-label': 'select all rows' }}
+        //         />
+        //     ),
+        // },
         { columnName: "name", columnHeaderName: "Subject", width: 230},
         { columnName: "treatmentName", columnHeaderName: "Deal", width: 200 },
         { columnName: "personName", columnHeaderName: "Contact Person", width: 200 },

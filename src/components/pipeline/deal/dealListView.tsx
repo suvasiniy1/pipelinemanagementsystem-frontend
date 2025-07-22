@@ -535,17 +535,27 @@ const DealListView = (props: Params) => {
             {addorUpdateDeal()}
 
             <Button
-              variant="contained"
+              variant="outlined"
+              color="secondary"
+              size="medium"
               onClick={(e: any) => setDrawerOpen(true)}
               disabled={selectedRows.length > 0}
-              style={{ marginRight: "10px" }}
+              style={{
+                minWidth: 140,
+                minHeight: 40,
+                fontWeight: 600,
+                marginRight: 12,
+              }}
             >
               Export
             </Button>
             <Button
               variant="contained"
+              color="primary"
+              size="medium"
               onClick={(e: any) => setDrawerOpen(true)}
               disabled={selectedRows.length == 0}
+              style={{ minWidth: 140, minHeight: 40, fontWeight: 600 }}
             >
               Send SMS
             </Button>
@@ -561,8 +571,15 @@ const DealListView = (props: Params) => {
         <Button
           variant="contained"
           color="primary"
+          size="medium"
           onClick={(e: any) => setOpenAddDealDialog(true)}
-          style={{ marginLeft: "10px", marginRight: "10px" }}
+          style={{
+            minWidth: 140,
+            minHeight: 40,
+            fontWeight: 600,
+            marginLeft: "10px",
+            marginRight: "10px",
+          }}
           sx={{ backgroundColor: "primary.main", color: "white" }}
         >
           + New Deal

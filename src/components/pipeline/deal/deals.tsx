@@ -423,6 +423,22 @@ export const Deals = (props: params) => {
                       <button
                         type="button"
                         className="btn btn-primary"
+                        style={{
+                          minWidth: 160,
+                          minHeight: 44,
+                          fontWeight: 600,
+                          fontSize: 16,
+                          borderRadius: 8,
+                          background: 'linear-gradient(90deg, #b68d40 0%, #cfa34c 100%)',
+                          color: '#fff',
+                          boxShadow: '0 2px 8px rgba(33,35,44,0.08)',
+                          transition: 'background 0.2s',
+                          margin: '16px 0',
+                          padding: '0 32px',
+                          outline: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                        }}
                         onClick={(e: any) => loadMoreDeals()}
                       >
                         Load More

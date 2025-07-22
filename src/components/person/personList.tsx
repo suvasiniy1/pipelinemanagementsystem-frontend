@@ -214,24 +214,24 @@ const PersonList = () => {
 
   // Column definitions for each field
   const columnMetaData = [
-    {
-      field: "select",
-      columnName: "select",
-      columnHeaderName: "",
-      width: 50,
-      sortable: false,
-      disableColumnMenu: true,
-      renderHeader: () => (
-        <Checkbox
-          indeterminate={
-            selectedRows.length > 0 && selectedRows.length < rowData.length
-          }
-          checked={selectedRows.length === rowData.length && rowData.length > 0}
-          onChange={toggleSelectAll}
-          inputProps={{ "aria-label": "select all rows" }}
-        />
-      ),
-    },
+    // {
+    //   field: "select",
+    //   columnName: "select",
+    //   columnHeaderName: "",
+    //   width: 50,
+    //   sortable: false,
+    //   disableColumnMenu: true,
+    //   renderHeader: () => (
+    //     <Checkbox
+    //       indeterminate={
+    //         selectedRows.length > 0 && selectedRows.length < rowData.length
+    //       }
+    //       checked={selectedRows.length === rowData.length && rowData.length > 0}
+    //       onChange={toggleSelectAll}
+    //       inputProps={{ "aria-label": "select all rows" }}
+    //     />
+    //   ),
+    // },
     // Person Name Field
     {
       field: "personName",
