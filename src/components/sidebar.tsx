@@ -19,6 +19,8 @@ import jpg from "../../src/resources/images/logo.jpg";
 import png from "../../src/resources/images/y1.png";
 import Util from "../others/util";
 import { BiGitBranch } from "react-icons/bi";
+import { HiOutlineFunnel } from "react-icons/hi2";
+import { GiStairsGoal } from "react-icons/gi";
 
 type params = {
   collapsed: boolean;
@@ -77,14 +79,14 @@ export const SideBar = (props: params) => {
         </Header>
 
         <Menu style={{ paddingTop: "60px" }}>
-          <MenuItem hidden={!Util.isAuthorized("Stages")} icon={<FaDollarSign color={selectedNavItem === "Stages" ? activeNavColor : "black"} />} component={<Link to="/Stages" />} onClick={() => setSelectedNavItem("Stages")}>
-            <b hidden={selectedNavItem !== "Stages"} style={{ color: selectedNavItem === "Stages" ? activeNavColor : "black" }}>Stages</b>
-            <p hidden={selectedNavItem === "Stages"}>Stages</p>
+          <MenuItem hidden={!Util.isAuthorized("Stages")} icon={<HiOutlineFunnel  color={selectedNavItem === "Stages" ? activeNavColor : "black"} />} component={<Link to="/Stages" />} onClick={() => setSelectedNavItem("Stages")}>
+            <b hidden={selectedNavItem !== "Stages"} style={{ color: selectedNavItem === "Stages" ? activeNavColor : "black" }}>Add Pipeline</b>
+            <p hidden={selectedNavItem === "Stages"}>Add Pipeline</p>
           </MenuItem>
 
-          <MenuItem hidden={!Util.isAuthorized("pipeline")} icon={<MdLocalOffer color={selectedNavItem === "pipeline" ? activeNavColor : "black"} />} component={<Link to="/pipeline" />} onClick={() => setSelectedNavItem("pipeline")}>
-            <b hidden={selectedNavItem !== "pipeline"} style={{ color: selectedNavItem === "pipeline" ? activeNavColor : "black" }}>Deals</b>
-            <p hidden={selectedNavItem === "pipeline"}>Deals</p>
+          <MenuItem hidden={!Util.isAuthorized("pipeline")} icon={<GiStairsGoal  color={selectedNavItem === "pipeline" ? activeNavColor : "black"} />} component={<Link to="/pipeline" />} onClick={() => setSelectedNavItem("pipeline")}>
+            <b hidden={selectedNavItem !== "pipeline"} style={{ color: selectedNavItem === "pipeline" ? activeNavColor : "black" }}>Sales Stage</b>
+            <p hidden={selectedNavItem === "pipeline"}>Sales Stage</p>
           </MenuItem>
 
           <MenuItem hidden={!Util.isAuthorized("Activities")} icon={<RxActivityLog color={selectedNavItem === "Activities" ? activeNavColor : "black"} />} component={<Link to="/Activities" />} onClick={() => setSelectedNavItem("Activities")}>
@@ -99,7 +101,6 @@ export const SideBar = (props: params) => {
 
           <SubMenu icon={<MdCampaign color={compaignSubMenu.includes(selectedNavItem) ? activeNavColor : "black"} />} hidden={!Util.isAuthorized("Template")} defaultOpen={compaignSubMenu.includes(selectedNavItem)} label="Campaigns">
             <MenuItem hidden={!Util.isAuthorized("Template")} component={<Link to="/Template" />} onClick={() => setSelectedNavItem("Template")} icon={<HiTemplate color={selectedNavItem === "Template" ? activeNavColor : "black"} />}>Template</MenuItem>
-            <MenuItem hidden={!Util.isAuthorized("Contact")} component={<Link to="/Contact" />} onClick={() => setSelectedNavItem("Contact")} icon={<RiContactsBookFill color={selectedNavItem === "Contact" ? activeNavColor : "black"} />}>Contact</MenuItem>
             <MenuItem hidden={!Util.isAuthorized("Email")} component={<Link to="/Email" />} onClick={() => setSelectedNavItem("Email")} icon={<MdEmail color={selectedNavItem === "Email" ? activeNavColor : "black"} />}>Email</MenuItem>
             <MenuItem hidden={!Util.isAuthorized("Campaigns")} component={<Link to="/Campaigns" />} onClick={() => setSelectedNavItem("Campaign")} icon={<MdCampaign color={selectedNavItem === "Campaign" ? activeNavColor : "black"} />}>Campaign</MenuItem>
           </SubMenu>
@@ -115,7 +116,7 @@ export const SideBar = (props: params) => {
 
           <MenuItem hidden={!Util.isAuthorized("Reporting")} component={<Link to="/Reporting" />} onClick={() => setSelectedNavItem("Reporting")} icon={<RiDashboard2Fill color={selectedNavItem === "Reporting" ? activeNavColor : "black"} />}>Reporting</MenuItem>
 
-          <MenuItem hidden={!Util.isAuthorized("Enquiries")} component={<Link to="/Enquiries" />} onClick={() => setSelectedNavItem("Enquiries")} icon={<RiMenuSearchFill color={selectedNavItem === "Enquiries" ? activeNavColor : "black"} />}>Enquiries</MenuItem>
+        
         </Menu>
       </Sidebar>
     );
