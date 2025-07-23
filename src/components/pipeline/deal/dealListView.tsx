@@ -1,4 +1,4 @@
-import { faGrip } from "@fortawesome/free-solid-svg-icons";
+import { faGrip,faEllipsisV } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button, Grid } from "@mui/material";
 import Drawer from "@mui/material/Drawer";
@@ -25,6 +25,7 @@ import { PipeLineService } from "../../../services/pipeLineService";
 import { StageService } from "../../../services/stageService";
 import { DealExportPrview } from "./dealExportPreview";
 import { DealAddEditDialog } from "./dealAddEditDialog";
+
 
 type Params = {
   pipeLineId: number;
@@ -93,6 +94,7 @@ const DealListView = (props: Params) => {
       columnHeaderName: "Contact Person",
       width: 150,
     },
+    { columnName: "phone", columnHeaderName: "Phone", width: 150 }, 
     {
       columnName: "expectedCloseDate",
       columnHeaderName: "Expected Close Date",
@@ -125,6 +127,10 @@ const DealListView = (props: Params) => {
       ? utility.persons.find((p) => p.personID === personId)?.personName ||
         "No Contact"
       : "No Contact";
+      const getContactPersonPhone = (personId: number | null | undefined) =>
+  personId !== undefined
+    ? utility.persons.find((p) => p.personID === personId)?.phone || "N/A"
+    : "N/A";
 
   useEffect(() => {
     loadDeals();
@@ -299,7 +305,7 @@ const DealListView = (props: Params) => {
         return row;
       });
 
-      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+      /*const worksheet = XLSX.utils.json_to_sheet(dataToExport);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Deals");
 
@@ -310,7 +316,12 @@ const DealListView = (props: Params) => {
       const data = new Blob([excelBuffer], {
         type: "application/octet-stream",
       });
-      saveAs(data, `All_Deals_${new Date().toISOString()}.xlsx`);
+      saveAs(data, `All_Deals_${new Date().toISOString()}.xlsx`);*/
+      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+      const csv = XLSX.utils.sheet_to_csv(worksheet);
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      saveAs(blob, `All_Deals_${new Date().toISOString()}.csv`);
+
     } catch (err) {
       console.error("Error exporting all deals:", err);
       alert("Something went wrong while exporting. Please try again.");
@@ -462,7 +473,8 @@ const DealListView = (props: Params) => {
     return {
       ...item,
       organization: getOrganizationName(item.organizationID),
-      contactPerson: getOrganizationName(item.contactPersonID),
+      contactPerson: getContactPersonName(item.contactPersonID), // Person Name here
+      phone: getContactPersonPhone(item.contactPersonID), // Person Phone here
     };
   };
 
@@ -559,11 +571,40 @@ const DealListView = (props: Params) => {
             >
               Send SMS
             </Button>
+                      {/* New dropdown with 3 dots menu for bulk actions like Sales Dialer */}
+          {selectedRows.length > 0 && (
+            <Dropdown>
+              <Dropdown.Toggle variant="secondary" id="dropdown-bulk-actions">
+                <FontAwesomeIcon icon={faEllipsisV} />
+              </Dropdown.Toggle>
+
+              <Dropdown.Menu>
+                <Dropdown.Item onClick={handleOpenSalesDialer}>
+                  Call Sales Dialer
+                </Dropdown.Item>
+                {/* Add more bulk actions if needed */}
+              </Dropdown.Menu>
+            </Dropdown>
+          )}
+
           </div>
         </div>
       </>
     );
   };
+// Function to handle opening sales dialer with selected contacts
+const handleOpenSalesDialer = () => {
+  // Get selected phone numbers from selected rows
+  const phones = dealsList
+    .filter((deal) => selectedRows.includes(deal.dealID))
+    .map((deal) => deal.phone)
+    .filter(Boolean)
+    .join(",");
+
+  // Example: open new tab with sales dialer url passing phone numbers
+const salesDialerUrl = `https://dialer.justcall.io/call?phones=${encodeURIComponent(phones)}`;
+  window.open(salesDialerUrl, "_blank");
+};
 
   const addorUpdateDeal = () => {
     return (
