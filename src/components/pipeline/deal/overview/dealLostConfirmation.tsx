@@ -83,44 +83,32 @@ const DealLostConfirmationDialog: React.FC<ViewEditProps> = (props) => {
 
   const onChange = (value: any, item: any) => {};
 
-  const onSubmit = (item: any) => {
-    if (isSubmitting || submitRef.current) return;
-    setIsSubmitting(true);
-    submitRef.current = true;
-    const updatedDeal = {
-        ...selectedItem,
-        StatusID: 2,
-        isClosed:true,
-        ModifiedDate: new Date(),
-        reason:item["reason"],
-        comments:item["comments"]
-      };
-    updateDealStatus(updatedDeal);
+  const onSubmit = async (item: any) => {
+  if (isSubmitting || submitRef.current) return;
+
+  setIsSubmitting(true);
+  submitRef.current = true;
+
+  const updatedDeal: Partial<Deal> = {
+    statusID: 3,
+    isClosed: true,
+    modifiedDate: new Date(),
+    reason: item["reason"],
+    comments: item["comments"],
   };
 
-  const updateDealStatus = async (updatedDeal:Deal) => {
-    try {
-      const response = await dealSvc.updateAllDeals([updatedDeal]);
-      if (response) {
-        setTimeout(() => {
-          setSelectedItem({ ...selectedItem, ...updatedDeal });
-          setDialogIsOpen(false);
-          setIsSubmitting(false);
-          submitRef.current = false;
-          props.onSave();
-        }, 300);
-      } else {
-        toast.warning("Unable to mark deal as lost");
-        setIsSubmitting(false);
-        submitRef.current = false;
-      }
-    } catch (error) {
-      console.error("Unable to mark deal as lost", error);
-      toast.error("Unable to mark deal as lost");
-      setIsSubmitting(false);
-      submitRef.current = false;
-    }
-  };
+  try {
+    // ✅ Let parent handle actual update
+    await props.onSave(updatedDeal);
+    setDialogIsOpen(false);
+  } catch (error) {
+    console.error("Unable to mark deal as lost", error);
+    toast.error("Unable to mark deal as lost");
+  } finally {
+    setIsSubmitting(false);
+    submitRef.current = false;
+  }
+};
 
   const getDropdownvalues = (item: any) => {
     if (item.key === "Reason") {

@@ -3673,3 +3673,27 @@ select {
 .btn-secondary:hover {
   background-color: #5a6268;
 }
+.pdstage-box {
+  position: relative;
+}
+
+.deal-status-badge {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  padding: 3px 6px;
+  font-size: 10px;
+  font-weight: bold;
+  color: #fff;
+  border-radius: 3px;
+  z-index: 2;
+  text-transform: uppercase;
+}
+
+.deal-status-badge.won {
+  background-color: #28a745; /* green */
+}
+
+.deal-status-badge.lost {
+  background-color: #dc3545; /* red */
+}

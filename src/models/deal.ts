@@ -39,6 +39,8 @@ export class Deal extends AuditItem {
   openDealsCount?: number;
   statusID?:number;
   ownerName!: string;
+  reason!: string;
+  comments!: string;
   callHistory: CallHistoryEntry[] = []; 
   wonTime!:string;
   newContact?: {

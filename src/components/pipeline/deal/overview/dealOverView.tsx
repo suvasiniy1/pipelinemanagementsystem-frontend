@@ -88,19 +88,20 @@ const DealOverView = (props: params) => {
 
 // Function to update the deal status
 
-const updateDealStatus = async (status: string) => {
+const updateDealStatus = async (status: string, extraFields: Partial<Deal> = {}) => {
   try {
     const isClosed = status === 'Won' || status === 'Lost';
 
     const statusIdMap: { [key: string]: number } = {
       "Open": 1,
-      "Won": 3, // Won status
-      "Lost": 2, // Lost status (as per your requirement)
+      "Won": 2, // Won status
+      "Lost": 3, // Lost status (as per your requirement)
       "Closed": 4,
     };
 
     const updatedDeal = {
       ...dealItem,
+      ...extraFields, 
       statusID: statusIdMap[status], 
       isClosed,
       modifiedDate: new Date(),
@@ -348,7 +349,7 @@ const handleLostClick = () => {
         header={"Deal Edit"} 
         selectedItem={dealItem} 
         setSelectedItem={setDealItem} 
-        onSave={(e:any)=>updateDealStatus('Lost')} 
+        onSave={(updatedFields: any) => updateDealStatus("Lost", updatedFields)} 
         onClose={undefined} 
         closeDialog={setIsDealLost} 
         setLoadRowData={undefined} />

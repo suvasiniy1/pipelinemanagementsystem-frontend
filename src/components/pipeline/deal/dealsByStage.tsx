@@ -59,26 +59,23 @@ const DealsByStage = (props: params) => {
                     <div className='dealbystage-popuprow' hidden={dealsLIst.length==0}>
                         {
                             dealsLIst?.map((deal, dIndex)=>(
-                                <div className="pdstage-item">
-                                <div className='pdstage-box'>
-                                  <a className='pdstage-boxlink' href=''>
-                                    <div className="pdstage-title">{deal?.name}</div>
-                                    <div className="pdstage-description">
-                                      <div className="pdstage-descitem">{deal?.personName}</div>
-                                    </div>
-                                    <div className="pdstage-status-row">
-                                      <div className="pdstage-avatar">
-                                        <i className="rs-icon rs-icon-user-circle"></i>
-                                      </div>
-                                      <div className="pdstage-value">
-                                        <span>£{deal?.value}</span>
-                                      </div>
-                                    </div>
-                                  </a>
-                                  {/* <div className="pdstage-status-indicator">
-                                    <div className='pdstage-indicator-icon'><i className="rs-icon rs-icon-arrow-circle-left"></i></div>
-                                  </div> */}
-                                </div>
+                               <div className="pdstage-item" key={dIndex}>
+                                <div className="pdstage-box">
+    <a className="pdstage-boxlink" href="#">
+      <div className="pdstage-title">{deal?.name}</div>
+      <div className="pdstage-description">
+        <div className="pdstage-descitem">{deal?.personName}</div>
+      </div>
+      <div className="pdstage-status-row">
+        <div className="pdstage-avatar">
+          <i className="rs-icon rs-icon-user-circle"></i>
+        </div>
+        <div className="pdstage-value">
+          <span>£{deal?.value}</span>
+        </div>
+      </div>
+    </a>
+  </div>
                               </div>
                             ))
                         }
