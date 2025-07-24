@@ -36,6 +36,7 @@ const DealDetailsCustomFields = ({ dealItem }: Params) => {
     DealCustomFields[]
   >([]);
   const [selectedItem, setSelectedItem] = useState<FormValues>({});
+  const [detailsCollapsed, setDetailsCollapsed] = useState(false);
 
   const customDealFieldsService = new CustomDealFieldsService(ErrorBoundary);
   const customFieldsService = new CustomFieldService(ErrorBoundary);
@@ -256,66 +257,68 @@ const DealDetailsCustomFields = ({ dealItem }: Params) => {
     <FormProvider {...methods}>
       <div className="appdealblock-head">
         <div className="appblock-headcolleft">
-          <button className="appblock-collapse">
+          <button className="appblock-collapse" onClick={() => setDetailsCollapsed((prev) => !prev)}>
             <span className="appblock-titlelabel">
-              <FontAwesomeIcon icon={faAngleDown} /> Details
+              <FontAwesomeIcon icon={faAngleDown} style={{ transform: detailsCollapsed ? "rotate(-90deg)" : "rotate(0deg)", transition: "transform 0.2s" }} /> Details
             </span>
           </button>
         </div>
       </div>
 
-      {isLoading ? (
-        <div className="alignCenter">
-          <Spinner />
-        </div>
-      ) : (
-        <>
-          {customFields.length > 0 && (
-            <GenerateElements
-              controlsList={customFields}
-              selectedItem={selectedItem}
-              onChange={onChange}
-              getSelectedList={() => []}
-              getListofItemsForDropdown={getListofItemsForDropdown}
-              onElementDelete={(index: number) => {
-                setSelectedFieldIndex(index);
-                setShowDeleteDialog(true);
-              }}
-              onElementEdit={(index: number) => {
-                setSelectedFieldIndex(index);
-                setDialogIsOpen(true);
-              }}
-            />
-          )}
-
-          <div>
-            {customFields.length === 0 && (
-              <p>Add custom fields to include more deal information.</p>
+      {!detailsCollapsed && (
+        isLoading ? (
+          <div className="alignCenter">
+            <Spinner />
+          </div>
+        ) : (
+          <>
+            {customFields.length > 0 && (
+              <GenerateElements
+                controlsList={customFields}
+                selectedItem={selectedItem}
+                onChange={onChange}
+                getSelectedList={() => []}
+                getListofItemsForDropdown={getListofItemsForDropdown}
+                onElementDelete={(index: number) => {
+                  setSelectedFieldIndex(index);
+                  setShowDeleteDialog(true);
+                }}
+                onElementEdit={(index: number) => {
+                  setSelectedFieldIndex(index);
+                  setDialogIsOpen(true);
+                }}
+              />
             )}
-            <div className="d-flex">
-              <div className="col-sm-10 pt-4">
-                <button
-                  className="btn btn-secondary btn-sm"
-                  onClick={() => {
-                    setSelectedFieldIndex(-1); // <== Ensure it's reset for 'Add'
-                    setDialogIsOpen(true);
-                  }}
-                >
-                  + Custom Field
-                </button>
-              </div>
-              <div className="col-sm-2 pt-4">
-                <button
-                  disabled={customFields.length === 0}
-                  className="btn btn-primary btn-sm"
-                  onClick={saveCustomFields}
-                >
-                  Save
-                </button>
+
+            <div>
+              {customFields.length === 0 && (
+                <p>Add custom fields to include more deal information.</p>
+              )}
+              <div className="d-flex">
+                <div className="col-sm-10 pt-4">
+                  <button
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => {
+                      setSelectedFieldIndex(-1); // <== Ensure it's reset for 'Add'
+                      setDialogIsOpen(true);
+                    }}
+                  >
+                    + Custom Field
+                  </button>
+                </div>
+                <div className="col-sm-2 pt-4">
+                  <button
+                    disabled={customFields.length === 0}
+                    className="btn btn-primary btn-sm"
+                    onClick={saveCustomFields}
+                  >
+                    Save
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        </>
+          </>
+        )
       )}
 
       {dialogIsOpen && (

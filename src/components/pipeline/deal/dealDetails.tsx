@@ -402,6 +402,12 @@ export const DealDetails = () => {
     }
   };
 
+  // Accordion state for each section
+  const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({});
+  const toggleSection = (key: string) => {
+    setExpandedSections((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
   return (
     <>
       {error && <UnAuthorized error={error as any} />}
@@ -627,16 +633,15 @@ export const DealDetails = () => {
                   <div className="app-dealblock-inner">
                     <div className="appdealblock-head">
                       <div className="appblock-headcolleft">
-                        <button className="appblock-collapse">
+                        <button className="appblock-collapse" onClick={() => toggleSection('ownership')}>
                           <span className="appblock-titlelabel">
-                            <FontAwesomeIcon icon={faAngleDown} /> Transfer
-                            Ownership
+                            <FontAwesomeIcon icon={expandedSections['ownership'] ? faAngleDown : faAngleLeft} /> Transfer Ownership
                           </span>
                         </button>
                       </div>
                     </div>
 
-                    <div className="appdealblock-data">
+                    <div className="appdealblock-data" style={{ display: expandedSections['ownership'] ? 'block' : 'none' }}>
                       <div className="appdealblock-row mt-1">
                         <div className="appdeal-closedate dflex">
                           Deal Owner:{" "}
@@ -670,16 +675,15 @@ export const DealDetails = () => {
                     </div>
                     <div className="appdealblock-head">
                       <div className="appblock-headcolleft">
-                        <button className="appblock-collapse">
+                        <button className="appblock-collapse" onClick={() => toggleSection('aboutDeal')}>
                           <span className="appblock-titlelabel">
-                            <FontAwesomeIcon icon={faAngleDown} /> About this
-                            deal
+                            <FontAwesomeIcon icon={expandedSections['aboutDeal'] ? faAngleDown : faAngleLeft} /> About this deal
                           </span>
                         </button>
                       </div>
                     </div>
 
-                    <div className="details-panel">
+                    <div className="details-panel" style={{ display: expandedSections['aboutDeal'] ? 'block' : 'none' }}>
                       <div className="details-row">
                         <div className="details-label">Clinic -</div>
                         <div className="details-value">
@@ -780,15 +784,15 @@ export const DealDetails = () => {
 
                     <div className="appdealblock-head">
                       <div className="appblock-headcolleft">
-                        <button className="appblock-collapse">
+                        <button className="appblock-collapse" onClick={() => toggleSection('aboutPerson')}>
                           <span className="appblock-titlelabel">
-                            <FontAwesomeIcon icon={faAngleDown} /> About Person
+                            <FontAwesomeIcon icon={expandedSections['aboutPerson'] ? faAngleDown : faAngleLeft} /> About Person
                           </span>
                         </button>
                       </div>
                     </div>
                     {/* Content */}
-                    <div className="details-panel">
+                    <div className="details-panel" style={{ display: expandedSections['aboutPerson'] ? 'block' : 'none' }}>
                       <div className="details-row">
                         <div className="details-label">Phone -</div>
                         <a

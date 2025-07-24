@@ -59,14 +59,12 @@ const UsersList = () => {
   }, []);
 
   const rowTransform = (item: User, index: number) => {
+    
     return {
       ...item,
       roleId: item.roleId,
       organizationId: item.organizationId,
       id: item.userId > 0 ? item.userId : index,
-      lastLogin:moment(item.lastLogin).format(
-              window.config.DateFormat
-            )
     }; // Ensure a unique id
   };
 

@@ -193,11 +193,11 @@ const handleLostClick = () => {
                         </span>
                       </button>
                     </div>
-                    <div className="ellipsis-btncol">
+                    {/* <div className="ellipsis-btncol">
                       <button className="ellipsis-btn">
                         <FontAwesomeIcon icon={faEllipsis} />
                       </button>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
                 <div className="stageday-bar pt-4 pb-4">
