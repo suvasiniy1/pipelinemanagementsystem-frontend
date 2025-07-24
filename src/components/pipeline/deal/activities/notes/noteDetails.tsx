@@ -35,6 +35,7 @@ const NoteDetails = (props: params) => {
     const [comment, setComment] = useState(new Comment());
     const [defaultComment, setDefaultComment]=useState(null);
     const commentRef = useRef();
+    const [commentError, setCommentError] = useState("");
 
     useEffect(() => {
         if (divRef) {
@@ -50,7 +51,11 @@ const NoteDetails = (props: params) => {
     }
 
     const saveComment = () => {
-        
+        if (!comment.comment || !comment.comment.trim()) {
+            setCommentError("Please enter a comment.");
+            return;
+        }
+        setCommentError("");
         let obj = { ...comment };
         obj.noteId = note.noteID;
         obj.dealID = note.dealID;
@@ -60,7 +65,8 @@ const NoteDetails = (props: params) => {
             if (res) {
                 toast.success("Comment added successfully");
                 setDefaultComment(null);
-                (commentRef.current as any).value=null;
+                (commentRef.current as any).value = null;
+                setComment({ ...comment, comment: "" });
                 getnote();
             }
         }).catch(err => {
@@ -97,7 +103,8 @@ const NoteDetails = (props: params) => {
                     <div className='noteUserComment pt-4'>
                         <div className='userEditComment noteuser'><FontAwesomeIcon icon={faUser} /> {userObj?.user}</div>
                         <div className='noteUserCommentTextarea'>
-                            <textarea className='form-control pt-4' ref={commentRef as any} defaultValue={defaultComment as any} onChange={(e: any) => setComment({ ...comment, comment: e.target.value })} style={{ minHeight: "150px"}} />
+                            <textarea className='form-control pt-4' ref={commentRef as any} value={comment.comment || ""} onChange={(e: any) => { setComment({ ...comment, comment: e.target.value }); setCommentError(""); }} style={{ minHeight: "150px"}} />
+                            {commentError && <div className='text-danger pt-2'>{commentError}</div>}
                         </div>
                         <button type="button" className="btn btn-secondary" onClick={(e: any) => saveComment()}>Save</button>
                     </div>

@@ -36,7 +36,11 @@ export const DealItem = (props: params) => {
     e.preventDefault(); // Prevents the default anchor behavior
     // Navigate programmatically
     let filterId = LocalStorageUtil.getItem(Constants.FILTER_ID) as any;
-    navigator(`/deal?id=${deal?.dealID}&pipeLineId=${deal?.pipelineID}&filterId=${filterId}`)
+    let url = `/deal?id=${deal?.dealID}&pipeLineId=${deal?.pipelineID}`;
+    if (filterId !== undefined && filterId !== null && filterId !== "undefined") {
+      url += `&filterId=${filterId}`;
+    }
+    navigator(url);
   };
 
   return (

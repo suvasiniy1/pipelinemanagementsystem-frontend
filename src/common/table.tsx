@@ -508,15 +508,10 @@ const Table: React.FC<TableListProps> = (props) => {
           getRowClassName={(params) =>
             params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
           }
+          hideFooter={props.hidePagination}
           density="standard"
-          sx={{ minWidth: 800, height: 500 }}
-          pagination
-          initialState={{
-            pagination: {
-              paginationModel: { pageSize: 8, page: 0 },
-            },
-          }}
-          pageSizeOptions={[8, 16, 32, 64]}
+          sx={{ minWidth: 800, height: 'calc(100vh - 220px)', maxHeight: 'calc(100vh - 220px)', overflowY: 'auto' }}
+          {...(!props.hidePagination ? { pagination: true, pageSizeOptions: [8, 16, 32, 64], initialState: { pagination: { paginationModel: { pageSize: 8, page: 0 } } } } : { pageSizeOptions: [], initialState: {} })}
         />
       )}
     </Grid>

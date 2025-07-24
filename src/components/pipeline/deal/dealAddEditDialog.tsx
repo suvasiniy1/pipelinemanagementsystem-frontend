@@ -77,7 +77,7 @@ export const DealAddEditDialog = (props: params) => {
         { key: "Pipeline", value: "pipelineID", type: ElementType.dropdown, isRequired: true, sidebyItem: "Operation Date" },
         { key: "Operation Date", value: "operationDate", type: ElementType.datepicker, isSideByItem: true, isRequired: true },
         { key: "Stage", value: "stageID", type: ElementType.custom, isRequired: true, sidebyItem: "PA Name", disabled: !Util.isNullOrUndefinedOrEmpty(selectedStageId) },
-        { key: "PA Name", value: "paName", type: ElementType.textbox, isSideByItem: true, isRequired: false },
+        { key: "PA Name", value: "paName", type: ElementType.textbox, isSideByItem: true, isRequired: true },
         { key: "Pipeline Type", value: "pipelineTypeID", type: ElementType.dropdown, isRequired: true, sidebyItem: "Lead Source" },
         { key: "Lead Source", value: "leadSourceID", type: ElementType.dropdown, isSideByItem: true, isRequired: true },
         { key: "Clinic", value: "clinicID", type: ElementType.dropdown, isRequired: true, sidebyItem: "Phone" },

@@ -16,7 +16,7 @@ export class Deal extends AuditItem {
   sourceID!: number;
   treatmentID!: number;
   enquiryID!: number;
-  paName: string = "test";
+  paName: string = null as any;
   operationDate: string | null = null;
   lostReviewReason: string = "test";
   pipelineTypeID!: number;

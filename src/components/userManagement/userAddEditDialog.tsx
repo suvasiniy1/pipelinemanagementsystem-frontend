@@ -141,6 +141,14 @@ const UsersAddEditDialog: React.FC<any> = (props) => {
   const onChange = (value: any, item: any) => {
     const field = item.value;
 
+    // Special handling for isActive slider (should always be boolean)
+    if (field === "isActive") {
+      let isActiveValue = value === true || value === "true" || value === 1 || value === "1";
+      setValue("isActive" as never, isActiveValue as never);
+      setSelectedItem((prev: any) => ({ ...prev, isActive: isActiveValue }));
+      return;
+    }
+
     // Set the value normally
     setValue(field as never, value as never);
 
@@ -205,7 +213,8 @@ const UsersAddEditDialog: React.FC<any> = (props) => {
       obj.email = item.email;
       obj.userName = item.userName;
       obj.phoneNumber = item.phoneNumber;
-      obj.isActive = item.isActive === "true" || item.isActive === true;
+      // Fix isActive handling: ensure boolean
+      obj.isActive = selectedItem.isActive;
 
       obj.roleId = item.id !== null ? Number(item.id) : 0;
       obj.organizationId =
