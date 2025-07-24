@@ -77,6 +77,17 @@ export const DealItem = (props: params) => {
                 <span>£{userProfile.role === 1 ? deal?.value : 0}</span>
                 </div>
               </div>
+              <div className='pdstage-box'>
+                   {deal?.statusID === 2 && (
+                     <div className="deal-status-badge won">WON</div>
+                    )}
+                    {deal?.statusID === 3 && (
+                      <div className="deal-status-badge lost">LOST</div>
+                         )}
+                    <a className='pdstage-boxlink'>
+                    ...
+                     </a>
+</div>
             </a>
             {/* <div className="pdstage-status-indicator">
                 <div className='pdstage-indicator-icon'><i className="rs-icon rs-icon-arrow-circle-left"></i></div>

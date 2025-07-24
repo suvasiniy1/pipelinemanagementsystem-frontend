@@ -298,7 +298,7 @@ export const DealHeader = (props: params) => {
                             <span>
                               <FilterListIcon />
                             </span>
-                            Filtes
+                            Filters
                           </button>
                         </li>
                         <li className="nav-item" role="presentation">

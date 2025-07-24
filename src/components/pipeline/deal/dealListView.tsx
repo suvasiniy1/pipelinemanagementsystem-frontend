@@ -44,6 +44,7 @@ const DealListView = (props: Params) => {
     selectedStageId,
     ...others
   } = props;
+  const [exportFormat, setExportFormat] = useState<string>("csv");
   const [dealsList, setDealsList] = useState<Array<Deal>>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [pageSize, setPageSize] = useState(10);
@@ -248,85 +249,68 @@ const DealListView = (props: Params) => {
   // };
 
   const handleExportToExcel = async () => {
-    try {
-      if (
-        selectedPipeLines.length == 0 &&
-        !selectedStartDate &&
-        !selectedEndDate
-      ) {
-        alert(
-          "Please select at least one pipeline or choose a date range to proceed."
-        );
-        return;
-      }
+  try {
+    if (
+      selectedPipeLines.length == 0 &&
+      !selectedStartDate &&
+      !selectedEndDate
+    ) {
+      alert("Please select at least one pipeline or choose a date range to proceed.");
+      return;
+    }
 
-      if (selectedColumns.length == 0) {
-        alert("Please select atleast one column to proceed");
-        return;
-      }
+    if (selectedColumns.length == 0) {
+      alert("Please select at least one column to proceed");
+      return;
+    }
 
-      const dealExport = new DealExport();
-      dealExport.startDate = selectedStartDate;
-      dealExport.endDate = selectedEndDate;
-      dealExport.pipelineIDs = Array.from(
-        selectedPipeLines,
-        (x) => x.value
-      )?.join(",");
-      const allDealsResponse = await dealSvc.exportDeal(dealExport);
+    const dealExport = new DealExport();
+    dealExport.startDate = selectedStartDate;
+    dealExport.endDate = selectedEndDate;
+    dealExport.pipelineIDs = Array.from(selectedPipeLines, (x) => x.value)?.join(",");
 
-      const allDeals = Array.isArray(allDealsResponse)
-        ? allDealsResponse
-        : allDealsResponse?.dealsDtos || [];
+    const allDealsResponse = await dealSvc.exportDeal(dealExport);
+    const allDeals = Array.isArray(allDealsResponse)
+      ? allDealsResponse
+      : allDealsResponse?.dealsDtos || [];
 
-      if (!allDeals.length) {
-        alert("No deals found to export.");
-        return;
-      }
+    if (!allDeals.length) {
+      alert("No deals found to export.");
+      return;
+    }
 
-      setDrawerOpen(false);
-
-      setSelectedPipeLines([]);
-
-      setSelectedColumns([]);
-
-      const dataToExport = allDeals.map((deal: any) => {
-        const row: any = {};
-
-        // Loop through the selectedColumns and dynamically assign values to the row
-        selectedColumns.forEach((sColumn: { name: string; value: string }) => {
-          // Check if the key exists in the deal object and assign the value
-          if ((deal[sColumn.value] as any) !== undefined) {
-            row[sColumn.name] = deal[sColumn.value] as any;
-          } else {
-            row[sColumn.name] = "N/A"; // Default value if data is missing
-          }
-        });
-
-        return row;
+    const dataToExport = allDeals.map((deal: any) => {
+      const row: any = {};
+      selectedColumns.forEach((col) => {
+        row[col.name] = deal[col.value] ?? "N/A";
       });
+      return row;
+    });
 
-      /*const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    if (exportFormat === "xlsx") {
+      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Deals");
-
-      const excelBuffer = XLSX.write(workbook, {
-        bookType: "xlsx",
-        type: "array",
-      });
-      const data = new Blob([excelBuffer], {
-        type: "application/octet-stream",
-      });
-      saveAs(data, `All_Deals_${new Date().toISOString()}.xlsx`);*/
+      const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+      const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+      saveAs(data, `All_Deals_${new Date().toISOString()}.xlsx`);
+    } else {
       const worksheet = XLSX.utils.json_to_sheet(dataToExport);
       const csv = XLSX.utils.sheet_to_csv(worksheet);
       const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
       saveAs(blob, `All_Deals_${new Date().toISOString()}.csv`);
-
-    } catch (err) {
-      console.error("Error exporting all deals:", err);
-      alert("Something went wrong while exporting. Please try again.");
     }
-  };
+
+    // Reset UI states
+    setDrawerOpen(false);
+    setSelectedPipeLines([]);
+    setSelectedColumns([]);
+
+  } catch (err) {
+    console.error("Error exporting all deals:", err);
+    alert("Something went wrong while exporting. Please try again.");
+  }
+};
 
   const getPipeLinesList = () => {
     return (
@@ -764,6 +748,29 @@ const salesDialerUrl = `https://dialer.justcall.io/call?phones=${encodeURICompon
                 </Grid>
 
                 <Grid item>
+                    <div style={{ marginBottom: "12px" }}>
+    <label className="fw-bold">Export Format</label>
+    <div>
+      <label style={{ marginRight: "12px" }}>
+        <input
+          type="radio"
+          name="exportFormat"
+          value="csv"
+          checked={exportFormat === "csv"}
+          onChange={(e) => setExportFormat(e.target.value)}
+        /> CSV
+      </label>
+      <label>
+        <input
+          type="radio"
+          name="exportFormat"
+          value="xlsx"
+          checked={exportFormat === "xlsx"}
+          onChange={(e) => setExportFormat(e.target.value)}
+        /> Excel (XLSX)
+      </label>
+    </div>
+  </div>
                   <Button
                     variant="contained"
                     fullWidth
