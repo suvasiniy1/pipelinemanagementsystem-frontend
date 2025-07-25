@@ -25,6 +25,8 @@ import { PipeLineService } from "../../../services/pipeLineService";
 import { StageService } from "../../../services/stageService";
 import { DealExportPrview } from "./dealExportPreview";
 import { DealAddEditDialog } from "./dealAddEditDialog";
+import JustCallCampaignManager from "./justCallCampaignManager";
+import JustCallCampaignModal from "./justCallCampaignModal";
 
 type Params = {
   pipeLineId: number;
@@ -108,7 +110,7 @@ const DealListView = (props: Params) => {
   ];
 
   const [selectedColumns, setSelectedColumns] = useState<any[]>([]);
-
+  const [salesDialerDrawerOpen, setSalesDialerDrawerOpen] = useState(false);
   const utility: Utility = JSON.parse(
     LocalStorageUtil.getItemObject(Constants.UTILITY) as any
   );
@@ -572,7 +574,7 @@ const DealListView = (props: Params) => {
 
                 <Dropdown.Menu>
                   <Dropdown.Item onClick={handleOpenSalesDialer}>
-                    Call Sales Dialer
+                    JustCall Sales Dialer
                   </Dropdown.Item>
                   {/* Add more bulk actions if needed */}
                 </Dropdown.Menu>
@@ -585,18 +587,7 @@ const DealListView = (props: Params) => {
   };
   // Function to handle opening sales dialer with selected contacts
   const handleOpenSalesDialer = () => {
-    // Get selected phone numbers from selected rows
-    const phones = dealsList
-      .filter((deal) => selectedRows.includes(deal.dealID))
-      .map((deal) => deal.phone)
-      .filter(Boolean)
-      .join(",");
-
-    // Example: open new tab with sales dialer url passing phone numbers
-    const salesDialerUrl = `https://dialer.justcall.io/call?phones=${encodeURIComponent(
-      phones
-    )}`;
-    window.open(salesDialerUrl, "_blank");
+     setSalesDialerDrawerOpen(true);
   };
 
   const addorUpdateDeal = () => {
@@ -621,7 +612,11 @@ const DealListView = (props: Params) => {
       </>
     );
   };
-
+const getSelectedDeals = () => {
+  return dealsList.filter((deal: any) =>
+    selectedRows.includes(deal.dealID)
+  );
+};
   return (
     <>
       <ItemCollection
@@ -795,6 +790,11 @@ const DealListView = (props: Params) => {
             </div>
           </div>
         </Drawer>
+       <JustCallCampaignModal
+  isOpen={salesDialerDrawerOpen}
+  onClose={() => setSalesDialerDrawerOpen(false)}
+  selectedDeals={getSelectedDeals()}
+/>
       </div>
       {dialogIsOpen && (
         <div style={{ zIndex: 8888 }}>

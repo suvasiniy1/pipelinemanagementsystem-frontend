@@ -211,6 +211,7 @@ const ItemCollection: React.FC<params> = (props) => {
   const [isSaveorUpdateClicked, setIsSaveorUpdateClicked] = useState(false);
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [groupEmailDialogOpen, setGroupEmailDialogOpen] = useState(false);
+  const [exportFormat, setExportFormat] = useState<string>("xlsx");
   const [selectedTemplate, setSelectedTemplate] =
     useState<EmailTemplate | null>(null);
   useEffect(() => {
@@ -429,17 +430,20 @@ const ItemCollection: React.FC<params> = (props) => {
       });
 
       const worksheet = XLSX.utils.json_to_sheet(rowdataToExport);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, props.itemName + "s");
 
-      const excelBuffer = XLSX.write(workbook, {
-        bookType: "xlsx",
-        type: "array",
-      });
-      const data = new Blob([excelBuffer], {
-        type: "application/octet-stream",
-      });
-      saveAs(data, `All_Deals_${new Date().toISOString()}.xlsx`);
+if (exportFormat === "csv") {
+  const csv = XLSX.utils.sheet_to_csv(worksheet);
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  saveAs(blob, `${props.itemName}_Export_${new Date().toISOString()}.csv`);
+} else {
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, props.itemName + "s");
+  const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+  const data = new Blob([excelBuffer], {
+    type: "application/octet-stream",
+  });
+  saveAs(data, `${props.itemName}_Export_${new Date().toISOString()}.xlsx`);
+}
     } catch (err) {
       console.error("Error exporting all deals:", err);
       alert("Something went wrong while exporting. Please try again.");
@@ -641,17 +645,40 @@ const ItemCollection: React.FC<params> = (props) => {
                     </Button>
                   </Grid> */}
 
-                  <Grid item>
-                    <Button
-                      variant="contained"
-                      fullWidth
-                      hidden={selectedRows.length > 0}
-                      onClick={(e: any) => handleExportToExcel()
-                      }
-                    >
-                      Export
-                    </Button>
-                  </Grid>
+                 <Grid item xs={12}>
+  <h4>Export Format</h4>
+  <div style={{ marginBottom: "16px" }}>
+    <label style={{ marginRight: "16px" }}>
+      <input
+        type="radio"
+        name="exportFormat"
+        value="csv"
+        checked={exportFormat === "csv"}
+        onChange={(e) => setExportFormat(e.target.value)}
+      />{" "}
+      CSV
+    </label>
+    <label>
+      <input
+        type="radio"
+        name="exportFormat"
+        value="xlsx"
+        checked={exportFormat === "xlsx"}
+        onChange={(e) => setExportFormat(e.target.value)}
+      />{" "}
+      Excel (XLSX)
+    </label>
+  </div>
+
+  <Button
+    variant="contained"
+    fullWidth
+    hidden={selectedRows.length > 0}
+    onClick={(e: any) => handleExportToExcel()}
+  >
+    Export
+  </Button>
+</Grid>
                 </Grid>
               </div>
             </div>

@@ -10,4 +10,11 @@ export class JustcallCampaignService extends BaseService<JustcallCampagin>{
     getJustCallCampaignList(axiosCancel?: CancelTokenSource){
         return this.getItemsBySubURL('GetJustCallCampaignList')
     }
+    addContactToCampaign(data: any) {
+        return this.postItemBySubURL("AddContactToCampaign", data);
+    }
+
+    createCampaign(data: any) {
+        return this.postItemBySubURL("CreateCampaign", data);
+    }
 }
