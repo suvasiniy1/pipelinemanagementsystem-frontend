@@ -27,6 +27,13 @@ import { DealExportPrview } from "./dealExportPreview";
 import { DealAddEditDialog } from "./dealAddEditDialog";
 import JustCallCampaignManager from "./justCallCampaignManager";
 import JustCallCampaignModal from "./justCallCampaignModal";
+import FilterDropdown from "./dealFilters/filterDropdown/filterDropdown";
+import { faChartSimple } from "@fortawesome/free-solid-svg-icons";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import DoneIcon from "@mui/icons-material/Done";
+import FilterAltOffIcon from "@mui/icons-material/FilterAltOff";
 
 type Params = {
   pipeLineId: number;
@@ -64,6 +71,10 @@ const DealListView = (props: Params) => {
   const [to, setTo] = useState<string>("");
   const [message, setMessage] = useState("");
   const [response, setResponse] = useState(null);
+    const utility: Utility = JSON.parse(
+      LocalStorageUtil.getItemObject(Constants.UTILITY) as any
+    );
+   const [users, setUsers]=useState<Array<any>>(utility?.users);
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: string;
@@ -111,9 +122,10 @@ const DealListView = (props: Params) => {
 
   const [selectedColumns, setSelectedColumns] = useState<any[]>([]);
   const [salesDialerDrawerOpen, setSalesDialerDrawerOpen] = useState(false);
-  const utility: Utility = JSON.parse(
-    LocalStorageUtil.getItemObject(Constants.UTILITY) as any
-  );
+  const [showPipeLineFilters, setShowPipeLineFilters] = useState(false);
+  const [selectedFilterObj, setSelectedFilterObj] = useState<any>(null);
+  const [selectedUserId, setSelectedUserId] = useState<any>(null);
+  const [dealFilterDialogIsOpen, setDealFilterDialogIsOpen] = useState(false);
 
   const userProfile = JSON.parse(
     LocalStorageUtil.getItem(Constants.USER_PROFILE) || "{}"
@@ -186,6 +198,59 @@ const DealListView = (props: Params) => {
         setDealsList([]);
       });
   };
+
+  // --- NEW: Load deals by filter or user (mirroring deals.tsx logic) ---
+  const loadDealsByFilter = (pageSizeOverride?: number) => {
+    setIsLoading(true);
+    setError(null as any);
+    // Use selectedUserId if present, else selectedFilterObj
+    (selectedUserId > 0
+      ? stagesSvc.getDealsByUserId(
+          selectedUserId,
+          pipeLineId,
+          currentPage,
+          pageSizeOverride ?? pageSize
+        )
+      : stagesSvc.getDealsByFilterId(
+          selectedFilterObj?.id,
+          pipeLineId,
+          userProfile.userId,
+          currentPage,
+          pageSizeOverride ?? pageSize
+        )
+    )
+      .then((res: any) => {
+        // deals.tsx: flatten all deals from all stages
+        let totalDealsList: Array<Deal> = [];
+        if (res && Array.isArray(res.stages)) {
+          res.stages.forEach((stage: any) => {
+            if (Array.isArray(stage.deals)) {
+              stage.deals.forEach((deal: any) => {
+                totalDealsList.push(deal);
+              });
+            }
+          });
+        }
+        setDealsList(totalDealsList);
+        setIsLoading(false);
+      })
+      .catch((err: any) => {
+        setError(err);
+        setDealsList([]);
+        setIsLoading(false);
+      });
+  };
+
+  // --- Update effect to load deals when filter/user/page changes ---
+  useEffect(() => {
+    if (selectedFilterObj || selectedUserId) {
+      loadDealsByFilter();
+    } else {
+      // fallback: load all deals (legacy, or if nothing selected)
+      loadDeals();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedFilterObj, selectedUserId, currentPage]);
 
   const handleSort = (key: string) => {
     let direction = "asc";
@@ -504,121 +569,235 @@ const DealListView = (props: Params) => {
     return rowData;
   };
 
+    const onPersonSelection=(userName:string)=>{
+    setSelectedUserId(users?.find(u=>u.name===userName)?.id as any);
+    setSelectedFilterObj(null as any);
+    setUsers((prevUsers) =>
+      prevUsers.map((user) =>
+        user.name === userName
+          ? { ...user, isSelected: true }
+          : { ...user, isSelected: false }
+      )
+    );
+  }
+
+  // Reset filter handler
+  const handleResetFilter = () => {
+    setSelectedFilterObj(null);
+    setSelectedUserId(null);
+    // Optionally, also close the filter dropdown
+    setShowPipeLineFilters(false);
+  };
+
   const customHeaderActions = () => {
     return (
-      <>
-        <div className="col-sm-7 toolbarview-summery">
-          <div className="toolbarview-actionsrow">
-            <div className="d-flex toolbutton-group">
-              <Dropdown className="toolgrip-dropdownbox">
-                <Dropdown.Toggle
-                  className="toolpipebtn activetoolbtn"
-                  variant="success"
-                  id="dropdown-toolgrip"
+      <div className="col-sm-7 toolbarview-summery">
+        <div className="toolbarview-actionsrow" style={{ paddingRight: "20px", display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div className="pipeselectbtngroup" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div
+              className="pipeselectbox variantselectbox"
+              onClick={(e: any) =>
+                setShowPipeLineFilters(!showPipeLineFilters)
+              }
+            >
+              <button className="pipeselect" type="button">
+                <FontAwesomeIcon icon={faChartSimple} />{" "}
+                <span>
+                  {selectedFilterObj?.name ??
+                    users?.find((u) => u.id === selectedUserId)?.name ??
+                    "Select"}{" "}
+                </span>
+              </button>
+              <div
+                className="pipeselectcontent pipeselectfilter"
+                hidden={!showPipeLineFilters}
+              >
+                <ul
+                  className="nav nav-tabs pipefilternav-tabs"
+                  id="myTab"
+                  role="tablist"
                 >
-                  <FontAwesomeIcon icon={faGrip} />
-                </Dropdown.Toggle>
-                <Dropdown.Menu className="toolgrip-dropdown">
-                  <Dropdown.Item
-                    onClick={(e: any) => {
-                      props.setViewType("list");
-                    }}
+                  <li className="nav-item" role="presentation">
+                    <button
+                      className="nav-link active"
+                      id="filters-tab"
+                      data-bs-toggle="tab"
+                      data-bs-target="#filters"
+                      type="button"
+                      role="tab"
+                      aria-controls="filters"
+                      aria-selected="true"
+                    >
+                      <span>
+                        <FilterListIcon />
+                      </span>
+                      Filters
+                    </button>
+                  </li>
+                  <li className="nav-item" role="presentation">
+                    <button
+                      className="nav-link"
+                      id="owners-tab"
+                      data-bs-toggle="tab"
+                      data-bs-target="#owners"
+                      type="button"
+                      role="tab"
+                      aria-controls="owners"
+                      aria-selected="false"
+                    >
+                      <span>
+                        <PersonOutlineIcon />
+                      </span>
+                      Owners
+                    </button>
+                  </li>
+                </ul>
+                <div
+                  className="tab-content pipefiltertab-content"
+                  id="myTabContent"
+                >
+                  <div
+                    className="tab-pane fade show active"
+                    id="filters"
+                    role="tabpanel"
+                    aria-labelledby="filters-tab"
                   >
-                    List View
-                  </Dropdown.Item>
-                  <Dropdown.Item
-                    onClick={(e: any) => {
-                      props.setViewType("kanban");
-                    }}
+                    <FilterDropdown
+                      showPipeLineFilters={showPipeLineFilters}
+                      setShowPipeLineFilters={setShowPipeLineFilters}
+                      selectedFilterObj={selectedFilterObj}
+                      setSelectedFilterObj={setSelectedFilterObj}
+                      setDialogIsOpen={setDealFilterDialogIsOpen}
+                      dialogIsOpen={dealFilterDialogIsOpen}
+                    />
+                  </div>
+                  <div
+                    className="tab-pane fade"
+                    id="owners"
+                    role="tabpanel"
+                    aria-labelledby="owners-tab"
                   >
-                    Kanban View
-                  </Dropdown.Item>
-                  {/* <Dropdown.Item href="#/action-3">Add New List View</Dropdown.Item> */}
-                </Dropdown.Menu>
-              </Dropdown>
+                    <div className="pipeselectpadlr filterownersbox">
+                      {users
+                        ?.filter((u) => u.isActive)
+                        .map((item, index) => (
+                          <>
+                            <ul className="pipeselectlist filterownerslist">
+                              <li>
+                                <div
+                                  className="filterownerli-row"
+                                  key={index}
+                                  onClick={(e: any) =>
+                                    onPersonSelection(item.name)
+                                  }
+                                >
+                                  <AccountCircleIcon className="userCircleIcon" />
+                                  <span>{item.name}</span>
+                                  <div className="filterownerli-icon">
+                                    <a
+                                      className="filterowner-tick"
+                                      hidden={!item.isSelected}
+                                    >
+                                      <DoneIcon />
+                                    </a>
+                                  </div>
+                                </div>
+                              </li>
+                            </ul>
+                          </>
+                        ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-
-            {addorUpdateDeal()}
-
-            <Button
-              variant="outlined"
-              color="secondary"
-              size="medium"
-              onClick={(e: any) => setDrawerOpen(true)}
-              disabled={selectedRows.length > 0}
-              style={{
-                minWidth: 140,
-                minHeight: 40,
-                fontWeight: 600,
-                marginRight: 12,
-              }}
-            >
-              Export
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              size="medium"
-              onClick={(e: any) => setDrawerOpen(true)}
-              disabled={selectedRows.length == 0}
-              style={{ minWidth: 140, minHeight: 40, fontWeight: 600 }}
-            >
-              Send SMS
-            </Button>
-            {/* New dropdown with 3 dots menu for bulk actions like Sales Dialer */}
-            {selectedRows.length > 0 && (
-              <Dropdown>
-                <Dropdown.Toggle variant="secondary" id="dropdown-bulk-actions">
-                  <FontAwesomeIcon icon={faEllipsisV} />
-                </Dropdown.Toggle>
-
-                <Dropdown.Menu>
-                  <Dropdown.Item onClick={handleOpenSalesDialer}>
-                    JustCall Sales Dialer
-                  </Dropdown.Item>
-                  {/* Add more bulk actions if needed */}
-                </Dropdown.Menu>
-              </Dropdown>
+            {/* Reset filter icon/button, only show if a filter or user is selected */}
+            {(selectedFilterObj || selectedUserId) && (
+              <button
+                className="btn btn-link p-0 m-0"
+                title="Reset Filter"
+                style={{ color: '#1976d2', marginLeft: 4 }}
+                onClick={handleResetFilter}
+              >
+                <FilterAltOffIcon fontSize="medium" />
+              </button>
             )}
           </div>
+          <Dropdown className="toolgrip-dropdownbox">
+            <Dropdown.Toggle
+              className="toolpipebtn activetoolbtn"
+              variant="success"
+              id="dropdown-toolgrip"
+            >
+              <FontAwesomeIcon icon={faGrip} />
+            </Dropdown.Toggle>
+            <Dropdown.Menu className="toolgrip-dropdown">
+              <Dropdown.Item
+                onClick={(e: any) => {
+                  props.setViewType("list");
+                }}
+              >
+                List View
+              </Dropdown.Item>
+              <Dropdown.Item
+                onClick={(e: any) => {
+                  props.setViewType("kanban");
+                }}
+              >
+                Kanban View
+              </Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+          {/* 3 dots menu for all other actions, ensure it's not inside a flex with overflow/hidden */}
+          <div style={{ position: 'relative', zIndex: 1050 }}>
+            <Dropdown align="end">
+              <Dropdown.Toggle variant="secondary" id="dropdown-bulk-actions">
+                <FontAwesomeIcon icon={faEllipsisV} />
+              </Dropdown.Toggle>
+              <Dropdown.Menu style={{ zIndex: 2000, minWidth: 180 }}>
+                <Dropdown.Item onClick={() => setOpenAddDealDialog(true)}>+ New Deal</Dropdown.Item>
+                <Dropdown.Item onClick={() => setDrawerOpen(true)} disabled={selectedRows.length > 0}>Export</Dropdown.Item>
+                <Dropdown.Item onClick={() => setDrawerOpen(true)} disabled={selectedRows.length === 0}>Send SMS</Dropdown.Item>
+                <Dropdown.Item onClick={handleOpenSalesDialer} disabled={selectedRows.length === 0}>JustCall Sales Dialer</Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          </div>
         </div>
-      </>
+      </div>
     );
   };
   // Function to handle opening sales dialer with selected contacts
   const handleOpenSalesDialer = () => {
-     setSalesDialerDrawerOpen(true);
+    setSalesDialerDrawerOpen(true);
   };
 
-  const addorUpdateDeal = () => {
-    return (
-      <>
-        <Button
-          variant="contained"
-          color="primary"
-          size="medium"
-          onClick={(e: any) => setOpenAddDealDialog(true)}
-          style={{
-            minWidth: 140,
-            minHeight: 40,
-            fontWeight: 600,
-            marginLeft: "10px",
-            marginRight: "10px",
-          }}
-          sx={{ backgroundColor: "primary.main", color: "white" }}
-        >
-          + New Deal
-        </Button>
-      </>
-    );
+  const getSelectedDeals = () => {
+    return dealsList.filter((deal: any) => selectedRows.includes(deal.dealID));
   };
-const getSelectedDeals = () => {
-  return dealsList.filter((deal: any) =>
-    selectedRows.includes(deal.dealID)
-  );
-};
   return (
     <>
+      {/* Show spinner overlay when loading */}
+      {isLoading && (
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: 'rgba(255,255,255,0.6)',
+          zIndex: 2000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          <Button variant="text" disabled style={{ background: 'transparent' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span>Loading...</span>
+              <span><svg width="32" height="32" viewBox="0 0 50 50"><circle cx="25" cy="25" r="20" fill="none" stroke="#1976d2" strokeWidth="5" strokeDasharray="31.415, 31.415" transform="rotate(72.0001 25 25)"><animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="1s" repeatCount="indefinite"/></circle></svg></span>
+            </span>
+          </Button>
+        </div>
+      )}
       <ItemCollection
         itemName={"Deals"}
         itemType={Deal}
@@ -781,7 +960,8 @@ const getSelectedDeals = () => {
                     variant="contained"
                     fullWidth
                     hidden={selectedRows.length > 0}
-                    onClick={(e: any) => handleExportToExcel()}
+                    onClick={(e: any) => handleExportToExcel()
+                    }
                   >
                     Export
                   </Button>
@@ -790,11 +970,11 @@ const getSelectedDeals = () => {
             </div>
           </div>
         </Drawer>
-       <JustCallCampaignModal
-  isOpen={salesDialerDrawerOpen}
-  onClose={() => setSalesDialerDrawerOpen(false)}
-  selectedDeals={getSelectedDeals()}
-/>
+        <JustCallCampaignModal
+          isOpen={salesDialerDrawerOpen}
+          onClose={() => setSalesDialerDrawerOpen(false)}
+          selectedDeals={getSelectedDeals()}
+        />
       </div>
       {dialogIsOpen && (
         <div style={{ zIndex: 8888 }}>
