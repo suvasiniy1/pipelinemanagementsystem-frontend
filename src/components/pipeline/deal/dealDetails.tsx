@@ -383,7 +383,7 @@ export const DealDetails = () => {
       subject:
         "test email from yogi - Complete Your Medical History Form – Transform",
       body: `
-  <p>Dear {dealItem.personName || "Patient"},</p>
+  <p>Dear ${dealItem.personName || "Patient"},</p>
   <p>Thank you for choosing Transform to support your weight loss journey.</p>
   <p>To ensure we provide the best care possible, we kindly ask you to complete your medical history form by clicking the link below:</p>
   <p><a href="https://weightloss.transforminglives.co.uk/mounjaro-medical-history-form/">Click here to fill out your form</a></p>
@@ -422,13 +422,11 @@ export const DealDetails = () => {
               <div className="sidebardetailtopbar">
                 <div
                   className="appdealtopbartitle"
-                  onClick={(e: any) => {
-                    let url = `/pipeline?pipelineID=${pipeLineId}`;
-                    if (filterId !== undefined && filterId !== null && filterId !== "undefined" && filterId !== "null" && filterId !== "") {
-                      url += `&filterId=${filterId}`;
-                    }
-                    navigator(url);
-                  }}
+                  onClick={(e: any) =>
+                    navigator(
+                      `/pipeline?pipelineID=${pipeLineId}&filterId=${filterId}`
+                    )
+                  }
                 >
                   <a href="javascript:void(0);">
                     <FontAwesomeIcon icon={faAngleLeft} /> Deals
