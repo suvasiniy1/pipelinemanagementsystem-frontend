@@ -120,6 +120,11 @@ export class Deal extends AuditItem {
   RecordingUrl: string = "";
   Status: string = "Pending";
   medicalForm: string | undefined;
+  address!: string;
+  birthday!: string;
+  occupation!: string;
+  customFields!: any[];
+
 
 }
 // Define the CallHistoryEntry type to avoid any issues with missing fields
