@@ -1781,7 +1781,7 @@ select.selectfield {
 }
 
 .editstage-deletebtn svg {
-  margin-right: 0;
+  margin-right: 5px;
 }
 
 .editstage-deletebtn:first-child {
@@ -3697,29 +3697,6 @@ select {
 .deal-status-badge.lost {
   background-color: #dc3545; /* red */
 }
-
-.pdstage-item {
-  position: relative;
-}
-
-.deal-status-badge {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 2;
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-weight: bold;
-  font-size: 0.85em;
-  pointer-events: none;
-}
-
-.deal-status-badge.won {
-  background: #4caf50;
-  color: #fff;
-}
-
-.deal-status-badge.lost {
-  background: #f44336;
-  color: #fff;
-}
+.pdstage-simplebadge{position: relative; text-align: right;}
+.pdstage-simplebadge .deal-status-badge{position: relative; top: auto; right: auto; display: inline-block; z-index: 0;}
+.modal-dialog-centered .modalbody:has(#AddEditForm) {overflow-y: visible; overflow-x: visible;}

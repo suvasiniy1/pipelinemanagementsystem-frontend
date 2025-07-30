@@ -36,10 +36,10 @@ export const StageActions = (props: params) => {
                                     <label className="checktogglebox"><input id="dealprobability" type="checkbox" /><span className="checktoggle"></span></label>
                                     <div className="fieldchecklabel">Deal probability</div>
                                 </div>
-                                <button className="probinfobtn"><FontAwesomeIcon icon={faCircleInfo} /></button>
+                                {/* <button className="probinfobtn"><FontAwesomeIcon icon={faCircleInfo} /></button> */}
                             </div>
                             <div className="colactionbtnrow">
-                                <button type="button" className="btn btn-light" onClick={(e: any) => props.onCancelClick()}>Cancel</button>
+                                <button type="button" className="btn btn-dark" onClick={(e: any) => props.onCancelClick()}>Cancel</button>
                                 <button type="button" className="btn btn-primary" disabled={!canSave}  onClick={(e: any) => {if(!canSave) return; props.onSaveClick()}}>Save Changes</button>
                                 <button className="ellipsis-btn"><FontAwesomeIcon icon={faEllipsis} /></button>
                             </div>

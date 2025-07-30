@@ -71,7 +71,8 @@ export const StageItem = (props: params) => {
                                 </div>
                             </div>
                             <div className="editstage-field">
-                                <div className="editstage-fieldname">Probability <div className="editstage-infoicon"><FontAwesomeIcon icon={faInfoCircle} /></div></div>
+                                <div className="editstage-fieldname">Probability {/* <div className="editstage-infoicon"><FontAwesomeIcon icon={faInfoCircle} /></div> */}
+                                </div>
                                 <div className="editstage-fieldinput">
                                     <div className="editstage-inputbox">
                                         <input className="form-control" min="0" type="number" placeholder='Probability' value={selectedItem?.probability} onChange={(e:any)=>updateItem(e, "probability")}/>
