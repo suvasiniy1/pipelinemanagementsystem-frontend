@@ -29,6 +29,7 @@ import { DealService } from "../../../../services/dealService";
 import { useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import DealLostConfirmationDialog from "./dealLostConfirmation";
+import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 
 type params = {
   dealItem: Deal;
@@ -153,35 +154,14 @@ const handleLostClick = () => {
                     <div className="wonlost-btngroup">
                       <button 
                         className={`btn wonbtn ${
-                          dealItem?.statusID && dealItem.statusID !== 2 && dealItem.statusID !== 1 
+                          dealItem?.statusID === 2 
                             ? 'btn-success' 
                             : 'btn-outline-success'
                         }`}
                         onClick={handleWonClick}
                         style={{
-                          boxShadow: dealItem?.statusID && dealItem.statusID !== 2 && dealItem.statusID !== 1 
-                            ? '0 0 10px rgba(40, 167, 69, 0.5)' 
-                            : 'none',
-                          transform: dealItem?.statusID && dealItem.statusID !== 2 && dealItem.statusID !== 1 
-                            ? 'scale(1.1)' 
-                            : 'scale(1)'
-                        }}
-                      >
-                        <span className="label">
-                          <FontAwesomeIcon icon={faThumbsUp} />
-                          {dealItem?.statusID && dealItem.statusID !== 2 && dealItem.statusID !== 1 && ' WON'}
-                        </span>
-                      </button>
-                      <button 
-                        className={`btn lostbtn ${
-                          dealItem?.statusID === 2 
-                            ? 'btn-danger' 
-                            : 'btn-outline-danger'
-                        }`}
-                        onClick={handleLostClick}
-                        style={{
                           boxShadow: dealItem?.statusID === 2 
-                            ? '0 0 10px rgba(220, 53, 69, 0.5)' 
+                            ? '0 0 10px rgba(40, 167, 69, 0.5)' 
                             : 'none',
                           transform: dealItem?.statusID === 2 
                             ? 'scale(1.1)' 
@@ -189,8 +169,38 @@ const handleLostClick = () => {
                         }}
                       >
                         <span className="label">
+                          <FontAwesomeIcon icon={faThumbsUp} />
+                          {dealItem?.statusID === 2 && ' WON'}
+                        </span>
+                      </button>
+                      <button 
+                        className={`btn lostbtn ${
+                          dealItem?.statusID === 3 
+                            ? 'btn-danger' 
+                            : 'btn-outline-danger'
+                        }`}
+                        onClick={handleLostClick}
+                        style={{
+                          boxShadow: dealItem?.statusID === 3 
+                            ? '0 0 10px rgba(220, 53, 69, 0.5)' 
+                            : 'none',
+                          transform: dealItem?.statusID === 3 
+                            ? 'scale(1.1)' 
+                            : 'scale(1)'
+                        }}
+                      >
+                        <span className="label">
                           <FontAwesomeIcon icon={faThumbsDown} />
-                          {dealItem?.statusID === 2 && ' LOST'}
+                          {dealItem?.statusID === 3 && (
+                            <>
+                              {' LOST'}
+                              {dealItem.comments && (
+                                <span style={{ marginLeft: 6, cursor: 'pointer' }} title={dealItem.comments}>
+                                  <FontAwesomeIcon icon={faInfoCircle} color="#1976d2" />
+                                </span>
+                              )}
+                            </>
+                          )}
                         </span>
                       </button>
                     </div>
