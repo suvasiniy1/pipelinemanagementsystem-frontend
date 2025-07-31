@@ -208,7 +208,8 @@ export const DealDetails = () => {
         id: deal.dealID, // if `dealID` is the unique identifier expected by DataGrid
         treatmentName: deal.treatmentName || "No Title", // default title if missing
         personName: deal.personName || "No Contact", // default contact person if missing
-        ownerName: deal.ownerName || "No Owner", // default owner if missing
+        ownerName: deal.ownerName || "No Owner", // default owner if missing,
+        organizationName: deal.name || "No Org",
       }));
 
       setDealsData(formattedData);
@@ -932,6 +933,7 @@ export const DealDetails = () => {
                 treatmentName: deal.treatmentName || "No Title", // ensure title has a value
                 personName: deal.personName || "No Contact", // default if undefined
                 ownerName: deal.ownerName || "No Owner", // default if undefined
+                organizationName: deal.name || "No Organization",
               }))}
               stages={stages} // Pass the stages array
               currentStageId={dealItem.stageID} // Pass the current stage ID of the deal

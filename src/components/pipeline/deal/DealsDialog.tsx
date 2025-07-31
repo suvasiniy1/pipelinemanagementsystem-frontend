@@ -19,7 +19,7 @@ const columns: GridColDef[] = [
     { field: 'treatmentName', headerName: 'Title', width: 200 },
     { field: 'personName', headerName: 'Contact Person', width: 200 },
     { field: 'ownerName', headerName: 'Owner', width: 200 },
-    { field: 'Organization', headerName: 'Organization', width: 200 },
+    { field: 'organizationName', headerName: 'Organization', width: 200 },
 ];
 
 const DealsDialog: React.FC<DealsDialogProps> = ({ show, onClose, dealsData ,stages, currentStageId }) => {

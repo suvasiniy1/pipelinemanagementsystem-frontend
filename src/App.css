@@ -3542,6 +3542,10 @@ select {
   content: "* ";
   color: red;
 }
+.modal-body {
+  max-height: 70vh;
+  overflow-y: auto;
+}
 
 /* Floating Button */
 .dialer-button {
