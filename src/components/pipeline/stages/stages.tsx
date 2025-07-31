@@ -274,7 +274,10 @@ export const Stages = (props: params) => {
             if (res) {
                 let index = stages.findIndex(i => i.stageID == selectedItemIndex);
                 stages.splice(index, 1);
-                toast.success(`Pipeline updated successfully`, { autoClose: 500 });
+                if(!res.success)
+                    toast.success(res.message, { autoClose: 5000 });
+                else
+                    toast.success(`Pipeline updated successfully`, { autoClose: 500 });
                 setTimeout(() => {
                     navigator("/pipeline?pipelineID=" + pipeLineId);
                 }, 500);
