@@ -144,6 +144,7 @@ const UsersList = () => {
         api={new UserService(ErrorBoundary)}
         enableCheckboxSelection={false}
         customActions={(e: any) => customActions(e)}
+        onSelectionModelChange={() => {}} 
       />
     </>
   );

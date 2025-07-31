@@ -32,10 +32,10 @@ const ChangePassword = () => {
 
   // Capture token and username from URL query params
   const queryParams = new URLSearchParams(location.search);
-  const token = '';
+  const token = queryParams.get("token");
   const changePassword = queryParams.get("changePassword");
-  const username = queryParams.get("username");
-  console.log("tk:", token, "Username:", username);
+  const userId = queryParams.get("userId");
+  console.log("tk:", token, "Username:", userId);
 
   const forgotPasswordService = new ForgotPasswordService((error: any) => {
     setIsErrorChangingPassword(error.message || "Something went wrong.");
@@ -100,7 +100,7 @@ const ChangePassword = () => {
       setLoading(true);
       const response = await forgotPasswordService.resetPassword(
         token!, // Token from URL
-        username!, // Username from URL
+        userId!, // Username from URL
         password
       );
 

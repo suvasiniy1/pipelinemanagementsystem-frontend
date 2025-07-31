@@ -595,10 +595,10 @@ if (exportFormat === "csv") {
               open={groupEmailDialogOpen}
               onClose={() => setGroupEmailDialogOpen(false)}
               selectedRecipients={selectedRows.map((id) => {
-                const item = props.rowData.find(
+                const item = props.rowData?.find(
                   (row: { personID: number; email: string }) =>
                     row.personID === id
-                );
+                );                
                 return item ? item.email : "";
               })}
               selectedTemplate={selectedTemplate} // Pass the selected template here

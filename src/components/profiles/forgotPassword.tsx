@@ -15,7 +15,7 @@ import { toast } from "react-toastify";
 // Define the type of form data
 interface ForgotPasswordFormData {
   email: string;
-  userName: string;
+
 }
 
 type params = {
@@ -39,13 +39,13 @@ const ForgotPassword = (props: params) => {
   });
 
   const [controlsList, setControlsList] = useState<Array<IControl>>([
-    {
+   /* {
       key: "User Name",
       value: "userName",
       tabIndex: 1,
       isControlInNewLine: true,
       isRequired: true,
-    },
+    },*/
     {
       key: "Email",
       value: "email",
@@ -60,7 +60,7 @@ const ForgotPassword = (props: params) => {
   // Updated validation schema to type the form correctly
   const validationsSchema = Yup.object().shape({
     email: Yup.string().email("Invalid email format").required("Email is required"),
-    userName: Yup.string().required("User Name is required"),
+    /*userName: Yup.string().required("User Name is required"),*/
   });
 
   const formOptions = { resolver: yupResolver(validationsSchema) };
