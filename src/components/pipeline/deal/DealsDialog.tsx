@@ -9,7 +9,11 @@ import { Stage } from '../../../models/stage';
 interface DealsDialogProps {
     show: boolean;
     onClose: () => void;
-    dealsData: { id: number; treatmentName: string; personName: string; ownerName: string }[];
+    dealsData: {
+      pipelineStages: Stage[];
+      pipelineName: string;
+      stageID: number; id: number; treatmentName: string; personName: string; ownerName: string 
+}[];
     stages: Stage[];
     currentStageId: number;
 }
@@ -26,26 +30,35 @@ const DealsDialog: React.FC<DealsDialogProps> = ({ show, onClose, dealsData ,sta
     const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({ page: 0, pageSize: 5 });
     return (
         <AddEditDialog dialogIsOpen={show} header="Linked Deals" closeDialog={onClose} showSaveButton={false}>
-        <div style={{ marginBottom: '20px' }}>
-          <h5>Open deals ({dealsData.length})</h5>
-          <div>
-            {dealsData.map((deal) => (
-              <div key={deal.id} style={{
-                display: 'flex',
-                flexDirection: 'column',
-                padding: '10px',
-                marginBottom: '10px',
-                border: '1px solid #ccc',
-                borderRadius: '8px',
-              }}>
-                <div>
-                  <strong>{deal.treatmentName}</strong>
-                </div>
-                <StagesProgressBar stages={stages} currentStageId={currentStageId} />
-              </div>
-            ))}
+       <div style={{ marginBottom: '20px' }}>
+  <h5>Open deals ({dealsData.length})</h5>
+  <div>
+    {dealsData.map((deal) => (
+      <div
+        key={deal.id}
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          padding: '10px',
+          marginBottom: '10px',
+          border: '1px solid #ccc',
+          borderRadius: '8px',
+        }}
+      >
+        <div>
+          <strong>{deal.treatmentName}</strong>
+          <div style={{ fontSize: '0.85em', color: '#666' }}>
+            Pipeline: <em>{deal.pipelineName || 'N/A'}</em>
           </div>
         </div>
+        <StagesProgressBar
+          stages={deal.pipelineStages}
+          currentStageId={deal.stageID}
+        />
+      </div>
+    ))}
+  </div>
+</div>
   
         <div style={{ height: 400, width: '100%' }}>
         {dealsData.length > 0 ? (

@@ -1,4 +1,5 @@
 import { AuditItem } from "./base/AuditNamedItem";
+import { Stage } from "./stage";
 
 export class Deal extends AuditItem {
   dealID: number = 0;
@@ -124,6 +125,7 @@ export class Deal extends AuditItem {
   birthday!: string;
   occupation!: string;
   customFields!: any[];
+ pipelineStages: Stage[] = [];
 
 
 }

@@ -88,14 +88,20 @@ export const DealDetails = () => {
   const [openDealsCount, setOpenDealsCount] = useState(
     dealItem.openDealsCount || 0
   );
-  const [dealsData, setDealsData] = useState<Deal[]>([]);
+  
   const [dealValue, setDealValue] = useState(dealItem.value);
   const [isEditingMedicalForm, setIsEditingMedicalForm] = useState(false);
   const [tempMedicalFormValue, setTempMedicalFormValue] = useState(
     dealItem.medicalForm ?? "None"
   );
-
+  // 👇 Just after your imports or above component state
+interface DealWithPipeline extends Deal {
+  pipelineStages: Stage[];
+  pipelineName: string;
+}
+const [dealsData, setDealsData] = useState<DealWithPipeline[]>([]);
   useEffect(() => {}, [dealItem]);
+  
 
   const convertUTCtoISO = (utcDateString: string) => {
     // Create a Date object from the UTC string
@@ -203,14 +209,23 @@ export const DealDetails = () => {
       );
 
       // Map relatedDealsData to ensure every deal has required fields for DataGrid
-      const formattedData: Deal[] = relatedDealsData.map((deal) => ({
-        ...deal, // spread all original properties
-        id: deal.dealID, // if `dealID` is the unique identifier expected by DataGrid
-        treatmentName: deal.treatmentName || "No Title", // default title if missing
-        personName: deal.personName || "No Contact", // default contact person if missing
-        ownerName: deal.ownerName || "No Owner", // default owner if missing,
-        organizationName: deal.name || "No Org",
-      }));
+      const formattedData: Deal[] = await Promise.all(
+  relatedDealsData.map(async (deal) => {
+    const stagesData = await stagesSvc.getStages(deal.pipelineID);
+    const sortedStages = Util.sortList(stagesData.stageDtos, "stageOrder");
+
+    return {
+      ...deal,
+      id: deal.dealID,
+      treatmentName: deal.treatmentName || "No Title",
+      personName: deal.personName || "No Contact",
+      ownerName: deal.ownerName || "No Owner",
+      organizationName: deal.name || "No Organization",
+      pipelineName: deal.pipelineName || "Unknown Pipeline", // Add this
+      pipelineStages: sortedStages,
+    };
+  })
+);
 
       setDealsData(formattedData);
       setIsDealsModalOpen(true);
@@ -925,19 +940,19 @@ export const DealDetails = () => {
               </>
             )}
             {/* Deals Dialog */}
-            <DealsDialog
-              show={isDealsModalOpen}
-              onClose={closeMoveDealDialog}
-              dealsData={dealsData.map((deal, index) => ({
-                id: deal.dealID || index, // use index if dealID is not available
-                treatmentName: deal.treatmentName || "No Title", // ensure title has a value
-                personName: deal.personName || "No Contact", // default if undefined
-                ownerName: deal.ownerName || "No Owner", // default if undefined
-                organizationName: deal.name || "No Organization",
-              }))}
-              stages={stages} // Pass the stages array
-              currentStageId={dealItem.stageID} // Pass the current stage ID of the deal
-            />
+           <DealsDialog
+                show={isDealsModalOpen}
+                onClose={closeMoveDealDialog}
+                dealsData={dealsData.map((deal, index) => ({
+                  id: deal.dealID || index,
+                  stageID: deal.stageID || 0,
+                  treatmentName: deal.treatmentName || "No Title",
+                  personName: deal.personName || "No Contact",
+                  ownerName: deal.ownerName || "No Owner",
+                  organizationName: deal.name || "No Organization",
+                  pipelineName: deal.pipelineName || "Unknown Pipeline", // ✅ add this
+                  pipelineStages: deal.pipelineStages || [], // ✅ and this
+                }))} stages={[]} currentStageId={0}/>
             <DealOverView
               dealItem={dealItem}
               dealId={dealId}
