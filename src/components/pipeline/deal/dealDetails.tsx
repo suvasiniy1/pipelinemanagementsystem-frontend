@@ -2,6 +2,7 @@ import { useMsal } from "@azure/msal-react";
 import {
   faAngleDown,
   faAngleLeft,
+  faAngleRight,
   faEnvelope,
   faListCheck,
   faMoneyBill,
@@ -635,7 +636,7 @@ export const DealDetails = () => {
                       <div className="appblock-headcolleft">
                         <button className="appblock-collapse" onClick={() => toggleSection('ownership')}>
                           <span className="appblock-titlelabel">
-                            <FontAwesomeIcon icon={expandedSections['ownership'] ? faAngleDown : faAngleLeft} /> Transfer Ownership
+                            <FontAwesomeIcon icon={expandedSections['ownership'] ? faAngleDown : faAngleRight} /> Transfer Ownership
                           </span>
                         </button>
                       </div>
@@ -677,7 +678,7 @@ export const DealDetails = () => {
                       <div className="appblock-headcolleft">
                         <button className="appblock-collapse" onClick={() => toggleSection('aboutDeal')}>
                           <span className="appblock-titlelabel">
-                            <FontAwesomeIcon icon={expandedSections['aboutDeal'] ? faAngleDown : faAngleLeft} /> About this deal
+                            <FontAwesomeIcon icon={expandedSections['aboutDeal'] ? faAngleDown : faAngleRight} /> About this deal
                           </span>
                         </button>
                       </div>
@@ -786,7 +787,7 @@ export const DealDetails = () => {
                       <div className="appblock-headcolleft">
                         <button className="appblock-collapse" onClick={() => toggleSection('aboutPerson')}>
                           <span className="appblock-titlelabel">
-                            <FontAwesomeIcon icon={expandedSections['aboutPerson'] ? faAngleDown : faAngleLeft} /> About Person
+                            <FontAwesomeIcon icon={expandedSections['aboutPerson'] ? faAngleDown : faAngleRight} /> About Person
                           </span>
                         </button>
                       </div>
@@ -842,12 +843,12 @@ export const DealDetails = () => {
                             View Deals ({dealItem.openDealsCount || 0})
                           </a>
                         </div>
-                      </div>
-                    </div>
-                    <div className="details-row">
-                      <div className="details-label">Source -</div>
-                      <div className="details-value">
-                        {dealItem.sourceName || "-"}
+                      </div>                    
+                      <div className="details-row">
+                        <div className="details-label">Source -</div>
+                        <div className="details-value">
+                          {dealItem.sourceName || "-"}
+                        </div>
                       </div>
                     </div>
                   </div>

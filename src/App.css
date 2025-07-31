@@ -38,6 +38,7 @@ body a {
   padding: 30px 0;
   height: 100vh;
   overflow: auto;
+  background-color: #efefef;
 }
 
 .signinwrapper-layout {
@@ -57,15 +58,15 @@ body a {
   inset: 0;
   background-color: rgba(0, 0, 0, 0.3);
 }
+.loginformblock-row{max-width: 465px; margin: 0 auto;}
+.sign-in__wrapper form {display: block; width: 100%; z-index: 1; animation: showSignInForm 1s; position: relative;}
+.loginformblock-row button[type=submit] {margin: 20px auto 10px; display: block; padding: 12px 20px; background-color: #cfa34a; border-color: #cfa34a; text-transform: uppercase; font-weight: bold; font-size: 18px;}
+.loginformblock-row button[type=submit]:hover{background-color: #3f3f3f; border-color: #3f3f3f;}
+.loginformblock-row .btn-link {color: #3f3f3f; text-decoration: none; font-weight: bold; margin-top: 15px; display: block; padding: 0;}
+.loginformblock-row .btn-link:hover{color: #cfa34a !important;}
 
-.sign-in__wrapper form {
-  width: 30rem;
-  max-width: 90%;
-  z-index: 1;
-  animation: showSignInForm 1s;
-  position: relative;
-  z-index: 1;
-}
+.loginformblock .form-control#email {background-image: url(/src/resources/images/mail-user.png); background-position: 14px center; background-repeat: no-repeat; background-size: 16px; padding-left: 40px;}
+.loginformblock .form-control#passwordHash {background-image: url(/src/resources/images/padlock.png); background-position: 12px center; background-repeat: no-repeat; background-size: 20px; padding-left: 40px;}
 
 .sign-in__wrapper form img {
   width: 4rem;
@@ -125,10 +126,12 @@ body a {
   position: relative;
   top: 0;
   left: 0;
-  max-width: 350px;
+  width: 100%;
   z-index: 1;
-  margin-bottom: 30px;
+  margin-bottom: 30px; background-color: #3f3f3f; border-radius: 5px;
 }
+.logo {max-width: 350px; margin: 0 auto;}
+
 
 .logheader img {
   width: auto;
@@ -140,8 +143,10 @@ body a {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
+  margin-bottom: 20px;
 }
-
+.logformhead p {margin-top: 20px; text-align: center; font-size: 18px;}
 .logformheadimg {
   margin-right: 15px;
 }
@@ -159,14 +164,10 @@ body a {
 }
 
 .loginformblock .form-group .col-form-label {
-  display: none;
-  padding-bottom: 0;
-  width: 100%;
+  padding-bottom: 0; width: 100%; font-size: 1rem;
 }
 
-.loginformblock .form-control {
-  border-radius: 0;
-}
+.loginformblock .form-control {padding: 12px 20px; border-radius: 5px;}
 
 .loginformblock .form-control:focus,
 .loginformblock .form-control:active {
