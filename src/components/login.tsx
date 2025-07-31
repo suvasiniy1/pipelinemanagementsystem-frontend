@@ -263,127 +263,133 @@ const Login = () => {
   return (
     <>
       <FormProvider {...methods}>
-        <div
+        {/* <div
           className="sign-in__wrapper"
           style={{ backgroundImage: `url(${BackgroundImage})` }}
-        >
+        > */}
+        <div className="sign-in__wrapper">
           <div className="signinwrapper-layout">
             <div className="signinwrapper-inner">
               {/* Overlay */}
               <div className="sign-in__backdrop"></div>
               <div className="logheader">
-                {<img className="lohheaderlogo" src={jpg} />}
+                {<div className="logo"><img className="lohheaderlogo" src={jpg} /></div>}
+                
               </div>
               {/* Form */}
+              
               <Form
-                className="shadow p-4 bg-white rounded loginformblock"
-                onSubmit={handleSubmit(onSubmitClick)}
-              >
-                {/* Header */}
-                <div className="logformhead">
-                  <div className="logformheadimg">
-                    <img className="img-thumbnail" src={Logo} alt="logo" />
+                  className="loginformblock"
+                  onSubmit={handleSubmit(onSubmitClick)}
+                >
+                <div className="shadow p-5 bg-white rounded loginformblock-row">
+                  {/* Header */}
+                  <div className="logformhead">
+                    {/* <div className="logformheadimg">
+                      <img className="img-thumbnail" src={Logo} alt="logo" />
+                    </div> */}
+                    <h1 className="h1">Sign In</h1>
+                    <p>You must become a member to login and access the entire site.</p>
                   </div>
-                  <div className="h4">Sign In</div>
-                </div>
-                <div className="logformsubtext p-2 text-center">
-                  {loading ? "Please wait" : twoFactorRequired
-                    ? "Enter the 2FA code sent to your email"
-                    : loginError
-                      ? <span style={{ color: '#d32f2f', fontWeight: 'bold', background: '#fff0f0', borderRadius: '4px', padding: '6px 12px', display: 'inline-block', boxShadow: '0 1px 4px rgba(211,47,47,0.08)' }}>
-                          {loginError}
-                        </span>
-                      : null}
-                </div>
-                {twoFactorRequired ? (
-                  // If 2FA is required, show the verification code form
-                  <>
-                    <Form.Group controlId="verificationCode">
-                      <Form.Control
-                        type="text"
-                        placeholder="Enter Verification Code"
-                        value={verificationCode}
-                        onChange={(e) => setVerificationCode(e.target.value)}
-                        disabled={loading}
-                      />
-                    </Form.Group>
-                    <br/>
-                    <Button
-                      className="w-100"
-                      variant="primary"
-                      type="button"
-                      disabled={loading}
-                      onClick={handleVerifyClick}
-                    >
-                      {loading ? "Verifying..." : "Verify Code"}
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <GenerateElements
-                      controlsList={controlsList}
-                      selectedItem={selectedItem}
-                      disable={loading}
-                      onChange={(value: any, item: any) =>
-                        onChange(value, item)
-                      }
-                    />
-                  {/*   <Form.Group className="mb-2" controlId="checkbox">
-                      <Form.Check
-                        type="checkbox"
-                        checked={rememberMe}
-                        onChange={(e: any) => setRememberMe(!rememberMe)}
-                        disabled={Util.isNullOrUndefinedOrEmpty(
-                          selectedItem.userName
-                        )}
-                        tabIndex={3}
-                        label="Remember me"
-                      />
-                    </Form.Group>*/}
-                    {!loading ? (
-                      <Button className="w-100" variant="primary" type="submit">
-                        Log In
-                      </Button>
-                    ) : (
-                      loading && (
-                        <Button
-                          className="w-100"
-                          variant="primary"
-                          type="submit"
-                          disabled
-                        >
-                          Logging In...
-                        </Button>
-                      )
-                    )}
-
-                    <div className="d-grid justify-content-end">
+                  <div className="logformsubtext p-2 text-center">
+                    {loading ? "Please wait" : twoFactorRequired
+                      ? "Enter the 2FA code sent to your email"
+                      : loginError
+                        ? <span style={{ color: '#d32f2f', fontWeight: 'bold', background: '#fff0f0', borderRadius: '4px', padding: '6px 12px', display: 'inline-block', boxShadow: '0 1px 4px rgba(211,47,47,0.08)' }}>
+                            {loginError}
+                          </span>
+                        : null}
+                  </div>
+                  {twoFactorRequired ? (
+                    // If 2FA is required, show the verification code form
+                    <>
+                      <Form.Group controlId="verificationCode">
+                        <Form.Control
+                          type="text"
+                          placeholder="Enter Verification Code"
+                          value={verificationCode}
+                          onChange={(e) => setVerificationCode(e.target.value)}
+                          disabled={loading}
+                        />
+                      </Form.Group>
+                      <br/>
                       <Button
-                        className="text-muted px-0"
-                        variant="link"
-                        onClick={(e: any) => setShowForGotPasswordDiglog(true)}
+                        className="w-100"
+                        variant="primary"
+                        type="button"
+                        disabled={loading}
+                        onClick={handleVerifyClick}
                       >
-                        Forgot password?
+                        {loading ? "Verifying..." : "Verify Code"}
                       </Button>
-                    </div>
-                    {/* 
-                    <div className="oraccessquickly text-center mt-3 mb-3">
-                      <span>or access quickly</span>
-                    </div>
-                    */}
-                    {/* 
-                    <div className="oraccessquicklybtn">
-                      <a className="btn" href="#">
-                        Google
-                      </a>
-                      <a className="btn" href="#">
-                        SSO
-                      </a>
-                    </div>
-                    */}
-                  </>
-                )}
-              </Form>
+                    </>
+                  ) : (
+                    <>
+                      <GenerateElements
+                        controlsList={controlsList}
+                        selectedItem={selectedItem}
+                        disable={loading}
+                        onChange={(value: any, item: any) =>
+                          onChange(value, item)
+                        }
+                      />
+                    {/*   <Form.Group className="mb-2" controlId="checkbox">
+                        <Form.Check
+                          type="checkbox"
+                          checked={rememberMe}
+                          onChange={(e: any) => setRememberMe(!rememberMe)}
+                          disabled={Util.isNullOrUndefinedOrEmpty(
+                            selectedItem.userName
+                          )}
+                          tabIndex={3}
+                          label="Remember me"
+                        />
+                      </Form.Group>*/}
+                      {!loading ? (
+                        <Button className="w-100" variant="primary" type="submit">
+                          Log In
+                        </Button>
+                      ) : (
+                        loading && (
+                          <Button
+                            className="w-100"
+                            variant="primary"
+                            type="submit"
+                            disabled
+                          >
+                            Logging In...
+                          </Button>
+                        )
+                      )}
+
+                      <div className="d-grid justify-content-end">
+                        <Button
+                          className="text-muted px-0"
+                          variant="link"
+                          onClick={(e: any) => setShowForGotPasswordDiglog(true)}
+                        >
+                          Forgot Password?
+                        </Button>
+                      </div>
+                      {/* 
+                      <div className="oraccessquickly text-center mt-3 mb-3">
+                        <span>or access quickly</span>
+                      </div>
+                      */}
+                      {/* 
+                      <div className="oraccessquicklybtn">
+                        <a className="btn" href="#">
+                          Google
+                        </a>
+                        <a className="btn" href="#">
+                          SSO
+                        </a>
+                      </div>
+                      */}
+                    </>
+                  )}
+                </div>
+              </Form>              
             </div>
           </div>
           <div className="loginfooter">

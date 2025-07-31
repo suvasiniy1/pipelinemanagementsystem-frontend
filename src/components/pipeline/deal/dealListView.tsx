@@ -184,8 +184,8 @@ const DealListView = (props: Params) => {
     stagesSvc
       .getAllDealsByPipelines(currentPage, pageSize)
       .then((response) => {
-        if (response && Array.isArray(response.dealsDtos)) {
-          setDealsList(response.dealsDtos);
+        if (response && Array.isArray(response.dealsDtos.deals)) {
+          setDealsList(response.dealsDtos.deals);
         } else {
           console.error("API response is not valid:", response);
           setDealsList([]);
