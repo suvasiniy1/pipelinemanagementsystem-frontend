@@ -3005,6 +3005,8 @@ button.fields-editbtn {
   height: 100%;
 }
 
+
+
 .modal-dialog-centered.modal-dialog-scrollable .modal-content {
   max-height: none;
 }
@@ -3705,3 +3707,18 @@ select {
 .pdstage-simplebadge{position: relative; text-align: right;}
 .pdstage-simplebadge .deal-status-badge{position: relative; top: auto; right: auto; display: inline-block; z-index: 0;}
 .modal-dialog-centered .modalbody:has(#AddEditForm) {overflow-y: visible; overflow-x: visible;}
+.deal-lost-info-icon {
+  background: #e3f2fd;
+  border-radius: 50%;
+  padding: 4px;
+  display: inline-flex;
+  align-items: center;
+  box-shadow: 0 1px 4px rgba(25, 118, 210, 0.10);
+  transition: background 0.2s, box-shadow 0.2s;
+  margin-left: 8px;
+}
+.deal-lost-info-icon:hover {
+  background: #bbdefb;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.18);
+}

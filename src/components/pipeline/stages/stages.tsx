@@ -90,8 +90,14 @@ export const Stages = (props: params) => {
 
 
     useEffect(() => {
-        setCanSave(JSON.stringify(originalsStages) != JSON.stringify(stages) || originalsStages?.length != stages?.length || selectedItem?.pipelineID == 0)
-    }, [stages])
+        const pipelineNameChanged = selectedItem?.pipelineName !== undefined && selectedItem?.pipelineName !== '';
+        setCanSave(
+            JSON.stringify(originalsStages) !== JSON.stringify(stages) ||
+            originalsStages?.length !== stages?.length ||
+            selectedItem?.pipelineID === 0 ||
+            pipelineNameChanged
+        );
+    }, [stages, selectedItem?.pipelineName])
 
     const loadStages=(selectedPipeLineId:number)=>{
         setIsLoading(true);
@@ -204,34 +210,31 @@ export const Stages = (props: params) => {
             toast.error("Stage name is required");
             return;
         }
-        if (selectedItem?.pipelineID == 0) {
-            const  pipeline={
-                "pipelineID":selectedItem.pipelineID,
-                "pipelineName": selectedItem.pipelineName,
-                "description": selectedItem.description,
-                "createdBy": selectedItem.createdBy,
-                "createdDate": selectedItem.createdDate,
-                "modifiedDate":selectedItem.modifiedDate,
-                "modifiedBy":selectedItem.modifiedBy
+        // Always update pipeline name before saving stages
+        const pipeline = {
+            "pipelineID": selectedItem?.pipelineID,
+            "pipelineName": selectedItem?.pipelineName,
+            "description": selectedItem?.description,
+            "createdBy": selectedItem?.createdBy,
+            "createdDate": selectedItem?.createdDate,
+            "modifiedDate": selectedItem?.modifiedDate,
+            "modifiedBy": selectedItem?.modifiedBy
+        };
+        pipeLineSvc.postItemBySubURL(pipeline, 'SavePipelineDetails').then(res => {
+            if (res && res.result?.pipelineID) {
+                console.log("Pipeline API Response:", res);
+                continueToSave(res.result.pipelineID); // Pass valid pipelineID
+            } else if (selectedItem?.pipelineID) {
+                // If backend does not return pipelineID, use existing one
+                continueToSave(selectedItem?.pipelineID);
+            } else {
+                toast.error("Pipeline saved but no pipelineID returned.");
+                console.error("Pipeline Save Response Missing pipelineID:", res);
             }
-            pipeLineSvc.postItemBySubURL(pipeline, 'SavePipelineDetails').then(res => {
-                if (res && res.result?.pipelineID) {
-                    console.log("Pipeline API Response:", res);
-                    continueToSave(res.result.pipelineID); // Pass valid pipelineID
-                } else {
-                    toast.error("Pipeline saved but no pipelineID returned.");
-                    console.error("Pipeline Save Response Missing pipelineID:", res);
-                }
-            }).catch(err => {
-                toast.error("Error saving pipeline details");
-                console.error("Pipeline Save Error:", err);
-            });
-        }
-        else {
-            continueToSave(selectedItem?.pipelineID);
-        }
-
-
+        }).catch(err => {
+            toast.error("Error saving pipeline details");
+            console.error("Pipeline Save Error:", err);
+        });
     }
 
     const continueToSave = (pipelineID: number | undefined) => {        
@@ -310,7 +313,8 @@ export const Stages = (props: params) => {
                                 onSaveClick={saveStages}
                                 onCancelClick={cancelChanges}
                                 selectedItem={selectedItem as any}
-                                setSelectedItem={(e: any) => setSelectedItem({ ...selectedItem, "pipelineName": e } as any)} />
+                                setSelectedItem={setSelectedItem}
+                            />
                             {showDeleteDialog &&
                                 <DeleteDialog itemType={"Stage"}
                                     itemName={""}

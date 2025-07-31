@@ -29,7 +29,7 @@ export class DealService extends BaseService<Deal>{
 
     searchDeals(searchTerm: string, axiosCancel?: CancelTokenSource) {
         const apiUrl = IsMockService() ? 'mockData/searchDeals.json' : 'Deal/Search';
-        return this.getItems(axiosCancel, `${apiUrl}?searchTerm=${searchTerm}`);
+        return this.getItems(axiosCancel, `${apiUrl}?searchTerm=${encodeURIComponent(searchTerm)}`);
     }
 
     exportDeal(exportDeal:DealExport, axiosCancel?: CancelTokenSource){

@@ -170,7 +170,29 @@ const handleLostClick = () => {
                       >
                         <span className="label">
                           <FontAwesomeIcon icon={faThumbsUp} />
-                          {dealItem?.statusID === 2 && ' WON'}
+                          {dealItem?.statusID === 2 && (
+                            <>
+                              {' WON'}
+                              {dealItem.modifiedDate && (
+                                <span
+                                  style={{
+                                    marginLeft: 8,
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    background: '#e3f2fd',
+                                    borderRadius: '50%',
+                                    padding: 4,
+                                    boxShadow: '0 1px 4px rgba(25, 118, 210, 0.10)',
+                                    transition: 'background 0.2s',
+                                  }}
+                                  title={`Won on: ${moment(dealItem.modifiedDate).format('MM/DD/YYYY hh:mm:ss a')}`}
+                                  className="deal-won-info-icon"
+                                >
+                                  <FontAwesomeIcon icon={faInfoCircle} color="#1976d2" style={{ fontSize: 18 }} />
+                                </span>
+                              )}
+                            </>
+                          )}
                         </span>
                       </button>
                       <button 
@@ -369,3 +391,10 @@ const handleLostClick = () => {
 };
 
 export default DealOverView;
+/* Add this CSS to App.css or a relevant CSS file:
+.deal-won-info-icon:hover {
+  background: #bbdefb;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.18);
+}
+*/

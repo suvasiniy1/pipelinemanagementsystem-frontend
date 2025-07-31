@@ -13,6 +13,19 @@ type params = {
 }
 export const StageActions = (props: params) => {
     const {selectedItem, setSelectedItem, canSave, ...others}=props;
+
+    const handlePipelineNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        console.log('Before setSelectedItem:', selectedItem);
+        setSelectedItem({
+            ...selectedItem,
+            pipelineName: e.target.value
+        });
+        setTimeout(() => {
+            // This will log the value after the parent re-renders
+            console.log('After setSelectedItem:', selectedItem);
+        }, 0);
+    };
+
     return (
         <>
             {/* <div>
@@ -27,7 +40,18 @@ export const StageActions = (props: params) => {
                         <div className="colactionbtnstage">
                             <div className="actiondealname">
                                 <label htmlFor="name">Pipeline Name:</label>
-                                <input type="text" className="form-control" defaultValue={selectedItem?.pipelineName} onChange={(e:any)=>props.setSelectedItem(e.target.value)}/>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    value={selectedItem && typeof selectedItem.pipelineName === 'string' ? selectedItem.pipelineName : ''}
+                                    onChange={e => {
+                                        // Always use a fallback object to avoid undefined
+                                        setSelectedItem({
+                                            ...(selectedItem || {}),
+                                            pipelineName: e.target.value
+                                        });
+                                    }}
+                                />
                             </div>
                         </div>
                         <div className="colactionbtn">

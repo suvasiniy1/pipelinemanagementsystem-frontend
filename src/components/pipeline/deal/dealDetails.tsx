@@ -477,7 +477,7 @@ const [dealsData, setDealsData] = useState<DealWithPipeline[]>([]);
                       <div className="appdeal-amount dflex">
                         Deal:{" "}
                         <span className="appdeal-amountnum">
-                          ${dealItem.title}
+                          {dealItem.title}
                         </span>
                       </div>
                     </div>
@@ -591,51 +591,40 @@ const [dealsData, setDealsData] = useState<DealWithPipeline[]>([]);
                     <div className="appdealblock-row mt-2">
                       <ul className="appdealblock-iconlist">
                         <li>
-                          <button className="dealicon">
+                          <button className="dealicon" onClick={() => {
+                            setDialogToOpen("NotesAddEdit" as any);
+                            setDialogIsOpen(true);
+                          }}>
                             <FontAwesomeIcon
                               icon={faPenToSquare}
-                              onClick={(e: any) => {
-                                setDialogToOpen("NotesAddEdit" as any);
-                                setDialogIsOpen(true);
-                              }}
                             />
                           </button>
                           <span className="dealicon-name">Note</span>
                         </li>
                         <li>
-                          <button className="dealicon">
-                            <FontAwesomeIcon
-                              icon={faEnvelope}
-                              onClick={(e: any) => {
-                                setSelectedEmail({
-                                  to: dealItem.email || "default@example.com",
-                                });
-                                setDialogToOpen("EmailComposeDialog" as any);
-                                accounts.length == 0
-                                  ? onLoginConfirm()
-                                  : setDialogIsOpen(true);
-                              }}
-                            />
+                          <button className="dealicon" onClick={() => {
+                            setSelectedEmail({
+                              to: dealItem.email || "default@example.com",
+                            });
+                            setDialogToOpen("EmailComposeDialog" as any);
+                            accounts.length == 0 ? onLoginConfirm() : setDialogIsOpen(true);
+                          }}>
+                            <FontAwesomeIcon icon={faEnvelope} />
                           </button>
                           <span className="dealicon-name">Email</span>
                         </li>
                         <li>
-                          <button className="dealicon">
+                          <button className="dealicon" onClick={() => setSelectedPhoneNmber(dealItem.phone as any)}>
                             <FontAwesomeIcon icon={faPhone} />
                           </button>
                           <span className="dealicon-name">Call</span>
                         </li>
                         <li>
-                          <button className="dealicon">
-                            <FontAwesomeIcon
-                              icon={faListCheck}
-                              onClick={(e: any) => {
-                                setDialogToOpen("TaskAddEdit" as any);
-                                accounts.length == 0
-                                  ? onLoginConfirm()
-                                  : setDialogIsOpen(true);
-                              }}
-                            />
+                          <button className="dealicon" onClick={() => {
+                            setDialogToOpen("TaskAddEdit" as any);
+                            accounts.length == 0 ? onLoginConfirm() : setDialogIsOpen(true);
+                          }}>
+                            <FontAwesomeIcon icon={faListCheck} />
                           </button>
                           <span className="dealicon-name">Task</span>
                         </li>

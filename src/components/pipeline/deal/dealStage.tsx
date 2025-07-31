@@ -37,7 +37,7 @@ export const DealStage = (props: params) => {
                         <div {...provided.dragHandleProps} ref={provided.innerRef}>
                             <div className="pdstage-header">
                                 <div className="pdstage-head">
-                                    <div className="pdstagehead-title">{title}</div>
+                                    <div className="pdstagehead-title" title={title}>{title}</div>
                                     <div className="pdstagehead-btns">
                                         <button className='' onClick={(e:any)=>onDealAddClick(stageID)}><i className="rs-icon rs-icon-plus"></i></button>
                                         <button className={deals?.length==0 ? 'disabled' : ''} disabled={deals?.length==0} onClick={(e:any)=>onStageExpand(stageID)}><i className="rs-icon rs-icon-arrow-right"></i></button>
