@@ -73,18 +73,23 @@ export const DealAddEditDialog = (props: params) => {
         { key: "Expected Close Date", value: "expectedCloseDate", type: ElementType.datepicker, isSideByItem: true, isRequired: true },
     ];
     
-    const controlsList2: Array<IControl> = [
-        { key: "Pipeline", value: "pipelineID", type: ElementType.dropdown, isRequired: true, sidebyItem: "Operation Date" },
-        { key: "Operation Date", value: "operationDate", type: ElementType.datepicker, isSideByItem: true, isRequired: true },
-        { key: "Stage", value: "stageID", type: ElementType.custom, isRequired: true, sidebyItem: "PA Name", disabled: !Util.isNullOrUndefinedOrEmpty(selectedStageId) },
-        { key: "PA Name", value: "paName", type: ElementType.textbox, isSideByItem: true, isRequired: true },
-        { key: "Pipeline Type", value: "pipelineTypeID", type: ElementType.dropdown, isRequired: true, sidebyItem: "Lead Source" },
-        { key: "Lead Source", value: "leadSourceID", type: ElementType.dropdown, isSideByItem: true, isRequired: true },
-        { key: "Clinic", value: "clinicID", type: ElementType.dropdown, isRequired: true, sidebyItem: "Phone" },
-        { key: "Phone", value: "phone", type: ElementType.textbox, isSideByItem: true, isRequired: true },
-        { key: "Treatment", value: "treatmentID", type: ElementType.dropdown, isRequired: true, sidebyItem: "Email" },
-        { key: "Email", value: "email", type: ElementType.textbox, isSideByItem: true, isRequired: true },
-    ];
+   const controlsList2: Array<IControl> = [
+  { key: "Pipeline", value: "pipelineID", type: ElementType.dropdown, isRequired: true, sidebyItem: "Operation Date" },
+  { key: "Operation Date", value: "operationDate", type: ElementType.datepicker, isSideByItem: true, isRequired: true },
+
+  { key: "Stage", value: "stageID", type: ElementType.custom, isRequired: true, sidebyItem: "Lead Source", disabled: !Util.isNullOrUndefinedOrEmpty(selectedStageId) },
+  { key: "Lead Source", value: "leadSourceID", type: ElementType.dropdown, isSideByItem: true, isRequired: true },
+
+  { key: "Pipeline Type", value: "pipelineTypeID", type: ElementType.dropdown, isRequired: true, sidebyItem: "Clinic" },
+  { key: "Clinic", value: "clinicID", type: ElementType.dropdown, isSideByItem: true, isRequired: true },
+
+  // Final row: Phone + Email
+  { key: "Phone", value: "phone", type: ElementType.textbox, isRequired: true, sidebyItem: "Email" },
+  { key: "Email", value: "email", type: ElementType.textbox, isSideByItem: true, isRequired: true },
+
+  // ✅ Now place Treatment last
+  { key: "Treatment", value: "treatmentID", type: ElementType.dropdown, isRequired: true, isControlInNewLine: true },
+];
     const controlsList = [controlsList1, controlsList2];
 
     const formatDate = (date: Date | string, format: string): string => {
@@ -265,12 +270,15 @@ export const DealAddEditDialog = (props: params) => {
 
     const getJsxForStage = () => {
         return (
+             <div className="row mb-3">
+            <div className="col-12"></div>
             <div className="col-sm-6 pipelinestage-selector pipelinestage-active" aria-disabled={isLoading}>
                 {
                     stages.map((sItem, sIndex) => (
                         <div key={sIndex} className={'pipelinestage ' + (sItem.stageID == selectedItem.stageID ? 'pipelinestage-current' : '')} aria-label={sItem.stageName} title={sItem.stageName} onClick={(e: any) => {setValue("stageID" as never, sItem.stageID as never); setSelectedItem({ ...selectedItem, "stageID": sItem.stageID })}}></div>
                     ))
                 }
+            </div>
             </div>
         )
     }
