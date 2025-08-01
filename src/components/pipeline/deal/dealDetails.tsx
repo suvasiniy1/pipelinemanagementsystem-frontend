@@ -247,6 +247,18 @@ const [dealsData, setDealsData] = useState<DealWithPipeline[]>([]);
   //   }
   // }, [location.search]); // Listen for changes to the URL search params
 
+ useEffect(() => {
+  const searchParams = new URLSearchParams(location.search);
+  const newDealId = searchParams.get("id");
+  const newPipelineId = searchParams.get("pipeLineId");
+
+  if (newDealId && newPipelineId) {
+    setDealId(newDealId);       // Update local state
+    setPipeLineId(newPipelineId); // Update local state
+    fetchDealData(+newDealId, +newPipelineId); // 🔁 Fetch updated deal
+  }
+}, [location.search]);
+
   const onDealModified = () => {
     console.log("Updated dealItem before API call:", dealItem);
 
