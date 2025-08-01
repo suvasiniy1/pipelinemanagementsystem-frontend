@@ -17,16 +17,18 @@ export const DatePickerWithValidation = (props: params) => {
     const [startDate, setStartDate] = useState<Date>(new Date());
 
     const { register, formState: { errors } } = useFormContext();
+    // Determine showTimeSelect: default true, but allow override via item.showTimeSelect
+    const showTimeSelect = item && typeof item.showTimeSelect === 'boolean' ? item.showTimeSelect : true;
 
     return (
         <>
             <Picker
-                placeholderText="MM/DD/YYYY hh:mm:ss a"
+                placeholderText={showTimeSelect ? "MM/DD/YYYY hh:mm:ss a" : "MM/DD/YYYY"}
                 showIcon
-                dateFormat={"MM/d/yyyy h:mm aa"}
+                dateFormat={showTimeSelect ? "MM/d/yyyy h:mm aa" : "MM/d/yyyy"}
                 selected={selectedItem[item.value] ? new Date(selectedItem[item.value]) : selectedItem[item.value]}
                 className="form-control"
-                showTimeSelect={item.showTimeSelect}
+                showTimeSelect={showTimeSelect}
                 disabled={disable}
                 minDate={new Date()}
                 {...register(item.value)}

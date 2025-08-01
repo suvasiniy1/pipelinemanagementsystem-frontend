@@ -126,6 +126,7 @@ const DealListView = (props: Params) => {
   const [selectedFilterObj, setSelectedFilterObj] = useState<any>(null);
   const [selectedUserId, setSelectedUserId] = useState<any>(null);
   const [dealFilterDialogIsOpen, setDealFilterDialogIsOpen] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
 
   const userProfile = JSON.parse(
     LocalStorageUtil.getItem(Constants.USER_PROFILE) || "{}"
@@ -184,11 +185,14 @@ const DealListView = (props: Params) => {
     stagesSvc
       .getAllDealsByPipelines(currentPage, pageSize)
       .then((response) => {
+        
         if (response && Array.isArray(response.dealsDtos.deals)) {
           setDealsList(response.dealsDtos.deals);
+          setTotalCount(response.dealsDtos.totalCount || 0);
         } else {
           console.error("API response is not valid:", response);
           setDealsList([]);
+          setTotalCount(0);
         }
         setIsLoading(false);
       })
@@ -196,6 +200,7 @@ const DealListView = (props: Params) => {
         setError(err);
         setIsLoading(false);
         setDealsList([]);
+        setTotalCount(0);
       });
   };
 
@@ -822,7 +827,7 @@ const DealListView = (props: Params) => {
           Previous
         </Button>
         <Button
-          disabled={dealsList.length === 0}
+          disabled={dealsList.length === 0 || (currentPage * pageSize >= totalCount)}
           onClick={() => handlePageChange(currentPage + 1)}
         >
           Next

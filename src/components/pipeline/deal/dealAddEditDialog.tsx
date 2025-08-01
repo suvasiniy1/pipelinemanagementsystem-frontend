@@ -568,6 +568,7 @@ export const DealAddEditDialog = (props: params) => {
                                                         getListofItemsForDropdown={(e: any) => getDropdownvalues(e) as any}
                                                         getCustomElement={(item: IControl) => getCustomElement(item)}
                                                         showDelete={false} 
+                                                        forceHideTimeSelect={true} // Only for DealAddEditDialog
                                                     />
                                                 ))
                                             }

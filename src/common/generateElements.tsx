@@ -30,6 +30,7 @@ type props = {
   onElementEdit?:any;
   showDelete?: boolean; 
   getAttachedData?:any;
+  forceHideTimeSelect?: boolean; // NEW PROP
 };
 const GenerateElements: React.FC<props> = (props) => {
   
@@ -111,7 +112,7 @@ const GenerateElements: React.FC<props> = (props) => {
       case ElementType.datepicker:
         return (
           <DATEPICKER
-            item={item}
+            item={{ ...item, showTimeSelect: props.forceHideTimeSelect ? false : item.showTimeSelect }}
             selectedItem={selectedItem}
             disable={forceDisable ?? disable}
             onChange={(e: any) => {
