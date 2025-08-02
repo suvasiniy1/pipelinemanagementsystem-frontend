@@ -318,79 +318,66 @@ const DealListView = (props: Params) => {
   //     setSelectedColumns([...selectedColumns, columnKey]);
   //   }
   // };
-
-  const handleExportToExcel = async () => {
-    try {
-      if (
-        selectedPipeLines.length == 0 &&
-        !selectedStartDate &&
-        !selectedEndDate
-      ) {
-        alert(
-          "Please select at least one pipeline or choose a date range to proceed."
-        );
-        return;
-      }
-
-      if (selectedColumns.length == 0) {
-        alert("Please select at least one column to proceed");
-        return;
-      }
-
-      const dealExport = new DealExport();
-      dealExport.startDate = selectedStartDate;
-      dealExport.endDate = selectedEndDate;
-      dealExport.pipelineIDs = Array.from(
-        selectedPipeLines,
-        (x) => x.value
-      )?.join(",");
-
-      const allDealsResponse = await dealSvc.exportDeal(dealExport);
-      const allDeals = Array.isArray(allDealsResponse)
-        ? allDealsResponse
-        : allDealsResponse?.dealsDtos || [];
-
-      if (!allDeals.length) {
-        alert("No deals found to export.");
-        return;
-      }
-
-      const dataToExport = allDeals.map((deal: any) => {
-        const row: any = {};
-        selectedColumns.forEach((col) => {
-          row[col.name] = deal[col.value] ?? "N/A";
-        });
-        return row;
-      });
-
-      if (exportFormat === "xlsx") {
-        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Deals");
-        const excelBuffer = XLSX.write(workbook, {
-          bookType: "xlsx",
-          type: "array",
-        });
-        const data = new Blob([excelBuffer], {
-          type: "application/octet-stream",
-        });
-        saveAs(data, `All_Deals_${new Date().toISOString()}.xlsx`);
-      } else {
-        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-        const csv = XLSX.utils.sheet_to_csv(worksheet);
-        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-        saveAs(blob, `All_Deals_${new Date().toISOString()}.csv`);
-      }
-
-      // Reset UI states
-      setDrawerOpen(false);
-      setSelectedPipeLines([]);
-      setSelectedColumns([]);
-    } catch (err) {
-      console.error("Error exporting all deals:", err);
-      alert("Something went wrong while exporting. Please try again.");
+const loadAllDeals = async (): Promise<Array<Deal>> => {
+  try {
+    const response = await stagesSvc.getAllDealsByPipelines(1, totalCount);
+    if (response && Array.isArray(response.dealsDtos.deals)) {
+      return response.dealsDtos.deals;
+    } else {
+      console.warn("Invalid response when loading all deals for export");
+      return [];
     }
-  };
+  } catch (err) {
+    console.error("Error loading all deals for export", err);
+    return [];
+  }
+};
+
+  const handleExportToExcel = async (columnsOverride?: any[]) => {
+  const columns = columnsOverride ?? selectedColumns;
+
+  if (columns.length === 0) {
+    alert("Please select at least one column to proceed");
+    return;
+  }
+
+  const allDeals = await loadAllDeals();
+
+  if (!allDeals.length) {
+    alert("No deals found to export.");
+    return;
+  }
+
+  const dataToExport = allDeals.map((deal: any) => {
+    const row: any = {};
+    columns.forEach((col) => {
+      row[col.name] = deal[col.value] ?? "N/A";
+    });
+    return row;
+  });
+
+  if (exportFormat === "xlsx") {
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Deals");
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+    const data = new Blob([excelBuffer], {
+      type: "application/octet-stream",
+    });
+    saveAs(data, `All_Deals_${new Date().toISOString()}.xlsx`);
+  } else {
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const csv = XLSX.utils.sheet_to_csv(worksheet);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    saveAs(blob, `All_Deals_${new Date().toISOString()}.csv`);
+  }
+
+  setDrawerOpen(false);
+};
+
 
   const getPipeLinesList = () => {
     return (
@@ -598,6 +585,10 @@ const DealListView = (props: Params) => {
     return (
       <div className="col-sm-7 toolbarview-summery">
         <div className="toolbarview-actionsrow" style={{ paddingRight: "20px", display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ fontSize: 14, fontWeight: 500, marginRight: 16 }}>
+           Total Deals: {totalCount}
+          </div>
+
           <div className="pipeselectbtngroup" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div
               className="pipeselectbox variantselectbox"
@@ -716,7 +707,8 @@ const DealListView = (props: Params) => {
                 </div>
               </div>
             </div>
-            {/* Reset filter icon/button, only show if a filter or user is selected */}
+           
+
             {(selectedFilterObj || selectedUserId) && (
               <button
                 className="btn btn-link p-0 m-0"
@@ -803,6 +795,8 @@ const DealListView = (props: Params) => {
           </Button>
         </div>
       )}
+     
+
       <ItemCollection
         itemName={"Deals"}
         itemType={Deal}
@@ -850,42 +844,7 @@ const DealListView = (props: Params) => {
             }}
           >
             <div style={{ flex: 1, overflowY: "auto", padding: "16px" }}>
-              <div
-                hidden={selectedRows.length > 0}
-                style={{ marginBottom: "24px" }}
-              >
-                <h4>Date Range</h4>
-                <DateRangePicker
-                  startDate={selectedStartDate}
-                  endDate={selectedEndDate}
-                  onDatePeriodSelection={onDatePeriodSelection}
-                />
-              </div>
-
-              <div
-                hidden={selectedRows.length > 0}
-                style={{ marginBottom: "24px" }}
-              >
-                <h4>PipeLines</h4>
-                <MultiSelectDropdown
-                  list={getPipeLinesList()}
-                  selectedList={selectedPipeLines}
-                  onItemChange={(e: any) => onPipeLineSelection(e)}
-                />
-              </div>
-
-              <div
-                hidden={selectedRows.length > 0}
-                style={{ marginBottom: "24px" }}
-              >
-                <h4>Columns</h4>
-                <MultiSelectDropdown
-                  list={getFiltersList()}
-                  selectedList={selectedColumns}
-                  onItemChange={(e: any) => onColumnSelection(e)}
-                />
-              </div>
-
+             
               <Grid
                 container
                 spacing={2}
@@ -934,43 +893,55 @@ const DealListView = (props: Params) => {
                     </button>
                   </div>
                 </Grid>
+{selectedRows.length === 0 && (
+  <div style={{ marginTop: 24 }}>
+    <h4 style={{ marginBottom: 12 }}>Export Deals</h4>
+    <div style={{ marginBottom: 12 }}>
+      <label className="fw-bold">Export Format</label>
+      <div style={{ marginTop: 8 }}>
+        <label style={{ marginRight: 12 }}>
+          <input
+            type="radio"
+            name="exportFormat"
+            value="csv"
+            checked={exportFormat === "csv"}
+            onChange={(e) => setExportFormat(e.target.value)}
+          />{" "}
+          CSV
+        </label>
+        <label>
+          <input
+            type="radio"
+            name="exportFormat"
+            value="xlsx"
+            checked={exportFormat === "xlsx"}
+            onChange={(e) => setExportFormat(e.target.value)}
+          />{" "}
+          Excel (XLSX)
+        </label>
+      </div>
+    </div>
+    <Button
+  variant="contained"
+  fullWidth
+  onClick={async () => {
+    const allColumns = columnMetaData.map((c) => ({
+      name: c.columnHeaderName,
+      value: c.columnName,
+    }));
+    setSelectedColumns(allColumns);
 
-                <Grid item>
-                  <div style={{ marginBottom: "12px" }}>
-                    <label className="fw-bold">Export Format</label>
-                    <div>
-                      <label style={{ marginRight: "12px" }}>
-                        <input
-                          type="radio"
-                          name="exportFormat"
-                          value="csv"
-                          checked={exportFormat === "csv"}
-                          onChange={(e) => setExportFormat(e.target.value)}
-                        />{" "}
-                        CSV
-                      </label>
-                      <label>
-                        <input
-                          type="radio"
-                          name="exportFormat"
-                          value="xlsx"
-                          checked={exportFormat === "xlsx"}
-                          onChange={(e) => setExportFormat(e.target.value)}
-                        />{" "}
-                        Excel (XLSX)
-                      </label>
-                    </div>
-                  </div>
-                  <Button
-                    variant="contained"
-                    fullWidth
-                    hidden={selectedRows.length > 0}
-                    onClick={(e: any) => handleExportToExcel()
-                    }
-                  >
-                    Export
-                  </Button>
-                </Grid>
+    // Call export after state is set using a local copy instead of waiting
+    await handleExportToExcel(allColumns);
+  }}
+>
+  Export
+</Button>
+
+  </div>
+)}
+✅ 
+
               </Grid>
             </div>
           </div>
