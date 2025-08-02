@@ -3731,3 +3731,9 @@ select {
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(25, 118, 210, 0.18);
 }
+.deals-count {
+  padding: 10px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+}
