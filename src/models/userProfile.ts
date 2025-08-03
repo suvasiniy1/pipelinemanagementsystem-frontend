@@ -20,4 +20,5 @@ export class UserProfile {
   concurrencyStamp?:string;
   securityStamp?:string;
   forcePasswordReset?:boolean;
+  encryptedUserId?:string;
 }

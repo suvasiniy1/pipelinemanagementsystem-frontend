@@ -65,7 +65,7 @@ export const StageActions = (props: params) => {
                             <div className="colactionbtnrow">
                                 <button type="button" className="btn btn-dark" onClick={(e: any) => props.onCancelClick()}>Cancel</button>
                                 <button type="button" className="btn btn-primary" disabled={!canSave}  onClick={(e: any) => {if(!canSave) return; props.onSaveClick()}}>Save Changes</button>
-                                <button className="ellipsis-btn"><FontAwesomeIcon icon={faEllipsis} /></button>
+                                {/* <button className="ellipsis-btn"><FontAwesomeIcon icon={faEllipsis} /></button> */}
                             </div>
                         </div>
                     </div>

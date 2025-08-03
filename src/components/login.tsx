@@ -133,7 +133,7 @@ const Login = () => {
             setLoading(false);
             
             if(res?.forcePasswordReset){
-              navigate(`/changePassword?username=${res.user}&changePassword=true`);
+              navigate(`/changePassword?userId=${res.encryptedUserId}&changePassword=true`);
               return;
             }
             if (res && res?.token) {
