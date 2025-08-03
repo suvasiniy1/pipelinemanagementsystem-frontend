@@ -165,7 +165,8 @@ const handleLostClick = () => {
                             : 'none',
                           transform: dealItem?.statusID === 2 
                             ? 'scale(1.1)' 
-                            : 'scale(1)'
+                            : 'scale(1)',
+                          marginRight: 16 // Add space between WON and LOST buttons
                         }}
                       >
                         <span className="label">
@@ -180,15 +181,19 @@ const handleLostClick = () => {
                                     display: 'inline-flex',
                                     alignItems: 'center',
                                     background: '#e3f2fd',
-                                    borderRadius: '50%',
-                                    padding: 4,
+                                    borderRadius: '8px',
+                                    padding: '4px 10px',
                                     boxShadow: '0 1px 4px rgba(25, 118, 210, 0.10)',
                                     transition: 'background 0.2s',
+                                    fontSize: '13px',
+                                    color: '#1976d2',
+                                    fontWeight: 500,
+                                    position: 'relative',
                                   }}
                                   title={`Won on: ${moment(dealItem.modifiedDate).format('MM/DD/YYYY hh:mm:ss a')}`}
                                   className="deal-won-info-icon"
                                 >
-                                  <FontAwesomeIcon icon={faInfoCircle} color="#1976d2" style={{ fontSize: 18 }} />
+                                  <FontAwesomeIcon icon={faInfoCircle} color="#1976d2" style={{ fontSize: 16, marginRight: 0 }} />
                                 </span>
                               )}
                             </>
@@ -217,8 +222,25 @@ const handleLostClick = () => {
                             <>
                               {' LOST'}
                               {dealItem.comments && (
-                                <span style={{ marginLeft: 6, cursor: 'pointer' }} title={dealItem.comments}>
-                                  <FontAwesomeIcon icon={faInfoCircle} color="#1976d2" />
+                                <span
+                                  style={{
+                                    marginLeft: 8,
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    background: '#fdecea',
+                                    borderRadius: '8px',
+                                    padding: '4px 10px',
+                                    boxShadow: '0 1px 4px rgba(220, 53, 69, 0.10)',
+                                    transition: 'background 0.2s',
+                                    fontSize: '13px',
+                                    color: '#d32f2f',
+                                    fontWeight: 500,
+                                    position: 'relative',
+                                  }}
+                                  title={dealItem.comments}
+                                  className="deal-lost-info-icon"
+                                >
+                                  <FontAwesomeIcon icon={faInfoCircle} color="#d32f2f" style={{ fontSize: 16, marginRight: 0 }} />
                                 </span>
                               )}
                             </>
