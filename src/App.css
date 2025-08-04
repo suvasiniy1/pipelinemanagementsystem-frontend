@@ -65,8 +65,51 @@ body a {
 .loginformblock-row .btn-link {color: #3f3f3f; text-decoration: none; font-weight: bold; margin-top: 15px; display: block; padding: 0;}
 .loginformblock-row .btn-link:hover{color: #cfa34a !important;}
 
-.loginformblock .form-control#email {background-image: url(/src/resources/images/mail-user.png); background-position: 14px center; background-repeat: no-repeat; background-size: 16px; padding-left: 40px;}
-.loginformblock .form-control#passwordHash {background-image: url(/src/resources/images/padlock.png); background-position: 12px center; background-repeat: no-repeat; background-size: 20px; padding-left: 40px;}
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+-webkit-box-shadow: 0 0 0 30px white inset !important;}
+
+.loginformblock .form-control#email,
+.loginformblock .form-control#email:focus,
+.loginformblock .form-control#email:active {background-color: #fff  !important; background-image: url(/src/resources/images/mail-user.png) !important; background-position: 14px center; background-repeat: no-repeat; background-size: 16px; padding-left: 40px;}
+.loginformblock .form-control#passwordHash,
+.loginformblock .form-control#passwordHash:focus,
+.loginformblock .form-control#passwordHash:active {background-color: #fff  !important; background-image: url(/src/resources/images/padlock.png) !important; background-position: 12px center; background-repeat: no-repeat; background-size: 20px; padding-left: 40px;}
+
+
+/* .loginformblock .form-control#email:-webkit-autofill,
+.loginformblock .form-control#email:-webkit-autofill:hover,
+.loginformblock .form-control#email:-webkit-autofill:focus,
+.loginformblock .form-control#email:-webkit-autofill:active {
+  background-color: #fff !important;
+  background-image: url(/src/resources/images/mail-user.png) !important;
+  background-repeat: no-repeat !important;
+  background-position: 14px center !important;
+  background-size: 16px !important;
+  padding-left: 40px !important;
+  -webkit-box-shadow: 0 0 0 1000px #fff inset !important;
+  -webkit-text-fill-color: #000 !important;
+  transition: background-color 9999s ease-in-out 0s !important;
+
+}
+
+.loginformblock .form-control#passwordHash:-webkit-autofill,
+.loginformblock .form-control#passwordHash:-webkit-autofill:hover,
+.loginformblock .form-control#passwordHash:-webkit-autofill:focus,
+.loginformblock .form-control#passwordHash:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  background-color: #fff !important;
+  background-image: url(/src/resources/images/padlock.png) !important;
+  background-position: 12px center !important;
+  background-repeat: no-repeat !important;
+  background-size: 20px !important;
+  padding-left: 40px !important;
+  -webkit-text-fill-color: #000 !important;
+  transition: background-color 9999s ease-out 0s !important;
+} */
+
 
 .sign-in__wrapper form img {
   width: 4rem;
