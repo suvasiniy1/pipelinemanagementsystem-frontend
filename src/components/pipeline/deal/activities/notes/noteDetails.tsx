@@ -36,6 +36,7 @@ const NoteDetails = (props: params) => {
     const [defaultComment, setDefaultComment]=useState(null);
     const commentRef = useRef();
     const [commentError, setCommentError] = useState("");
+    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         if (divRef) {
@@ -51,17 +52,22 @@ const NoteDetails = (props: params) => {
     }
 
     const saveComment = () => {
+        if (isSaving) return; // Prevent duplicate submissions
+        
         if (!comment.comment || !comment.comment.trim()) {
             setCommentError("Please enter a comment.");
             return;
         }
+        
         setCommentError("");
+        setIsSaving(true);
+        
         let obj = { ...comment };
         obj.noteId = note.noteID;
         obj.dealID = note.dealID;
         obj.createdBy = userObj.userId;
+        
         commentSvc.addComment(obj).then(res => {
-            
             if (res) {
                 toast.success("Comment added successfully");
                 setDefaultComment(null);
@@ -71,6 +77,8 @@ const NoteDetails = (props: params) => {
             }
         }).catch(err => {
             toast.error("Unable to add comment");
+        }).finally(() => {
+            setIsSaving(false);
         })
     }
 
@@ -106,7 +114,14 @@ const NoteDetails = (props: params) => {
                             <textarea className='form-control pt-4' ref={commentRef as any} value={comment.comment || ""} onChange={(e: any) => { setComment({ ...comment, comment: e.target.value }); setCommentError(""); }} style={{ minHeight: "150px"}} />
                             {commentError && <div className='text-danger pt-2'>{commentError}</div>}
                         </div>
-                        <button type="button" className="btn btn-secondary" onClick={(e: any) => saveComment()}>Save</button>
+                        <button 
+                            type="button" 
+                            className="btn btn-secondary" 
+                            onClick={(e: any) => saveComment()}
+                            disabled={isSaving}
+                        >
+                            {isSaving ? 'Saving...' : 'Save'}
+                        </button>
                     </div>
                 </div>
 

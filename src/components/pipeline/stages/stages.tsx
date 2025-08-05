@@ -210,7 +210,14 @@ export const Stages = (props: params) => {
             toast.error("Stage name is required");
             return;
         }
-        // Always update pipeline name before saving stages
+        
+        // For existing pipelines, save stages directly
+        if (selectedItem?.pipelineID && selectedItem.pipelineID > 0) {
+            continueToSave(selectedItem.pipelineID);
+            return;
+        }
+        
+        // For new pipelines, save pipeline details first
         const pipeline = {
             "pipelineID": selectedItem?.pipelineID,
             "pipelineName": selectedItem?.pipelineName,
@@ -224,9 +231,6 @@ export const Stages = (props: params) => {
             if (res && res.result?.pipelineID) {
                 console.log("Pipeline API Response:", res);
                 continueToSave(res.result.pipelineID); // Pass valid pipelineID
-            } else if (selectedItem?.pipelineID) {
-                // If backend does not return pipelineID, use existing one
-                continueToSave(selectedItem?.pipelineID);
             } else {
                 toast.error("Pipeline saved but no pipelineID returned.");
                 console.error("Pipeline Save Response Missing pipelineID:", res);
@@ -272,11 +276,39 @@ export const Stages = (props: params) => {
     }
 
     const deleteStage = () => {
-        stagesSvc.delete(selectedItemIndex).then(res => {
+        // Find the stage by stageID or by index if selectedItemIndex is an index
+        let index = stages.findIndex(i => i.stageID == selectedItemIndex);
+        
+        // If not found by stageID, selectedItemIndex might be the array index
+        if (index === -1 && selectedItemIndex < stages.length) {
+            index = selectedItemIndex;
+        }
+        
+        if (index === -1) {
+            toast.error('Stage not found');
+            setShowDeleteDialog(false);
+            return;
+        }
+        
+        const stageToDelete = stages[index];
+        
+        // If it's a newly added stage (stageID = 0 or undefined), just remove it locally
+        if (!stageToDelete.stageID || stageToDelete.stageID === 0) {
+            const newStages = [...stages];
+            newStages.splice(index, 1);
+            setStages(newStages);
+            setShowDeleteDialog(false);
+            toast.success('Stage removed successfully', { autoClose: 500 });
+            return;
+        }
+        
+        // For existing stages, call the API
+        stagesSvc.delete(stageToDelete.stageID).then(res => {
             setShowDeleteDialog(false);
             if (res) {
-                let index = stages.findIndex(i => i.stageID == selectedItemIndex);
-                stages.splice(index, 1);
+                const newStages = [...stages];
+                newStages.splice(index, 1);
+                setStages(newStages);
                 if(!res.success)
                     toast.success(res.message, { autoClose: 5000 });
                 else
@@ -284,9 +316,7 @@ export const Stages = (props: params) => {
                 setTimeout(() => {
                     navigator("/pipeline?pipelineID=" + pipeLineId);
                 }, 500);
-
             }
-
         }).catch((err: AxiosError) => {
             setShowDeleteDialog(false);
             setError(err);

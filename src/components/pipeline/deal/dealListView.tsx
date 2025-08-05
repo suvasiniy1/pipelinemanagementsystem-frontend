@@ -1,4 +1,4 @@
-import { faGrip, faEllipsisV } from "@fortawesome/free-solid-svg-icons";
+import { faGrip, faEllipsisV, faAdd, faBars, faDownload, faEnvelope, faPhone, faChartSimple } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button, Grid } from "@mui/material";
 import Drawer from "@mui/material/Drawer";
@@ -27,13 +27,14 @@ import { DealExportPrview } from "./dealExportPreview";
 import { DealAddEditDialog } from "./dealAddEditDialog";
 import JustCallCampaignManager from "./justCallCampaignManager";
 import JustCallCampaignModal from "./justCallCampaignModal";
-import FilterDropdown from "./dealFilters/filterDropdown/filterDropdown";
-import { faChartSimple } from "@fortawesome/free-solid-svg-icons";
+
+
 import FilterListIcon from "@mui/icons-material/FilterList";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import DoneIcon from "@mui/icons-material/Done";
 import FilterAltOffIcon from "@mui/icons-material/FilterAltOff";
+import FilterDropdown from "./dealFilters/filterDropdown/filterDropdown";
 
 type Params = {
   pipeLineId: number;
@@ -720,42 +721,41 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
               </button>
             )}
           </div>
-          <Dropdown className="toolgrip-dropdownbox">
-            <Dropdown.Toggle
-              className="toolpipebtn activetoolbtn"
-              variant="success"
-              id="dropdown-toolgrip"
-            >
-              <FontAwesomeIcon icon={faGrip} />
-            </Dropdown.Toggle>
-            <Dropdown.Menu className="toolgrip-dropdown">
-              <Dropdown.Item
-                onClick={(e: any) => {
-                  props.setViewType("list");
-                }}
-              >
-                List View
-              </Dropdown.Item>
-              <Dropdown.Item
-                onClick={(e: any) => {
-                  props.setViewType("kanban");
-                }}
-              >
-                Kanban View
-              </Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
-          {/* 3 dots menu for all other actions, ensure it's not inside a flex with overflow/hidden */}
+          {/* Combined More Actions menu */}
           <div style={{ position: 'relative', zIndex: 1050 }}>
             <Dropdown align="end">
-              <Dropdown.Toggle variant="secondary" id="dropdown-bulk-actions">
+              <Dropdown.Toggle variant="secondary" id="dropdown-more-actions">
                 <FontAwesomeIcon icon={faEllipsisV} />
               </Dropdown.Toggle>
               <Dropdown.Menu style={{ zIndex: 2000, minWidth: 180 }}>
-                <Dropdown.Item onClick={() => setOpenAddDealDialog(true)}>+ New Deal</Dropdown.Item>
-                <Dropdown.Item onClick={() => setDrawerOpen(true)} disabled={selectedRows.length > 0}>Export</Dropdown.Item>
-                <Dropdown.Item onClick={() => setDrawerOpen(true)} disabled={selectedRows.length === 0}>Send SMS</Dropdown.Item>
-                <Dropdown.Item onClick={handleOpenSalesDialer} disabled={selectedRows.length === 0}>JustCall Sales Dialer</Dropdown.Item>
+                <Dropdown.Item onClick={() => setOpenAddDealDialog(true)}>
+                  <FontAwesomeIcon icon={faAdd} style={{ marginRight: 8, color: '#28a745' }} />
+                  New Deal
+                </Dropdown.Item>
+                <Dropdown.Divider />
+                <Dropdown.Header style={{ fontSize: '12px', color: '#6c757d' }}>VIEW OPTIONS</Dropdown.Header>
+                <Dropdown.Item onClick={(e: any) => props.setViewType("list")}>
+                  <FontAwesomeIcon icon={faBars} style={{ marginRight: 8, color: '#007bff' }} />
+                  List View
+                </Dropdown.Item>
+                <Dropdown.Item onClick={(e: any) => props.setViewType("kanban")}>
+                  <FontAwesomeIcon icon={faGrip} style={{ marginRight: 8, color: '#007bff' }} />
+                  Kanban View
+                </Dropdown.Item>
+                <Dropdown.Divider />
+                <Dropdown.Header style={{ fontSize: '12px', color: '#6c757d' }}>BULK ACTIONS</Dropdown.Header>
+                <Dropdown.Item onClick={() => setDrawerOpen(true)} disabled={selectedRows.length > 0}>
+                  <FontAwesomeIcon icon={faDownload} style={{ marginRight: 8, color: '#17a2b8' }} />
+                  Export
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => setDrawerOpen(true)} disabled={selectedRows.length === 0}>
+                  <FontAwesomeIcon icon={faEnvelope} style={{ marginRight: 8, color: '#ffc107' }} />
+                  Send SMS
+                </Dropdown.Item>
+                <Dropdown.Item onClick={handleOpenSalesDialer} disabled={selectedRows.length === 0}>
+                  <FontAwesomeIcon icon={faPhone} style={{ marginRight: 8, color: '#6f42c1' }} />
+                  JustCall Sales Dialer
+                </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
           </div>

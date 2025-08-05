@@ -53,6 +53,7 @@ const DealOverView = (props: params) => {
   const [error, setError] = useState<AxiosError>();
   const [selectedTab, setSelectedTab] = useState("Overview");
   const [isDealLost, setIsDealLost]=useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const removeSpecificTags = (html: string | null | undefined): string => {
     if (!html) return ""; // Handle null or undefined input
     return html.replace(/<[^>]+>/g, "");
@@ -268,9 +269,18 @@ const handleLostClick = () => {
                         }
                         aria-label={sItem.stageName}
                         title={sItem.stageName}
-                        onClick={(e: any) => {
+                        onClick={async (e: any) => {
+                          // Don't trigger if clicking on the same stage
+                          if (sItem.stageID === dealItem?.stageID) {
+                            return;
+                          }
+                          
                           setDealItem({ ...dealItem, stageID: sItem.stageID });
-                          onDealModified(sItem.stageID);
+                          await onDealModified(sItem.stageID);
+                          // Add delay to ensure stage change is processed
+                          setTimeout(() => {
+                            setRefreshTrigger(prev => prev + 1);
+                          }, 500);
                         }}
                       >
                         <label>{sItem.stageName}</label>
@@ -388,7 +398,7 @@ const handleLostClick = () => {
                   className="timelinesubtab activitiestab"
                 >
                   {selectedTab === "activities" && (
-                    <DealActivities dealItem={dealItem} dealId={dealId}/>
+                    <DealActivities dealItem={dealItem} dealId={dealId} refreshTrigger={refreshTrigger}/>
                   )}
                 </Tab>
               </Tabs>

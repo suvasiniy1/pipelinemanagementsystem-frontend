@@ -22,6 +22,7 @@ const NotesAddEdit = (props: params) => {
     const [selectedItem, setSelectedItem] = useState(noteItem ?? new Notes());
     const noteSvc = new NotesService(ErrorBoundary);
     const methods = useForm();
+    const [isSaving, setIsSaving] = useState(false);
 
     const oncloseDialog = () => {
         setDialogIsOpen(false);
@@ -29,6 +30,8 @@ const NotesAddEdit = (props: params) => {
     }
 
     const onSave = () => {
+        if (isSaving) return; // Prevent duplicate submissions
+        
         // Validate note details - strip HTML tags and check for empty content
         const stripHtml = (html: string) => {
             const tmp = document.createElement('div');
@@ -42,16 +45,21 @@ const NotesAddEdit = (props: params) => {
             return;
         }
 
+        setIsSaving(true);
+        
         let obj = { ...selectedItem };
         obj.dealID = dealId;
         obj.createdBy = obj.userID = Util.UserProfile()?.userId;
         obj.userName = Util.UserProfile()?.user;
+        
         (obj.noteID>0 ? noteSvc.putItemBySubURL(obj, `${obj.noteID}`) : noteSvc.postItemBySubURL(obj, "SaveNoteDetails")).then(res => {
             setDialogIsOpen(false);
             props.onSaveNote && props.onSaveNote();
             toast.success(`Note ${obj.noteID>0 ? " Updated " : " Added "} Successfully`);
         }).catch(err=>{
             toast.error(`Unable to ${obj.noteID>0 ? " Update " : " Add "} note`);
+        }).finally(() => {
+            setIsSaving(false);
         })
     }
 

@@ -141,6 +141,9 @@ const Table: React.FC<TableListProps> = (props) => {
   const [rowData, setRowData] = useState(props.rowData ?? []);
   const [columnMetaData, setColumnMetaRowData] = useState(props.columnMetaData);
   const [selectedRows, setSelectedRows] = useState<GridRowSelectionModel>([]);
+  // State for column options dropdown
+  const [columnOptionsAnchorEl, setColumnOptionsAnchorEl] = useState<null | HTMLElement>(null);
+  const [columnOptionsOpen, setColumnOptionsOpen] = useState(false);
   const checkboxSelection = props.checkboxSelection;
   const onSelectionModelChange = props.onSelectionModelChange;
 

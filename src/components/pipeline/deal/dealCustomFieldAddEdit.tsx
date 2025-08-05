@@ -111,10 +111,21 @@ const DealCustomFieldAddEdit = ({
           typeof v === "object" ? String(v.value) : String(v)
         );
       } else if (typeof value === "string") {
-        idArray = value.split(",").map((v) => v.trim());
+        idArray = value.split(",").map((v) => v.trim()).filter(Boolean);
       }
 
-      setValue("pipelineIds" as never, idArray as never);
+      // Remove duplicates and ensure only valid pipeline IDs
+      const uniqueIdArray = Array.from(new Set(idArray)).filter(id => 
+        allPipeLinesList.some(pl => String(pl.pipelineID) === id)
+      );
+      
+      setValue("pipelineIds" as never, uniqueIdArray as never);
+      
+      // Update selectedPipeLines state immediately
+      const selectedList = uniqueIdArray
+        .map(id => allPipeLinesList.find(p => String(p.pipelineID) === id))
+        .filter(Boolean) as PipeLine[];
+      setSelectedPipeLines(selectedList);
     }
   };
 
@@ -313,20 +324,70 @@ const DealCustomFieldAddEdit = ({
     }
 
     if (item.key === "PipeLine") {
-      return allPipeLinesList.map((pl) => ({
-        name: pl.pipelineName,
-        value: pl.pipelineID,
-      }));
+      // Create a map to track unique pipeline IDs and their names
+      const uniquePipelines = new Map();
+      
+      allPipeLinesList.forEach(pl => {
+        if (!uniquePipelines.has(pl.pipelineID)) {
+          uniquePipelines.set(pl.pipelineID, pl);
+        }
+      });
+      
+      const pipelineArray = Array.from(uniquePipelines.values());
+      const nameCountMap = new Map();
+      
+      return pipelineArray.map((pl) => {
+        // Count occurrences of this pipeline name
+        const sameNamePipelines = allPipeLinesList.filter(p => p.pipelineName === pl.pipelineName);
+        
+        if (sameNamePipelines.length > 1) {
+          // Find the index of this pipeline among those with the same name
+          const sortedSameName = sameNamePipelines.sort((a, b) => a.pipelineID - b.pipelineID);
+          const sequenceNumber = sortedSameName.findIndex(p => p.pipelineID === pl.pipelineID) + 1;
+          
+          return {
+            name: `${pl.pipelineName} #${sequenceNumber}`,
+            value: String(pl.pipelineID),
+          };
+        }
+        
+        return {
+          name: pl.pipelineName,
+          value: String(pl.pipelineID),
+        };
+      });
     }
     return [];
   };
 
   const getSelectedList = (field?: any) => {
+    
     if (field?.key === "PipeLine") {
-      return selectedPipeLines.map((pl) => ({
-        name: pl.pipelineName,
-        value: pl.pipelineID,
-      }));
+      // Ensure unique selected pipelines based on ID
+      const uniqueSelected = selectedPipeLines.filter((pl, index, self) => 
+        self.findIndex(p => p.pipelineID === pl.pipelineID) === index
+      );
+      
+      return uniqueSelected.map((pl) => {
+        // Count occurrences of this pipeline name
+        const sameNamePipelines = allPipeLinesList.filter(p => p.pipelineName === pl.pipelineName);
+        
+        if (sameNamePipelines.length > 1) {
+          // Find the index of this pipeline among those with the same name
+          const sortedSameName = sameNamePipelines.sort((a, b) => a.pipelineID - b.pipelineID);
+          const sequenceNumber = sortedSameName.findIndex(p => p.pipelineID === pl.pipelineID) + 1;
+          
+          return {
+            name: `${pl.pipelineName} #${sequenceNumber}`,
+            value: String(pl.pipelineID),
+          };
+        }
+        
+        return {
+          name: pl.pipelineName,
+          value: String(pl.pipelineID),
+        };
+      });
     }
     return [];
   };

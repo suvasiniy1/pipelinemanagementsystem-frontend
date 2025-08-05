@@ -58,9 +58,10 @@ type Call = {
 type params = {
   dealItem: Deal;
   dealId: number;
+  refreshTrigger?: number;
 };
 const DealActivities = (props: params) => {
-  const { dealItem, dealId, ...others } = props;
+  const { dealItem, dealId, refreshTrigger, ...others } = props;
   const [callHistory, setCallHistory] = useState<Call[]>([]);
   const [defaultActiveKey, setdefaultActiveKey] = useState("activity_sub");
   const [error, setError] = useState(null);
@@ -128,6 +129,21 @@ const DealActivities = (props: params) => {
     featchDealTimeLines();
     fetchCallHistory();
   }, [dealId]);
+
+  // Refetch activities when deal changes (e.g., stage change)
+  useEffect(() => {
+    if (dealItem?.dealID && dealItem?.stageID) {
+      featchDealTimeLines();
+    }
+  }, [dealItem?.stageID, dealItem?.dealID]);
+
+  // Refetch activities when refresh trigger changes
+  useEffect(() => {
+    if (refreshTrigger && refreshTrigger > 0) {
+      console.log('Refreshing activities due to trigger:', refreshTrigger);
+      featchDealTimeLines();
+    }
+  }, [refreshTrigger]);
 
   const getEventIcon = (eventType: number) => {
   let icon;

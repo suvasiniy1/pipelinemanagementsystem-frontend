@@ -279,7 +279,7 @@ const ItemCollection: React.FC<params> = (props) => {
   const handleSelectionChange = (newSelection: GridRowSelectionModel) => {
     console.log("Selection Changed in ItemCollection: ", newSelection);
     setSelectedRows(newSelection);
-    props.onSelectionModelChange(newSelection); // Update the state with new selection
+    props.onSelectionModelChange && props.onSelectionModelChange(newSelection); // Update the state with new selection
   };
   // Function to set the selected template
   const handleTemplateSelect = (template: EmailTemplate) => {
