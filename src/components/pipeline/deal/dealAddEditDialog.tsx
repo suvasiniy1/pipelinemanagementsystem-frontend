@@ -552,13 +552,19 @@ export const DealAddEditDialog = (props: params) => {
                           })}
                           
                         // customFooter={customFooter()}
-                        disabled={isLoading}>
+                        disabled={isLoading}
+                        >
                         {
                             <>
                                 {isLoading && <div className="alignCenter"><Spinner /></div>}
                                 <div className='modelformfiledrow row'>
                                     <div>
-                                        <div className='modelformbox ps-2 pe-2'>
+                                        <div className='modelformbox ps-2 pe-2'
+                                             onKeyDown={(e: React.KeyboardEvent) => {
+                                               if (e.key === 'Enter') {
+                                                 e.preventDefault();
+                                               }
+                                             }}>
                                             {
                                                 controlsList.map((c, cIndex) => (
                                                     <GenerateElements

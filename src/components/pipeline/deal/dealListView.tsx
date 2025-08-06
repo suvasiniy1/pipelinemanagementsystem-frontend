@@ -510,23 +510,30 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
   };
 
   const rowTransform = (item: Deal) => {
-    item.expectedCloseDate = moment(item.expectedCloseDate).format(
+    const transformedItem = { ...item };
+    
+    transformedItem.expectedCloseDate = moment(item.expectedCloseDate).format(
       window.config.DateFormat
     );
-    item.operationDate = moment(item.operationDate).format(
+    transformedItem.operationDate = moment(item.operationDate).format(
       window.config.DateFormat
     );
-    item.value =
-      userRole === 1
-        ? item.value && !isNaN(Number(item.value))
-          ? `£${item.value}`
-          : "N/A"
-        : "£0";
+    
+    // Fix value display logic
+    if (userRole === 1) {
+      const numValue = Number(item.value);
+      transformedItem.value = (item.value !== null && item.value !== undefined && !isNaN(numValue) && numValue >= 0)
+        ? `£${numValue}`
+        : "N/A";
+    } else {
+      transformedItem.value = "£0";
+    }
+    
     return {
-      ...item,
+      ...transformedItem,
       organization: getOrganizationName(item.organizationID),
-      contactPerson: getContactPersonName(item.contactPersonID), // Person Name here
-      phone: getContactPersonPhone(item.contactPersonID), // Person Phone here
+      contactPerson: getContactPersonName(item.contactPersonID),
+      phone: getContactPersonPhone(item.contactPersonID),
     };
   };
 

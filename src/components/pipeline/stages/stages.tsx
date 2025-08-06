@@ -211,13 +211,7 @@ export const Stages = (props: params) => {
             return;
         }
         
-        // For existing pipelines, save stages directly
-        if (selectedItem?.pipelineID && selectedItem.pipelineID > 0) {
-            continueToSave(selectedItem.pipelineID);
-            return;
-        }
-        
-        // For new pipelines, save pipeline details first
+        // Always save pipeline details first (for both new and existing pipelines)
         const pipeline = {
             "pipelineID": selectedItem?.pipelineID,
             "pipelineName": selectedItem?.pipelineName,
@@ -227,10 +221,14 @@ export const Stages = (props: params) => {
             "modifiedDate": selectedItem?.modifiedDate,
             "modifiedBy": selectedItem?.modifiedBy
         };
+        
         pipeLineSvc.postItemBySubURL(pipeline, 'SavePipelineDetails').then(res => {
             if (res && res.result?.pipelineID) {
                 console.log("Pipeline API Response:", res);
-                continueToSave(res.result.pipelineID); // Pass valid pipelineID
+                continueToSave(res.result.pipelineID);
+            } else if (selectedItem?.pipelineID) {
+                // If backend doesn't return pipelineID, use existing one
+                continueToSave(selectedItem.pipelineID);
             } else {
                 toast.error("Pipeline saved but no pipelineID returned.");
                 console.error("Pipeline Save Response Missing pipelineID:", res);

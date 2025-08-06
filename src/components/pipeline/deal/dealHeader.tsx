@@ -168,7 +168,12 @@ export const DealHeader = (props: params) => {
               {pipeLinesList.map((item, index) => (
                 <li
                   key={index}
-                  onClick={(e: any) => {setSelectedFilterObj(null);setPipeLineId(item.pipelineID); setSelectedItem(item)}}
+                  onClick={(e: any) => {
+                    setSelectedFilterObj(null);
+                    setSelectedUserId(null);
+                    setPipeLineId(item.pipelineID);
+                    setSelectedItem(item);
+                  }}
                   onMouseOver={(e: any) => handlePipeLineEdit(index)}
                 >
                   <button className="pipeselectlink" type="button">
