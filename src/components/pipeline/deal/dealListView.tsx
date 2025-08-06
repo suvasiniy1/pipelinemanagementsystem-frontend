@@ -615,6 +615,13 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
               <div
                 className="pipeselectcontent pipeselectfilter"
                 hidden={!showPipeLineFilters}
+                style={{
+                  position: 'absolute',
+                  right: 0,
+                  left: 'auto',
+                  transform: 'translateX(0)',
+                  zIndex: 1060
+                }}
               >
                 <ul
                   className="nav nav-tabs pipefilternav-tabs"
