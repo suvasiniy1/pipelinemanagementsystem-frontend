@@ -158,6 +158,10 @@ const Login = () => {
               };
               LocalStorageUtil.setItemObject(Constants.USER_PROFILE, profile);
               console.log("Saved user profile after login:", profile);
+              
+              // Load navigation items for the user's role
+              Util.loadNavItemsForUser(res.role);
+              
               navigate("/pipeline");
             } else if (res?.twoFactorRequired) {
               toast.success(
@@ -239,6 +243,10 @@ const Login = () => {
                userId: res.userId,
                role: res.role
              });
+             
+             // Load navigation items for the user's role
+             Util.loadNavItemsForUser(res.role);
+             
             navigate("/pipeline"); // Navigate to the next screen after successful verification
           } else {
             toast.error("Invalid verification code.");
