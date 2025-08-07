@@ -45,12 +45,16 @@ const GroupEmailDialog: React.FC<GroupEmailDialogProps> = ({
   const [emailContent, setEmailContent] = useState<string>("");
   const [subject, setSubject] = useState<string>("");
   const [fromAddress, setFromAddress] = useState<string>(
-    "Testtest@transforminglives.co.uk"
+    accounts[0]?.username || "Testtest@transforminglives.co.uk"
   );
 
   useEffect(()=>{
     clearFields();
-  },[])
+    // Set from address to current user's email if available
+    if (accounts[0]?.username) {
+      setFromAddress(accounts[0].username);
+    }
+  },[accounts])
 
   const clearFields = () => {
     setTemplateId(null as any);
@@ -136,26 +140,39 @@ const GroupEmailDialog: React.FC<GroupEmailDialogProps> = ({
   // Handle the send email action
   const handleSendEmail = async () => {
     
+    if (!subject.trim()) {
+      toast.error("Please enter a subject");
+      return;
+    }
+    
+    if (!fromAddress.trim()) {
+      toast.error("Please enter a from address");
+      return;
+    }
+    
+    if (selectedRecipients.length === 0) {
+      toast.error("Please select recipients");
+      return;
+    }
+
     var emailObj = new EmailCompose();
-    var content = {
-      header: header,
-      body: body,
-      footer: footer,
-    };
     emailObj.subject = subject;
+    emailObj.fromAddress = fromAddress; // Set the from address
+    
     const isValidEmail = (email: string) =>
       /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
     emailObj.toAddress = selectedRecipients
       .filter((email) => email && isValidEmail(email.trim()))
       .join(";");
-    emailObj.body = `<div class="email-header">${header}</div>
+      
+    emailObj.body = `<div class="email-header">${header || ''}</div>
     <hr>
     <br/>
-    <div class="email-body">${body}</div>
+    <div class="email-body">${body || ''}</div>
         <br/>
     <hr>
-    <div class="email-footer">${footer}</div>`;
+    <div class="email-footer">${footer || ''}</div>`;
 
     console.log("Sending Email Data:", emailObj);
     continueToSend(emailObj);
@@ -163,12 +180,31 @@ const GroupEmailDialog: React.FC<GroupEmailDialogProps> = ({
 
   const continueToSend = async (emailObj: any) => {
     try {
-      const accessTokenResponse = await instance.acquireTokenSilent({
-        scopes: ["Mail.Send"],
-        account: accounts[0],
-      });
-      // Send email logic here
+      let accessTokenResponse;
+      
+      try {
+        // Try silent token acquisition first
+        accessTokenResponse = await instance.acquireTokenSilent({
+          scopes: ["Mail.Send"],
+          account: accounts[0],
+        });
+      } catch (silentError) {
+        console.log("Silent token acquisition failed, trying interactive login", silentError);
+        
+        // If silent acquisition fails, try interactive login
+        try {
+          accessTokenResponse = await instance.acquireTokenPopup({
+            scopes: ["Mail.Send"],
+            account: accounts[0],
+          });
+        } catch (interactiveError) {
+          console.error("Interactive token acquisition failed", interactiveError);
+          toast.error("Authentication failed. Please try logging in again.");
+          return;
+        }
+      }
 
+      // Send email logic here
       const emailBody = await prepareEmailBody(emailObj);
 
       let response: any = await sendEmail(
@@ -185,9 +221,7 @@ const GroupEmailDialog: React.FC<GroupEmailDialogProps> = ({
       }
     } catch (error) {
       console.error("Email sending failed", error);
-      clearFields();
-      onClose();
-      toast.warning("Unable to sent email please re try after sometime");
+      toast.error("Failed to send email. Please try again.");
     }
   };
 
