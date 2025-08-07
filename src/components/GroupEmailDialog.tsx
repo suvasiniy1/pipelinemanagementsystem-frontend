@@ -320,7 +320,7 @@ const GroupEmailDialog: React.FC<GroupEmailDialogProps> = ({
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={clearFields} color="secondary">
+        <Button onClick={onClose} color="secondary">
           Cancel
         </Button>
         <Button onClick={handleSendEmail} color="primary">
