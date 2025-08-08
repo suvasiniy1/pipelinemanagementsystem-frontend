@@ -109,6 +109,10 @@ const DealListView = (props: Params) => {
       width: 150,
     },
     { columnName: "phone", columnHeaderName: "Phone", width: 150 },
+    { columnName: "email", columnHeaderName: "Email", width: 180 }, // ✅ NEW
+    
+  { columnName: "statusDisplay", columnHeaderName: "Status", width: 120 },
+
     {
       columnName: "expectedCloseDate",
       columnHeaderName: "Expected Close Date",
@@ -167,6 +171,20 @@ const DealListView = (props: Params) => {
       setTotalColumns(dynamicColumns);
     }
   }, [dealsList]);
+ const getStatusNameById = (statusID?: number): string => {
+  switch (statusID) {
+    case 1:
+      return "Open";
+    case 2:
+      return "Won";
+    case 3:
+      return "Lost";
+    case 4:
+      return "Closed";
+    default:
+      return "N/A";
+  }
+};
 
   const loadPipeLines = () => {
     setIsLoading(true);
@@ -508,6 +526,21 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
       toast.error(response.message);
     }
   };
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case "Won":
+      return "green";
+    case "Lost":
+      return "red";
+    case "Open":
+      return "orange";
+    case "Closed":
+      return "gray";
+    default:
+      return "black";
+  }
+};
+
 
   const rowTransform = (item: Deal) => {
     const transformedItem = { ...item };
@@ -528,21 +561,31 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
     } else {
       transformedItem.value = "£0";
     }
-    
-    return {
-      ...transformedItem,
-      organization: getOrganizationName(item.organizationID),
-      contactPerson: getContactPersonName(item.contactPersonID),
-      phone: getContactPersonPhone(item.contactPersonID),
-    };
-  };
+    const statusText = getStatusNameById(item.statusID);
+    // ✅ Emoji only for Won & Lost
+  let statusDisplay = statusText;
+  if (statusText === "Won") {
+    statusDisplay = `🟢 ${statusText}`;
+  } else if (statusText === "Lost") {
+    statusDisplay = `🔴 ${statusText}`;
+  }
+  return {
+    ...transformedItem,
+    organization: getOrganizationName(item.organizationID),
+    contactPerson: getContactPersonName(item.contactPersonID),
+    phone: getContactPersonPhone(item.contactPersonID),
 
-  const updateRowData = () => {
-    return processRowData(dealsList).map((item, index) => ({
-      ...rowTransform(item),
-      id: item.dealID || `deal-${index}`,
-    }));
+    statusText,
+    statusDisplay, 
   };
+};
+
+  const updateRowData = () =>
+  processRowData(dealsList).map((item, index) => {
+    const row = { ...rowTransform(item), id: item.dealID || `deal-${index}` };
+    delete (row as any).status; // <-- hide the raw status field
+    return row;
+  });
 
   const isISODateString = (value: any): boolean => {
     return (
@@ -826,6 +869,7 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
         isCustomHeaderActions={true}
         customHeaderActions={customHeaderActions}
         onSelectionModelChange={handleRowSelection}
+        
       />
       <div className="pagination">
         <Button

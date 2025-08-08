@@ -54,6 +54,13 @@ const StripedDataGrid = styled(DataGrid)(({ theme }) => ({
       },
     },
   },
+  /* ✅ NEW: color whole rows for Won/Lost */
+  [`& .${gridClasses.row}.row-won`]: {
+    backgroundColor: "#e6f4ea",           // light green
+  },
+  [`& .${gridClasses.row}.row-lost`]: {
+    backgroundColor: "#fdecea",           // light red
+  },
 }));
 
 export interface TableColumnMetadata {
@@ -508,9 +515,16 @@ const Table: React.FC<TableListProps> = (props) => {
           onColumnVisibilityModelChange={(newModel) => setColumnVisibilityModel(newModel)}
           checkboxSelection={checkboxSelection} // Enable checkbox selection
           onRowSelectionModelChange={handleSelectionChange}
-          getRowClassName={(params) =>
-            params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
-          }
+          getRowClassName={(params) => {
+  const base = params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd";
+
+  // Use whatever field you have on the row. You were setting both statusText and status in some places.
+  const status = params.row?.statusText ?? params.row?.status;
+
+  if (status === "Won") return `${base} row-won`;
+  if (status === "Lost") return `${base} row-lost`;
+  return base; // Open/Closed: no special color
+}}
           hideFooter={props.hidePagination}
           density="standard"
           sx={{ minWidth: 800, height: 'calc(100vh - 220px)', maxHeight: 'calc(100vh - 220px)', overflowY: 'auto' }}

@@ -336,6 +336,11 @@ const ItemCollection: React.FC<params> = (props) => {
   const updatedColumnMetaData = sortedFields;
 
   const tableListProps: any = {
+    rowClassName: (params: any) => {
+    if (params.row?.status === "Won") return "row-won";
+    if (params.row?.status === "Lost") return "row-lost";
+    return "";
+  },
     isNotListingPage: props.isNotListingPage,
     canProcessRowData: canProcessRowData,
     tableListHeader: customTableHeader
@@ -400,6 +405,7 @@ const ItemCollection: React.FC<params> = (props) => {
     filterRowDataFn: filterRowDataFn,
     reloadDataOnSignalNotificationIndicator:
       props.reloadDataOnSignalNotificationIndicator,
+
   };
 
   const handleExportToExcel = async () => {

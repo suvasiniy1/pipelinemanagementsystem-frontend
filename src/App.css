@@ -3780,3 +3780,10 @@ select {
   font-weight: 500;
   color: #333;
 }
+.row-won {
+  background-color: #d4edda !important; /* light green */
+}
+
+.row-lost {
+  background-color: #f8d7da !important; /* light red */
+}
