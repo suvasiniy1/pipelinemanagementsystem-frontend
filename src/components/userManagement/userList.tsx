@@ -100,7 +100,7 @@ const UsersList = () => {
     userSvc
       .changePassword(item.id)
       .then((res) => {
-        toast.success("Password is successfully reset for "+item.userName)
+        toast.success(`Password is successfully reset for ${item.userName}. Please check your email.`);
       })
       .finally(() => {
         setIsResetpasswordClicked(false);

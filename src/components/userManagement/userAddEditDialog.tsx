@@ -13,6 +13,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import LocalStorageUtil from "../../others/LocalStorageUtil";
+import { InferType } from "yup";
 
 const UsersAddEditDialog: React.FC<any> = (props) => {
   const {
@@ -36,9 +37,9 @@ const UsersAddEditDialog: React.FC<any> = (props) => {
   const [organizations, setOrganizations] = useState<Array<any>>(
     JSON.parse(LocalStorageUtil.getItemObject("organizations") as any) ?? []
   ); // Updated structure
-
+type UserFormValues = InferType<typeof validationSchema>;
   // Controls for the form fields
-  const controlsList: IControl[] = [
+  const [controlsList, setControlsList] = useState<IControl[]>([
     {
       key: "First Name",
       value: "firstName",
@@ -101,7 +102,7 @@ const UsersAddEditDialog: React.FC<any> = (props) => {
       isRequired: true, // Use organizations directly
       isSideByItem: true,
     },
-  ];
+  ]);
 
   const getValidationsSchema = (list: Array<any>) => {
     return Yup.object().shape({
@@ -109,20 +110,29 @@ const UsersAddEditDialog: React.FC<any> = (props) => {
     });
   };
 
-  const validationSchema = getValidationsSchema(controlsList);
+  const validationSchema = Yup.object().shape({
+  firstName: Yup.string().required("Required"),
+  lastName: Yup.string().required("Required"),
+  userName: Yup.string().required("Required"),
+  email: Yup.string().email("Invalid email").required("Required"),
+  phoneNumber: Yup.string().required("Required"),
+ id: Yup.number().nullable().notRequired(), // ✅ this is fine
+isActive: Yup.boolean().notRequired(),     // ✅ this is fine
+  organizationID: Yup.number().required("Required"),
+});
 
-  const formOptions = {
-    resolver: yupResolver(validationSchema),
-  };
 
-  const methods = useForm(formOptions);
+const methods = useForm<UserFormValues>({
+  resolver: yupResolver(validationSchema),
+});
 
-  const { handleSubmit, setValue } = methods;
+
+  const { handleSubmit, setValue, setError, setFocus } = methods;
 
   const oncloseDialog = () => {
     setDialogIsOpen(false);
   };
-
+const [usernameError, setUsernameError] = useState<string | undefined>();
   useEffect(() => {
     if (selectedItem.userId > 0) {
       setValue(
@@ -200,74 +210,70 @@ const UsersAddEditDialog: React.FC<any> = (props) => {
     );
   };
   const onSubmit = async (item: any) => {
-    
-    try {
-      let obj: User = { ...selectedItem };
-      obj = Util.toClassObject(obj, item);
-      obj.passwordHash = "test";
-      //  obj.isActive = item.isActive === "true" ? true : false;
+  try {
+    let obj: User = { ...selectedItem };
+    obj = Util.toClassObject(obj, item);
+    obj.passwordHash = "test";
 
-      // Update only editable fields
-      obj.firstName = item.firstName;
-      obj.lastName = item.lastName;
-      obj.email = item.email;
-      obj.userName = item.userName;
-      obj.phoneNumber = item.phoneNumber;
-      // Fix isActive handling: ensure boolean
-      obj.isActive = selectedItem.isActive;
+    // Update only editable fields
+    obj.firstName = item.firstName;
+    obj.lastName = item.lastName;
+    obj.email = item.email;
+    obj.userName = item.userName;
+    obj.phoneNumber = item.phoneNumber;
+    obj.isActive = selectedItem.isActive;
 
-      obj.roleId = item.id !== null ? Number(item.id) : 0;
-      obj.organizationId =
-        item.organizationID !== null ? Number(item.organizationID) : 0;
-      obj.lastLogin = new Date();
-      obj.createdBy = String(Util.UserProfile()?.userId);
-      obj.modifiedBy =
-        obj.userId > 0 ? String(Util.UserProfile()?.userId) : null;
-      // obj.createdBy = Util.UserProfile()?.userId;
-      obj.Id = obj.userId ?? 0;
-      obj.userId = obj.userId ?? 0;
+    obj.roleId = item.id !== null ? Number(item.id) : 0;
+    obj.organizationId = item.organizationID !== null ? Number(item.organizationID) : 0;
+    obj.lastLogin = new Date();
+    obj.createdBy = String(Util.UserProfile()?.userId);
+    obj.modifiedBy = obj.userId > 0 ? String(Util.UserProfile()?.userId) : null;
+    obj.Id = obj.userId ?? 0;
+    obj.userId = obj.userId ?? 0;
 
-      // Date handling
-      const isValidDate = (d: any) => {
-        if (!d) return false;
-        const dateObj = new Date(d);
-        return !isNaN(dateObj.getTime());
-      };
-      if (obj.userId > 0) {
-        // Existing user: preserve valid createdDate, set modifiedDate to now
-        obj.createdDate = isValidDate(obj.createdDate) ? new Date(obj.createdDate) : new Date() as any;
-        obj.modifiedDate = new Date();
-      } else {
-        // New user: set createdDate to now, modifiedDate to null
-        obj.createdDate = new Date();
-        obj.modifiedDate = null as any;
-      }
+    // Date handling
+    const isValidDate = (d: any) => {
+      if (!d) return false;
+      const dateObj = new Date(d);
+      return !isNaN(dateObj.getTime());
+    };
 
-      // Add SecurityStamp and ConcurrencyStamp fields
-      obj.securityStamp = obj.securityStamp || generateRandomStamp(); // Placeholder function
-      obj.concurrencyStamp = obj.concurrencyStamp || generateRandomStamp(); // Placeholder function
-
-      const response =
-        obj.Id > 0
-          ? await userSvc.putItemBySubURL(obj, `${obj.Id}`)
-          : await userSvc.postItem(obj);
-
-      if (response) {
-        toast.success(
-          `User ${obj.Id > 0 ? "updated" : "created"} successfully`
-        );
-        setLoadRowData(true);
-        setDialogIsOpen(false);
-      }
-    } catch (error) {
-      console.error("Submit error:", error);
-      toast.error(
-        `Error occurred: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`
-      );
+    if (obj.userId > 0) {
+      obj.createdDate = isValidDate(obj.createdDate) ? new Date(obj.createdDate) : new Date();
+      obj.modifiedDate = new Date();
+    } else {
+      obj.createdDate = new Date();
+      obj.modifiedDate = new Date();
     }
-  };
+
+    // Add SecurityStamp and ConcurrencyStamp fields
+    obj.securityStamp = obj.securityStamp || generateRandomStamp();
+    obj.concurrencyStamp = obj.concurrencyStamp || generateRandomStamp();
+
+    // ============ BACKEND API CALL ============
+    const response =
+      obj.Id > 0
+        ? await userSvc.putItemBySubURL(obj, `${obj.Id}`)
+        : await userSvc.postItem(obj);
+
+    if (response?.Success === false || response?.success === false) {
+      toast.error(response.message || "User creation failed.");
+    } else {
+      toast.success(`User ${obj.Id > 0 ? "updated" : "created"} successfully`);
+      setLoadRowData(true);
+      setDialogIsOpen(false); // ✅ Close on success only
+    }
+
+  } catch (err: any) {
+  const msg =
+    err?.response?.data?.message ||
+    err?.message ||
+    "Something went wrong.";
+
+  // Popup
+  toast.error(msg);
+  }
+};
 
   return (
     <FormProvider {...methods}>
@@ -287,6 +293,7 @@ const UsersAddEditDialog: React.FC<any> = (props) => {
               selectedItem={selectedItem}
               getListofItemsForDropdown={getListofItemsForDropdown}
               onChange={onChange}
+             
             />
             <br />
           </div>
