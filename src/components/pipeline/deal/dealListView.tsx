@@ -35,6 +35,11 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import DoneIcon from "@mui/icons-material/Done";
 import FilterAltOffIcon from "@mui/icons-material/FilterAltOff";
 import FilterDropdown from "./dealFilters/filterDropdown/filterDropdown";
+import GroupEmailDialog from "../../GroupEmailDialog";
+import { useMsal } from "@azure/msal-react";
+import { loginRequest } from "../../pipeline/deal/activities/email/authConfig";
+import { EmailTemplateService } from "../../../services/emailTemplateService";
+import { EmailTemplate } from "../../../models/emailTemplate";
 
 type Params = {
   pipeLineId: number;
@@ -53,6 +58,10 @@ const DealListView = (props: Params) => {
     selectedStageId,
     ...others
   } = props;
+  const { instance, accounts } = useMsal();                    // auth
+  const [groupEmailDialogOpen, setGroupEmailDialogOpen] = useState(false);
+  const [emailTemplates, setEmailTemplates] = useState<EmailTemplate[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplate | null>(null);
   const [exportFormat, setExportFormat] = useState<string>("csv");
   const [dealsList, setDealsList] = useState<Array<Deal>>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -156,6 +165,12 @@ const DealListView = (props: Params) => {
     loadDeals();
     loadPipeLines();
   }, [currentPage]);
+  useEffect(() => {
+  const templateSvc = new EmailTemplateService(ErrorBoundary);
+  templateSvc.getEmailTemplates()
+    .then(setEmailTemplates)
+    .catch(() => toast.error("Failed to load email templates."));
+}, []);
 
   useEffect(() => {
     if (dealsList.length > 0) {
@@ -569,12 +584,13 @@ const getStatusColor = (status: string) => {
   } else if (statusText === "Lost") {
     statusDisplay = `🔴 ${statusText}`;
   }
+  const person = utility.persons.find(p => p.personID === item.contactPersonID);
   return {
     ...transformedItem,
     organization: getOrganizationName(item.organizationID),
     contactPerson: getContactPersonName(item.contactPersonID),
     phone: getContactPersonPhone(item.contactPersonID),
-
+    email: person?.email || "N/A", 
     statusText,
     statusDisplay, 
   };
@@ -631,7 +647,23 @@ const getStatusColor = (status: string) => {
     // Optionally, also close the filter dropdown
     setShowPipeLineFilters(false);
   };
-
+const handleOpenGroupEmailDialog = async () => {
+  if (!selectedRows.length) {
+    toast.warn("Please select at least one deal.");
+    return;
+  }
+  try {
+    await instance.acquireTokenSilent({ scopes: loginRequest.scopes, account: accounts[0] });
+    setGroupEmailDialogOpen(true);
+  } catch {
+    try {
+      const loginResponse = await instance.loginPopup(loginRequest);
+      if (loginResponse) setGroupEmailDialogOpen(true);
+    } catch {
+      toast.error("MSAL login failed. Try again.");
+    }
+  }
+};
   const customHeaderActions = () => {
     return (
       <div className="col-sm-7 toolbarview-summery">
@@ -805,6 +837,9 @@ const getStatusColor = (status: string) => {
                   <FontAwesomeIcon icon={faDownload} style={{ marginRight: 8, color: '#17a2b8' }} />
                   Export
                 </Dropdown.Item>
+                <Dropdown.Item onClick={handleOpenGroupEmailDialog} disabled={selectedRows.length === 0}>
+                 📧 Send Group Email
+                 </Dropdown.Item>
                 <Dropdown.Item onClick={() => setDrawerOpen(true)} disabled={selectedRows.length === 0}>
                   <FontAwesomeIcon icon={faEnvelope} style={{ marginRight: 8, color: '#ffc107' }} />
                   Send SMS
@@ -1030,6 +1065,18 @@ const getStatusColor = (status: string) => {
           pipeLinesList={pipeLinesList}
         />
       )}
+      {groupEmailDialogOpen && (
+  <GroupEmailDialog
+    open={groupEmailDialogOpen}
+    onClose={() => setGroupEmailDialogOpen(false)}
+    selectedRecipients={getSelectedDeals()
+      .map(d => d.email)
+      .filter(e => !!e && e !== "N/A")}
+    selectedTemplate={selectedTemplate}
+    templates={emailTemplates}
+    onTemplateSelect={(t) => setSelectedTemplate(t)}
+  />
+)}
     </>
   );
 };
