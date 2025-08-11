@@ -186,6 +186,32 @@ const DealListView = (props: Params) => {
       setTotalColumns(dynamicColumns);
     }
   }, [dealsList]);
+
+  // Close filter dropdown and DataGrid panels when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      
+      // Close filter dropdown
+      if (!target.closest('.pipeselectbox') && !target.closest('.pipeselectcontent')) {
+        setShowPipeLineFilters(false);
+      }
+      
+      // Close DataGrid column options panel
+      if (!target.closest('.MuiDataGrid-panel') && !target.closest('.MuiDataGrid-columnHeaderTitleContainer')) {
+        const panels = document.querySelectorAll('.MuiDataGrid-panel');
+        panels.forEach(panel => {
+          (panel as HTMLElement).style.visibility = 'hidden';
+        });
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
  const getStatusNameById = (statusID?: number): string => {
   switch (statusID) {
     case 1:
@@ -695,7 +721,8 @@ const handleOpenGroupEmailDialog = async () => {
                   right: 0,
                   left: 'auto',
                   transform: 'translateX(0)',
-                  zIndex: 1060
+                  zIndex: showPipeLineFilters ? 999 : -1,
+                  pointerEvents: showPipeLineFilters ? 'auto' : 'none'
                 }}
               >
                 <ul
