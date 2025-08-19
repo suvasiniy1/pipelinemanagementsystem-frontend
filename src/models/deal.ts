@@ -44,6 +44,16 @@ export class Deal extends AuditItem {
   comments!: string;
   callHistory: CallHistoryEntry[] = []; 
   wonTime!:string;
+  marketing_GCLID?: string | null;
+  marketing_source?: string | null;
+  marketing_medium?: string | null;
+  marketing_term?: string | null;
+  marketing_content?: string | null;
+  submission_id?: string | null;
+  MarketingConsent?: string | null;
+  TCCONSENT?: string | null;
+  Marketing_FBClid?: string | null;
+  MarketingCreatedDate?: string | null;
   newContact?: {
     personName: string; // This is required
     email?: string; // Required

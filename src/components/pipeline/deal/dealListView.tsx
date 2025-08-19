@@ -99,6 +99,18 @@ const DealListView = (props: Params) => {
   const dealSvc = new DealService(ErrorBoundary);
   const pipeLineSvc = new PipeLineService(ErrorBoundary);
 
+  const marketingColumns = [
+  { columnName: "marketing_GCLID",      columnHeaderName: "GCLID",            width: 180 },
+  { columnName: "marketing_source",     columnHeaderName: "Source",           width: 140 },
+  { columnName: "marketing_medium",     columnHeaderName: "Medium",           width: 140 },
+  { columnName: "marketing_term",       columnHeaderName: "Term",             width: 140 },
+  { columnName: "marketing_content",    columnHeaderName: "Content",          width: 160 },
+  { columnName: "submission_id",        columnHeaderName: "Submission ID",    width: 180 },
+  { columnName: "MarketingConsent",     columnHeaderName: "Marketing Consent",width: 180 },
+  { columnName: "TCCONSENT",            columnHeaderName: "T&C Consent",      width: 160 },
+  { columnName: "Marketing_FBClid",     columnHeaderName: "FBCLID",           width: 180 },
+];
+
   const columnMetaData = [
     { columnName: "stageName", columnHeaderName: "Stage", width: 150 },
     {
@@ -132,6 +144,7 @@ const DealListView = (props: Params) => {
       columnHeaderName: "Next Activity Date",
       width: 150,
     },
+    ...marketingColumns,  
   ];
 
   const [selectedColumns, setSelectedColumns] = useState<any[]>([]);

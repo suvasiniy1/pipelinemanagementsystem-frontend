@@ -3787,3 +3787,7 @@ select {
 .row-lost {
   background-color: #f8d7da !important; /* light red */
 }
+.marketing-panel .details-row{ display:flex; gap:12px; margin:6px 0; }
+.marketing-panel .details-label{ flex:0 0 200px; white-space:nowrap; }
+.marketing-panel .details-label::after{ content:" -"; margin-left:6px; color:#828282; }
+.marketing-panel .details-value{ flex:1; min-width:0; }
