@@ -666,9 +666,14 @@ const [dealsData, setDealsData] = useState<DealWithPipeline[]>([]);
                           <div className="closedateinput">
                             <SelectDropdown
                               isValidationOptional={true}
-                              onItemChange={(e: any) =>
-                                setDealItem({ ...dealItem, assigntoId: e })
-                              }
+                              onItemChange={(e: any) => {
+                                const selectedUser = utility?.users.find(u => u.id == e);
+                                setDealItem({ 
+                                  ...dealItem, 
+                                  assigntoId: e,
+                                  ownerName: selectedUser?.name || dealItem.ownerName
+                                });
+                              }}
                               value={"" + dealItem.assigntoId}
                               list={
                                 utility?.users
@@ -718,6 +723,12 @@ const [dealsData, setDealsData] = useState<DealWithPipeline[]>([]);
                         <div className="details-label">Treatment -</div>
                         <div className="details-value">
                           {dealItem.treatmentName || "-"}
+                        </div>
+                      </div>
+                      <div className="details-row">
+                        <div className="details-label">Last Activity -</div>
+                        <div className="details-value">
+                          {dealItem.modifiedDate ? moment(dealItem.modifiedDate).format("MM/DD/YYYY HH:mm") : "-"}
                         </div>
                       </div>
                       <div className="details-row">

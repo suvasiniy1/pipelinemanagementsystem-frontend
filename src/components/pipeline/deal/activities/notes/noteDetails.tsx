@@ -46,8 +46,11 @@ const NoteDetails = (props: params) => {
 
     const getnote = () => {
         noteSvc.getItem(note.noteID).then(res => {
-            
-            setNote(res);
+            // Preserve userName if it's missing from the API response
+            setNote({
+                ...res,
+                userName: res.userName || note.userName
+            });
         })
     }
 

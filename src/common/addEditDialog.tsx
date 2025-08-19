@@ -116,6 +116,7 @@ export const AddEditDialog: React.FC<Props> = (props) => {
               disabled={!canClose && !Util.isNullOrUndefinedOrEmpty(canClose)}
               className="btn btn-secondary btn-sm me-2"
               id="closeDialog"
+              style={{ minWidth: '80px' }}
             >
               Cancel
             </button>
@@ -125,6 +126,7 @@ export const AddEditDialog: React.FC<Props> = (props) => {
                 className={`btn btn-primary btn-sm save${header}`}
                 onClick={handleSave}
                 disabled={props.saveButtonProps?.disabled || isSubmitting}
+                style={{ minWidth: '80px' }}
                 {...props.saveButtonProps}
               >
                 {customSaveChangesButtonName

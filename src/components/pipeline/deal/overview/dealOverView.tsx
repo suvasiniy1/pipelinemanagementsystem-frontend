@@ -329,7 +329,9 @@ const handleLostClick = () => {
                           </div>
                           <div className="datahighlights-item">
                             <h3>LAST ACTIVITY DATE</h3>
-                            <div className="datahighlights-datetxt">--</div>
+                            <div className="datahighlights-datetxt">
+                              {moment(dealItem.modifiedDate ?? dealItem.createdDate).format("MM/DD/YYYY hh:mm:ss a")}
+                            </div>
                           </div>
                         </div>
                       </div>

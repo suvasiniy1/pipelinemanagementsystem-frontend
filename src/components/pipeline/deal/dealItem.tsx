@@ -3,14 +3,13 @@ import { Deal } from "../../../models/deal";
 import Dropdown from 'react-bootstrap/Dropdown';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MoveDeal from "./moveDeal";
 import { PipeLine } from "../../../models/pipeline";
 import { Utility } from "../../../models/utility";
 import Util, { IsMockService } from "../../../others/util";
 import LocalStorageUtil from "../../../others/LocalStorageUtil";
 import Constants from "../../../others/constants";
-
 
 type params = {
   deal?: Deal;
@@ -31,6 +30,9 @@ export const DealItem = (props: params) => {
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
   const navigator = useNavigate();
   const [userProfile, setUserProfile] = useState(Util.UserProfile());
+  const utility: Utility = JSON.parse(
+    LocalStorageUtil.getItemObject(Constants.UTILITY) as any
+  );
 
   const handleLinkClick = (e:any) => {
     e.preventDefault(); // Prevents the default anchor behavior
@@ -71,7 +73,7 @@ export const DealItem = (props: params) => {
                 </Dropdown>
               </div>
               <div className="pdstage-description">
-                <div className="pdstage-descitem"><a href="" onClick={(e: any) => handleLinkClick(e)}>{deal?.personName}</a></div>
+                <div className="pdstage-descitem"><a href="" onClick={(e: any) => handleLinkClick(e)}>{utility?.users.find(u => u.id == deal?.assigntoId)?.name || deal?.personName}</a></div>
               </div>
               <div className="pdstage-status-row">
                 <div className="pdstage-avatar">
