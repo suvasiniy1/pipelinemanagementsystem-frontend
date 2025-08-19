@@ -35,18 +35,27 @@ const Filters = (props: params) => {
   };
 
   return (
-    <>
-      <br />
-      <br />
-      <div className="row">
-        <div className="col-sm-4">
-          <div className="row">
+    <div style={{
+      background: '#faf5eb',
+      border: '1px solid #e4cb9a',
+      padding: '20px',
+      borderRadius: '4px',
+      marginBottom: '20px'
+    }}>
+      <div className="row" style={{ alignItems: 'center' }}>
+        <div className="col-sm-5">
+          <div className="row" style={{ alignItems: 'center' }}>
             <div className="col-sm-4">
-              <label htmlFor="time-period" className="filterTopLabel">
+              <label htmlFor="time-period" style={{
+                color: '#3f3f3f',
+                fontWeight: '600',
+                fontSize: '14px',
+                marginBottom: '0'
+              }}>
                 Time Period:
               </label>
             </div>
-            <div className="col-sm-6">
+            <div className="col-sm-8">
               <DateRangePicker
                 startDate={selectedStartDate}
                 endDate={selectedEndDate}
@@ -55,14 +64,19 @@ const Filters = (props: params) => {
             </div>
           </div>
         </div>
-        <div className="col-sm-4">
-          <div className="row">
+        <div className="col-sm-5">
+          <div className="row" style={{ alignItems: 'center' }}>
             <div className="col-sm-4">
-              <label htmlFor="time-period" className="filterTopLabel">
-                Frequencey:
+              <label htmlFor="frequency" style={{
+                color: '#3f3f3f',
+                fontWeight: '600',
+                fontSize: '14px',
+                marginBottom: '0'
+              }}>
+                Frequency:
               </label>
             </div>
-            <div className="col-sm-6">
+            <div className="col-sm-8">
               <SelectDropdown
                 value={selectedFrequencey}
                 isValidationOptional={true}
@@ -73,8 +87,7 @@ const Filters = (props: params) => {
           </div>
         </div>
       </div>
-      <br />
-    </>
+    </div>
   );
 };
 

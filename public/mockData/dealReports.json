@@ -1,0 +1,195 @@
+{
+  "dealConversionFunnel": [
+    {
+      "stageName": "Lead",
+      "stageOrder": 1,
+      "dealCount": 150,
+      "totalValue": 750000,
+      "conversionRate": 100,
+      "avgTimeInStage": 5
+    },
+    {
+      "stageName": "Qualified",
+      "stageOrder": 2,
+      "dealCount": 120,
+      "totalValue": 600000,
+      "conversionRate": 80,
+      "avgTimeInStage": 8
+    },
+    {
+      "stageName": "Proposal",
+      "stageOrder": 3,
+      "dealCount": 85,
+      "totalValue": 425000,
+      "conversionRate": 70.8,
+      "avgTimeInStage": 12
+    },
+    {
+      "stageName": "Negotiation",
+      "stageOrder": 4,
+      "dealCount": 60,
+      "totalValue": 300000,
+      "conversionRate": 70.6,
+      "avgTimeInStage": 15
+    },
+    {
+      "stageName": "Won",
+      "stageOrder": 5,
+      "dealCount": 45,
+      "totalValue": 225000,
+      "conversionRate": 75,
+      "avgTimeInStage": 0
+    }
+  ],
+  "salesPerformance": [
+    {
+      "month": "2024-01",
+      "dealsWon": 12,
+      "dealsLost": 8,
+      "revenue": 60000,
+      "conversionRate": 60
+    },
+    {
+      "month": "2024-02",
+      "dealsWon": 15,
+      "dealsLost": 5,
+      "revenue": 75000,
+      "conversionRate": 75
+    },
+    {
+      "month": "2024-03",
+      "dealsWon": 18,
+      "dealsLost": 7,
+      "revenue": 90000,
+      "conversionRate": 72
+    },
+    {
+      "month": "2024-04",
+      "dealsWon": 20,
+      "dealsLost": 6,
+      "revenue": 100000,
+      "conversionRate": 77
+    },
+    {
+      "month": "2024-05",
+      "dealsWon": 22,
+      "dealsLost": 4,
+      "revenue": 110000,
+      "conversionRate": 85
+    }
+  ],
+  "treatmentAnalysis": [
+    {
+      "treatmentName": "Dental Implants",
+      "totalDeals": 45,
+      "wonDeals": 35,
+      "totalValue": 175000,
+      "avgDealValue": 3889,
+      "conversionRate": 78
+    },
+    {
+      "treatmentName": "Orthodontics",
+      "totalDeals": 38,
+      "wonDeals": 28,
+      "totalValue": 140000,
+      "avgDealValue": 3684,
+      "conversionRate": 74
+    },
+    {
+      "treatmentName": "Cosmetic Surgery",
+      "totalDeals": 25,
+      "wonDeals": 20,
+      "totalValue": 200000,
+      "avgDealValue": 8000,
+      "conversionRate": 80
+    },
+    {
+      "treatmentName": "General Consultation",
+      "totalDeals": 60,
+      "wonDeals": 45,
+      "totalValue": 90000,
+      "avgDealValue": 1500,
+      "conversionRate": 75
+    }
+  ],
+  "userPerformance": [
+    {
+      "userId": 1,
+      "userName": "John Smith",
+      "dealsCreated": 25,
+      "dealsWon": 18,
+      "dealsLost": 4,
+      "revenue": 90000,
+      "conversionRate": 72,
+      "avgDealValue": 5000
+    },
+    {
+      "userId": 2,
+      "userName": "Sarah Johnson",
+      "dealsCreated": 30,
+      "dealsWon": 24,
+      "dealsLost": 3,
+      "revenue": 120000,
+      "conversionRate": 80,
+      "avgDealValue": 5000
+    },
+    {
+      "userId": 3,
+      "userName": "Mike Wilson",
+      "dealsCreated": 20,
+      "dealsWon": 14,
+      "dealsLost": 5,
+      "revenue": 70000,
+      "conversionRate": 70,
+      "avgDealValue": 5000
+    }
+  ],
+  "leadSourceAnalysis": [
+    {
+      "sourceName": "Website",
+      "totalLeads": 120,
+      "convertedLeads": 85,
+      "conversionRate": 70.8,
+      "revenue": 425000,
+      "avgDealValue": 5000
+    },
+    {
+      "sourceName": "Referral",
+      "totalLeads": 80,
+      "convertedLeads": 68,
+      "conversionRate": 85,
+      "revenue": 340000,
+      "avgDealValue": 5000
+    },
+    {
+      "sourceName": "Social Media",
+      "totalLeads": 60,
+      "convertedLeads": 42,
+      "conversionRate": 70,
+      "revenue": 210000,
+      "avgDealValue": 5000
+    },
+    {
+      "sourceName": "Email Campaign",
+      "totalLeads": 45,
+      "convertedLeads": 27,
+      "conversionRate": 60,
+      "revenue": 135000,
+      "avgDealValue": 5000
+    }
+  ],
+  "pipelineHealth": {
+    "totalDeals": 168,
+    "activeDeals": 123,
+    "stalledDeals": 15,
+    "overdueTasks": 8,
+    "avgDealAge": 25,
+    "stageDistribution": [
+      { "stageName": "Lead", "dealCount": 45, "percentage": 36.6 },
+      { "stageName": "Qualified", "dealCount": 32, "percentage": 26.0 },
+      { "stageName": "Proposal", "dealCount": 25, "percentage": 20.3 },
+      { "stageName": "Negotiation", "dealCount": 15, "percentage": 12.2 },
+      { "stageName": "Won", "dealCount": 6, "percentage": 4.9 }
+    ]
+  }
+}

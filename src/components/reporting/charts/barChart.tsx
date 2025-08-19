@@ -13,6 +13,8 @@ export const BarChart = (props: params) => {
   const { labels, values, displayLegend, frequencey, selectedTab, ...others } = props;
 
   const options = {
+    responsive: true,
+    maintainAspectRatio: false,
     scales: {
       x: {
         beginAtZero: true,
@@ -39,19 +41,21 @@ export const BarChart = (props: params) => {
   };
 
   return (
-    <Bar
-      data={{
-        labels: labels,
-        datasets: [
-          {
-            label: `# of ${selectedTab}`,
-            barThickness: 10,
-            data: values,
-            borderWidth: 1,
-          },
-        ],
-      }}
-      options={options}
-    ></Bar>
+    <div style={{ height: '300px' }}>
+      <Bar
+        data={{
+          labels: labels,
+          datasets: [
+            {
+              label: `# of ${selectedTab}`,
+              barThickness: 10,
+              data: values,
+              borderWidth: 1,
+            },
+          ],
+        }}
+        options={options}
+      ></Bar>
+    </div>
   );
 };

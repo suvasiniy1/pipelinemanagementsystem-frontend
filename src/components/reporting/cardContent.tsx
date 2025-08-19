@@ -4,6 +4,12 @@ import { BarChart } from "./charts/barChart";
 import { GirdElement } from "./gridElement";
 import { ErrorBoundary } from "react-error-boundary";
 import { ReportingService } from "../../services/reportingService";
+import { DealConversionReport } from "./reports/dealConversionReport";
+import { SalesPerformanceReport } from "./reports/salesPerformanceReport";
+import { TreatmentAnalysisReport } from "./reports/treatmentAnalysisReport";
+import { UserPerformanceReport } from "./reports/userPerformanceReport";
+import { LeadSourceReport } from "./reports/leadSourceReport";
+import { PipelineHealthReport } from "./reports/pipelineHealthReport";
 import moment from "moment";
 
 type params = {
@@ -96,21 +102,23 @@ const CardContent = (props: params) => {
   }, [isFilterChanged]);
 
   useEffect(() => {
-    const labels = generateLabels(
-      startDate,
-      endDate,
-      (frequencey as string).toLocaleLowerCase()
-    );
-    let values = generateValues(
-      data,
-      startDate,
-      endDate,
-      (frequencey as string).toLocaleLowerCase(),
-      labels
-    );
-    setLabels(labels as any);
-    setValues(values as any);
-  }, [data]);
+    if (frequencey && data.length > 0) {
+      const labels = generateLabels(
+        startDate,
+        endDate,
+        (frequencey as string).toLocaleLowerCase()
+      );
+      let values = generateValues(
+        data,
+        startDate,
+        endDate,
+        (frequencey as string).toLocaleLowerCase(),
+        labels
+      );
+      setLabels(labels as any);
+      setValues(values as any);
+    }
+  }, [data, frequencey, startDate, endDate]);
 
   function filterData(startDate: any, endDate: any, data: Array<any>) {
     const start = new Date(startDate);
@@ -126,23 +134,42 @@ const CardContent = (props: params) => {
     setIsFiltersChanged(true);
   }, [selectedTab, startDate, endDate, frequencey]);
 
-  return (
-    <GirdElement
-      element={
-        <Box>
-          {data.length > 0 ? (
-            <div>
-              <BarChart values={values} labels={labels} displayLegend={true} selectedTab={selectedTab}/>
-            </div>
-          ) : (
-            "There is no data to show in this time frame. Try changing the date range."
-          )}
-        </Box>
-      }
-      height={600}
-      width={800}
-    ></GirdElement>
-  );
+  const renderReportContent = () => {
+    switch (selectedTab) {
+      case "Deal Conversion":
+        return <DealConversionReport />;
+      case "Sales Performance":
+        return <SalesPerformanceReport />;
+      case "Treatment Analysis":
+        return <TreatmentAnalysisReport />;
+      case "User Performance":
+        return <UserPerformanceReport />;
+      case "Lead Source":
+        return <LeadSourceReport />;
+      case "Pipeline Health":
+        return <PipelineHealthReport />;
+      default:
+        return (
+          <GirdElement
+            element={
+              <Box>
+                {data.length > 0 && values.length > 0 ? (
+                  <div>
+                    <BarChart values={values} labels={labels} displayLegend={true} selectedTab={selectedTab}/>
+                  </div>
+                ) : (
+                  "There is no data to show in this time frame. Try changing the date range."
+                )}
+              </Box>
+            }
+            height={600}
+            width={800}
+          ></GirdElement>
+        );
+    }
+  };
+
+  return renderReportContent();
 };
 
 export default CardContent;

@@ -1,0 +1,36 @@
+.nav-tabs {
+  border-color: #e4cb9a !important;
+  padding: 10px 15px 0 15px;
+}
+
+.nav-tabs .nav-link {
+  border: none !important;
+  border-radius: 4px 4px 0 0 !important;
+  margin-right: 5px;
+  padding: 12px 20px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #3f3f3f;
+  background: #f8f9fa;
+  transition: all 0.2s ease;
+}
+
+.nav-tabs .nav-link:hover {
+  background: #ececed;
+  color: #b68d40;
+}
+
+.nav-tabs .nav-link.active {
+  background: #faf5eb !important;
+  color: #b68d40 !important;
+  border-color: #e4cb9a #e4cb9a #faf5eb !important;
+}
+
+.tab-content {
+  padding: 20px;
+  background: transparent;
+}
+
+.activity-subtab {
+  margin-bottom: 0 !important;
+}
