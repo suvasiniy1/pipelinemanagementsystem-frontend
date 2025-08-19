@@ -357,7 +357,7 @@ extractedSubject = "Email Activity";
                       {moment(item.eventDate).format("MM-DD-YYYY hh:mm:ss a")}
                     </div>
                     <div className="appboxdatameta-service">
-                      &nbsp;&nbsp;({item.timeline})
+                      &nbsp;&nbsp;({item.timeline?.replace(/^-/, '') || item.timeline})
                     </div>
                   </div>
                 </div>
