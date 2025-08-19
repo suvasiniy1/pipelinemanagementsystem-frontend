@@ -437,6 +437,18 @@ const [dealsData, setDealsData] = useState<DealWithPipeline[]>([]);
     setExpandedSections((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
+const safe = (v: any, placeholder = 'undefined') => {
+  if (v === null || v === undefined) return placeholder;
+  const s = String(v).trim();
+  return (s === '' || s === '-' || /^null$/i.test(s) || /^undefined$/i.test(s) || s === '(none)')
+    ? placeholder
+    : s;
+};
+const isEmpty = (v: any) => {
+  const s = (v ?? '').toString().trim().toLowerCase();
+  return !s || s === '-' || s === '—' || s === '(none)' || s === 'undefined' || s === 'null';
+};
+const pretty = (v: any) => (isEmpty(v) ? '-' : String(v).trim());
   return (
     <>
       {error && <UnAuthorized error={error as any} />}
@@ -804,6 +816,57 @@ const [dealsData, setDealsData] = useState<DealWithPipeline[]>([]);
                         </div>
                       </div>
                     </div>
+
+                   {/* ---- Marketing details (separate section) ---- */}
+ <div className="appdealblock-head">
+                      <div className="appblock-headcolleft">
+                        <button className="appblock-collapse" onClick={() => toggleSection('marketing')}>
+                          <span className="appblock-titlelabel">
+                            <FontAwesomeIcon icon={expandedSections['marketing'] ? faAngleDown : faAngleRight} /> Marketing Details
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+
+<div className="details-panel marketing-panel" style={{display: expandedSections['marketing'] ? 'block' : 'none'}}>
+  <div className="details-row">
+    <div className="details-label">GCLID</div>
+    <div className="details-value">{safe(dealItem?.marketing_GCLID)}</div>
+  </div>
+  <div className="details-row">
+    <div className="details-label">Source</div>
+    <div className="details-value">{safe(dealItem?.marketing_source)}</div>
+  </div>
+  <div className="details-row">
+    <div className="details-label">Medium</div>
+    <div className="details-value">{safe(dealItem?.marketing_medium)}</div>
+  </div>
+  <div className="details-row">
+    <div className="details-label">Term</div>
+    <div className="details-value">{safe(dealItem?.marketing_term)}</div>
+  </div>
+  <div className="details-row">
+    <div className="details-label">Content</div>
+    <div className="details-value">{safe(dealItem?.marketing_content)}</div>
+  </div>
+  <div className="details-row">
+    <div className="details-label">Submission ID</div>
+    <div className="details-value">{safe(dealItem?.submission_id)}</div>
+  </div>
+  <div className="details-row">
+    <div className="details-label">Marketing Consent</div>
+    <div className="details-value">{safe(dealItem?.MarketingConsent)}</div>
+  </div>
+  <div className="details-row">
+    <div className="details-label">T&C Consent</div>
+    <div className="details-value">{safe(dealItem?.TCCONSENT)}</div>
+  </div>
+  <div className="details-row">
+    <div className="details-label">FBCLID</div>
+    <div className="details-value">{safe(dealItem?.Marketing_FBClid)}</div>
+  </div>
+</div>
+
                     <div className=" appdeal-dtrow">
                       <DealDetailsCustomFields
                         dealItem={dealItem}
