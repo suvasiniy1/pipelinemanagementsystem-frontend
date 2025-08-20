@@ -20,6 +20,7 @@ import { Spinner } from "react-bootstrap";
 import { toast } from "react-toastify";
 import Util from "../others/util";
 import { DeleteDialog } from "./deleteDialog";
+import LocalStorageUtil from "../others/LocalStorageUtil";
 
 const ODD_OPACITY = 0.2;
 
@@ -228,9 +229,20 @@ const Table: React.FC<TableListProps> = (props) => {
       const dateB = Date.parse(rawB);
       return dateB - dateA;
     });
+    // Get users from localStorage
+    const usersData = LocalStorageUtil.getItem('USERS_DATA');
+    const users = usersData ? JSON.parse(usersData) : [];
+    
     rowData.forEach((r) => {
-      // Add modifiedBy using fallback logic
-      r.modifiedBy = Util.getUserNameById(r.updatedBy ?? r.createdBy);
+      // Convert modifiedBy ID to username using stored users data
+      if (r.modifiedBy && typeof r.modifiedBy === 'number') {
+        const user = users.find((u: any) => u.userId === r.modifiedBy);
+        r.modifiedBy = user ? user.userName : r.modifiedBy;
+      }
+      // Fallback for other user ID fields
+      if (!r.modifiedBy) {
+        r.modifiedBy = Util.getUserNameById(r.updatedBy ?? r.createdBy);
+      }
       // Save original ISO string for sorting
       if (isISODateString(r.modifiedDate)) r.modifiedDateRaw = r.modifiedDate;
       if (isISODateString(r.createdDate)) r.createdDateRaw = r.createdDate;
@@ -330,9 +342,12 @@ const Table: React.FC<TableListProps> = (props) => {
     }
   }, [props.rowData]);
   const handleSelectionChange = (newSelection: GridRowSelectionModel) => {
-    setSelectedRows(newSelection);
-    if (onSelectionModelChange) {
-      onSelectionModelChange(newSelection);
+    // Only update selection if checkboxSelection is enabled
+    if (checkboxSelection) {
+      setSelectedRows(newSelection);
+      if (onSelectionModelChange) {
+        onSelectionModelChange(newSelection);
+      }
     }
   };
   const generateGridColDef = (): GridColDef[] => {
@@ -514,7 +529,8 @@ const Table: React.FC<TableListProps> = (props) => {
           columnVisibilityModel={columnVisibilityModel}
           onColumnVisibilityModelChange={(newModel) => setColumnVisibilityModel(newModel)}
           checkboxSelection={checkboxSelection} // Enable checkbox selection
-          onRowSelectionModelChange={handleSelectionChange}
+          onRowSelectionModelChange={checkboxSelection ? handleSelectionChange : undefined}
+          disableRowSelectionOnClick={!checkboxSelection}
           getRowClassName={(params) => {
   const base = params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd";
 
@@ -528,7 +544,21 @@ const Table: React.FC<TableListProps> = (props) => {
           hideFooter={props.hidePagination}
           density="standard"
           sx={{ minWidth: 800, height: 'calc(100vh - 220px)', maxHeight: 'calc(100vh - 220px)', overflowY: 'auto' }}
-          {...(!props.hidePagination ? { pagination: true, pageSizeOptions: [8, 16, 32, 64], initialState: { pagination: { paginationModel: { pageSize: 8, page: 0 } } } } : { pageSizeOptions: [], initialState: {} })}
+          {...(!props.hidePagination ? { 
+            pagination: true, 
+            pageSizeOptions: [8, 16, 32, 64], 
+            initialState: { 
+              pagination: { 
+                paginationModel: { pageSize: 8, page: 0 } 
+              } 
+            },
+            slotProps: {
+              pagination: {
+                showFirstButton: true,
+                showLastButton: true,
+              },
+            }
+          } : { pageSizeOptions: [], initialState: {} })}
         />
       )}
     </Grid>

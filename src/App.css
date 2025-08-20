@@ -3791,3 +3791,38 @@ select {
 .marketing-panel .details-label{ flex:0 0 200px; white-space:nowrap; }
 .marketing-panel .details-label::after{ content:" -"; margin-left:6px; color:#828282; }
 .marketing-panel .details-value{ flex:1; min-width:0; }
+
+/* Fix Material-UI DataGrid pagination dropdown */
+.MuiTablePagination-select {
+  min-height: auto !important;
+}
+
+.MuiSelect-select {
+  min-height: auto !important;
+}
+
+.MuiMenuItem-root {
+  display: block !important;
+  width: 100% !important;
+  padding: 6px 16px !important;
+  min-height: 36px !important;
+}
+
+.MuiMenu-paper {
+  max-height: 200px !important;
+  overflow-y: auto !important;
+}
+
+.MuiTablePagination-selectIcon {
+  display: block !important;
+}
+
+.MuiSelect-root {
+  display: flex !important;
+  align-items: center !important;
+}
+
+.MuiInputBase-root {
+  display: flex !important;
+  align-items: center !important;
+}

@@ -14,14 +14,28 @@ import { AppRouter } from "./others/appRouter";
 import NotAuthorized from "./others/notAuthorized";
 import Util from "./others/util";
 import ChangePassword from "./components/profiles/changePassword";
+import { UserService } from "./services/UserService";
+import { ErrorBoundary } from "react-error-boundary";
 
 function App() {
   const [navItemsLoaded, setNavItemsLoaded] = useState(false);
+  const userService = new UserService(ErrorBoundary);
+  
   useEffect(() => {
     const role = LocalStorageUtil.getItem(Constants.USER_Role);
     if (role) {
       Util.loadNavItemsForUser(parseInt(role));
     }
+    
+    // Fetch and store users in localStorage
+    if (LocalStorageUtil.getItem(Constants.USER_LOGGED_IN) === "true") {
+      userService.getUsers().then((users) => {
+        LocalStorageUtil.setItem('USERS_DATA', JSON.stringify(users));
+      }).catch((error) => {
+        console.error('Failed to fetch users:', error);
+      });
+    }
+    
     setNavItemsLoaded(true);
   }, []);
   const navigate = useNavigate();

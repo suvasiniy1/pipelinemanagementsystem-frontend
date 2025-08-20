@@ -521,7 +521,7 @@ if (exportFormat === "csv") {
 
   // Conditionally Render the Send Group Email Button
   const renderSendGroupEmailButton = () =>
-    selectedRows.length > 0 && (
+    props.checkboxSelection && selectedRows.length > 0 && (
       <Button
         type="button"
         variant="outlined"
