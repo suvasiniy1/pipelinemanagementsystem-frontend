@@ -403,7 +403,7 @@ const Table: React.FC<TableListProps> = (props) => {
       headerName: "Actions",
       headerAlign: "left",
       sortable: false,
-      width: 160,
+      width: 220,
       disableColumnMenu: true,
       disableReorder: true,
       renderHeader: (params: GridColumnHeaderParams) => (
