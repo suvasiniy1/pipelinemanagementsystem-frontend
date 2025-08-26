@@ -3826,3 +3826,10 @@ select {
   display: flex !important;
   align-items: center !important;
 }
+.MuiDataGrid-menu,
+.MuiDataGrid-panel,
+.MuiDataGrid-popper {
+  z-index: 20000 !important;
+}
+/* keep any MUI popovers/menus above Bootstrap modal */
+.MuiPopover-root { z-index: 20000 !important; }
