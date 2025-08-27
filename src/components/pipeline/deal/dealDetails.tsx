@@ -46,7 +46,16 @@ import MedicalFormEmailDialog from "./activities/email/MedicalFormEmailDialog";
 import { sendMedicalFormEmail } from "../../../models/medicalFormEmailService";
 
 export const DealDetails = () => {
+const navigator = useNavigate();
+  const location = useLocation();
+    const { instance, accounts } = useMsal();
   const [isEditingAmount, setIsEditingAmount] = useState(false);
+
+  const getSafeFilterId = (search: string): string | undefined => {
+  const raw = new URLSearchParams(search).get("filterId");
+  return raw && raw !== "null" && raw !== "undefined" && raw.trim() !== "" ? raw : undefined;
+};
+
 
   const [dealId, setDealId] = useState(
     new URLSearchParams(useLocation().search).get("id") as any
@@ -54,9 +63,9 @@ export const DealDetails = () => {
   const [pipeLineId, setPipeLineId] = useState(
     new URLSearchParams(useLocation().search).get("pipeLineId") as any
   );
-  const [filterId, setFilterId] = useState(
-    new URLSearchParams(useLocation().search).get("filterId") as any
-  );
+  const [filterId, setFilterId] = useState<string | undefined>(() =>
+  getSafeFilterId(location.search)
+);
   const dealSvc = new DealService(ErrorBoundary);
   const [error, setError] = useState<AxiosError>();
   const [dealItem, setDealItem] = useState<Deal>({
@@ -79,9 +88,9 @@ export const DealDetails = () => {
   const utility: Utility = JSON.parse(
     LocalStorageUtil.getItemObject(Constants.UTILITY) as any
   );
-  const navigator = useNavigate();
-  const { instance, accounts } = useMsal();
-  const location = useLocation();
+  
+
+
   const [isDealsModalOpen, setIsDealsModalOpen] = useState(false);
   const [relatedDeals, setRelatedDeals] = useState([]);
 
@@ -146,7 +155,7 @@ const [dealsData, setDealsData] = useState<DealWithPipeline[]>([]);
       );
     });
   };
-
+  
   useEffect(() => {
     Promise.all([dealSvc.getDealsById(dealId), stagesSvc.getStages(pipeLineId)])
       .then((res) => {
@@ -251,7 +260,7 @@ const [dealsData, setDealsData] = useState<DealWithPipeline[]>([]);
   const searchParams = new URLSearchParams(location.search);
   const newDealId = searchParams.get("id");
   const newPipelineId = searchParams.get("pipeLineId");
-
+  setFilterId(getSafeFilterId(location.search)); 
   if (newDealId && newPipelineId) {
     setDealId(newDealId);       // Update local state
     setPipeLineId(newPipelineId); // Update local state
@@ -463,11 +472,12 @@ const pretty = (v: any) => (isEmpty(v) ? '-' : String(v).trim());
               <div className="sidebardetailtopbar">
                 <div
                   className="appdealtopbartitle"
-                  onClick={(e: any) =>
-                    navigator(
-                      `/pipeline?pipelineID=${pipeLineId}&filterId=${filterId}`
-                    )
-                  }
+                 onClick={() => {
+  const qs = new URLSearchParams();
+  if (pipeLineId) qs.set("pipelineID", String(pipeLineId));
+  if (filterId)   qs.set("filterId", String(filterId)); // omitted if undefined
+  navigator(`/pipeline?${qs.toString()}`);
+}}
                 >
                   <a href="javascript:void(0);">
                     <FontAwesomeIcon icon={faAngleLeft} /> Deals
