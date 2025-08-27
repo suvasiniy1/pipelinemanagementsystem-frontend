@@ -31,7 +31,7 @@ const RitechTextEditorWithValidation = (props: params) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const quillRef = useRef<ReactQuill>(null); // Reference for Quill editor
   const [cursorPosition, setCursorPosition] = useState<number | null>(null); // Store cursor position
-
+  const menuWrapperRef = useRef<HTMLDivElement>(null);
   const {
     register,
     formState: { errors },
@@ -39,25 +39,16 @@ const RitechTextEditorWithValidation = (props: params) => {
 
   // Close dropdown if clicking outside
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setShowDropdown(false);
-      }
+  function handleClickOutside(e: MouseEvent) {
+    if (menuWrapperRef.current && !menuWrapperRef.current.contains(e.target as Node)) {
+      setShowDropdown(false);
     }
-
-    // Add event listener when dropdown is open
-    if (showDropdown) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      // Remove event listener when component unmounts or dropdown closes
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showDropdown]);
+  }
+  if (showDropdown) {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }
+}, [showDropdown]);
 
   // Store cursor position before opening dropdown
   const handleAtClick = () => {
@@ -138,6 +129,7 @@ const RitechTextEditorWithValidation = (props: params) => {
             width: "200px",
             zIndex: 10,
             boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+            
           }}
         >
           <option disabled style={{padding: "8px", cursor: "pointer", borderBottom: "1px solid #eee", color: "#000000"}}>Select From Template</option>
@@ -189,7 +181,7 @@ const RichTextEditor = (props: params) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const quillRef = useRef<ReactQuill>(null); // Reference for Quill editor
   const [cursorPosition, setCursorPosition] = useState<number | null>(null); // Store cursor position
-
+  const menuWrapperRef = useRef<HTMLDivElement>(null);
   // Close dropdown if clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -253,6 +245,7 @@ const RichTextEditor = (props: params) => {
             value={value}
           />
           <br hidden={hideSpace} />
+          <div ref={menuWrapperRef} style={{ position: 'relative', display: 'inline-block' }}>
           <div className="selectformtemplatebox"
             hidden={!attachedData || attachedData?.length == 0}
             style={{
@@ -276,8 +269,13 @@ const RichTextEditor = (props: params) => {
                 border: "1px solid #ccc",
                 marginTop: "5px",
                 width: "150px",
-                zIndex: 10,
+                zIndex: 20000,
                 boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+                 /* 👇 makes it scrollable */
+        maxHeight: 280,
+        overflowY: 'auto',
+        overscrollBehavior: 'contain',
+        WebkitOverflowScrolling: 'touch',
               }}
             >
               <option disabled style={{padding:"8px", cursor: "pointer", borderBottom: "1px solid #eee"}}>Select From Template</option>
@@ -298,6 +296,7 @@ const RichTextEditor = (props: params) => {
               ))}
             </div>
           )}
+        </div>
         </>
       ) : (
         <RitechTextEditorWithValidation {...props} />

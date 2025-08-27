@@ -3833,3 +3833,9 @@ select {
 }
 /* keep any MUI popovers/menus above Bootstrap modal */
 .MuiPopover-root { z-index: 20000 !important; }
+.selectformtemplate {
+  max-height: 280px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
