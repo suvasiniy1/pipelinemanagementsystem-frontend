@@ -14,6 +14,7 @@ import { Button, Grid } from "@mui/material";
 import MultiSelectDropdown from "../elements/multiSelectDropdown";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import type { DataGridProps } from '@mui/x-data-grid';
 
 type params = {
   isNotListingPage?: boolean;
@@ -65,6 +66,7 @@ type params = {
   hidePagination?: boolean;
   isCustomHeaderActions?: any;
   customHeaderActions?: any;
+  dataGridProps?: any;   
 };
 
 const ItemCollection: React.FC<params> = (props) => {
@@ -111,6 +113,7 @@ const ItemCollection: React.FC<params> = (props) => {
     viewAddEditComponent,
     api,
     displayTableHeaderasSingler,
+
   } = props;
   const [canAdd, setCanAdd] = useState(
     props.canAdd != null ? props.canAdd : true
@@ -376,6 +379,7 @@ const ItemCollection: React.FC<params> = (props) => {
     canShowDropdownForFilter: canShowDropdownForFilter,
     customRowData: customRowData,
     hidePagination: props.hidePagination,
+    dataGridProps: props.dataGridProps, 
     customActions: customActions,
     viewAddEditComponentProps: {
       dialogIsOpen: dialogIsOpen,
