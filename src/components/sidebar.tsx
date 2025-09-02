@@ -17,6 +17,8 @@ import { Header } from "rsuite";
 import "rsuite/dist/styles/rsuite-default.css";
 import jpg from "../../src/resources/images/logo.jpg";
 import png from "../../src/resources/images/y1.png";
+import logo from "../../src/resources/images/Clinic-Lead-White.png";
+import logoicon from "../../src/resources/images/Clinic-Lead-White-Icon.png";
 import Util from "../others/util";
 import { BiGitBranch } from "react-icons/bi";
 import { HiOutlineFunnel } from "react-icons/hi2";
@@ -74,8 +76,8 @@ export const SideBar = (props: params) => {
         rootStyles={{ color: themes.dark.sidebar.color }}
       >
         <Header className="sidenavhead">
-          <img className="sideopenlogo" src={jpg} style={{ display: !collapsed ? "block" : "none", width: "120px" }} />
-          <img className="sidehidelogo" src={png} style={{ display: collapsed ? "block" : "none", width: "30px" }} />
+          <img className="sideopenlogo" src={logo} style={{ display: !collapsed ? "block" : "none", width: "100%", height:"auto" }} />
+          <img className="sidehidelogo" src={logoicon} style={{ display: collapsed ? "block" : "none", width: "28px", height:"auto", left:"10px", top:"15px" }} />
         </Header>
 
         <Menu style={{ paddingTop: "60px" }}>

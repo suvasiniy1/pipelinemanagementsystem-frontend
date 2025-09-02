@@ -390,7 +390,7 @@ export const DealHeader = (props: params) => {
                 <div className="pipefilterbtn" style={{ position: 'relative', zIndex: 2001 }}>
                   <div className="filterbtn">
                     <a
-                      className="btn"
+                      className="btn btngradiant"
                       href="javascript:void(0);"
                       style={{ zIndex: 2002, pointerEvents: 'auto', position: 'relative' }}
                       onClick={(e: any) => {

@@ -15,8 +15,9 @@ import Constants from "../others/constants";
 import LocalStorageUtil from "../others/LocalStorageUtil";
 import Util, { IsMockService } from "../others/util";
 import BackgroundImage from "../resources/images/background.png";
-import Logo from "../resources/images/logo.png";
+import Logo from "../resources/images/Clinic-Lead-White.png";
 import jpg from "../resources/images/Y1Logo.jpg";
+import svg from "../resources/images/Clinic-Lead-White.svg";
 import { LoginService } from "../services/loginService";
 import ForgotPassword from "./profiles/forgotPassword";
 
@@ -280,8 +281,8 @@ const Login = () => {
             <div className="signinwrapper-inner">
               {/* Overlay */}
               <div className="sign-in__backdrop"></div>
-              <div className="logheader">
-                {<div className="logo"><img className="lohheaderlogo" src={jpg} /></div>}
+              <div className="logheader bggradiant">
+                {<div className="logo"><img className="lohheaderlogo" src={Logo} /></div>}
                 
               </div>
               {/* Form */}
@@ -297,7 +298,8 @@ const Login = () => {
                       <img className="img-thumbnail" src={Logo} alt="logo" />
                     </div> */}
                     <h1 className="h1">Sign In</h1>
-                    <p>You must become a member to login and access the entire site.</p>
+                    <p>to access CRM</p>
+                    {/* <p>You must become a member to login and access the entire site.</p> */}
                   </div>
                   <div className="logformsubtext p-2 text-center">
                     {loading ? "Please wait" : twoFactorRequired
@@ -354,13 +356,13 @@ const Login = () => {
                         />
                       </Form.Group>*/}
                       {!loading ? (
-                        <Button className="w-100" variant="primary" type="submit">
+                        <Button className="w-100 btngradiant" variant="primary" type="submit">
                           Log In
                         </Button>
                       ) : (
                         loading && (
                           <Button
-                            className="w-100"
+                            className="w-100 btngradiant"
                             variant="primary"
                             type="submit"
                             disabled

@@ -23,6 +23,10 @@ html textarea {
 body a {
   color: #b68d40;
 }
+.bggradiant, .btngradiant{background: #498BFF !important;
+background: linear-gradient(90deg, rgba(73, 139, 255, 1) 0%, rgba(43, 212, 249, 1) 50%, rgba(45, 237, 180, 1) 100%) !important;}
+.btngradiant:hover{background: #498BFF !important;
+background: linear-gradient(260deg, rgba(73, 139, 255, 1) 0%, rgba(43, 212, 249, 1) 50%, rgba(45, 237, 180, 1) 100%) !important;}
 
 /* ---------- SIGN IN ---------- */
 .sign-in__wrapper {
@@ -39,6 +43,8 @@ body a {
   height: 100vh;
   overflow: auto;
   background-color: #efefef;
+  background-image: url(resources/images/logo-bg.jpg);
+  background-position: left top; background-repeat: no-repeat; background-size: cover;
 }
 
 .signinwrapper-layout {
@@ -60,10 +66,10 @@ body a {
 }
 .loginformblock-row{max-width: 465px; margin: 0 auto;}
 .sign-in__wrapper form {display: block; width: 100%; z-index: 1; animation: showSignInForm 1s; position: relative;}
-.loginformblock-row button[type=submit] {margin: 20px auto 10px; display: block; padding: 12px 20px; background-color: #cfa34a; border-color: #cfa34a; text-transform: uppercase; font-weight: bold; font-size: 18px;}
+.loginformblock-row button[type=submit] {margin: 20px auto 10px; display: block; padding: 12px 20px; background-color: #cfa34a; border: 0; border-color: #cfa34a; text-transform: uppercase; font-weight: bold; font-size: 18px;}
 .loginformblock-row button[type=submit]:hover{background-color: #3f3f3f; border-color: #3f3f3f;}
 .loginformblock-row .btn-link {color: #3f3f3f; text-decoration: none; font-weight: bold; margin-top: 15px; display: block; padding: 0;}
-.loginformblock-row .btn-link:hover{color: #cfa34a !important;}
+.loginformblock-row .btn-link:hover{color: #498BFF !important;}
 
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
@@ -171,9 +177,9 @@ input:-webkit-autofill:active {
   left: 0;
   width: 100%;
   z-index: 1;
-  margin-bottom: 30px; background-color: #3f3f3f; border-radius: 5px;
+  margin-bottom: 30px; background-color: #3f3f3f; border-radius: 10px; padding: 20px 25px;
 }
-.logo {max-width: 350px; margin: 0 auto;}
+.logo {max-width: 400px; margin: 0 auto;}
 
 
 .logheader img {
@@ -489,7 +495,7 @@ body {
 .filterbtn .btn {
   padding: 1px 6px;
   background-color: #b68d40;
-  color: #fff;
+  color: #fff; border: none;
 }
 
 .filterbtn .btn svg {
