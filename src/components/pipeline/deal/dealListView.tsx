@@ -55,7 +55,11 @@ const DealListView = (props: Params) => {
   const [exportFormat, setExportFormat] = useState<string>("csv");
   const [dealsList, setDealsList] = useState<Array<Deal>>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [pageSize, setPageSize] = useState(10);
+
+    const [paginationModel, setPaginationModel] = useState<{ page: number; pageSize: number }>({
+    page: 0,
+    pageSize: 8,
+  });
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -88,7 +92,8 @@ const DealListView = (props: Params) => {
   const stagesSvc = new StageService(ErrorBoundary);
   const dealSvc = new DealService(ErrorBoundary);
   const pipeLineSvc = new PipeLineService(ErrorBoundary);
-
+ const [pageSize, setPageSize] = useState(10);
+ 
   const columnMetaData = [
     { columnName: "stageName", columnHeaderName: "Stage", width: 150 },
     {
@@ -127,6 +132,8 @@ const DealListView = (props: Params) => {
   const [selectedUserId, setSelectedUserId] = useState<any>(null);
   const [dealFilterDialogIsOpen, setDealFilterDialogIsOpen] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
+
+
 
   const userProfile = JSON.parse(
     LocalStorageUtil.getItem(Constants.USER_PROFILE) || "{}"
@@ -182,80 +189,74 @@ const DealListView = (props: Params) => {
 
   const loadDeals = () => {
     setIsLoading(true);
-    stagesSvc
-      .getAllDealsByPipelines(currentPage, pageSize)
-      .then((response) => {
-        
-        if (response && Array.isArray(response.dealsDtos.deals)) {
-          setDealsList(response.dealsDtos.deals);
-          setTotalCount(response.dealsDtos.totalCount || 0);
-        } else {
-          console.error("API response is not valid:", response);
-          setDealsList([]);
-          setTotalCount(0);
+    const apiPage = paginationModel.page + 1; // API is 1-based
+    const size = paginationModel.pageSize;
+
+    stagesSvc.getAllDealsByPipelines(apiPage, size)
+      .then((res) => {
+        const rows = res?.dealsDtos?.deals ?? [];
+        const total = res?.dealsDtos?.totalCount ?? 0;
+        console.log('API totalCount:', total, 'rows:', rows.length);
+        setDealsList(rows);
+        setTotalCount(total);
+
+        // Clamp page if API says we’re past the end
+        const last = Math.max(0, Math.ceil(total / size) - 1);
+        if (paginationModel.page > last) {
+          setPaginationModel((p) => ({ ...p, page: last }));
         }
-        setIsLoading(false);
+      })
+      .catch((err) => setError(err))
+      .finally(() => setIsLoading(false));
+  };
+
+
+  // --- NEW: Load deals by filter or user (mirroring deals.tsx logic) ---
+  const loadDealsByFilter = () => {
+    setIsLoading(true);
+    setError(null as any);
+
+    const apiPage = paginationModel.page + 1;
+    const size = paginationModel.pageSize;
+
+    const req =
+      selectedUserId > 0
+        ? stagesSvc.getDealsByUserId(selectedUserId, pipeLineId, apiPage, size)
+        : stagesSvc.getDealsByFilterId(selectedFilterObj?.id, pipeLineId, userProfile.userId, apiPage, size);
+
+    req
+      .then((res: any) => {
+        const list: Deal[] = [];
+        (res?.stages ?? []).forEach((s: any) => (s?.deals ?? []).forEach((d: any) => list.push(d)));
+        setDealsList(list);
+
+        // Prefer API total if present; otherwise fall back so DataGrid can compute pages.
+        const apiTotal = res?.dealsDtos?.totalCount ?? res?.totalCount ?? 0;
+        const inferred = apiTotal || (paginationModel.page * size + list.length + (list.length === size ? size : 0));
+        setTotalCount(apiTotal || inferred);
+
+        const last = Math.max(0, Math.ceil((apiTotal || inferred) / size) - 1);
+        if (paginationModel.page > last) {
+          setPaginationModel((p) => ({ ...p, page: last }));
+        }
       })
       .catch((err) => {
         setError(err);
-        setIsLoading(false);
         setDealsList([]);
-        setTotalCount(0);
-      });
-  };
-
-  // --- NEW: Load deals by filter or user (mirroring deals.tsx logic) ---
-  const loadDealsByFilter = (pageSizeOverride?: number) => {
-    setIsLoading(true);
-    setError(null as any);
-    // Use selectedUserId if present, else selectedFilterObj
-    (selectedUserId > 0
-      ? stagesSvc.getDealsByUserId(
-          selectedUserId,
-          pipeLineId,
-          currentPage,
-          pageSizeOverride ?? pageSize
-        )
-      : stagesSvc.getDealsByFilterId(
-          selectedFilterObj?.id,
-          pipeLineId,
-          userProfile.userId,
-          currentPage,
-          pageSizeOverride ?? pageSize
-        )
-    )
-      .then((res: any) => {
-        // deals.tsx: flatten all deals from all stages
-        let totalDealsList: Array<Deal> = [];
-        if (res && Array.isArray(res.stages)) {
-          res.stages.forEach((stage: any) => {
-            if (Array.isArray(stage.deals)) {
-              stage.deals.forEach((deal: any) => {
-                totalDealsList.push(deal);
-              });
-            }
-          });
-        }
-        setDealsList(totalDealsList);
-        setIsLoading(false);
+        setTotalCount(paginationModel.page * size); // conservative fallback
+        if (paginationModel.page > 0) setPaginationModel((p) => ({ ...p, page: Math.max(0, p.page - 1) }));
       })
-      .catch((err: any) => {
-        setError(err);
-        setDealsList([]);
-        setIsLoading(false);
-      });
+      .finally(() => setIsLoading(false));
   };
-
+// only load pipelines once
+useEffect(() => { loadPipeLines(); }, []);
   // --- Update effect to load deals when filter/user/page changes ---
   useEffect(() => {
-    if (selectedFilterObj || selectedUserId) {
-      loadDealsByFilter();
-    } else {
-      // fallback: load all deals (legacy, or if nothing selected)
-      loadDeals();
-    }
+    if (selectedFilterObj || selectedUserId) loadDealsByFilter();
+    else loadDeals();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedFilterObj, selectedUserId, currentPage]);
+  }, [selectedFilterObj, selectedUserId, paginationModel]);
+
 
   const handleSort = (key: string) => {
     let direction = "asc";
@@ -304,13 +305,14 @@ const DealListView = (props: Params) => {
     setSelectedRows(id);
   };
 
-  const handlePageChange = (newPage: number) => {
-    setIsLoading(true);
-    setCurrentPage(newPage);
-    setSelectedRows([]);
-    setDrawerOpen(false);
-  };
 
+// If we ever land on an empty page (e.g., filters shrink results), bounce back one page.
+useEffect(() => {
+  if (!isLoading && currentPage > 1 && dealsList.length === 0) {
+    setCurrentPage((p) => Math.max(1, p - 1));
+  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [dealsList.length, isLoading]);
   // const toggleColumnSelection = (columnKey: string) => {
   //   if (selectedColumns.includes(columnKey)) {
   //     setSelectedColumns(selectedColumns.filter((key) => key !== columnKey));
@@ -771,6 +773,14 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
   const getSelectedDeals = () => {
     return dealsList.filter((deal: any) => selectedRows.includes(deal.dealID));
   };
+
+    const handlePageChange = (newPage: number) => {
+    setIsLoading(true);
+    setCurrentPage(newPage);
+    setSelectedRows([]);
+    setDrawerOpen(false);
+  };
+
   return (
     <>
       {/* Show spinner overlay when loading */}
@@ -808,11 +818,22 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
         checkboxSelection={true}
         rowData={updateRowData()}
         customRowData={true}
-        hidePagination={true} // Ensure DataGrid pagination is hidden
+        hidePagination={false} // Ensure DataGrid pagination is hidden
+   
         isCustomHeaderActions={true}
         customHeaderActions={customHeaderActions}
         onSelectionModelChange={handleRowSelection}
+       
+        dataGridProps={{
+          paginationMode: 'server',
+          rowCount: totalCount, 
+          paginationModel,                    // ✅ use the state object
+          onPaginationModelChange: setPaginationModel, // ✅ update it directly
+          pageSizeOptions: [10, 25, 50, 100],
+          // getRowId: (row) => row.dealID,    // only if your rows don't have `id`
+        }}
       />
+      
       <div className="pagination">
         <Button
           disabled={currentPage === 1}

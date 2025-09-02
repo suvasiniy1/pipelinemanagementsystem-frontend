@@ -13,13 +13,16 @@ import {
   GridCellParams,
   GridColDef,
   GridColumnHeaderParams,
-  gridClasses,
+  gridClasses
+  
 } from "@mui/x-data-grid";
 import moment from "moment";
 import { Spinner } from "react-bootstrap";
 import { toast } from "react-toastify";
 import Util from "../others/util";
 import { DeleteDialog } from "./deleteDialog";
+import { DataGridProps } from "@mui/x-data-grid";
+
 
 const ODD_OPACITY = 0.2;
 
@@ -116,6 +119,8 @@ export interface TableListProps {
   onSelectionModelChange?: (newSelection: GridRowSelectionModel) => void;
   customRowData?:boolean;
   hidePagination?:boolean;
+  dataGridProps?: Partial<DataGridProps>;
+ 
 }
 
 export interface ViewEditProps {
@@ -161,7 +166,7 @@ const Table: React.FC<TableListProps> = (props) => {
   const [propNameforDelete, setPropNameforDelete] = useState(
     props.propNameforDelete ? props.propNameforDelete : "name"
   );
-
+  const { dataGridProps } = props;    
   useEffect(() => {
     setColumnMetaRowData(props.columnMetaData);
   }, [props]);
@@ -328,6 +333,18 @@ const Table: React.FC<TableListProps> = (props) => {
       onSelectionModelChange(newSelection);
     }
   };
+const clientPaginationDefaults: Partial<DataGridProps> = props.hidePagination
+  ? {} // ⛔️ don't pass `pagination: false` — just omit it
+  : {
+      pagination: true, // ✅ must be true (or omitted)
+      pageSizeOptions: [8, 16, 32, 64],
+      initialState: {
+        pagination: { paginationModel: { pageSize: 8, page: 0 } },
+      },
+      slotProps: {
+        pagination: { showFirstButton: true, showLastButton: true },
+      },
+    };
   const generateGridColDef = (): GridColDef[] => {
     let index = 0;
     let columnDefs: GridColDef[] = columnMetaData.map(
@@ -514,7 +531,21 @@ const Table: React.FC<TableListProps> = (props) => {
           hideFooter={props.hidePagination}
           density="standard"
           sx={{ minWidth: 800, height: 'calc(100vh - 220px)', maxHeight: 'calc(100vh - 220px)', overflowY: 'auto' }}
-          {...(!props.hidePagination ? { pagination: true, pageSizeOptions: [8, 16, 32, 64], initialState: { pagination: { paginationModel: { pageSize: 8, page: 0 } } } } : { pageSizeOptions: [], initialState: {} })}
+          {...(!props.hidePagination ? { 
+            pagination: true, 
+            pageSizeOptions: [8, 16, 32, 64], 
+            initialState: { 
+              pagination: { 
+                paginationModel: { pageSize: 8, page: 0 } 
+              } 
+            },
+            slotProps: {
+              pagination: {
+                showFirstButton: true,
+                showLastButton: true,
+              },
+            }
+          } : { pageSizeOptions: [], initialState: {} })}
         />
       )}
     </Grid>
