@@ -3832,3 +3832,16 @@ select {
   display: flex !important;
   align-items: center !important;
 }
+.MuiDataGrid-menu,
+.MuiDataGrid-panel,
+.MuiDataGrid-popper {
+  z-index: 20000 !important;
+}
+/* keep any MUI popovers/menus above Bootstrap modal */
+.MuiPopover-root { z-index: 20000 !important; }
+.selectformtemplate {
+  max-height: 280px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}

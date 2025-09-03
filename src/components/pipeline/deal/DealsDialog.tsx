@@ -25,7 +25,8 @@ const columns: GridColDef[] = [
     { field: 'ownerName', headerName: 'Owner', width: 200 },
     { field: 'organizationName', headerName: 'Organization', width: 200 },
 ];
-
+const portalContainer =
+  typeof document !== 'undefined' ? () => document.body : undefined;
 const DealsDialog: React.FC<DealsDialogProps> = ({ show, onClose, dealsData ,stages, currentStageId }) => {
     const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({ page: 0, pageSize: 5 });
     return (
@@ -71,6 +72,35 @@ const DealsDialog: React.FC<DealsDialogProps> = ({ show, onClose, dealsData ,sta
             paginationModel={paginationModel}
             onPaginationModelChange={setPaginationModel}
             pageSizeOptions={[5, 10, 25, 50]}
+            slotProps={{
+    // Column menu + filter/columns panels
+    basePopper: {
+      disablePortal: false,            // force rendering into a portal
+      container: portalContainer,      // portal target → <body>
+      placement: 'bottom-start',
+      modifiers: [
+        { name: 'offset', options: { offset: [0, 6] } },
+        { name: 'flip', options: { fallbackPlacements: ['top-start'] } },
+        { name: 'preventOverflow', options: { rootBoundary: 'viewport', padding: 8 } },
+      ],
+    },
+
+    // you already have this part for the page-size dropdown
+    pagination: {
+      SelectProps: {
+        MenuProps: {
+          container: portalContainer,
+          disablePortal: false,
+          disableScrollLock: true,
+          PaperProps: { sx: { maxHeight: 280, overflowY: 'auto' } },
+        },
+      },
+    },
+  }}
+  sx={{
+    // safety net in case the grid version ignores container
+    '& .MuiDataGrid-menu, & .MuiDataGrid-panel': { zIndex: 20000 },
+  }}
         />
     ) : (
         <p style={{ textAlign: 'center', marginTop: '20px' }}>No data available</p>

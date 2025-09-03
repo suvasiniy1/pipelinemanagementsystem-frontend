@@ -103,8 +103,8 @@ export const SideBar = (props: params) => {
 
           <SubMenu icon={<MdCampaign color={compaignSubMenu.includes(selectedNavItem) ? activeNavColor : "black"} />} hidden={!Util.isAuthorized("Template")} defaultOpen={compaignSubMenu.includes(selectedNavItem)} label="Campaigns">
             <MenuItem hidden={!Util.isAuthorized("Template")} component={<Link to="/Template" />} onClick={() => setSelectedNavItem("Template")} icon={<HiTemplate color={selectedNavItem === "Template" ? activeNavColor : "black"} />}>Template</MenuItem>
-            <MenuItem hidden={!Util.isAuthorized("Email")} component={<Link to="/Email" />} onClick={() => setSelectedNavItem("Email")} icon={<MdEmail color={selectedNavItem === "Email" ? activeNavColor : "black"} />}>Email</MenuItem>
-            <MenuItem hidden={!Util.isAuthorized("Campaigns")} component={<Link to="/Campaigns" />} onClick={() => setSelectedNavItem("Campaign")} icon={<MdCampaign color={selectedNavItem === "Campaign" ? activeNavColor : "black"} />}>Campaign</MenuItem>
+            {/*<MenuItem hidden={!Util.isAuthorized("Email")} component={<Link to="/Email" />} onClick={() => setSelectedNavItem("Email")} icon={<MdEmail color={selectedNavItem === "Email" ? activeNavColor : "black"} />}>Email</MenuItem>
+            <MenuItem hidden={!Util.isAuthorized("Campaigns")} component={<Link to="/Campaigns" />} onClick={() => setSelectedNavItem("Campaign")} icon={<MdCampaign color={selectedNavItem === "Campaign" ? activeNavColor : "black"} />}>Campaign</MenuItem>*/}
           </SubMenu>
 
           <MenuItem hidden={!Util.isAuthorized("users")} component={<Link to="/users" />} onClick={() => setSelectedNavItem("Settings")} icon={<IoSettings color={selectedNavItem === "Settings" ? activeNavColor : "black"} />}>Manage User</MenuItem>

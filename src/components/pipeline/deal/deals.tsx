@@ -56,6 +56,7 @@ export const Deals = (props: params) => {
   const [selectedStageName, setSelectedStageName] = useState("");
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const defaultPageSize = 10;
+  const [hasMore, setHasMore] = useState(false);
   const [pipeLineId, setPipeLineId] = useState(
     new URLSearchParams(useLocation().search).get("pipelineID") as any
   );
@@ -81,7 +82,18 @@ export const Deals = (props: params) => {
   );
   const [selectedUserId, setSelectedUserId] = useState<any>();
   const [dealFilterDialogIsOpen, setDealFilterDialogIsOpen] = useState((selectedFilterObj as DealFilter)?.isPreview ?? false);
-  
+  const stageHasMore = (
+  stages: Stage[],
+  perStageLimit: number,
+  countsByStage?: Record<number, number> // optional: StageID -> total rows
+) => {
+  if (countsByStage) {
+    // precise: there are more if total > currently loaded in any stage
+    return stages.some(s => (countsByStage[s.stageID] ?? 0) > (s.deals?.length ?? 0));
+  }
+  // heuristic: if any stage returned the full page, there could be more
+  return stages.some(s => (s.deals?.length ?? 0) >= perStageLimit);
+};
   // useEffect(() => {
   //
   //     if(+pipeLineId>0) loadStages(pipeLineId);
@@ -179,6 +191,9 @@ export const Deals = (props: params) => {
         .getStages(selectedPipeLineId, 1, pagesize ?? pageSize)
         .then((items) => {
           let sortedStages = Util.sortList(items.stageDtos, "stageOrder");
+          const perStageLimit = pagesize ?? pageSize ?? defaultPageSize;
+          
+  setHasMore(stageHasMore(sortedStages, perStageLimit, (items as any)?.countsByStage));
           let totalDealsList: Array<Deal> = [];
           sortedStages.forEach((s: Stage) => {
             s.deals.forEach((d) => {
@@ -274,7 +289,7 @@ export const Deals = (props: params) => {
     }
   };
 
-  const loadDealsByFilter = (pageSize?: number) => {
+  const loadDealsByFilter = (size?: number) => {
     setIsLoading(true);
     setCustomError(null as any);
     setError(null as any);
@@ -295,7 +310,7 @@ export const Deals = (props: params) => {
     )
       .then((res) => {
         setIsLoading(false);
-        let sortedStages = Util.sortList(res.stages, "stageOrder");
+        const sortedStages = Util.sortList(res.stages, "stageOrder");
         let totalDealsList: Array<Deal> = [];
         sortedStages.forEach((s: Stage) => {
           s.deals.forEach((d) => {
@@ -305,7 +320,13 @@ export const Deals = (props: params) => {
         setTotalDeals([...totalDealsList]);
         setStages(sortedStages);
         setOriginalStages(sortedStages);
+        const perStageLimit = size ?? pageSize ?? defaultPageSize;
+    setHasMore(
+      stageHasMore(sortedStages, perStageLimit, (res as any)?.countsByStage)
+    );
         setIsLoadingMore(false);
+       
+ 
       })
       .catch((err) => {
         setCustomError("No deals under selected combination" as any);
@@ -416,6 +437,7 @@ export const Deals = (props: params) => {
                     </DragDropContext>
                   </div>
                   <div className="loadingmore">
+                    {hasMore && !isLoadingMore && pipeLines.length > 0 && (
                     <div
                       style={{ textAlign: "center" }}
                       hidden={isLoadingMore || pipeLines.length == 0}
@@ -444,6 +466,7 @@ export const Deals = (props: params) => {
                         Load More
                       </button>
                     </div>
+                     )}
                     <div
                       style={{ textAlign: "center" }}
                       hidden={!isLoadingMore || selectedFilterObj?.id > 0}

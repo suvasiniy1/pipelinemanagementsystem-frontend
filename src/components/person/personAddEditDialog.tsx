@@ -39,13 +39,13 @@ const PersonAddEditDialog: React.FC<ViewEditProps> = (props) => {
     const [sources, setSources] = useState<Array<{ name: string; value: string }>>([]);
     const [visibilityGroups, setVisibilityGroups] = useState<Array<{ name: string; value: string }>>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
-
+    const phoneRegex = /^\+?[0-9\s\-()]{7,20}$/;
     const controlsList: IControl[] = [
         { key: "Person Name", value: "personName", isRequired: true, isControlInNewLine: true, elementSize: 12 },
         { key: "First Name", value: "firstName", isRequired: true, isControlInNewLine: true, elementSize: 12 },
         { key: "Last Name", value: "lastName", isRequired: true, isControlInNewLine: true, elementSize: 12 },
         { key: "Email Address", value: "email", isRequired: true, isControlInNewLine: true, elementSize: 12, regex1: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, errMsg1: "Please enter a valid email address" },
-        { key: "Phone Number", type: ElementType.number, value: "phone", isRequired: true, isControlInNewLine: true, elementSize: 12, regex1: /^([0|\+[0-9]{1,5})?([7-9][0-9]{9})$/, errMsg1: "Please enter a valid phone number" },
+        { key: "Phone Number", type: ElementType.textbox,inputMode: "tel",value: "phone", isRequired: true, isControlInNewLine: true, elementSize: 12, regex1: phoneRegex, errMsg1: "Please enter a valid phone number" },
         { key: "Organization", value: "organizationID", isRequired: true, isControlInNewLine: true, elementSize: 12, type: ElementType.dropdown, options: organizations.map(org => ({ key: org.name, value: org.value })) },
         { key: "Label", value: "labelID", isRequired: true, isControlInNewLine: true, elementSize: 12, type: ElementType.dropdown, options: labels.map(label => ({ key: label.name, value: label.value })) },
         { key: "Owner", value: "userID", isRequired: true, isControlInNewLine: true, elementSize: 12, type: ElementType.dropdown, options: owners.map(owner => ({ key: owner.name, value: owner.value })) },

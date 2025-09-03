@@ -50,6 +50,7 @@ export interface IControl {
   bindable?:string;
   readOnly?: boolean;
   autoComplete?:string;
+  inputMode?: 'text' | 'tel' | 'numeric' | 'decimal'; 
 }
 
 export enum CustomActionPosition {
