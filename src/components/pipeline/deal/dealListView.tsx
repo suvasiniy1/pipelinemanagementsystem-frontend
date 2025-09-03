@@ -827,8 +827,8 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
         dataGridProps={{
           paginationMode: 'server',
           rowCount: totalCount, 
-          paginationModel,                    // ✅ use the state object
-          onPaginationModelChange: setPaginationModel, // ✅ update it directly
+          paginationModel,                    // use the state object
+          onPaginationModelChange: setPaginationModel, // update it directly
           pageSizeOptions: [10, 25, 50, 100],
           // getRowId: (row) => row.dealID,    // only if your rows don't have `id`
         }}
@@ -871,6 +871,7 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
                 spacing={2}
                 justifyContent="space-between"
                 alignItems="center"
+                flexDirection="column"
               >
                 <Grid item>
                   <div
@@ -960,8 +961,7 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
 </Button>
 
   </div>
-)}
-✅ 
+)} 
 
               </Grid>
             </div>

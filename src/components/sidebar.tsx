@@ -80,7 +80,7 @@ export const SideBar = (props: params) => {
           <img className="sidehidelogo" src={logoicon} style={{ display: collapsed ? "block" : "none", width: "28px", height:"auto", left:"10px", top:"15px" }} />
         </Header>
 
-        <Menu style={{ paddingTop: "60px" }}>
+        <Menu style={{ paddingTop: "58px" }}>
           <MenuItem hidden={!Util.isAuthorized("Stages")} icon={<HiOutlineFunnel  color={selectedNavItem === "Stages" ? activeNavColor : "black"} />} component={<Link to="/Stages" />} onClick={() => setSelectedNavItem("Stages")}>
             <b hidden={selectedNavItem !== "Stages"} style={{ color: selectedNavItem === "Stages" ? activeNavColor : "black" }}>Add Pipeline</b>
             <p hidden={selectedNavItem === "Stages"}>Add Pipeline</p>
