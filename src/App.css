@@ -20,13 +20,47 @@ html textarea {
   box-sizing: border-box;
 }
 
-body a {
-  color: #b68d40;
+.btn-primary {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: #4f80ff;
+    --bs-btn-border-color: #4f80ff;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #4f80ff;
+    --bs-btn-hover-border-color: #4f80ff;
+    --bs-btn-focus-shadow-rgb: 49, 132, 253;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #4f80ff;
+    --bs-btn-active-border-color: #4f80ff;
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: #fff;
+    --bs-btn-disabled-bg: #4f80ff;
+    --bs-btn-disabled-border-color: #4f80ff;
 }
-.bggradiant, .btngradiant{background: #498BFF !important;
-background: linear-gradient(90deg, rgba(73, 139, 255, 1) 0%, rgba(43, 212, 249, 1) 50%, rgba(45, 237, 180, 1) 100%) !important;}
-.btngradiant:hover{background: #498BFF !important;
-background: linear-gradient(260deg, rgba(73, 139, 255, 1) 0%, rgba(43, 212, 249, 1) 50%, rgba(45, 237, 180, 1) 100%) !important;}
+.btn-success {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: #2ffd8a;
+    --bs-btn-border-color: #2ffd8a;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #2ffd8a;
+    --bs-btn-hover-border-color: #2ffd8a;
+    --bs-btn-focus-shadow-rgb: 60, 153, 110;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #2ffd8a;
+    --bs-btn-active-border-color: #2ffd8a;
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: #fff;
+    --bs-btn-disabled-bg: #2ffd8a;
+    --bs-btn-disabled-border-color: #2ffd8a;
+}
+
+
+body a {
+  color: #f4a261;
+}
+.bggradiant, .btngradiant{background: #2FFD8A;
+background: linear-gradient(260deg, rgba(47, 253, 138, 1) 0%, rgba(79, 128, 255, 1) 80%);}
+.btngradiant:hover{background: #2FFD8A !important;
+background: linear-gradient(90deg, rgba(47, 253, 138, 1) 0%, rgba(79, 128, 255, 1) 80%) !important;}
 
 /* ---------- SIGN IN ---------- */
 .sign-in__wrapper {
@@ -448,8 +482,14 @@ body {
 
 .toolbutton-group .activetoolbtn,
 .toolbutton-group .activetoolbtn:focus {
-  border-color: #b68d40;
-  color: #b68d40;
+  border-color: #1f2937;
+  color: #1f2937;
+  background-color: #fff;
+}
+.toolbutton-group .activetoolbtn:hover {
+  border-color: #4f80ff;
+  background-color: #4f80ff;
+  color: #fff;
 }
 
 .toolbutton-group .toolpipebtn svg.fa-chart-simple {
@@ -492,11 +532,12 @@ body {
   align-items: center;
 }
 
-.filterbtn .btn {
+.filterbtn .btn, .filterbtn .btn:focus {
   padding: 1px 6px;
-  background-color: #b68d40;
+  background-color: #1f2937;
   color: #fff; border: none;
 }
+.filterbtn .btn:hover {background-color: #4f80ff;}
 
 .filterbtn .btn svg {
   font-size: 16px;
@@ -700,16 +741,16 @@ body {
   width: 100%;
   padding: 8px 10px;
   text-transform: uppercase;
-  background-color: #b68d40;
+  background-color: #f4a261;
   color: #fff;
-  border: 1px solid #b68d40;
+  border: 1px solid #f4a261;
   cursor: pointer;
 }
 
 .add-new-filter button:hover {
   background-color: #faf5eb;
-  color: #b68d40;
-  border: 1px solid #b68d40;
+  color: #f4a261;
+  border: 1px solid #f4a261;
 }
 
 .pipefiltertab-content.tab-content>.active {
@@ -759,7 +800,7 @@ body {
 }
 
 .filterowner-star {
-  color: #b68d40;
+  color: #f4a261;
 }
 
 .filterowner-tick {
@@ -1028,7 +1069,8 @@ select.selectfield {
 .toolbutton-group a {
   display: inline-block;
 }
-
+.toolbarview-actionsrow .css-sghohy-MuiButtonBase-root-MuiButton-root{background-color: #1f2937; color: #fff;}
+.toolbarview-actionsrow .css-sghohy-MuiButtonBase-root-MuiButton-root:hover{background-color: #4f80ff; color: #fff;}
 .stageaction-editrow {
   display: flex;
   align-items: center;
@@ -1827,7 +1869,7 @@ select.selectfield {
   align-items: center;
   background-color: #e4cb9a;
   border-radius: 4px;
-  border: 1px solid #b68d40;
+  border: 1px solid #f4a261;
   cursor: pointer;
   display: inline-flex;
   font-size: 14px;
@@ -2172,7 +2214,7 @@ select.selectfield {
 .dropdown-scheduledbox button.btn {
   background-color: #fff;
   border: none;
-  color: #b68d40;
+  color: #f4a261;
   padding: 0;
   font-weight: bold;
   font-size: 14px;
@@ -2182,7 +2224,7 @@ select.selectfield {
   background-color: #fff;
   border: none;
   padding: 0;
-  color: #b68d40;
+  color: #f4a261;
 }
 
 .sidebardetailtopbar {
@@ -2194,7 +2236,7 @@ select.selectfield {
 }
 
 .appdealtopbartitle {
-  color: #b68d40;
+  color: #f4a261;
   font-size: 14px;
   font-weight: bold;
 }
@@ -2204,7 +2246,7 @@ select.selectfield {
   background-color: #fff;
   border: none;
   padding: 0;
-  color: #b68d40;
+  color: #f4a261;
   font-weight: bold;
   font-size: 14px;
 }
@@ -2213,7 +2255,7 @@ select.selectfield {
   background-color: #fff;
   border: none;
   padding: 0;
-  color: #b68d40;
+  color: #f4a261;
 }
 
 .app-dealblock {
@@ -2418,8 +2460,8 @@ button.fields-editbtn {
   line-height: 1.2;
   border: none;
   font-weight: 600;
-  color: #b68d40;
-  fill: #b68d40;
+  color: #f4a261;
+  fill: #f4a261;
 }
 
 .products-addbutton .btn:hover {
@@ -2442,7 +2484,7 @@ button.fields-editbtn {
   padding: 5px 4px;
   font-size: 14px;
   font-weight: 500;
-  color: #b68d40;
+  color: #f4a261;
   text-align: left;
   border-radius: 4px;
   display: flex;
@@ -2550,12 +2592,12 @@ button.fields-editbtn {
 .timeline-tabslinks{display: flex; flex-wrap: wrap;}
 .tabbtn{display: flex; align-items: center; justify-content: center; min-height: 40px; position: relative; border-bottom: 2px solid transparent; padding: 6px 12px; background-color: inherit; color: #65686f; cursor: pointer; text-decoration: none; transition: color 1.s cubic-bezier(.5,0,.2,1); white-space: nowrap;}
 .tabbtn:hover{background-color: #f5f5f6; color: #21232c; border-color:rgba(33,35,44,.24);}
-.tabactive{background-color: #eff6ff; color: #b68d40; border-color: #2b74da;}
+.tabactive{background-color: #eff6ff; color: #f4a261; border-color: #2b74da;}
 .tabbtn:first-child{border-radius: 4px 0 0 0;}
 .tabbtn svg{font-size: 16px; margin-right: 8px;}
 .timeline-tabscontent{position: relative; order: 2;} */
 .timelinetab-block .nav-link {
-  color: #b68d40;
+  color: #f4a261;
 }
 
 .nav-tabs {
@@ -2639,7 +2681,7 @@ button.fields-editbtn {
   background-color: #fff;
   border: none;
   padding: 0;
-  color: #b68d40;
+  color: #f4a261;
   font-weight: bold;
   font-size: 14px;
 }
@@ -2701,11 +2743,11 @@ button.fields-editbtn {
 
 .activityfilter-acco .accordion-header button svg {
   margin-right: 5px;
-  color: #b68d40;
+  color: #f4a261;
 }
 
 .accocolortext {
-  color: #b68d40;
+  color: #f4a261;
   font-weight: bold;
   margin-left: 4px;
 }
@@ -2719,7 +2761,7 @@ button.fields-editbtn {
   background-color: inherit;
   border: none;
   padding: 2px 0;
-  color: #b68d40;
+  color: #f4a261;
   font-weight: bold;
   font-size: 14px;
 }
@@ -2743,7 +2785,7 @@ button.fields-editbtn {
 .accoaddcomment {}
 
 .addcomlink {
-  color: #b68d40;
+  color: #f4a261;
   text-decoration: none;
   cursor: pointer;
 }

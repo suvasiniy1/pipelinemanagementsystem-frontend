@@ -165,7 +165,7 @@ const ReportingDashboard = () => {
             alignItems: 'center', 
             marginBottom: '10px',
             fontWeight: 'bold',
-            color: '#b68d40'
+            color: '#1f2937'
           }}>
             <FontAwesomeIcon icon={faTachometerAlt} style={{ marginRight: '8px' }} />
             Dashboards
@@ -174,7 +174,7 @@ const ReportingDashboard = () => {
             style={{ 
               padding: '8px 16px', 
               cursor: 'pointer',
-              backgroundColor: activeNavItem === 'My Dashboard' ? '#e4cb9a' : 'transparent',
+              backgroundColor: activeNavItem === 'My Dashboard' ? '#1f2937' : 'transparent',
               borderRadius: '4px',
               marginBottom: '5px'
             }}
@@ -188,7 +188,7 @@ const ReportingDashboard = () => {
               style={{ 
                 padding: '8px 16px', 
                 cursor: 'pointer',
-                backgroundColor: activeNavItem === dashboard.name ? '#e4cb9a' : 'transparent',
+                backgroundColor: activeNavItem === dashboard.name ? '#e4cb9a' : 'transparent', color: '#1f2937',
                 borderRadius: '4px',
                 marginBottom: '5px'
               }}
@@ -206,7 +206,7 @@ const ReportingDashboard = () => {
             alignItems: 'center', 
             marginBottom: '10px',
             fontWeight: 'bold',
-            color: '#b68d40'
+            color: '#1f2937'
           }}>
             <FontAwesomeIcon icon={faChartBar} style={{ marginRight: '8px' }} />
             Reports

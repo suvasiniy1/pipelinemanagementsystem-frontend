@@ -473,7 +473,7 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                   <small>Won</small>
                 </div>
                 <div className="d-flex align-items-center gap-1">
-                  <div className="rounded" style={{ width: '12px', height: '12px', backgroundColor: '#F08080' }}></div>
+                  <div className="rounded" style={{ width: '12px', height: '12px', backgroundColor: '#f4a261' }}></div>
                   <small>Lost</small>
                 </div>
                 <div className="d-flex align-items-center gap-1">
@@ -602,9 +602,9 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
           }
           
           const barSize = (value / maxValue) * (isHorizontal ? 70 : 280); // Percentage for horizontal, pixels for vertical
-          const colors = ['#28a745', '#F08080', '#ADD8E6']; // Won, Lost, Open
+          const colors = ['#28a745', '#f4a261', '#ADD8E6']; // Won, Lost, Open
           const getStatusColor = (index: number) => {
-            const statusColors = ['#90EE90', '#F08080', '#ADD8E6']; // Won, Lost, Open
+            const statusColors = ['#90EE90', '#f4a261', '#ADD8E6']; // Won, Lost, Open
             return statusColors[index % 3];
           };
           const barColor = getStatusColor(index);
@@ -663,7 +663,7 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                       transition: 'all 0.3s ease'
                     }}></div>
                     <div style={{
-                      backgroundColor: '#F08080',
+                      backgroundColor: '#f4a261',
                       flex: item.lost / item.total,
                       minWidth: isHorizontal ? '3px' : '100%',
                       minHeight: isHorizontal ? '100%' : '3px',
@@ -779,7 +779,7 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
   };
 
   const renderPieChart = (data: any[], reportName: string) => {
-    const colors = ['#28a745', '#F08080', '#ADD8E6']; // Won, Lost, Open
+    const colors = ['#28a745', '#f4a261', '#ADD8E6']; // Won, Lost, Open
     
     return (
       <div className="row">
@@ -877,7 +877,7 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                       <span className="badge text-white" style={{ backgroundColor: '#28a745' }}>
                         <span className="me-1">✓</span>{item.won} Won
                       </span>
-                      <span className="badge text-white" style={{ backgroundColor: '#F08080' }}>
+                      <span className="badge text-white" style={{ backgroundColor: '#f4a261' }}>
                         <span className="me-1">✗</span>{item.lost} Lost
                       </span>
                       <span className="badge text-dark" style={{ backgroundColor: '#ADD8E6' }}>
@@ -1065,7 +1065,7 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
             <tr key={index}>
               <td>{item.month}</td>
               <td><span className="badge text-white" style={{ backgroundColor: '#28a745' }}><span className="me-1">✓</span>{item.won}</span></td>
-              <td><span className="badge text-white" style={{ backgroundColor: '#F08080' }}><span className="me-1">✗</span>{item.lost}</span></td>
+              <td><span className="badge text-white" style={{ backgroundColor: '#f4a261' }}><span className="me-1">✗</span>{item.lost}</span></td>
               <td><span className="badge text-dark" style={{ backgroundColor: '#ADD8E6' }}><span className="me-1">○</span>{item.open}</span></td>
               <td><span className="badge bg-info">{item.qualified}</span></td>
               <td><span className="badge bg-secondary">{item.proposal}</span></td>
@@ -1745,7 +1745,7 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                             params.value === "Won"
                               ? "#28a745"
                               : params.value === "Lost"
-                              ? "#F08080"
+                              ? "#f4a261"
                               : "#ADD8E6",
                           color:
                             params.value === "Won" || params.value === "Lost"
@@ -1840,7 +1840,7 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                 style={{
                   width: "12px",
                   height: "12px",
-                  backgroundColor: "#F08080",
+                  backgroundColor: "#f4a261",
                   borderRadius: "50%",
                 }}
               ></div>
