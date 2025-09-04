@@ -21,7 +21,6 @@ import { Spinner } from "react-bootstrap";
 import { toast } from "react-toastify";
 import Util from "../others/util";
 import { DeleteDialog } from "./deleteDialog";
-import LocalStorageUtil from "../others/LocalStorageUtil";
 import { DataGridProps } from "@mui/x-data-grid";
 
 
@@ -57,13 +56,6 @@ const StripedDataGrid = styled(DataGrid)(({ theme }) => ({
         },
       },
     },
-  },
-  /* ✅ NEW: color whole rows for Won/Lost */
-  [`& .${gridClasses.row}.row-won`]: {
-    backgroundColor: "#e6f4ea",           // light green
-  },
-  [`& .${gridClasses.row}.row-lost`]: {
-    backgroundColor: "#fdecea",           // light red
   },
 }));
 
@@ -234,20 +226,9 @@ const Table: React.FC<TableListProps> = (props) => {
       const dateB = Date.parse(rawB);
       return dateB - dateA;
     });
-    // Get users from localStorage
-    const usersData = LocalStorageUtil.getItem('USERS_DATA');
-    const users = usersData ? JSON.parse(usersData) : [];
-    
     rowData.forEach((r) => {
-      // Convert modifiedBy ID to username using stored users data
-      if (r.modifiedBy && typeof r.modifiedBy === 'number') {
-        const user = users.find((u: any) => u.userId === r.modifiedBy);
-        r.modifiedBy = user ? user.userName : r.modifiedBy;
-      }
-      // Fallback for other user ID fields
-      if (!r.modifiedBy) {
-        r.modifiedBy = Util.getUserNameById(r.updatedBy ?? r.createdBy);
-      }
+      // Add modifiedBy using fallback logic
+      r.modifiedBy = Util.getUserNameById(r.updatedBy ?? r.createdBy);
       // Save original ISO string for sorting
       if (isISODateString(r.modifiedDate)) r.modifiedDateRaw = r.modifiedDate;
       if (isISODateString(r.createdDate)) r.createdDateRaw = r.createdDate;
@@ -347,12 +328,9 @@ const Table: React.FC<TableListProps> = (props) => {
     }
   }, [props.rowData]);
   const handleSelectionChange = (newSelection: GridRowSelectionModel) => {
-    // Only update selection if checkboxSelection is enabled
-    if (checkboxSelection) {
-      setSelectedRows(newSelection);
-      if (onSelectionModelChange) {
-        onSelectionModelChange(newSelection);
-      }
+    setSelectedRows(newSelection);
+    if (onSelectionModelChange) {
+      onSelectionModelChange(newSelection);
     }
   };
 const clientPaginationDefaults: Partial<DataGridProps> = props.hidePagination
@@ -546,23 +524,13 @@ const clientPaginationDefaults: Partial<DataGridProps> = props.hidePagination
           columnVisibilityModel={columnVisibilityModel}
           onColumnVisibilityModelChange={(newModel) => setColumnVisibilityModel(newModel)}
           checkboxSelection={checkboxSelection} // Enable checkbox selection
-          onRowSelectionModelChange={checkboxSelection ? handleSelectionChange : undefined}
-          disableRowSelectionOnClick={!checkboxSelection}
-          getRowClassName={(params) => {
-  const base = params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd";
-
-  // Use whatever field you have on the row. You were setting both statusText and status in some places.
-  const status = params.row?.statusText ?? params.row?.status;
-
-  if (status === "Won") return `${base} row-won`;
-  if (status === "Lost") return `${base} row-lost`;
-  return base; // Open/Closed: no special color
-}}
+          onRowSelectionModelChange={handleSelectionChange}
+          getRowClassName={(params) =>
+            params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
+          }
           hideFooter={props.hidePagination}
           density="standard"
           sx={{ minWidth: 800, height: 'calc(100vh - 220px)', maxHeight: 'calc(100vh - 220px)', overflowY: 'auto' }}
-           {...clientPaginationDefaults}
-          {...(props.dataGridProps ?? {})}
           {...(!props.hidePagination ? { 
             pagination: true, 
             pageSizeOptions: [8, 16, 32, 64], 
@@ -578,7 +546,6 @@ const clientPaginationDefaults: Partial<DataGridProps> = props.hidePagination
               },
             }
           } : { pageSizeOptions: [], initialState: {} })}
-         
         />
       )}
     </Grid>

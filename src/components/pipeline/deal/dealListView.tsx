@@ -1,4 +1,4 @@
-import { faGrip, faEllipsisV, faAdd, faBars, faDownload, faEnvelope, faPhone, faChartSimple } from "@fortawesome/free-solid-svg-icons";
+import { faGrip, faEllipsisV } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button, Grid } from "@mui/material";
 import Drawer from "@mui/material/Drawer";
@@ -27,19 +27,13 @@ import { DealExportPrview } from "./dealExportPreview";
 import { DealAddEditDialog } from "./dealAddEditDialog";
 import JustCallCampaignManager from "./justCallCampaignManager";
 import JustCallCampaignModal from "./justCallCampaignModal";
-
-
+import FilterDropdown from "./dealFilters/filterDropdown/filterDropdown";
+import { faChartSimple } from "@fortawesome/free-solid-svg-icons";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import DoneIcon from "@mui/icons-material/Done";
 import FilterAltOffIcon from "@mui/icons-material/FilterAltOff";
-import FilterDropdown from "./dealFilters/filterDropdown/filterDropdown";
-import GroupEmailDialog from "../../GroupEmailDialog";
-import { useMsal } from "@azure/msal-react";
-import { loginRequest } from "../../pipeline/deal/activities/email/authConfig";
-import { EmailTemplateService } from "../../../services/emailTemplateService";
-import { EmailTemplate } from "../../../models/emailTemplate";
 
 type Params = {
   pipeLineId: number;
@@ -58,10 +52,6 @@ const DealListView = (props: Params) => {
     selectedStageId,
     ...others
   } = props;
-  const { instance, accounts } = useMsal();                    // auth
-  const [groupEmailDialogOpen, setGroupEmailDialogOpen] = useState(false);
-  const [emailTemplates, setEmailTemplates] = useState<EmailTemplate[]>([]);
-  const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplate | null>(null);
   const [exportFormat, setExportFormat] = useState<string>("csv");
   const [dealsList, setDealsList] = useState<Array<Deal>>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -102,19 +92,8 @@ const DealListView = (props: Params) => {
   const stagesSvc = new StageService(ErrorBoundary);
   const dealSvc = new DealService(ErrorBoundary);
   const pipeLineSvc = new PipeLineService(ErrorBoundary);
-
-  const marketingColumns = [
-  { columnName: "marketing_GCLID",      columnHeaderName: "GCLID",            width: 180 },
-  { columnName: "marketing_source",     columnHeaderName: "Source",           width: 140 },
-  { columnName: "marketing_medium",     columnHeaderName: "Medium",           width: 140 },
-  { columnName: "marketing_term",       columnHeaderName: "Term",             width: 140 },
-  { columnName: "marketing_content",    columnHeaderName: "Content",          width: 160 },
-  { columnName: "submission_id",        columnHeaderName: "Submission ID",    width: 180 },
-  { columnName: "MarketingConsent",     columnHeaderName: "Marketing Consent",width: 180 },
-  { columnName: "TCCONSENT",            columnHeaderName: "T&C Consent",      width: 160 },
-  { columnName: "Marketing_FBClid",     columnHeaderName: "FBCLID",           width: 180 },
-];
-
+ const [pageSize, setPageSize] = useState(10);
+ 
   const columnMetaData = [
     { columnName: "stageName", columnHeaderName: "Stage", width: 150 },
     {
@@ -134,10 +113,6 @@ const DealListView = (props: Params) => {
       width: 150,
     },
     { columnName: "phone", columnHeaderName: "Phone", width: 150 },
-    { columnName: "email", columnHeaderName: "Email", width: 180 }, // ✅ NEW
-    
-  { columnName: "statusDisplay", columnHeaderName: "Status", width: 120 },
-
     {
       columnName: "expectedCloseDate",
       columnHeaderName: "Expected Close Date",
@@ -148,7 +123,6 @@ const DealListView = (props: Params) => {
       columnHeaderName: "Next Activity Date",
       width: 150,
     },
-    ...marketingColumns,  
   ];
 
   const [selectedColumns, setSelectedColumns] = useState<any[]>([]);
@@ -184,12 +158,6 @@ const DealListView = (props: Params) => {
     loadDeals();
     loadPipeLines();
   }, [currentPage]);
-  useEffect(() => {
-  const templateSvc = new EmailTemplateService(ErrorBoundary);
-  templateSvc.getEmailTemplates()
-    .then(setEmailTemplates)
-    .catch(() => toast.error("Failed to load email templates."));
-}, []);
 
   useEffect(() => {
     if (dealsList.length > 0) {
@@ -205,46 +173,6 @@ const DealListView = (props: Params) => {
       setTotalColumns(dynamicColumns);
     }
   }, [dealsList]);
-
-  // Close filter dropdown and DataGrid panels when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Element;
-      
-      // Close filter dropdown
-      if (!target.closest('.pipeselectbox') && !target.closest('.pipeselectcontent')) {
-        setShowPipeLineFilters(false);
-      }
-      
-      // Close DataGrid column options panel
-      if (!target.closest('.MuiDataGrid-panel') && !target.closest('.MuiDataGrid-columnHeaderTitleContainer')) {
-        const panels = document.querySelectorAll('.MuiDataGrid-panel');
-        panels.forEach(panel => {
-          (panel as HTMLElement).style.visibility = 'hidden';
-        });
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
- const getStatusNameById = (statusID?: number): string => {
-  switch (statusID) {
-    case 1:
-      return "Open";
-    case 2:
-      return "Won";
-    case 3:
-      return "Lost";
-    case 4:
-      return "Closed";
-    default:
-      return "N/A";
-  }
-};
 
   const loadPipeLines = () => {
     setIsLoading(true);
@@ -581,67 +509,34 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
       toast.error(response.message);
     }
   };
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case "Won":
-      return "green";
-    case "Lost":
-      return "red";
-    case "Open":
-      return "orange";
-    case "Closed":
-      return "gray";
-    default:
-      return "black";
-  }
-};
-
 
   const rowTransform = (item: Deal) => {
-    const transformedItem = { ...item };
-    
-    transformedItem.expectedCloseDate = moment(item.expectedCloseDate).format(
+    item.expectedCloseDate = moment(item.expectedCloseDate).format(
       window.config.DateFormat
     );
-    transformedItem.operationDate = moment(item.operationDate).format(
+    item.operationDate = moment(item.operationDate).format(
       window.config.DateFormat
     );
-    
-    // Fix value display logic
-    if (userRole === 1) {
-      const numValue = Number(item.value);
-      transformedItem.value = (item.value !== null && item.value !== undefined && !isNaN(numValue) && numValue >= 0)
-        ? `£${numValue}`
-        : "N/A";
-    } else {
-      transformedItem.value = "£0";
-    }
-    const statusText = getStatusNameById(item.statusID);
-    // ✅ Emoji only for Won & Lost
-  let statusDisplay = statusText;
-  if (statusText === "Won") {
-    statusDisplay = `🟢 ${statusText}`;
-  } else if (statusText === "Lost") {
-    statusDisplay = `🔴 ${statusText}`;
-  }
-  const person = utility.persons.find(p => p.personID === item.contactPersonID);
-  return {
-    ...transformedItem,
-    organization: getOrganizationName(item.organizationID),
-    contactPerson: getContactPersonName(item.contactPersonID),
-    phone: getContactPersonPhone(item.contactPersonID),
-    email: person?.email || "N/A", 
-    statusText,
-    statusDisplay, 
+    item.value =
+      userRole === 1
+        ? item.value && !isNaN(Number(item.value))
+          ? `£${item.value}`
+          : "N/A"
+        : "£0";
+    return {
+      ...item,
+      organization: getOrganizationName(item.organizationID),
+      contactPerson: getContactPersonName(item.contactPersonID), // Person Name here
+      phone: getContactPersonPhone(item.contactPersonID), // Person Phone here
+    };
   };
-};
 
-  const updateRowData = () =>
-  processRowData(dealsList).map((item, index) => {
-    const row = { ...rowTransform(item), id: item.dealID || `deal-${index}` };
-    delete (row as any).status; // <-- hide the raw status field
-    return row;
-  });
+  const updateRowData = () => {
+    return processRowData(dealsList).map((item, index) => ({
+      ...rowTransform(item),
+      id: item.dealID || `deal-${index}`,
+    }));
+  };
 
   const isISODateString = (value: any): boolean => {
     return (
@@ -687,23 +582,7 @@ const getStatusColor = (status: string) => {
     // Optionally, also close the filter dropdown
     setShowPipeLineFilters(false);
   };
-const handleOpenGroupEmailDialog = async () => {
-  if (!selectedRows.length) {
-    toast.warn("Please select at least one deal.");
-    return;
-  }
-  try {
-    await instance.acquireTokenSilent({ scopes: loginRequest.scopes, account: accounts[0] });
-    setGroupEmailDialogOpen(true);
-  } catch {
-    try {
-      const loginResponse = await instance.loginPopup(loginRequest);
-      if (loginResponse) setGroupEmailDialogOpen(true);
-    } catch {
-      toast.error("MSAL login failed. Try again.");
-    }
-  }
-};
+
   const customHeaderActions = () => {
     return (
       <div className="col-sm-7 toolbarview-summery">
@@ -730,14 +609,6 @@ const handleOpenGroupEmailDialog = async () => {
               <div
                 className="pipeselectcontent pipeselectfilter"
                 hidden={!showPipeLineFilters}
-                style={{
-                  position: 'absolute',
-                  right: 0,
-                  left: 'auto',
-                  transform: 'translateX(0)',
-                  zIndex: showPipeLineFilters ? 999 : -1,
-                  pointerEvents: showPipeLineFilters ? 'auto' : 'none'
-                }}
               >
                 <ul
                   className="nav nav-tabs pipefilternav-tabs"
@@ -851,44 +722,42 @@ const handleOpenGroupEmailDialog = async () => {
               </button>
             )}
           </div>
-          {/* Combined More Actions menu */}
+          <Dropdown className="toolgrip-dropdownbox">
+            <Dropdown.Toggle
+              className="toolpipebtn activetoolbtn"
+              variant="success"
+              id="dropdown-toolgrip"
+            >
+              <FontAwesomeIcon icon={faGrip} />
+            </Dropdown.Toggle>
+            <Dropdown.Menu className="toolgrip-dropdown">
+              <Dropdown.Item
+                onClick={(e: any) => {
+                  props.setViewType("list");
+                }}
+              >
+                List View
+              </Dropdown.Item>
+              <Dropdown.Item
+                onClick={(e: any) => {
+                  props.setViewType("kanban");
+                }}
+              >
+                Kanban View
+              </Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+          {/* 3 dots menu for all other actions, ensure it's not inside a flex with overflow/hidden */}
           <div style={{ position: 'relative', zIndex: 1050 }}>
             <Dropdown align="end">
-              <Dropdown.Toggle variant="secondary" id="dropdown-more-actions">
+              <Dropdown.Toggle variant="secondary" id="dropdown-bulk-actions">
                 <FontAwesomeIcon icon={faEllipsisV} />
               </Dropdown.Toggle>
               <Dropdown.Menu style={{ zIndex: 2000, minWidth: 180 }}>
-                <Dropdown.Item onClick={() => setOpenAddDealDialog(true)}>
-                  <FontAwesomeIcon icon={faAdd} style={{ marginRight: 8, color: '#28a745' }} />
-                  New Deal
-                </Dropdown.Item>
-                <Dropdown.Divider />
-                <Dropdown.Header style={{ fontSize: '12px', color: '#6c757d' }}>VIEW OPTIONS</Dropdown.Header>
-                <Dropdown.Item onClick={(e: any) => props.setViewType("list")}>
-                  <FontAwesomeIcon icon={faBars} style={{ marginRight: 8, color: '#007bff' }} />
-                  List View
-                </Dropdown.Item>
-                <Dropdown.Item onClick={(e: any) => props.setViewType("kanban")}>
-                  <FontAwesomeIcon icon={faGrip} style={{ marginRight: 8, color: '#007bff' }} />
-                  Kanban View
-                </Dropdown.Item>
-                <Dropdown.Divider />
-                <Dropdown.Header style={{ fontSize: '12px', color: '#6c757d' }}>BULK ACTIONS</Dropdown.Header>
-                <Dropdown.Item onClick={() => setDrawerOpen(true)} disabled={selectedRows.length > 0}>
-                  <FontAwesomeIcon icon={faDownload} style={{ marginRight: 8, color: '#17a2b8' }} />
-                  Export
-                </Dropdown.Item>
-                <Dropdown.Item onClick={handleOpenGroupEmailDialog} disabled={selectedRows.length === 0}>
-                 📧 Send Group Email
-                 </Dropdown.Item>
-                <Dropdown.Item onClick={() => setDrawerOpen(true)} disabled={selectedRows.length === 0}>
-                  <FontAwesomeIcon icon={faEnvelope} style={{ marginRight: 8, color: '#ffc107' }} />
-                  Send SMS
-                </Dropdown.Item>
-                <Dropdown.Item onClick={handleOpenSalesDialer} disabled={selectedRows.length === 0}>
-                  <FontAwesomeIcon icon={faPhone} style={{ marginRight: 8, color: '#6f42c1' }} />
-                  JustCall Sales Dialer
-                </Dropdown.Item>
+                <Dropdown.Item onClick={() => setOpenAddDealDialog(true)}>+ New Deal</Dropdown.Item>
+                <Dropdown.Item onClick={() => setDrawerOpen(true)} disabled={selectedRows.length > 0}>Export</Dropdown.Item>
+                <Dropdown.Item onClick={() => setDrawerOpen(true)} disabled={selectedRows.length === 0}>Send SMS</Dropdown.Item>
+                <Dropdown.Item onClick={handleOpenSalesDialer} disabled={selectedRows.length === 0}>JustCall Sales Dialer</Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
           </div>
@@ -904,6 +773,14 @@ const handleOpenGroupEmailDialog = async () => {
   const getSelectedDeals = () => {
     return dealsList.filter((deal: any) => selectedRows.includes(deal.dealID));
   };
+
+    const handlePageChange = (newPage: number) => {
+    setIsLoading(true);
+    setCurrentPage(newPage);
+    setSelectedRows([]);
+    setDrawerOpen(false);
+  };
+
   return (
     <>
       {/* Show spinner overlay when loading */}
@@ -947,16 +824,30 @@ const handleOpenGroupEmailDialog = async () => {
         customHeaderActions={customHeaderActions}
         onSelectionModelChange={handleRowSelection}
        
-  dataGridProps={{
-    paginationMode: 'server',
-    rowCount: totalCount, 
-    paginationModel,                    // ✅ use the state object
-    onPaginationModelChange: setPaginationModel, // ✅ update it directly
-    pageSizeOptions: [10, 25, 50, 100],
-    // getRowId: (row) => row.dealID,    // only if your rows don't have `id`
-  }}
+        dataGridProps={{
+          paginationMode: 'server',
+          rowCount: totalCount, 
+          paginationModel,                    // use the state object
+          onPaginationModelChange: setPaginationModel, // update it directly
+          pageSizeOptions: [10, 25, 50, 100],
+          // getRowId: (row) => row.dealID,    // only if your rows don't have `id`
+        }}
       />
       
+      <div className="pagination">
+        <Button
+          disabled={currentPage === 1}
+          onClick={() => handlePageChange(currentPage - 1)}
+        >
+          Previous
+        </Button>
+        <Button
+          disabled={dealsList.length === 0 || (currentPage * pageSize >= totalCount)}
+          onClick={() => handlePageChange(currentPage + 1)}
+        >
+          Next
+        </Button>
+      </div>
       <div className="pdstage-area">
         {error && <UnAuthorized error={error as any} />}
 
@@ -980,6 +871,7 @@ const handleOpenGroupEmailDialog = async () => {
                 spacing={2}
                 justifyContent="space-between"
                 alignItems="center"
+                flexDirection="column"
               >
                 <Grid item>
                   <div
@@ -1069,8 +961,7 @@ const handleOpenGroupEmailDialog = async () => {
 </Button>
 
   </div>
-)}
-✅ 
+)} 
 
               </Grid>
             </div>
@@ -1102,18 +993,6 @@ const handleOpenGroupEmailDialog = async () => {
           pipeLinesList={pipeLinesList}
         />
       )}
-      {groupEmailDialogOpen && (
-  <GroupEmailDialog
-    open={groupEmailDialogOpen}
-    onClose={() => setGroupEmailDialogOpen(false)}
-    selectedRecipients={getSelectedDeals()
-      .map(d => d.email)
-      .filter(e => !!e && e !== "N/A")}
-    selectedTemplate={selectedTemplate}
-    templates={emailTemplates}
-    onTemplateSelect={(t) => setSelectedTemplate(t)}
-  />
-)}
     </>
   );
 };

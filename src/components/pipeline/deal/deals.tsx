@@ -444,7 +444,7 @@ export const Deals = (props: params) => {
                     >
                       <button
                         type="button"
-                        className="btn btn-primary"
+                        className="btn btn-primary btngradiant"
                         style={{
                           minWidth: 160,
                           minHeight: 44,

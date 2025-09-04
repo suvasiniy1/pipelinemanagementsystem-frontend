@@ -73,19 +73,25 @@ transition: width 900ms !important;
 } */
 .rs-sidenav.sidenav{position: relative; display: flex; flex-direction: column; height: 100%; background-color: #fff; border-right: 1px solid #e4cb9a; box-shadow: 0 .9375rem 1.875rem 0 rgba(0,0,0,.02); transition: all .2s ease;}
 .rs-sidenav.sidenavExpand {width: 220px;}
-.sidenavhead {background-color: #3f3f3f; position: absolute; left: 0; top: 0; width: 100%; padding: 10px 20px 10px 10px; height: 58px; line-height: 38px; font-size: 30px; font-weight: 900; color: #ffffff;}
-.sidenavhead img{width:auto; height: 100%;}
+.sidenavhead {background-color: #4F80FF; position: absolute; left: 0; top: 0; width: 100%; padding: 10px 20px 10px 10px; height: 58px; line-height: 38px; font-size: 30px; font-weight: 900; color: #ffffff; display: flex; align-items: center;}
+.sidenavhead img{max-width: 100%; width:auto; height: auto;}
 .sidenavhead .sidehidelogo {display: none; position: absolute; left: 9px; top: 9px; width: 37px; height: auto;}
-.ps-sidebar-root .ps-sidebar-container{background-color: #faf5eb;}
-.ps-menu-root .ps-menuitem-root .ps-menu-button{border-bottom: 1px solid #e4cb9a;}
+.ps-sidebar-root .ps-sidebar-container{background-color: #1f2937;}
+.ps-menu-root .ps-menuitem-root .ps-menu-button{border-bottom: 1px solid #fff; color: #fff;}
+.ps-menu-root .ps-menuitem-root .ps-menu-button:hover{background-color: #f3f3f3; color: #4F80FF;}
 .ps-menu-button .ps-menu-icon{font-size: 20px;}
+.ps-menu-button .ps-menu-icon svg {color: #fff !important;}
+.ps-menu-button:hover .ps-menu-icon svg{color: #4F80FF !important;}
+.ps-submenu-content.ps-open {background-color: inherit;}
+.ps-menu-root .ps-menuitem-root .ps-submenu-content .ps-menu-button{background-color: #1f2937; color: #fff;}
+.ps-menu-root .ps-menuitem-root .ps-submenu-content .ps-menu-button:hover{color: #4F80FF;}
 
 
 .rs-sidenav-collapse-in .sidenavhead .sideopenlogo,
 .sidenavCollapse .sidenavhead .sideopenlogo{display: none;}
 .rs-sidenav-collapse-in .sidenavhead .sidehidelogo,
 .sidenavCollapse .sidenavhead .sidehidelogo {display: block;}
-.sidenavhead img.sideopenlogo {position: relative; top: -4px;}
+.sidenavhead img.sideopenlogo {position: relative; top:0;}
 .sidenavhead i{font-size: 20px;}
 .tnavicon a img {position: absolute; left: 15px; top: 15px; width: 24px; height: auto;}
 .rs-sidenav.sidenav .sidenavhead{background-color: #3f3f3f;}

@@ -9,7 +9,7 @@ type params={
 }
 export const HeaderComponent = (props:params) => {
     return (
-        <header id="header" className="header pt-2 pb-2">
+        <header id="header" className="header pt-2 pb-2 bggradiant">
             <div className="container-fluid">
                 <div className="headerrow align-items-center">
                     <div className="header-col colheadname">

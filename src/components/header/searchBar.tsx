@@ -243,7 +243,7 @@ export const SearchBar = () => {
                 borderRadius: "5px",
                 maxHeight: "300px",
                 overflowY: "auto",
-                zIndex: 1000,
+                zIndex: 3000,
               }}
             >
               <ul style={{ listStyleType: "none", margin: 0, padding: 0 }}>
