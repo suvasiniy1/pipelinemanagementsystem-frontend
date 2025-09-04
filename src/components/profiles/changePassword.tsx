@@ -1,5 +1,5 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Form, Spinner } from "react-bootstrap";
 import { FormProvider, useForm } from "react-hook-form";
 import { ToastContainer, toast } from "react-toastify";
@@ -32,10 +32,12 @@ const ChangePassword = () => {
 
   // Capture token and username from URL query params
   const queryParams = new URLSearchParams(location.search);
-  const token = queryParams.get("token");
+  const token = (queryParams.get("token") || "").replace(/ /g, "+");
   const changePassword = queryParams.get("changePassword");
   const userId = queryParams.get("userId");
   console.log("tk:", token, "Username:", userId);
+  const [linkStatus, setLinkStatus] =
+  useState<"checking"|"valid"|"invalid"|"notoken">(userId && token ? "checking" : "notoken");
 
   const forgotPasswordService = new ForgotPasswordService((error: any) => {
     setIsErrorChangingPassword(error.message || "Something went wrong.");
@@ -111,13 +113,18 @@ const ChangePassword = () => {
           navigate("/login");
         }, 3000); // Redirect to login after success
       }
-    } catch (error) {
-      setIsErrorChangingPassword(
-        "Something went wrong while resetting the password."
-      );
-    } finally {
-      setLoading(false);
-    }
+    } catch (err: any) {
+  const status = err?.response?.status;
+  const apiMsg =
+    err?.response?.data ||
+    err?.message ||
+    "Something went wrong while resetting the password.";
+  setIsErrorChangingPassword(
+    status === 410 ? (apiMsg || "This link is invalid or has expired.") : apiMsg
+  );
+} finally {
+  setLoading(false);
+}
   };
 
   const onChange = (value: any, item: any) => {
@@ -126,7 +133,30 @@ const ChangePassword = () => {
     if (item.value === "confirmPasswordHash") obj.confirmPasswordHash = value;
     setSelectedItem(obj);
   };
-
+useEffect(() => {
+  if (!(userId && token)) return; // first-login flow has no token
+  (async () => {
+    try {
+      await forgotPasswordService.validateReset(userId, token);
+      setLinkStatus("valid");
+    } catch (err: any) {
+      const msg = err?.response?.data || "This link is invalid or has expired.";
+      setIsErrorChangingPassword(msg);
+      setLinkStatus("invalid");
+    }
+  })();
+}, [userId, token]);
+if (linkStatus === "checking") return <div className="alignCenter"><Spinner/></div>;
+if (linkStatus === "invalid") {
+  return (
+    <div className="shadow p-4 bg-white rounded loginformblock">
+      <div style={{ color: "#d32f2f", fontWeight: 600, marginBottom: 12 }}>
+        {isErrorChangingPassword || "This link is invalid or has expired."}
+      </div>
+      <Button className="w-100" onClick={() => navigate("/login")}>Back to Login</Button>
+    </div>
+  );
+}
   return (
     <>
       <FormProvider {...methods}>

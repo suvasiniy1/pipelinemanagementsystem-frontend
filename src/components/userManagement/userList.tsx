@@ -11,6 +11,7 @@ import { Button, Tooltip } from "@mui/material";
 import { toast } from "react-toastify";
 import LockResetIcon from "@mui/icons-material/LockReset";
 import moment from "moment";
+import MailOutlineIcon from "@mui/icons-material/MailOutline";
 
 const UsersList = () => {
   const userSvc = new UserService(ErrorBoundary);
@@ -21,6 +22,7 @@ const UsersList = () => {
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
   const [userItem, setUserItem] = useState<User>(new User());
   const [loadRowData, setLoadRowData] = useState(true);
+  const [isResendClicked, setIsResendClicked] = useState(false);
 
   const columnMetaData = [
     { columnName: "firstName", columnHeaderName: "FirstName", width: 150 },
@@ -106,12 +108,27 @@ const UsersList = () => {
         setIsResetpasswordClicked(false);
       });
   };
+  const resendConfirmation = (row: any) => {
+  if (isResendClicked) return;
+  setIsResendClicked(true);
+  userSvc
+    .resendConfirmation(String(row.userId)) // <<< stringify
+    .then(() => toast.success(`Confirmation email sent to ${row.email}.`))
+    .catch((err: any) => {
+      const msg = err?.response?.data || "Failed to resend confirmation email.";
+      toast.error(msg);
+    })
+    .finally(() => setIsResendClicked(false));
+};
 
   const customActions = (item: any) => {
+     const row = item?.row;
     const userProfile = Util.UserProfile();
     const currentUserId = userProfile?.userId;
     const rowUserId = item?.row?.userId;
     const isCurrentUser = currentUserId && rowUserId && String(currentUserId) === String(rowUserId);
+    const needsConfirmation =
+  row?.emailConfirmed === false || row?.EmailConfirmed === false;
     return (
       <>
         <Button
@@ -124,6 +141,17 @@ const UsersList = () => {
           className="rowActionIcon"
           disabled={isCurrentUser}
         ></Button>
+        {/* Resend confirmation – only show when not confirmed */}
+      {needsConfirmation && (
+        <Button
+          color="primary"
+          startIcon={<MailOutlineIcon />}
+          title="Resend confirmation email"
+          onClick={() => resendConfirmation(row)}
+          className="rowActionIcon"
+          disabled={isResendClicked}
+        />
+      )}
       </>
     );
   };

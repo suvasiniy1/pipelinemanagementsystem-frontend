@@ -420,7 +420,7 @@ const clientPaginationDefaults: Partial<DataGridProps> = props.hidePagination
       headerName: "Actions",
       headerAlign: "left",
       sortable: false,
-      width: 220,
+      width: 280,
       disableColumnMenu: true,
       disableReorder: true,
       renderHeader: (params: GridColumnHeaderParams) => (

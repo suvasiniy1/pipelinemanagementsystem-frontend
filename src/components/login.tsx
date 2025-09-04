@@ -87,6 +87,9 @@ const Login = () => {
       type: ElementType.password,
       showEyeIcon: false,
       autoComplete:"new-password",
+      // ⬇️ block any whitespace
+      regex1: /^\S+$/,
+      errMsg1: "Password cannot contain spaces",
     },
   ]);
 
@@ -133,7 +136,9 @@ const Login = () => {
             setLoading(false);
             
             if(res?.forcePasswordReset){
-              navigate(`/changePassword?userId=${res.encryptedUserId}&changePassword=true`);
+              navigate(
+    `/changePassword?userId=${res.encryptedUserId}&token=${res.encryptedToken}&changePassword=true`
+  );
               return;
             }
             if (res && res?.token) {
@@ -288,7 +293,11 @@ const Login = () => {
               
               <Form
                   className="loginformblock"
-                  onSubmit={handleSubmit(onSubmitClick)}
+                  onSubmit={
+    twoFactorRequired
+      ? (e) => { e.preventDefault(); handleVerifyClick(); } // verify instead of login
+      : handleSubmit(onSubmitClick)                         // normal login
+  }
                 >
                 <div className="shadow p-5 bg-white rounded loginformblock-row">
                   {/* Header */}
@@ -318,6 +327,12 @@ const Login = () => {
                           value={verificationCode}
                           onChange={(e) => setVerificationCode(e.target.value)}
                           disabled={loading}
+                          onKeyDown={(e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        handleVerifyClick();   // call your /VerifyTwoFactorCode
+      }
+    }}
                         />
                       </Form.Group>
                       <br/>

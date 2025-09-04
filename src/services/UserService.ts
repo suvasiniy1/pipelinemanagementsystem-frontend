@@ -33,8 +33,17 @@ export class UserService extends BaseService<User> {
   getOrganizations(axiosCancel?: CancelTokenSource) {
     return this.getItems(axiosCancel, 'Organization/GetAllOrganizationDetails'); // Adjust the API endpoint as necessary
   }
-  confirmEmail(userId: string, token: string) {
-    return this.getItems(undefined, `ManageUser/ConfirmEmail?userId=${userId}&token=${token}`);
+
+confirmEmail(userId: string, token: string) {
+  const encToken = encodeURIComponent(token);           // ✅ good
+  const encUserId = encodeURIComponent(userId);         // (also safe)
+  return this.getItems(
+    undefined,
+    `ManageUser/ConfirmEmail?userId=${encUserId}&token=${encToken}`
+  );
+}
+resendConfirmation(userId: number | string) {
+  return this.postItemBySubURL({ userId }, "ResendConfirmation", false, true);
 }
 }
 

@@ -21,4 +21,5 @@ export class UserProfile {
   securityStamp?:string;
   forcePasswordReset?:boolean;
   encryptedUserId?:string;
+ encryptedToken?: string; 
 }

@@ -18,4 +18,8 @@ export class ForgotPasswordService extends BaseService<any> {
         const url = IsMockService() ? 'mockData/resetPassword.json' : `reset-password`;
         return this.postItemBySubURL({ token, username, password }, url, null as any, true, axiosCancel);
     }
+    validateReset(usernameOrUserId: string, token: string, axiosCancel?: any) {
+  const qs = new URLSearchParams({ username: usernameOrUserId, token }).toString();
+  return this.getItemsBySubURL(`validate-reset?${qs}`, axiosCancel); // add GET helper if needed
+}
 }

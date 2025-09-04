@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { Spinner } from "react-bootstrap";
 
 const PROGRESS_DURATION = 3; // seconds
+type VerifyState = "loading" | "verified" | "already" | "expired" | "invalid";
 
 const ConfirmEmail = () => {
   const location = useLocation();
@@ -18,52 +19,60 @@ const ConfirmEmail = () => {
   const [confirmationMessage, setConfirmationMessage] = useState("");
   const [elapsed, setElapsed] = useState(0);
   const [success, setSuccess] = useState(false);
-
+   const [state, setState] = useState<VerifyState>("loading");
+  const [message, setMessage] = useState("");
   // Helper function to extract query parameters from the URL
   const getQueryParams = (param: string) => {
     return new URLSearchParams(location.search).get(param);
   };
 
   useEffect(() => {
-    // Extract userId and token from the query parameters in the URL
-    const userId = getQueryParams("userId");
-    const token = getQueryParams("token");
+    const qs = new URLSearchParams(location.search);
+    const userId = qs.get("userId");
+    const token = qs.get("token");
 
     if (!userId || !token) {
-      setConfirmationMessage(
-        "Invalid email confirmation link. Please check your email for the correct link or request a new one."
-      );
-      setIsLoading(false);
+      setState("invalid");
+      setMessage("Invalid email confirmation link.");
+      setIsLoading(false);                     // ✅ stop spinner
       return;
     }
 
-    // Call the API to confirm the email
-    userSvc
-      .confirmEmail(userId, token)
-      .then((response) => {
-        if (response) {
-          setConfirmationMessage(
-            "Your email has been successfully verified. You can now log in and start using your account."
-          );
-          setSuccess(true);
+    (async () => {
+      try {
+        await userSvc.confirmEmail(userId, token); // throws on 4xx/5xx
+        setState("verified");
+        setMessage(
+          "Your email has been successfully verified. You can now log in and start using your account."
+        );
+      } catch (err: any) {
+        const status = err?.response?.status as number | undefined;
+        const apiMsg =
+          err?.response?.data?.message ||
+          err?.response?.data?.Message ||
+          "";
+
+        if (status === 409) {
+          setState("already");
+          setMessage(apiMsg || "Email already verified.");
+        } else if (status === 410) {
+          setState("expired");
+          setMessage(apiMsg || "This link is invalid or has expired.");
+        } else if (status === 400) {
+          setState("invalid");
+          setMessage(apiMsg || "Invalid confirmation token or link.");
         } else {
-          setSuccess(false);
-          setConfirmationMessage(
-            "We couldn't verify your email. The link may be invalid or expired. Please request a new verification email or contact support if the problem persists."
+          setState("invalid");
+          setMessage(
+            apiMsg ||
+              "We couldn't verify your email. Please request a new verification email or contact support."
           );
         }
-      })
-      .catch((error) => {
-        console.error("Email confirmation error:", error);
-        setSuccess(false);
-        setConfirmationMessage(
-          "We couldn't verify your email. The link may be invalid or expired. Please request a new verification email or contact support if the problem persists."
-        );
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, []);
+      } finally {
+        setIsLoading(false);                   // ✅ always stop spinner
+      }
+    })();
+  }, [location.search]);     
 
   // Countdown and redirect effect with smooth progress
   useEffect(() => {
@@ -87,7 +96,13 @@ const ConfirmEmail = () => {
       </div>
     );
   }
-
+  const isSuccess = state === "verified";
+const isWarning = state === "already";
+const palette = isSuccess
+  ? { bg: "linear-gradient(90deg,#43e97b 0%,#38f9d7 100%)", fg: "#155724", shadow: "0 4px 24px rgba(67,233,123,0.12)", track: "#e0f7ef", bar: "#43e97b" }
+  : isWarning
+  ? { bg: "linear-gradient(90deg,#fff3cd 0%,#ffe08a 100%)", fg: "#7a5c00", shadow: "0 4px 24px rgba(255,193,7,0.25)", track: "#fff3cd", bar: "#ffb300" }
+  : { bg: "linear-gradient(90deg,#ffdde1 0%,#ee9ca7 100%)", fg: "#d32f2f", shadow: "0 4px 24px rgba(233,67,67,0.12)", track: "#fbeaea", bar: "#e94b4b" };
   const progressPercent = Math.max(
     0,
     100 - (elapsed / PROGRESS_DURATION) * 100
@@ -105,132 +120,60 @@ const ConfirmEmail = () => {
       }}
     >
       <div
-        style={{
-          background: success
-            ? "linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)"
-            : "linear-gradient(90deg, #ffdde1 0%, #ee9ca7 100%)",
-          color: success ? "#155724" : "#d32f2f",
-          borderRadius: 16,
-          padding: "32px 40px",
-          boxShadow: success
-            ? "0 4px 24px rgba(67,233,123,0.12)"
-            : "0 4px 24px rgba(233,67,67,0.12)",
-          marginTop: 40,
-          textAlign: "center",
-          animation: "fadeInScale 0.7s",
-          position: "relative",
-          minWidth: 320,
-          maxWidth: 420,
-          wordBreak: 'break-word',
-          whiteSpace: 'pre-line',
-        }}
-      >
-        {success ? (
-          <>
-            <svg
-              width="64"
-              height="64"
-              fill="none"
-              viewBox="0 0 24 24"
-              style={{ marginBottom: 16 }}
-            >
-              <circle cx="12" cy="12" r="12" fill="#43e97b" fillOpacity="0.2" />
-              <path
-                d="M7 13l3 3 7-7"
-                stroke="#43e97b"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            <h2 style={{ fontWeight: 700, marginBottom: 8 }}>
-              Email Verified!
-            </h2>
-            <p style={{ fontSize: 18, marginBottom: 16, wordBreak: 'break-word', whiteSpace: 'pre-line' }}>
-              {confirmationMessage}
-            </p>
-            <div style={{ fontSize: 16, color: "#333", marginBottom: 8 }}>
-              Redirecting you to the login page in{" "}
-              <span style={{ fontWeight: 600 }}>{countdown}</span> second
-              {countdown !== 1 ? "s" : ""}...
-            </div>
-            <div
-              style={{
-                width: 120,
-                height: 8,
-                background: "#e0f7ef",
-                borderRadius: 4,
-                margin: "0 auto",
-                overflow: "hidden",
-              }}
-            >
-              <div
-                style={{
-                  width: `${progressPercent}%`,
-                  height: "100%",
-                  background: "#43e97b",
-                  transition: "width 0.05s linear",
-                }}
-              />
-            </div>
-          </>
-        ) : (
-          <>
-            <svg
-              width="64"
-              height="64"
-              fill="none"
-              viewBox="0 0 24 24"
-              style={{ marginBottom: 16 }}
-            >
-              <circle
-                cx="12"
-                cy="12"
-                r="12"
-                fill="#e94b4b"
-                fillOpacity="0.15"
-              />
-              <path
-                d="M9 9l6 6M15 9l-6 6"
-                stroke="#e94b4b"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            <h2 style={{ fontWeight: 700, marginBottom: 8 }}>
-              Email Verification Failed
-            </h2>
-            <p style={{ fontSize: 18, marginBottom: 16, wordBreak: 'break-word', whiteSpace: 'pre-line' }}>
-              {confirmationMessage}
-            </p>
-            <div style={{ fontSize: 16, color: "#333", marginBottom: 8 }}>
-              Redirecting you to the login page in{" "}
-              <span style={{ fontWeight: 600 }}>{countdown}</span> second
-              {countdown !== 1 ? "s" : ""}...
-            </div>
-            <div
-              style={{
-                width: 120,
-                height: 8,
-                background: "#fbeaea",
-                borderRadius: 4,
-                margin: "0 auto",
-                overflow: "hidden",
-              }}
-            >
-              <div
-                style={{
-                  width: `${progressPercent}%`,
-                  height: "100%",
-                  background: "#e94b4b",
-                  transition: "width 0.05s linear",
-                }}
-              />
-            </div>
-          </>
-        )}
-      </div>
+  style={{
+    background: palette.bg,
+    color: palette.fg,
+    boxShadow: palette.shadow,
+    borderRadius: 16,
+    padding: "32px 40px",
+    marginTop: 40,
+    textAlign: "center",
+    minWidth: 320,
+    maxWidth: 420,
+  }}
+>
+  {isSuccess ? (
+    <>
+      {/* ✅ green check */}
+      <svg width="64" height="64" viewBox="0 0 24 24" style={{ marginBottom: 16 }}>
+        <circle cx="12" cy="12" r="12" fill={palette.bar} opacity="0.2" />
+        <path d="M7 13l3 3 7-7" stroke={palette.bar} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      <h2 style={{ fontWeight: 700, marginBottom: 8 }}>Email Verified!</h2>
+    </>
+  ) : isWarning ? (
+    <>
+      {/* 🟡 info/warning */}
+      <svg width="64" height="64" viewBox="0 0 24 24" style={{ marginBottom: 16 }}>
+        <circle cx="12" cy="12" r="12" fill={palette.bar} opacity="0.2" />
+        <path d="M12 7.5v1.5M12 11v5" stroke={palette.bar} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      <h2 style={{ fontWeight: 700, marginBottom: 8 }}>Email Already Verified</h2>
+    </>
+  ) : (
+    <>
+      {/* ❌ red cross */}
+      <svg width="64" height="64" viewBox="0 0 24 24" style={{ marginBottom: 16 }}>
+        <circle cx="12" cy="12" r="12" fill={palette.bar} opacity="0.15" />
+        <path d="M9 9l6 6M15 9l-6 6" stroke={palette.bar} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      <h2 style={{ fontWeight: 700, marginBottom: 8 }}>
+        {state === "expired" ? "Link Expired" : "Email Verification Failed"}
+      </h2>
+    </>
+  )}
+
+  <p style={{ fontSize: 18, marginBottom: 16 }}>{message}</p>
+
+  <div style={{ fontSize: 16, color: "#333", marginBottom: 8 }}>
+    Redirecting you to the login page in <span style={{ fontWeight: 600 }}>{countdown}</span> second{countdown !== 1 ? "s" : ""}...
+  </div>
+
+  <div style={{ width: 120, height: 8, background: palette.track, borderRadius: 4, margin: "0 auto", overflow: "hidden" }}>
+    <div style={{ width: `${progressPercent}%`, height: "100%", background: palette.bar, transition: "width 0.05s linear" }} />
+  </div>
+</div>
+
       <style>{`
         @keyframes fadeInScale {
           0% { opacity: 0; transform: scale(0.85); }
