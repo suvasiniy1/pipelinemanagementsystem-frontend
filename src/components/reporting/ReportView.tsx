@@ -1,35 +1,38 @@
-import React, { useState } from "react";
-import { Form, Button, Badge, Dropdown, Tab, Tabs } from "react-bootstrap";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { 
-  faPlus, 
-  faTimes, 
-  faChartBar, 
-  faChartLine, 
-  faTable,
-  faDownload,
-  faFilter,
+import {
+  faChartBar,
+  faChartLine,
+  faChevronDown,
   faChevronUp,
-  faChevronDown
+  faCopy,
+  faDownload,
+  faEllipsisV,
+  faFilter,
+  faPlus,
+  faSave,
+  faSearch,
+  faTable,
+  faTachometerAlt,
+  faTimes,
+  faTrash
 } from '@fortawesome/free-solid-svg-icons';
-import { ReportDefinition } from '../../models/reportModels';
-import { 
-  generateDealPerformanceData, 
-  generateDealConversionData, 
-  generateDealDurationData, 
-  generateDealProgressData, 
-  generateDealProductsData,
-  generateDailyPerformanceData,
-  generateYearlyPerformanceData,
-  mockDealData 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { DataGrid } from '@mui/x-data-grid';
+import React, { useState } from "react";
+import { Badge, Button, Dropdown, Form } from "react-bootstrap";
+import { toast } from 'react-toastify';
+import { DeleteDialog } from '../../common/deleteDialog';
+import {
+  mockDealData
 } from '../../data/mockDealData';
+import { ReportDefinition } from '../../models/reportModels';
 
 interface ReportViewProps {
   entity: string;
   reportType: string;
   reportDefinition?: ReportDefinition;
   onBack: () => void;
+  onSave?: (reportData: any) => void;
+  onDelete?: (reportId: number) => void;
 }
 
 interface FilterCondition {
@@ -41,17 +44,8 @@ interface FilterCondition {
   displayText: string;
 }
 
-const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefinition, onBack }) => {
-  const [appliedFilters, setAppliedFilters] = useState<FilterCondition[]>(
-    reportDefinition?.conditions.map(condition => ({
-      id: condition.id.toString(),
-      entity: 'Deal',
-      field: condition.field,
-      operator: condition.operator,
-      value: condition.value.toString(),
-      displayText: `${condition.field} ${condition.operator} ${condition.value}`
-    })) || []
-  );
+const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefinition, onBack, onSave, onDelete }) => {
+  const [appliedFilters, setAppliedFilters] = useState<FilterCondition[]>([]);
   const [showAddCondition, setShowAddCondition] = useState(false);
   const [newCondition, setNewCondition] = useState({
     entity: 'Deal',
@@ -70,17 +64,63 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
   const [dealsCurrentPage, setDealsCurrentPage] = useState(1);
   const [dealsPageSize, setDealsPageSize] = useState(25);
   const [hoveredBar, setHoveredBar] = useState<{index: number, x: number, y: number, data: any} | null>(null);
-  const [savedFilters, setSavedFilters] = useState<FilterCondition[]>(
-    reportDefinition?.conditions.map(condition => ({
-      id: condition.id.toString(),
-      entity: 'Deal',
-      field: condition.field,
-      operator: condition.operator,
-      value: condition.value.toString(),
-      displayText: `${condition.field} ${condition.operator} ${condition.value}`
-    })) || []
-  );
+  const [savedFilters, setSavedFilters] = useState<FilterCondition[]>([]);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showAddToDashboard, setShowAddToDashboard] = useState(false);
+  const [dashboardSearch, setDashboardSearch] = useState("");
+  const [existingDashboards, setExistingDashboards] = useState<any[]>([]);
+  const [reportSaved, setReportSaved] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [reportName, setReportName] = useState(reportDefinition?.name || `${entity} ${reportType} Report`);
+  const [originalReportName, setOriginalReportName] = useState(reportDefinition?.name || `${entity} ${reportType} Report`);
+  const [reportNameError, setReportNameError] = useState('');
+  const [hasChanges, setHasChanges] = useState(false);
 
+  // Load existing dashboards from localStorage
+  React.useEffect(() => {
+    const savedDashboards = localStorage.getItem('createdDashboards');
+    if (savedDashboards) {
+      setExistingDashboards(JSON.parse(savedDashboards));
+    }
+    // Set reportSaved to true if reportDefinition exists (edit mode)
+    if (reportDefinition) {
+      setReportSaved(true);
+      setOriginalReportName(reportDefinition.name);
+      // Load existing conditions for editing
+      const existingConditions = reportDefinition.conditions.map(condition => ({
+        id: condition.id.toString(),
+        entity: 'Deal',
+        field: condition.field,
+        operator: condition.operator,
+        value: condition.value.toString(),
+        displayText: `${condition.field} ${condition.operator} ${condition.value}`
+      }));
+      setAppliedFilters(existingConditions);
+      setSavedFilters(existingConditions);
+    }
+  }, [reportDefinition]);
+
+  // Ensure localStorage persistence on component unmount
+  React.useEffect(() => {
+    return () => {
+      // Component cleanup - ensure any pending saves are preserved
+      const currentReports = localStorage.getItem('createdReports');
+      if (currentReports) {
+        console.log('ReportView unmounting - createdReports still in localStorage:', JSON.parse(currentReports).length, 'reports');
+      }
+    };
+  }, []);
+
+  // Track changes in filters and report name
+  React.useEffect(() => {
+    if (reportDefinition && reportSaved) {
+      const originalFilters = savedFilters;
+      const currentFilters = appliedFilters;
+      const filtersChanged = JSON.stringify(originalFilters) !== JSON.stringify(currentFilters);
+      const nameChanged = reportName !== originalReportName;
+      setHasChanges(filtersChanged || nameChanged);
+    }
+  }, [appliedFilters, savedFilters, reportDefinition, reportSaved, reportName, originalReportName]);
 
   const getFilteredData = () => {
     let filteredData = mockDealData;
@@ -88,9 +128,9 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
     console.log('Current newCondition:', newCondition);
     console.log('Original data count:', mockDealData.length);
     
-    // Include current newCondition if it's complete and there are no applied filters
+    // Include current newCondition if it's complete for preview
     const filtersToApply = [...appliedFilters];
-    if (appliedFilters.length === 0 && newCondition.field && newCondition.operator && newCondition.value) {
+    if (newCondition.field && newCondition.operator && newCondition.value) {
       filtersToApply.push({
         id: 'temp',
         entity: newCondition.entity,
@@ -174,20 +214,18 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
   };
 
   const handleAddConditionClick = () => {
-    if (showAddCondition) {
-      if (newCondition.field && newCondition.operator && newCondition.value) {
-        const condition: FilterCondition = {
-          id: Date.now().toString(),
-          entity: newCondition.entity,
-          field: newCondition.field,
-          operator: newCondition.operator,
-          value: newCondition.value,
-          displayText: `${newCondition.field} ${newCondition.operator} ${newCondition.value}`
-        };
-        setAppliedFilters([...appliedFilters, condition]);
-        setNewCondition({ entity: 'Deal', field: '', operator: '', value: '' });
-        setShowAddCondition(false);
-      }
+    if (newCondition.field && newCondition.operator && newCondition.value) {
+      const condition: FilterCondition = {
+        id: Date.now().toString(),
+        entity: newCondition.entity,
+        field: newCondition.field,
+        operator: newCondition.operator,
+        value: newCondition.value,
+        displayText: `${newCondition.field} ${newCondition.operator} ${newCondition.value}`
+      };
+      setAppliedFilters([...appliedFilters, condition]);
+      // Clear the newCondition completely
+      setNewCondition({ entity: 'Deal', field: '', operator: '', value: '' });
     } else {
       setShowAddCondition(true);
     }
@@ -227,12 +265,11 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
   ];
 
   const getReportData = () => {
-    const reportName = reportDefinition?.name || `${entity} ${reportType} Report`;
     const filteredDeals = getFilteredData();
     let data: Array<any>;
     
-    // Generate data based on filtered deals
-    if (reportName === 'Deal Performance Report') {
+    // Generate data based on report type instead of report name
+    if (reportType === 'Performance') {
       if (frequency === 'Daily') {
         data = generateDailyPerformanceDataFromDeals(filteredDeals);
       } else if (frequency === 'Yearly') {
@@ -241,17 +278,17 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
         data = generateMonthlyPerformanceDataFromDeals(filteredDeals);
       }
     } else {
-      switch (reportName) {
-        case 'Deal Conversion Analysis':
+      switch (reportType) {
+        case 'Conversion':
           data = generateConversionDataFromDeals(filteredDeals);
           break;
-        case 'Deal Duration Tracking':
+        case 'Duration':
           data = generateDurationDataFromDeals(filteredDeals);
           break;
-        case 'Deal Progress Overview':
+        case 'Progress':
           data = generateProgressDataFromDeals(filteredDeals);
           break;
-        case 'Deal Products Analysis':
+        case 'Products':
           data = generateProductsDataFromDeals(filteredDeals);
           break;
         default:
@@ -451,21 +488,21 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
 
   const renderChart = () => {
     const data = getReportData();
-    const reportName = reportDefinition?.name || `${entity} ${reportType} Report`;
+    const displayName = reportName || `${entity} ${reportType} Report`;
     
     if (chartType === 'table') {
-      return renderDataGrid(data, reportName);
+      return renderDataGrid(data, displayName);
     }
     
     if (chartType === 'scorecard') {
-      return renderScoreCard(data, reportName);
+      return renderScoreCard(data, displayName);
     }
     
     return (
       <div className="chart-container">
         <div className="bg-white border rounded p-4" style={{ minHeight: '400px' }}>
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <h6 className="mb-0">{reportName} - {chartType.charAt(0).toUpperCase() + chartType.slice(1)} Chart</h6>
+            <h6 className="mb-0">{displayName} - {chartType.charAt(0).toUpperCase() + chartType.slice(1)} Chart</h6>
             <div className="d-flex align-items-center gap-3">
               <div className="d-flex align-items-center gap-2">
                 <div className="d-flex align-items-center gap-1">
@@ -484,7 +521,7 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
               <small className="text-muted">Frequency: {frequency}</small>
             </div>
           </div>
-          {renderChartVisualization(data, reportName)}
+          {renderChartVisualization(data, displayName)}
         </div>
       </div>
     );
@@ -504,17 +541,17 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
     return <div className="text-center text-muted py-5">Chart visualization coming soon</div>;
   };
 
-  const renderBarColumnChart = (data: any[], reportName: string) => {
+  const renderBarColumnChart = (data: any[], displayName: string) => {
     const isHorizontal = chartType === 'bar';
     const displayedData = data.slice(0, isHorizontal ? 6 : Math.min(data.length, 12));
     const maxValue = Math.max(...displayedData.map(item => {
-      switch (reportName) {
-        case 'Deal Performance Report': return item.totalValue;
-        case 'Deal Conversion Analysis': return parseFloat(item.conversionRate);
-        case 'Deal Duration Tracking': return item.count;
-        case 'Deal Progress Overview': return item.count;
-        case 'Deal Products Analysis': return item.totalValue;
-        default: return 0;
+      switch (reportType) {
+        case 'Performance': return item.totalValue;
+        case 'Conversion': return parseFloat(item.conversionRate);
+        case 'Duration': return item.count;
+        case 'Progress': return item.count;
+        case 'Products': return item.totalValue;
+        default: return item.totalValue || item.count || 0;
       }
     }));
     
@@ -569,36 +606,36 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
         }}>
         {displayedData.map((item, index) => {
           let value: number, label: string, displayValue: string;
-          switch (reportName) {
-            case 'Deal Performance Report':
+          switch (reportType) {
+            case 'Performance':
               value = item.totalValue;
               label = item.month;
               displayValue = `$${(value/1000).toFixed(0)}K`;
               break;
-            case 'Deal Conversion Analysis':
+            case 'Conversion':
               value = parseFloat(item.conversionRate);
               label = item.month;
               displayValue = `${value}%`;
               break;
-            case 'Deal Duration Tracking':
+            case 'Duration':
               value = item.count;
               label = item.range;
               displayValue = value.toString();
               break;
-            case 'Deal Progress Overview':
+            case 'Progress':
               value = item.count;
               label = item.stage;
               displayValue = value.toString();
               break;
-            case 'Deal Products Analysis':
+            case 'Products':
               value = item.totalValue;
               label = item.product;
               displayValue = `$${(value/1000).toFixed(0)}K`;
               break;
             default:
-              value = 0;
-              label = 'N/A';
-              displayValue = '0';
+              value = item.totalValue || item.count || 0;
+              label = item.month || item.range || item.stage || item.product || 'N/A';
+              displayValue = value > 1000 ? `$${(value/1000).toFixed(0)}K` : value.toString();
           }
           
           const barSize = (value / maxValue) * (isHorizontal ? 70 : 280); // Percentage for horizontal, pixels for vertical
@@ -653,7 +690,7 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                 }}
                 onMouseLeave={() => setHoveredBar(null)}
               >
-                {reportName === 'Deal Performance Report' && item.total > 0 && (
+                {reportType === 'Performance' && item.total > 0 && (
                   <>
                     <div style={{
                       backgroundColor: '#28a745',
@@ -711,24 +748,24 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
             }}>
               {displayedData.map((item, index) => {
                 let label: string;
-                switch (reportName) {
-                  case 'Deal Performance Report':
+                switch (reportType) {
+                  case 'Performance':
                     label = item.month;
                     break;
-                  case 'Deal Conversion Analysis':
+                  case 'Conversion':
                     label = item.month;
                     break;
-                  case 'Deal Duration Tracking':
+                  case 'Duration':
                     label = item.range;
                     break;
-                  case 'Deal Progress Overview':
+                  case 'Progress':
                     label = item.stage;
                     break;
-                  case 'Deal Products Analysis':
+                  case 'Products':
                     label = item.product;
                     break;
                   default:
-                    label = 'N/A';
+                    label = item.month || item.range || item.stage || item.product || 'N/A';
                 }
                 return (
                   <div key={index} style={{ textAlign: 'center', fontSize: '10px' }}>
@@ -778,7 +815,7 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
     );
   };
 
-  const renderPieChart = (data: any[], reportName: string) => {
+  const renderPieChart = (data: any[], displayName: string) => {
     const colors = ['#28a745', '#f4a261', '#ADD8E6']; // Won, Lost, Open
     
     return (
@@ -810,30 +847,30 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
           <div className="legend">
             {data.map((item, index) => {
               let label, value;
-              switch (reportName) {
-                case 'Deal Performance Report':
+              switch (reportType) {
+                case 'Performance':
                   label = item.month;
                   value = `$${(item.totalValue/1000).toFixed(0)}K`;
                   break;
-                case 'Deal Conversion Analysis':
+                case 'Conversion':
                   label = item.month;
                   value = `${item.conversionRate}%`;
                   break;
-                case 'Deal Duration Tracking':
+                case 'Duration':
                   label = item.range;
                   value = `${item.count} (${item.percentage}%)`;
                   break;
-                case 'Deal Progress Overview':
+                case 'Progress':
                   label = item.stage;
                   value = `${item.count} (${item.percentage}%)`;
                   break;
-                case 'Deal Products Analysis':
+                case 'Products':
                   label = item.product;
                   value = `$${(item.totalValue/1000).toFixed(0)}K`;
                   break;
                 default:
-                  label = 'N/A';
-                  value = '0';
+                  label = item.month || item.range || item.stage || item.product || 'N/A';
+                  value = item.totalValue ? `$${(item.totalValue/1000).toFixed(0)}K` : (item.count || '0');
               }
               
               return (
@@ -1199,16 +1236,309 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
   return (
     <div className="report-view" style={{ padding: "20px" }}>
       {/* Header */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <Button variant="link" onClick={onBack} className="p-0 me-3">
+      <div className="d-flex justify-content-between align-items-center mb-4" style={{ minHeight: '48px' }}>
+        <div className="d-flex align-items-center">
+          <Button 
+            variant="link" 
+            onClick={onBack} 
+            className="p-0 me-3 text-decoration-none"
+            style={{ 
+              color: '#6c757d',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}
+          >
             ← Back
           </Button>
-          <h4 className="d-inline">
-            {entity} {reportType} Report
+          <h4 className="mb-0" style={{ 
+            color: '#1f2937',
+            fontWeight: '600',
+            fontSize: '24px'
+          }}>
+            {reportName || `${entity} ${reportType} Report`}
           </h4>
         </div>
+        <div className="d-flex gap-2">
+          {!reportSaved || hasChanges ? (
+            <>
+              <Button 
+                variant="outline-secondary" 
+                size="sm"
+                onClick={() => {
+                  if (hasChanges) {
+                    // Reset to original filters and name
+                    setAppliedFilters(savedFilters);
+                    setReportName(originalReportName);
+                    setHasChanges(false);
+                  } else {
+                    setShowCancelModal(true);
+                  }
+                }}
+              >
+                {hasChanges ? 'Discard Changes' : 'Cancel'}
+              </Button>
+              <Button 
+                variant="primary" 
+                size="sm"
+                disabled={appliedFilters.length === 0 && !(newCondition.field && newCondition.operator && newCondition.value)}
+                onClick={() => {
+                  // Validate report name
+                  if (!reportName.trim()) {
+                    setReportNameError('Report name is required');
+                    return;
+                  }
+                  
+                  // Check for duplicate report names
+                  const existingReports = JSON.parse(localStorage.getItem('createdReports') || '[]');
+                  const isDuplicate = existingReports.some((r: any) => 
+                    r.name.toLowerCase() === reportName.trim().toLowerCase() && 
+                    r.id !== reportDefinition?.id
+                  );
+                  
+                  if (isDuplicate) {
+                    setReportNameError('Report name already exists. Please choose a different name.');
+                    return;
+                  }
+                  
+                  // Only auto-add newCondition if there are no applied filters and newCondition is complete
+                  let conditionsToSave = [...appliedFilters];
+                  if (appliedFilters.length === 0 && newCondition.field && newCondition.operator && newCondition.value) {
+                    const autoCondition: FilterCondition = {
+                      id: Date.now().toString(),
+                      entity: newCondition.entity,
+                      field: newCondition.field,
+                      operator: newCondition.operator,
+                      value: newCondition.value,
+                      displayText: `${newCondition.field} ${newCondition.operator} ${newCondition.value}`
+                    };
+                    conditionsToSave.push(autoCondition);
+                  }
+                  
+                  // Check for incomplete newCondition (partial values)
+                  if ((newCondition.field || newCondition.operator || newCondition.value) && 
+                      !(newCondition.field && newCondition.operator && newCondition.value)) {
+                    toast.warning("Please complete the current condition or use the Add button before saving.");
+                    return;
+                  }
+                  
+                  if (conditionsToSave.length === 0) {
+                    toast.warning("Please add at least one condition before saving.");
+                    return;
+                  }
+                  
+                  const reportData = {
+                    name: reportName.trim(),
+                    entity,
+                    reportType,
+                    conditions: conditionsToSave.map(filter => ({
+                      id: parseInt(filter.id) || Date.now(),
+                      field: filter.field,
+                      operator: filter.operator,
+                      value: filter.value
+                    })),
+                    frequency,
+                    chartType,
+                    viewBy,
+                    segmentBy
+                  };
+                  
+                  // Save to localStorage
+                  const savedReports = JSON.parse(localStorage.getItem('createdReports') || '[]');
+                  console.log('Current reports in localStorage before save:', savedReports.length);
+                  
+                  const reportId = reportDefinition?.id || Date.now();
+                  const newReport = {
+                    id: reportId,
+                    name: reportData.name,
+                    type: reportData.reportType,
+                    entity: reportData.entity,
+                    createdDate: new Date().toLocaleDateString(),
+                    conditions: reportData.conditions,
+                    frequency: reportData.frequency,
+                    chartType: reportData.chartType,
+                    viewBy: reportData.viewBy,
+                    segmentBy: reportData.segmentBy
+                  };
+                  
+                  const existingIndex = savedReports.findIndex((r:any) => r.id === newReport.id);
+                  if (existingIndex >= 0) {
+                    savedReports[existingIndex] = newReport;
+                    console.log('Updated existing report at index:', existingIndex);
+                  } else {
+                    savedReports.push(newReport);
+                    console.log('Added new report, total reports now:', savedReports.length);
+                  }
+                  
+                  try {
+                    localStorage.setItem('createdReports', JSON.stringify(savedReports));
+                    console.log('Report saved to localStorage successfully:', newReport);
+                    
+                    // Verify the save worked
+                    const verifyReports = JSON.parse(localStorage.getItem('createdReports') || '[]');
+                    console.log('Verification - reports in localStorage after save:', verifyReports.length);
+                  } catch (error) {
+                    console.error('Error saving to localStorage:', error);
+                    toast.error('Failed to save report to local storage');
+                    return;
+                  }
+                  
+                  // Call parent onSave if provided
+                  if (onSave) {
+                    onSave(reportData);
+                  }
+                  
+                  // Update applied filters if we auto-added the newCondition
+                  if (appliedFilters.length === 0 && newCondition.field && newCondition.operator && newCondition.value) {
+                    setAppliedFilters(conditionsToSave);
+                  }
+                  setSavedFilters(conditionsToSave);
+                  setNewCondition({ entity: 'Deal', field: '', operator: '', value: '' });
+                  setReportSaved(true);
+                  setHasChanges(false);
+                  toast.success(hasChanges ? "Report updated successfully!" : "Report created successfully!");
+                }}
+              >
+                <FontAwesomeIcon icon={faSave} className="me-1" />
+                Save Report
+              </Button>
+            </>
+          ) : (
+            <div className="d-flex align-items-center gap-2">
+              <Dropdown show={showAddToDashboard} onToggle={setShowAddToDashboard}>
+                <Dropdown.Toggle 
+                  variant="outline-primary" 
+                  size="sm"
+                  className="d-flex align-items-center"
+                  style={{ 
+                    borderRadius: '6px',
+                    padding: '6px 12px',
+                    fontSize: '13px',
+                    fontWeight: '500'
+                  }}
+                >
+                  <FontAwesomeIcon icon={faTachometerAlt} className="me-2" style={{ fontSize: '12px' }} />
+                  Add to Dashboard
+                </Dropdown.Toggle>
+                <Dropdown.Menu style={{ minWidth: '300px', padding: '10px' }}>
+                  <div className="mb-2">
+                    <div style={{ position: 'relative' }}>
+                      <FontAwesomeIcon 
+                        icon={faSearch} 
+                        style={{ 
+                          position: 'absolute', 
+                          left: '8px', 
+                          top: '50%', 
+                          transform: 'translateY(-50%)',
+                          color: '#6c757d',
+                          fontSize: '12px'
+                        }} 
+                      />
+                      <Form.Control
+                        type="text"
+                        placeholder="Search dashboards..."
+                        value={dashboardSearch}
+                        onChange={(e) => setDashboardSearch(e.target.value)}
+                        style={{ paddingLeft: '30px', fontSize: '12px' }}
+                        size="sm"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                    {existingDashboards
+                      .filter(dashboard => 
+                        dashboard.name.toLowerCase().includes(dashboardSearch.toLowerCase())
+                      )
+                      .map(dashboard => (
+                        <Dropdown.Item 
+                          key={dashboard.id}
+                          onClick={() => {
+                            console.log(`Adding report to dashboard: ${dashboard.name}`);
+                            setShowAddToDashboard(false);
+                          }}
+                        >
+                          <FontAwesomeIcon icon={faTachometerAlt} className="me-2" />
+                          {dashboard.name}
+                        </Dropdown.Item>
+                      ))
+                    }
+                    
+                    {existingDashboards.filter(dashboard => 
+                      dashboard.name.toLowerCase().includes(dashboardSearch.toLowerCase())
+                    ).length === 0 && dashboardSearch && (
+                      <div className="text-muted text-center py-2" style={{ fontSize: '12px' }}>
+                        No dashboards found
+                      </div>
+                    )}
+                  </div>
+                  
+                  <Dropdown.Divider />
+                  
+                  <Dropdown.Item 
+                    onClick={() => {
+                      console.log('Creating new dashboard');
+                      setShowAddToDashboard(false);
+                    }}
+                    className="text-primary"
+                  >
+                    <FontAwesomeIcon icon={faPlus} className="me-2" />
+                    Create New Dashboard
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+              
+              <Dropdown>
+                <Dropdown.Toggle 
+                  variant="outline-secondary" 
+                  size="sm"
+                  className="d-flex align-items-center justify-content-center"
+                  style={{ 
+                    borderRadius: '6px',
+                    padding: '6px 8px',
+                    minWidth: '32px',
+                    height: '32px'
+                  }}
+                >
+                  <FontAwesomeIcon icon={faEllipsisV} style={{ fontSize: '14px' }} />
+                </Dropdown.Toggle>
+                <Dropdown.Menu>
+                  <Dropdown.Item onClick={() => console.log('Duplicate report')}>
+                    <FontAwesomeIcon icon={faCopy} className="me-2" />
+                    Duplicate Report
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => setShowDeleteModal(true)} className="text-danger">
+                    <FontAwesomeIcon icon={faTrash} className="me-2" />
+                    Delete Report
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            </div>
+          )}
+        </div>
+      </div>
 
+      {/* Report Name Section */}
+      <div className="mb-4">
+        <div className="row">
+          <div className="col-md-6">
+            <label className="form-label fw-bold">Report Name</label>
+            <Form.Control
+              type="text"
+              value={reportName}
+              onChange={(e) => {
+                setReportName(e.target.value);
+                setReportNameError('');
+              }}
+              placeholder="Enter report name"
+              isInvalid={!!reportNameError}
+            />
+            {reportNameError && (
+              <Form.Control.Feedback type="invalid">
+                {reportNameError}
+              </Form.Control.Feedback>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Filters Section */}
@@ -1231,7 +1561,7 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
           <div className="d-flex align-items-center justify-content-between">
             <div className="d-flex align-items-center gap-2">
               <FontAwesomeIcon icon={faFilter} className="me-2" />
-              <span className="fw-bold">Filters ({appliedFilters.length}) - Applied: ({savedFilters.length})</span>
+              <span className="fw-bold">Filters ({appliedFilters.length})</span>
             </div>
             <FontAwesomeIcon
               icon={filtersExpanded ? faChevronUp : faChevronDown}
@@ -1285,12 +1615,13 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                         onChange={(e) => {
                           const updatedFilters = appliedFilters.map((f) =>
                             f.id === filter.id
-                              ? { ...f, field: e.target.value, value: '' }
+                              ? { ...f, field: e.target.value, value: '', displayText: `${e.target.value} ${f.operator} ` }
                               : f
                           );
                           setAppliedFilters(updatedFilters);
                         }}
                       >
+                        <option value="">Select field</option>
                         {getFieldOptions().map((option) => (
                           <option key={option.value} value={option.value}>
                             {option.label}
@@ -1306,12 +1637,13 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                         onChange={(e) => {
                           const updatedFilters = appliedFilters.map((f) =>
                             f.id === filter.id
-                              ? { ...f, operator: e.target.value }
+                              ? { ...f, operator: e.target.value, displayText: `${f.field} ${e.target.value} ${f.value}` }
                               : f
                           );
                           setAppliedFilters(updatedFilters);
                         }}
                       >
+                        <option value="">Select</option>
                         {operatorOptions.map((option) => (
                           <option key={option.value} value={option.value}>
                             {option.label}
@@ -1328,7 +1660,7 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                           onChange={(e) => {
                             const updatedFilters = appliedFilters.map((f) =>
                               f.id === filter.id
-                                ? { ...f, value: e.target.value }
+                                ? { ...f, value: e.target.value, displayText: `${f.field} ${f.operator} ${e.target.value}` }
                                 : f
                             );
                             setAppliedFilters(updatedFilters);
@@ -1349,7 +1681,7 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                           onChange={(e) => {
                             const updatedFilters = appliedFilters.map((f) =>
                               f.id === filter.id
-                                ? { ...f, value: e.target.value }
+                                ? { ...f, value: e.target.value, displayText: `${f.field} ${f.operator} ${e.target.value}` }
                                 : f
                             );
                             setAppliedFilters(updatedFilters);
@@ -1363,7 +1695,7 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                           onChange={(e) => {
                             const updatedFilters = appliedFilters.map((f) =>
                               f.id === filter.id
-                                ? { ...f, value: e.target.value }
+                                ? { ...f, value: e.target.value, displayText: `${f.field} ${f.operator} ${e.target.value}` }
                                 : f
                             );
                             setAppliedFilters(updatedFilters);
@@ -1377,6 +1709,7 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                         variant="outline-danger"
                         size="sm"
                         onClick={() => removeFilter(filter.id)}
+                        title="Delete condition"
                       >
                         <FontAwesomeIcon icon={faTimes} />
                       </Button>
@@ -1385,7 +1718,8 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                 </div>
               ))}
 
-              {showAddCondition && (
+              {/* Show new condition row only if no applied filters OR if showAddCondition is true */}
+              {(appliedFilters.length === 0 || showAddCondition) && (
                 <div className={appliedFilters.length > 0 ? "mt-3" : ""}>
                   <div className="row g-2 align-items-end">
                     <div className="col-md-2">
@@ -1503,6 +1837,7 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                           setNewCondition({ entity: 'Deal', field: '', operator: '', value: '' });
                           setShowAddCondition(false);
                         }}
+                        title="Delete condition"
                       >
                         <FontAwesomeIcon icon={faTimes} />
                       </Button>
@@ -1510,21 +1845,27 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                   </div>
                 </div>
               )}
-
-              <div
-                className={
-                  appliedFilters.length > 0 || showAddCondition ? "mt-3" : ""
-                }
-              >
+              
+              {/* Add Condition Button - always show at bottom */}
+              <div className="mt-3">
                 <Button
                   variant="outline-primary"
                   size="sm"
-                  onClick={handleAddConditionClick}
+                  onClick={() => {
+                    if (newCondition.field && newCondition.operator && newCondition.value) {
+                      handleAddConditionClick();
+                    }
+                    if (!showAddCondition) {
+                      setShowAddCondition(true);
+                    }
+                  }}
                 >
                   <FontAwesomeIcon icon={faPlus} className="me-1" />
-                  {showAddCondition ? "Add condition" : "Add condition"}
+                  Add Condition
                 </Button>
               </div>
+
+
             </div>
           </div>
         )}
@@ -1663,15 +2004,9 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
               </Dropdown>
             </div>
 
-            {appliedFilters.length > 0 || (newCondition.field && newCondition.operator && newCondition.value) ? (
-              <div key={JSON.stringify(appliedFilters) + JSON.stringify(newCondition)}>
-                {renderChart()}
-              </div>
-            ) : (
-              <div className="text-center text-muted py-5">
-                <p>No filter conditions applied. Add filters to view data.</p>
-              </div>
-            )}
+            <div key={JSON.stringify(appliedFilters) + JSON.stringify(newCondition)}>
+              {renderChart()}
+            </div>
           </div>
         )}
       </div>
@@ -1703,13 +2038,12 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
 
         {tableExpanded && (
           <div className="p-3">
-            {appliedFilters.length > 0 || (newCondition.field && newCondition.operator && newCondition.value) ? (
-              <>
-                <div className="mb-3">
-                  <small className="text-muted">Showing {getFilteredData().length} deals (Filters: {appliedFilters.length + (appliedFilters.length === 0 && newCondition.field && newCondition.operator && newCondition.value ? 1 : 0)})</small>
-                </div>
-                <div style={{ height: 500, width: "100%" }} key={JSON.stringify(appliedFilters) + JSON.stringify(newCondition)}>
-                  <DataGrid
+            <>
+              <div className="mb-3">
+                <small className="text-muted">Showing {getFilteredData().length} deals (Filters: {appliedFilters.length + (newCondition.field && newCondition.operator && newCondition.value ? 1 : 0)})</small>
+              </div>
+              <div style={{ height: 500, width: "100%" }} key={JSON.stringify(appliedFilters) + JSON.stringify(newCondition)}>
+                <DataGrid
                 rows={getFilteredData().map((deal) => ({
                   id: deal.id,
                   title: deal.title,
@@ -1787,11 +2121,6 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                   />
                 </div>
               </>
-            ) : (
-              <div className="text-center text-muted py-5">
-                <p>No filter conditions applied. Add filters to view data.</p>
-              </div>
-            )}
           </div>
         )}
       </div>
@@ -1873,6 +2202,57 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
             </div>
           </div>
         </div>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteModal && (
+        <DeleteDialog
+          itemType="Report"
+          itemName={reportName}
+          dialogIsOpen={showDeleteModal}
+          closeDialog={() => setShowDeleteModal(false)}
+          onConfirm={() => {
+            if (reportDefinition?.id) {
+              // Remove from localStorage
+              const savedReports = JSON.parse(localStorage.getItem('createdReports') || '[]');
+              const updatedReports = savedReports.filter((r: any) => r.id !== reportDefinition.id);
+              localStorage.setItem('createdReports', JSON.stringify(updatedReports));
+              
+              // Call parent onDelete callback
+              if (onDelete) {
+                onDelete(reportDefinition.id);
+              }
+              
+              toast.success("Report deleted successfully!");
+              setShowDeleteModal(false);
+              onBack();
+            }
+          }}
+          customDeleteMessage={<div>Are you sure you want to delete <strong>{reportName}</strong>?</div>}
+          isPromptOnly={false}
+          confirmLabel="Delete"
+          cancelLabel="Cancel"
+          actionType="Delete"
+        />
+      )}
+
+      {/* Cancel Confirmation Dialog */}
+      {showCancelModal && (
+        <DeleteDialog
+          itemType="Report"
+          itemName="new report"
+          dialogIsOpen={showCancelModal}
+          closeDialog={() => setShowCancelModal(false)}
+          onConfirm={() => {
+            setShowCancelModal(false);
+            onBack();
+          }}
+          customDeleteMessage={<div>Are you sure you want to discard the new report?</div>}
+          isPromptOnly={false}
+          confirmLabel="Discard Report"
+          cancelLabel="Keep Editing"
+          actionType="Discard"
+        />
       )}
     </div>
   );

@@ -1,19 +1,13 @@
-import React, { useState, useEffect } from "react";
-import Tab from "react-bootstrap/Tab";
-import Tabs from "react-bootstrap/Tabs";
-import { Form, Modal } from "react-bootstrap";
-import { Button } from "@mui/material";
-import Filters from "./filters";
-import Util from "../../others/util";
-import CardContent from "./cardContent";
-import CreateButton from "./CreateButton";
-import AddReportModal from "./AddReportModal";
-import ReportView from "./ReportView";
-import { mockReports } from "../../data/mockReports";
-import { ReportDefinition } from "../../models/reportModels";
-import './reportingStyles.css';
+import { faChartBar, faSearch, faTachometerAlt } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faChartBar, faTachometerAlt } from '@fortawesome/free-solid-svg-icons';
+import { Button } from "@mui/material";
+import { useEffect, useState } from "react";
+import { Form, Modal } from "react-bootstrap";
+import { ReportDefinition } from "../../models/reportModels";
+import AddReportModal from "./AddReportModal";
+import CreateButton from "./CreateButton";
+import './reportingStyles.css';
+import ReportView from "./ReportView";
 
 const ReportingDashboard = () => {
   const [selectedTab, setSelectedTab] = useState("Deal Conversion");
@@ -40,10 +34,44 @@ const ReportingDashboard = () => {
   // Load saved reports from localStorage
   useEffect(() => {
     const savedReports = localStorage.getItem('createdReports');
+    if (savedReports) {
+      setCreatedReports(JSON.parse(savedReports));
+    }
+    
     const savedDashboards = localStorage.getItem('createdDashboards');
-    if (savedReports) setCreatedReports(JSON.parse(savedReports));
-    if (savedDashboards) setCreatedDashboards(JSON.parse(savedDashboards));
+    if (savedDashboards) {
+      setCreatedDashboards(JSON.parse(savedDashboards));
+    }
   }, []);
+
+  // Sync with localStorage changes (when reports are saved from ReportView)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const savedReports = localStorage.getItem('createdReports');
+      if (savedReports) {
+        setCreatedReports(JSON.parse(savedReports));
+      }
+    };
+
+    // Listen for storage events (from other tabs/windows)
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also check periodically for changes within the same tab
+    const interval = setInterval(() => {
+      const savedReports = localStorage.getItem('createdReports');
+      const currentReportsString = JSON.stringify(createdReports);
+      const savedReportsString = savedReports || '[]';
+      
+      if (currentReportsString !== savedReportsString) {
+        setCreatedReports(JSON.parse(savedReportsString));
+      }
+    }, 1000);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [createdReports]);
 
   const handleCreateSelect = (type: string) => {
     setCreateType(type);
@@ -81,21 +109,18 @@ const ReportingDashboard = () => {
   };
 
   const handleReportSubmit = (entity: string, reportType: string) => {
-    const newReport = {
-      id: Date.now(),
-      name: `${entity} ${reportType} Report`,
-      type: reportType,
-      entity: entity,
-      createdDate: new Date().toLocaleDateString()
-    };
-    
-    const updatedReports = [...createdReports, newReport];
-    setCreatedReports(updatedReports);
-    localStorage.setItem('createdReports', JSON.stringify(updatedReports));
-    
-    // Navigate to report view
+    // Navigate to report view without saving yet
     setCurrentReport({ entity, reportType });
     setCurrentView('report');
+  };
+
+  const handleSaveReport = (reportData: any) => {
+    // ReportView already saved to localStorage, just sync the state
+    const currentReports = JSON.parse(localStorage.getItem('createdReports') || '[]');
+    setCreatedReports(currentReports);
+    
+    // Update navigation to show the saved report
+    setActiveNavItem(reportData.name);
   };
 
   const handleBackToDashboard = () => {
@@ -103,12 +128,26 @@ const ReportingDashboard = () => {
     setCurrentReport(null);
   };
 
+  const handleDeleteReport = (reportId: number) => {
+    // Update state to remove the deleted report
+    const updatedReports = createdReports.filter(report => report.id !== reportId);
+    setCreatedReports(updatedReports);
+  };
+
   const handleReportClick = (report: any) => {
-    const mockReport = mockReports.find(r => r.name.includes(report.type));
+    // Convert saved report to ReportDefinition format
+    const reportDefinition: ReportDefinition = {
+      id: report.id,
+      name: report.name,
+      chartType: report.chartType || 'bar',
+      frequency: report.frequency || 'daily',
+      conditions: report.conditions || []
+    };
+    
     setCurrentReport({ 
       entity: report.entity, 
       reportType: report.type,
-      reportDefinition: mockReport
+      reportDefinition: reportDefinition
     });
     setCurrentView('report');
     setActiveNavItem(report.name);
@@ -229,7 +268,10 @@ const ReportingDashboard = () => {
                 }}
                 onClick={() => handleReportClick(report)}
               >
-                {report.name} ({report.type})
+                <div style={{ fontWeight: 'bold' }}>{report.name}</div>
+                <div style={{ fontSize: '12px', color: '#6c757d' }}>
+                  {report.entity} {report.type}
+                </div>
               </div>
             ))
           )}
@@ -244,6 +286,8 @@ const ReportingDashboard = () => {
             reportType={currentReport.reportType}
             reportDefinition={currentReport.reportDefinition}
             onBack={handleBackToDashboard}
+            onSave={handleSaveReport}
+            onDelete={handleDeleteReport}
           />
         ) : (
           <div style={{
