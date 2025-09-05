@@ -11,11 +11,15 @@ import LocalStorageUtil from "../../others/LocalStorageUtil";
 import Constants from "../../others/constants";
 import Util from "../../others/util";
 import { UserCredentails } from "../login";
-import jpg from "../../resources/images/Y1Logo.jpg";
-import BackgroundImage from "../../resources/images/background.png";
-import Logo from "../../resources/images/logo.png";
+
+
 import { ForgotPasswordService } from "../../services/forgotPasswordService";
 import { useNavigate, useLocation } from "react-router-dom"; // To get token and username from URL
+
+import BackgroundImage from "../../resources/images/background.png";
+import Logo from "../../resources/images/Clinic-Lead-White.png";
+import jpg from "../../resources/images/Y1Logo.jpg";
+import svg from "../../resources/images/Clinic-Lead-White.svg";
 
 const ChangePassword = () => {
   const [selectedItem, setSelectedItem] = useState(
@@ -160,17 +164,15 @@ if (linkStatus === "invalid") {
   return (
     <>
       <FormProvider {...methods}>
-        <div
-          className="sign-in__wrapper"
-          style={{ backgroundImage: `url(${BackgroundImage})` }}
-        >
+        <div className="sign-in__wrapper">
           <div className="signinwrapper-layout">
             <div className="signinwrapper-inner">
               {/* Overlay */}
               <div className="sign-in__backdrop"></div>
-              <div className="logheader">
-                {<img className="lohheaderlogo" src={jpg} alt="Y1 Logo" />}
-              </div>
+               <div className="logheader bggradiant">
+                              {<div className="logo"><img className="lohheaderlogo" src={Logo} /></div>}
+                              
+                            </div>
               {/* Form */}
               <Form
                 className="shadow p-4 bg-white rounded loginformblock"
@@ -178,9 +180,6 @@ if (linkStatus === "invalid") {
               >
                 {/* Header */}
                 <div className="logformhead">
-                  <div className="logformheadimg">
-                    <img className="img-thumbnail" src={Logo} alt="logo" />
-                  </div>
                   <div className="h4">Change Password</div>
                 </div>
 
