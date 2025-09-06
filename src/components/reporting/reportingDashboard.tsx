@@ -1,11 +1,14 @@
-import { faChartBar, faSearch, faTachometerAlt } from '@fortawesome/free-solid-svg-icons';
+import { faChartBar, faChevronDown, faChevronRight, faFolder, faSearch, faTachometerAlt } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from "@mui/material";
 import { useEffect, useState } from "react";
-import { Form, Modal } from "react-bootstrap";
+import { Form, Button as BootstrapButton } from "react-bootstrap";
+import { toast } from 'react-toastify';
+import { AddEditDialog } from '../../common/addEditDialog';
 import { ReportDefinition } from "../../models/reportModels";
 import AddReportModal from "./AddReportModal";
 import CreateButton from "./CreateButton";
+import DashboardView from "./DashboardView";
 import './reportingStyles.css';
 import ReportView from "./ReportView";
 
@@ -22,16 +25,24 @@ const ReportingDashboard = () => {
   const [reportName, setReportName] = useState("");
   const [reportType, setReportType] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedFolder, setSelectedFolder] = useState('');
+  const [showCreateFolder, setShowCreateFolder] = useState(false);
+  const [newFolderName, setNewFolderName] = useState('');
+  const [dashboardNameError, setDashboardNameError] = useState('');
+  const [folderNameError, setFolderNameError] = useState('');
   const [createdReports, setCreatedReports] = useState<any[]>([]);
   const [createdDashboards, setCreatedDashboards] = useState<any[]>([]);
+  const [dashboardFolders, setDashboardFolders] = useState<any[]>([]);
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const [activeNavItem, setActiveNavItem] = useState("My Dashboard");
   const [createType, setCreateType] = useState(""); // "Report" or "Dashboard"
-  const [currentView, setCurrentView] = useState<'dashboard' | 'report'>('dashboard');
+  const [currentView, setCurrentView] = useState<'home' | 'dashboard' | 'report'>('home');
   const [currentReport, setCurrentReport] = useState<{entity: string, reportType: string, reportDefinition?: ReportDefinition} | null>(null);
+  const [currentDashboard, setCurrentDashboard] = useState<any>(null);
   
   const reportTypes = ["Performance", "Conversion", "Duration", "Progress", "Products"];
 
-  // Load saved reports from localStorage
+  // Load saved reports and folders from localStorage
   useEffect(() => {
     const savedReports = localStorage.getItem('createdReports');
     if (savedReports) {
@@ -42,6 +53,11 @@ const ReportingDashboard = () => {
     if (savedDashboards) {
       setCreatedDashboards(JSON.parse(savedDashboards));
     }
+    
+    const savedFolders = localStorage.getItem('dashboardFolders');
+    if (savedFolders) {
+      setDashboardFolders(JSON.parse(savedFolders));
+    }
   }, []);
 
   // Sync with localStorage changes (when reports are saved from ReportView)
@@ -50,6 +66,16 @@ const ReportingDashboard = () => {
       const savedReports = localStorage.getItem('createdReports');
       if (savedReports) {
         setCreatedReports(JSON.parse(savedReports));
+      }
+      
+      const savedDashboards = localStorage.getItem('createdDashboards');
+      if (savedDashboards) {
+        setCreatedDashboards(JSON.parse(savedDashboards));
+      }
+      
+      const savedFolders = localStorage.getItem('dashboardFolders');
+      if (savedFolders) {
+        setDashboardFolders(JSON.parse(savedFolders));
       }
     };
 
@@ -78,35 +104,15 @@ const ReportingDashboard = () => {
     if (type === "report") {
       setShowAddReportModal(true);
     } else {
+      // Use same dashboard creation dialog as ReportView
       setShowCreateModal(true);
+      setReportName('');
+      setSelectedFolder('');
+      setDashboardNameError('');
     }
   };
 
-  const handleCreate = () => {
-    if (reportName && (createType === "dashboard" || reportType)) {
-      const newItem = {
-        id: Date.now(),
-        name: reportName,
-        type: createType === "dashboard" ? "Dashboard" : reportType,
-        createdDate: new Date().toLocaleDateString()
-      };
-      
-      if (createType === "dashboard") {
-        const updatedDashboards = [...createdDashboards, newItem];
-        setCreatedDashboards(updatedDashboards);
-        localStorage.setItem('createdDashboards', JSON.stringify(updatedDashboards));
-      } else {
-        const updatedReports = [...createdReports, newItem];
-        setCreatedReports(updatedReports);
-        localStorage.setItem('createdReports', JSON.stringify(updatedReports));
-      }
-      
-      setReportName("");
-      setReportType("");
-      setCreateType("");
-      setShowCreateModal(false);
-    }
-  };
+
 
   const handleReportSubmit = (entity: string, reportType: string) => {
     // Navigate to report view without saving yet
@@ -124,8 +130,36 @@ const ReportingDashboard = () => {
   };
 
   const handleBackToDashboard = () => {
-    setCurrentView('dashboard');
+    setCurrentView('home');
     setCurrentReport(null);
+  };
+
+  const handleBackFromDashboard = () => {
+    setCurrentView('home');
+    setCurrentDashboard(null);
+  };
+
+  const handleDashboardClick = (dashboard: any) => {
+    setCurrentDashboard(dashboard);
+    setCurrentView('dashboard');
+    setActiveNavItem(dashboard.name);
+  };
+
+  const handleDashboardReportClick = (report: any) => {
+    const reportDefinition: ReportDefinition = {
+      id: report.id,
+      name: report.name,
+      chartType: report.chartType || 'bar',
+      frequency: report.frequency || 'daily',
+      conditions: report.conditions || []
+    };
+    
+    setCurrentReport({ 
+      entity: report.entity, 
+      reportType: report.type,
+      reportDefinition: reportDefinition
+    });
+    setCurrentView('report');
   };
 
   const handleDeleteReport = (reportId: number) => {
@@ -209,33 +243,66 @@ const ReportingDashboard = () => {
             <FontAwesomeIcon icon={faTachometerAlt} style={{ marginRight: '8px' }} />
             Dashboards
           </div>
-          <div 
-            style={{ 
-              padding: '8px 16px', 
-              cursor: 'pointer',
-              backgroundColor: activeNavItem === 'My Dashboard' ? '#1f2937' : 'transparent',
-              borderRadius: '4px',
-              marginBottom: '5px'
-            }}
-            onClick={() => setActiveNavItem('My Dashboard')}
-          >
-            My Dashboard
-          </div>
-          {createdDashboards.map(dashboard => (
-            <div 
-              key={dashboard.id}
-              style={{ 
-                padding: '8px 16px', 
-                cursor: 'pointer',
-                backgroundColor: activeNavItem === dashboard.name ? '#e4cb9a' : 'transparent', color: '#1f2937',
-                borderRadius: '4px',
-                marginBottom: '5px'
-              }}
-              onClick={() => setActiveNavItem(dashboard.name)}
-            >
-              {dashboard.name}
-            </div>
-          ))}
+          
+          
+          {/* Folders with Dashboards */}
+          {dashboardFolders.map(folder => {
+            const folderDashboards = createdDashboards.filter(d => d.folderId === folder.id.toString());
+            const isExpanded = expandedFolders.has(folder.id.toString());
+            
+            return (
+              <div key={folder.id} style={{ marginBottom: '5px' }}>
+                {/* Folder Header */}
+                <div 
+                  style={{ 
+                    padding: '8px 16px', 
+                    cursor: 'pointer',
+                    backgroundColor: 'transparent',
+                    borderRadius: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    color: '#1f2937'
+                  }}
+                  onClick={() => {
+                    const newExpanded = new Set(expandedFolders);
+                    if (isExpanded) {
+                      newExpanded.delete(folder.id.toString());
+                    } else {
+                      newExpanded.add(folder.id.toString());
+                    }
+                    setExpandedFolders(newExpanded);
+                  }}
+                >
+                  <FontAwesomeIcon 
+                    icon={isExpanded ? faChevronDown : faChevronRight} 
+                    style={{ marginRight: '8px', fontSize: '12px' }} 
+                  />
+                  {folder.name} ({folderDashboards.length})
+                </div>
+                
+                {/* Dashboards in Folder */}
+                {isExpanded && folderDashboards.map(dashboard => (
+                  <div 
+                    key={dashboard.id}
+                    style={{ 
+                      padding: '6px 16px 6px 40px', 
+                      cursor: 'pointer',
+                      backgroundColor: activeNavItem === dashboard.name ? '#e4cb9a' : 'transparent',
+                      borderRadius: '4px',
+                      marginBottom: '2px',
+                      fontSize: '13px'
+                    }}
+                    onClick={() => handleDashboardClick(dashboard)}
+                  >
+                    <FontAwesomeIcon icon={faTachometerAlt} style={{ marginRight: '8px', fontSize: '11px' }} />
+                    {dashboard.name}
+                  </div>
+                ))}
+              </div>
+            );
+          })}
         </div>
 
         {/* Reports Section */}
@@ -288,6 +355,31 @@ const ReportingDashboard = () => {
             onBack={handleBackToDashboard}
             onSave={handleSaveReport}
             onDelete={handleDeleteReport}
+            onDashboardUpdate={(updatedDashboards) => {
+              setCreatedDashboards(updatedDashboards);
+              // If currently viewing a dashboard, update it
+              if (currentDashboard) {
+                const updatedCurrentDashboard = updatedDashboards.find(d => d.id === currentDashboard.id);
+                if (updatedCurrentDashboard) {
+                  setCurrentDashboard(updatedCurrentDashboard);
+                }
+              }
+            }}
+          />
+        ) : currentView === 'dashboard' && currentDashboard ? (
+          <DashboardView 
+            dashboard={currentDashboard}
+            onBack={handleBackFromDashboard}
+            onReportClick={handleDashboardReportClick}
+            onDashboardUpdate={(updatedDashboard) => {
+              // Update the current dashboard state
+              setCurrentDashboard(updatedDashboard);
+              // Update the dashboards list
+              const updatedDashboards = createdDashboards.map(d => 
+                d.id === updatedDashboard.id ? updatedDashboard : d
+              );
+              setCreatedDashboards(updatedDashboards);
+            }}
           />
         ) : (
           <div style={{
@@ -307,52 +399,185 @@ const ReportingDashboard = () => {
         )}
       </div>
 
-      {/* Create Modal */}
-      <Modal show={showCreateModal} onHide={() => setShowCreateModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Create New {createType.charAt(0).toUpperCase() + createType.slice(1)}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group className="mb-3">
-              <Form.Label>{createType.charAt(0).toUpperCase() + createType.slice(1)} Name</Form.Label>
+      {/* Create Dashboard Dialog - Same as ReportView */}
+      <AddEditDialog
+        dialogIsOpen={showCreateModal}
+        header="Create New Dashboard"
+        dialogSize="lg"
+        onSave={() => {
+          if (!reportName.trim()) {
+            setDashboardNameError('Dashboard name is required');
+            return;
+          }
+          
+          if (!selectedFolder) {
+            toast.warning('Please select a folder for the dashboard');
+            return;
+          }
+          
+          const isDuplicate = createdDashboards.some(dashboard => 
+            dashboard.name.toLowerCase() === reportName.trim().toLowerCase()
+          );
+          
+          if (isDuplicate) {
+            setDashboardNameError('Dashboard name already exists');
+            return;
+          }
+          
+          const selectedFolderObj = dashboardFolders.find(f => f.id.toString() === selectedFolder);
+          
+          const newDashboard = {
+            id: Date.now(),
+            name: reportName.trim(),
+            folderId: selectedFolder,
+            folderName: selectedFolderObj?.name || 'Unknown',
+            createdDate: new Date().toLocaleDateString(),
+            reports: []
+          };
+          
+          const updatedDashboards = [...createdDashboards, newDashboard];
+          setCreatedDashboards(updatedDashboards);
+          localStorage.setItem('createdDashboards', JSON.stringify(updatedDashboards));
+          
+          setShowCreateModal(false);
+          setShowCreateFolder(false);
+          setReportName('');
+          setSelectedFolder('');
+          setNewFolderName('');
+          setDashboardNameError('');
+          setFolderNameError('');
+          
+          toast.success(`Dashboard "${newDashboard.name}" created successfully in "${selectedFolderObj?.name}" folder!`);
+        }}
+        closeDialog={() => {
+          setShowCreateModal(false);
+          setShowCreateFolder(false);
+          setReportName('');
+          setSelectedFolder('');
+          setNewFolderName('');
+          setDashboardNameError('');
+          setFolderNameError('');
+        }}
+        customSaveChangesButtonName="Create Dashboard"
+      >
+        <div className="mb-3">
+          <Form.Label className="fw-bold">Dashboard Name</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Enter dashboard name"
+            value={reportName}
+            onChange={(e) => {
+              setReportName(e.target.value);
+              setDashboardNameError('');
+            }}
+            isInvalid={!!dashboardNameError}
+          />
+          {dashboardNameError && (
+            <Form.Control.Feedback type="invalid">
+              {dashboardNameError}
+            </Form.Control.Feedback>
+          )}
+        </div>
+
+        <div className="mb-3">
+          <Form.Label className="fw-bold">Select Folder</Form.Label>
+          <div className="d-flex gap-2">
+            <Form.Select
+              value={selectedFolder}
+              onChange={(e) => setSelectedFolder(e.target.value)}
+              className="flex-grow-1"
+            >
+              <option value="">Choose a folder...</option>
+              {dashboardFolders.map(folder => (
+                <option key={folder.id} value={folder.id}>
+                  {folder.name}
+                </option>
+              ))}
+            </Form.Select>
+            <BootstrapButton
+              variant="outline-primary"
+              onClick={() => {
+                setShowCreateFolder(true);
+                setNewFolderName('');
+                setFolderNameError('');
+              }}
+              title="Create New Folder"
+            >
+              <FontAwesomeIcon icon={faFolder} className="me-1" />
+              New Folder
+            </BootstrapButton>
+          </div>
+        </div>
+
+        {showCreateFolder && (
+          <div className="mb-3 p-3 border rounded bg-light">
+            <Form.Label className="fw-bold small">New Folder Name</Form.Label>
+            <div className="d-flex gap-2">
               <Form.Control
                 type="text"
-                placeholder={`Enter ${createType} name`}
-                value={reportName}
-                onChange={(e) => setReportName(e.target.value)}
+                placeholder="Enter folder name"
+                value={newFolderName}
+                onChange={(e) => {
+                  setNewFolderName(e.target.value);
+                  setFolderNameError('');
+                }}
+                isInvalid={!!folderNameError}
+                size="sm"
               />
-            </Form.Group>
-            {createType === "report" && (
-              <Form.Group className="mb-3">
-                <Form.Label>Report Type</Form.Label>
-                <Form.Select
-                  value={reportType}
-                  onChange={(e) => setReportType(e.target.value)}
-                >
-                  <option value="">Select report type</option>
-                  {reportTypes.map(type => (
-                    <option key={type} value={type}>{type}</option>
-                  ))}
-                </Form.Select>
-              </Form.Group>
+              <BootstrapButton
+                variant="success"
+                size="sm"
+                onClick={() => {
+                  if (!newFolderName.trim()) {
+                    setFolderNameError('Folder name is required');
+                    return;
+                  }
+                  
+                  const isDuplicate = dashboardFolders.some(folder => 
+                    folder.name.toLowerCase() === newFolderName.trim().toLowerCase()
+                  );
+                  
+                  if (isDuplicate) {
+                    setFolderNameError('Folder name already exists');
+                    return;
+                  }
+                  
+                  const newFolder = {
+                    id: Date.now(),
+                    name: newFolderName.trim(),
+                    createdDate: new Date().toLocaleDateString()
+                  };
+                  
+                  const updatedFolders = [...dashboardFolders, newFolder];
+                  setDashboardFolders(updatedFolders);
+                  localStorage.setItem('dashboardFolders', JSON.stringify(updatedFolders));
+                  
+                  setSelectedFolder(newFolder.id.toString());
+                  setNewFolderName('');
+                  setShowCreateFolder(false);
+                  toast.success('Folder created successfully!');
+                }}
+              >
+                Create
+              </BootstrapButton>
+              <BootstrapButton
+                variant="outline-secondary"
+                size="sm"
+                onClick={() => {
+                  setShowCreateFolder(false);
+                  setNewFolderName('');
+                  setFolderNameError('');
+                }}
+              >
+                Cancel
+              </BootstrapButton>
+            </div>
+            {folderNameError && (
+              <div className="text-danger small mt-1">{folderNameError}</div>
             )}
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button onClick={() => setShowCreateModal(false)}>
-            Cancel
-          </Button>
-          <Button 
-            variant="contained"
-            onClick={handleCreate}
-            disabled={!reportName || (createType === "report" && !reportType)}
-            sx={{ backgroundColor: '#22C55E', '&:hover': { backgroundColor: '#16A34A' } }}
-          >
-            Create {createType.charAt(0).toUpperCase() + createType.slice(1)}
-          </Button>
-        </Modal.Footer>
-      </Modal>
+          </div>
+        )}
+      </AddEditDialog>
 
       {/* Add Report Modal */}
       <AddReportModal
