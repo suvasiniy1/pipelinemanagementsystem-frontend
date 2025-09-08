@@ -7,6 +7,7 @@ import {
   faDownload,
   faEllipsisV,
   faFilter,
+  faFolder,
   faPlus,
   faSave,
   faSearch,
@@ -21,6 +22,7 @@ import React, { useState } from "react";
 import { Badge, Button, Dropdown, Form } from "react-bootstrap";
 import { toast } from 'react-toastify';
 import { DeleteDialog } from '../../common/deleteDialog';
+import { AddEditDialog } from '../../common/addEditDialog';
 import {
   mockDealData
 } from '../../data/mockDealData';
@@ -33,6 +35,7 @@ interface ReportViewProps {
   onBack: () => void;
   onSave?: (reportData: any) => void;
   onDelete?: (reportId: number) => void;
+  onDashboardUpdate?: (updatedDashboards: any[]) => void;
 }
 
 interface FilterCondition {
@@ -44,7 +47,7 @@ interface FilterCondition {
   displayText: string;
 }
 
-const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefinition, onBack, onSave, onDelete }) => {
+const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefinition, onBack, onSave, onDelete, onDashboardUpdate }) => {
   const [appliedFilters, setAppliedFilters] = useState<FilterCondition[]>([]);
   const [showAddCondition, setShowAddCondition] = useState(false);
   const [newCondition, setNewCondition] = useState({
@@ -75,12 +78,34 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
   const [originalReportName, setOriginalReportName] = useState(reportDefinition?.name || `${entity} ${reportType} Report`);
   const [reportNameError, setReportNameError] = useState('');
   const [hasChanges, setHasChanges] = useState(false);
+  const [showCreateDashboard, setShowCreateDashboard] = useState(false);
+  const [dashboardName, setDashboardName] = useState('');
+  const [selectedFolder, setSelectedFolder] = useState('');
+  const [showCreateFolder, setShowCreateFolder] = useState(false);
+  const [newFolderName, setNewFolderName] = useState('');
+  const [dashboardFolders, setDashboardFolders] = useState<any[]>([]);
+  const [dashboardNameError, setDashboardNameError] = useState('');
+  const [folderNameError, setFolderNameError] = useState('');
 
-  // Load existing dashboards from localStorage
+  // Load existing dashboards and folders from localStorage
   React.useEffect(() => {
     const savedDashboards = localStorage.getItem('createdDashboards');
     if (savedDashboards) {
       setExistingDashboards(JSON.parse(savedDashboards));
+    }
+    
+    const savedFolders = localStorage.getItem('dashboardFolders');
+    if (savedFolders) {
+      setDashboardFolders(JSON.parse(savedFolders));
+    } else {
+      // Initialize with default folders
+      const defaultFolders = [
+        { id: 1, name: 'General', createdDate: new Date().toLocaleDateString() },
+        { id: 2, name: 'Sales', createdDate: new Date().toLocaleDateString() },
+        { id: 3, name: 'Marketing', createdDate: new Date().toLocaleDateString() }
+      ];
+      setDashboardFolders(defaultFolders);
+      localStorage.setItem('dashboardFolders', JSON.stringify(defaultFolders));
     }
     // Set reportSaved to true if reportDefinition exists (edit mode)
     if (reportDefinition) {
@@ -398,7 +423,9 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
   };
 
   const generateConversionDataFromDeals = (deals: any[]) => {
+    console.log('Generating conversion data from deals:', deals.length);
     const monthlyConversion: Record<string, { total: number; won: number }> = {};
+    
     deals.forEach(deal => {
       const month = deal.addTime.substring(0, 7);
       if (!monthlyConversion[month]) {
@@ -410,16 +437,21 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
       }
     });
     
-    return Object.entries(monthlyConversion)
+    console.log('Monthly conversion data:', monthlyConversion);
+    
+    const result = Object.entries(monthlyConversion)
       .filter(([_, data]) => data.total > 0)
       .sort(([a], [b]) => a.localeCompare(b))
       .slice(-12)
       .map(([month, data]) => ({
         month,
-        conversionRate: ((data.won / data.total) * 100).toFixed(1),
+        conversionRate: data.total > 0 ? ((data.won / data.total) * 100).toFixed(1) : '0',
         totalDeals: data.total,
         wonDeals: data.won
       }));
+    
+    console.log('Final conversion result:', result);
+    return result;
   };
 
   const generateDurationDataFromDeals = (deals: any[]) => {
@@ -446,44 +478,66 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
   };
 
   const generateProgressDataFromDeals = (deals: any[]) => {
+    const openDeals = deals.filter(deal => deal.status === 'Open');
     const stageData: Record<string, number> = {};
-    deals.filter(deal => deal.status === 'Open').forEach(deal => {
+    
+    // Initialize with common stages to ensure we always have data
+    const commonStages = ['Lead In', 'Contact Made', 'Needs Analysis', 'Proposal', 'Negotiation'];
+    commonStages.forEach(stage => {
+      stageData[stage] = 0;
+    });
+    
+    openDeals.forEach(deal => {
       stageData[deal.stage] = (stageData[deal.stage] || 0) + 1;
     });
     
     const totalCount = Object.values(stageData).reduce((a, b) => a + b, 0);
-    return Object.entries(stageData).map(([stage, count]) => ({
-      stage,
-      count,
-      percentage: totalCount > 0 ? ((count / totalCount) * 100).toFixed(1) : '0'
-    }));
+    return Object.entries(stageData)
+      .filter(([_, count]) => count > 0 || totalCount === 0)
+      .map(([stage, count]) => ({
+        stage,
+        count,
+        percentage: totalCount > 0 ? ((count / totalCount) * 100).toFixed(1) : '0'
+      }));
   };
 
   const generateProductsDataFromDeals = (deals: any[]) => {
     const productData: Record<string, { count: number; totalValue: number; wonDeals: number }> = {};
+    
     deals.forEach(deal => {
-      deal.products.forEach((product: string) => {
-        if (!productData[product]) {
-          productData[product] = { count: 0, totalValue: 0, wonDeals: 0 };
-        }
-        productData[product].count += 1;
-        productData[product].totalValue += deal.value;
-        if (deal.status === 'Won') {
-          productData[product].wonDeals += 1;
-        }
-      });
+      if (deal.products && Array.isArray(deal.products)) {
+        deal.products.forEach((product: string) => {
+          if (!productData[product]) {
+            productData[product] = { count: 0, totalValue: 0, wonDeals: 0 };
+          }
+          productData[product].count += 1;
+          productData[product].totalValue += deal.value;
+          if (deal.status === 'Won') {
+            productData[product].wonDeals += 1;
+          }
+        });
+      }
     });
     
-    return Object.entries(productData)
+    const result = Object.entries(productData)
       .sort(([,a], [,b]) => b.totalValue - a.totalValue)
       .map(([product, data]) => ({
         product,
         totalDeals: data.count,
         wonDeals: data.wonDeals,
         totalValue: data.totalValue,
-        avgValue: Math.round(data.totalValue / data.count),
-        winRate: ((data.wonDeals / data.count) * 100).toFixed(1)
+        avgValue: data.count > 0 ? Math.round(data.totalValue / data.count) : 0,
+        winRate: data.count > 0 ? ((data.wonDeals / data.count) * 100).toFixed(1) : '0'
       }));
+    
+    return result.length > 0 ? result : [{
+      product: 'No Products',
+      totalDeals: 0,
+      wonDeals: 0,
+      totalValue: 0,
+      avgValue: 0,
+      winRate: '0'
+    }];
   };
 
   const renderChart = () => {
@@ -613,9 +667,9 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
               displayValue = `$${(value/1000).toFixed(0)}K`;
               break;
             case 'Conversion':
-              value = parseFloat(item.conversionRate);
-              label = item.month;
-              displayValue = `${value}%`;
+              value = parseFloat(item.conversionRate || '0');
+              label = item.month || 'N/A';
+              displayValue = `${value.toFixed(1)}%`;
               break;
             case 'Duration':
               value = item.count;
@@ -1449,18 +1503,54 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                       .filter(dashboard => 
                         dashboard.name.toLowerCase().includes(dashboardSearch.toLowerCase())
                       )
-                      .map(dashboard => (
-                        <Dropdown.Item 
-                          key={dashboard.id}
-                          onClick={() => {
-                            console.log(`Adding report to dashboard: ${dashboard.name}`);
-                            setShowAddToDashboard(false);
-                          }}
-                        >
-                          <FontAwesomeIcon icon={faTachometerAlt} className="me-2" />
-                          {dashboard.name}
-                        </Dropdown.Item>
-                      ))
+                      .map(dashboard => {
+                        const isReportInDashboard = dashboard.reports?.some((report: any) => 
+                          report.id === (reportDefinition?.id || Date.now())
+                        );
+                        
+                        return (
+                          <Dropdown.Item 
+                            key={dashboard.id}
+                            onClick={() => {
+                              if (!isReportInDashboard) {
+                                // Add report to dashboard
+                                const reportToAdd = {
+                                  id: reportDefinition?.id || Date.now(),
+                                  name: reportName,
+                                  type: reportType,
+                                  entity: entity
+                                };
+                                
+                                const updatedDashboards = existingDashboards.map(d => 
+                                  d.id === dashboard.id 
+                                    ? { ...d, reports: [...(d.reports || []), reportToAdd] }
+                                    : d
+                                );
+                                
+                                setExistingDashboards(updatedDashboards);
+                                localStorage.setItem('createdDashboards', JSON.stringify(updatedDashboards));
+                                
+                                // Notify parent component about dashboard updates
+                                if (onDashboardUpdate) {
+                                  onDashboardUpdate(updatedDashboards);
+                                }
+                                
+                                toast.success(`Report added to "${dashboard.name}" dashboard!`);
+                              } else {
+                                toast.info(`Report is already in "${dashboard.name}" dashboard`);
+                              }
+                              setShowAddToDashboard(false);
+                            }}
+                            className={isReportInDashboard ? 'text-muted' : ''}
+                          >
+                            <FontAwesomeIcon icon={faTachometerAlt} className="me-2" />
+                            {dashboard.name}
+                            {isReportInDashboard && (
+                              <small className="ms-2 text-success">(Added)</small>
+                            )}
+                          </Dropdown.Item>
+                        );
+                      })
                     }
                     
                     {existingDashboards.filter(dashboard => 
@@ -1476,8 +1566,11 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                   
                   <Dropdown.Item 
                     onClick={() => {
-                      console.log('Creating new dashboard');
                       setShowAddToDashboard(false);
+                      setShowCreateDashboard(true);
+                      setDashboardName('');
+                      setSelectedFolder('');
+                      setDashboardNameError('');
                     }}
                     className="text-primary"
                   >
@@ -1960,17 +2053,6 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
 
                 <Form.Select
                   size="sm"
-                  style={{ width: "150px" }}
-                  value={viewBy}
-                  onChange={(e) => setViewBy(e.target.value)}
-                >
-                  <option value="Deal created on">Deal created on</option>
-                  <option value="Deal updated on">Deal updated on</option>
-                  <option value="Deal closed on">Deal closed on</option>
-                </Form.Select>
-
-                <Form.Select
-                  size="sm"
                   style={{ width: "120px" }}
                   value={frequency}
                   onChange={(e) => setFrequency(e.target.value)}
@@ -1978,17 +2060,6 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                   <option value="Daily">Daily</option>
                   <option value="Monthly">Monthly</option>
                   <option value="Yearly">Yearly</option>
-                </Form.Select>
-
-                <Form.Select
-                  size="sm"
-                  style={{ width: "120px" }}
-                  value={segmentBy}
-                  onChange={(e) => setSegmentBy(e.target.value)}
-                >
-                  <option value="Status">Status</option>
-                  <option value="Pipeline">Pipeline</option>
-                  <option value="Owner">Owner</option>
                 </Form.Select>
               </div>
 
@@ -2040,7 +2111,7 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
           <div className="p-3">
             <>
               <div className="mb-3">
-                <small className="text-muted">Showing {getFilteredData().length} deals (Filters: {appliedFilters.length + (newCondition.field && newCondition.operator && newCondition.value ? 1 : 0)})</small>
+                <small className="text-muted">Showing {getFilteredData().length} deals</small>
               </div>
               <div style={{ height: 500, width: "100%" }} key={JSON.stringify(appliedFilters) + JSON.stringify(newCondition)}>
                 <DataGrid
@@ -2254,6 +2325,191 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
           actionType="Discard"
         />
       )}
+
+      {/* Create Dashboard Dialog */}
+      <AddEditDialog
+        dialogIsOpen={showCreateDashboard}
+        header="Create New Dashboard"
+        dialogSize="lg"
+        onSave={() => {
+          if (!dashboardName.trim()) {
+            setDashboardNameError('Dashboard name is required');
+            return;
+          }
+          
+          if (!selectedFolder) {
+            toast.warning('Please select a folder for the dashboard');
+            return;
+          }
+          
+          const isDuplicate = existingDashboards.some(dashboard => 
+            dashboard.name.toLowerCase() === dashboardName.trim().toLowerCase()
+          );
+          
+          if (isDuplicate) {
+            setDashboardNameError('Dashboard name already exists');
+            return;
+          }
+          
+          const selectedFolderObj = dashboardFolders.find(f => f.id.toString() === selectedFolder);
+          
+          const newDashboard = {
+            id: Date.now(),
+            name: dashboardName.trim(),
+            folderId: selectedFolder,
+            folderName: selectedFolderObj?.name || 'Unknown',
+            createdDate: new Date().toLocaleDateString(),
+            reports: []
+          };
+          
+          const updatedDashboards = [...existingDashboards, newDashboard];
+          setExistingDashboards(updatedDashboards);
+          localStorage.setItem('createdDashboards', JSON.stringify(updatedDashboards));
+          
+          // Notify parent component about dashboard updates
+          if (onDashboardUpdate) {
+            onDashboardUpdate(updatedDashboards);
+          }
+          
+          setShowCreateDashboard(false);
+          setShowCreateFolder(false);
+          setDashboardName('');
+          setSelectedFolder('');
+          setNewFolderName('');
+          setDashboardNameError('');
+          setFolderNameError('');
+          
+          toast.success(`Dashboard "${newDashboard.name}" created successfully in "${selectedFolderObj?.name}" folder!`);
+        }}
+        closeDialog={() => {
+          setShowCreateDashboard(false);
+          setShowCreateFolder(false);
+          setDashboardName('');
+          setSelectedFolder('');
+          setNewFolderName('');
+          setDashboardNameError('');
+          setFolderNameError('');
+        }}
+        customSaveChangesButtonName="Create Dashboard"
+      >
+        <div className="mb-3">
+          <Form.Label className="fw-bold">Dashboard Name</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Enter dashboard name"
+            value={dashboardName}
+            onChange={(e) => {
+              setDashboardName(e.target.value);
+              setDashboardNameError('');
+            }}
+            isInvalid={!!dashboardNameError}
+          />
+          {dashboardNameError && (
+            <Form.Control.Feedback type="invalid">
+              {dashboardNameError}
+            </Form.Control.Feedback>
+          )}
+        </div>
+
+        <div className="mb-3">
+          <Form.Label className="fw-bold">Select Folder</Form.Label>
+          <div className="d-flex gap-2">
+            <Form.Select
+              value={selectedFolder}
+              onChange={(e) => setSelectedFolder(e.target.value)}
+              className="flex-grow-1"
+            >
+              <option value="">Choose a folder...</option>
+              {dashboardFolders.map(folder => (
+                <option key={folder.id} value={folder.id}>
+                  {folder.name}
+                </option>
+              ))}
+            </Form.Select>
+            <Button
+              variant="outline-primary"
+              onClick={() => {
+                setShowCreateFolder(true);
+                setNewFolderName('');
+                setFolderNameError('');
+              }}
+              title="Create New Folder"
+            >
+              <FontAwesomeIcon icon={faFolder} className="me-1" />
+              New Folder
+            </Button>
+          </div>
+        </div>
+
+        {showCreateFolder && (
+          <div className="mb-3 p-3 border rounded bg-light">
+            <Form.Label className="fw-bold small">New Folder Name</Form.Label>
+            <div className="d-flex gap-2">
+              <Form.Control
+                type="text"
+                placeholder="Enter folder name"
+                value={newFolderName}
+                onChange={(e) => {
+                  setNewFolderName(e.target.value);
+                  setFolderNameError('');
+                }}
+                isInvalid={!!folderNameError}
+                size="sm"
+              />
+              <Button
+                variant="success"
+                size="sm"
+                onClick={() => {
+                  if (!newFolderName.trim()) {
+                    setFolderNameError('Folder name is required');
+                    return;
+                  }
+                  
+                  const isDuplicate = dashboardFolders.some(folder => 
+                    folder.name.toLowerCase() === newFolderName.trim().toLowerCase()
+                  );
+                  
+                  if (isDuplicate) {
+                    setFolderNameError('Folder name already exists');
+                    return;
+                  }
+                  
+                  const newFolder = {
+                    id: Date.now(),
+                    name: newFolderName.trim(),
+                    createdDate: new Date().toLocaleDateString()
+                  };
+                  
+                  const updatedFolders = [...dashboardFolders, newFolder];
+                  setDashboardFolders(updatedFolders);
+                  localStorage.setItem('dashboardFolders', JSON.stringify(updatedFolders));
+                  
+                  setSelectedFolder(newFolder.id.toString());
+                  setNewFolderName('');
+                  setShowCreateFolder(false);
+                  toast.success('Folder created successfully!');
+                }}
+              >
+                Create
+              </Button>
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                onClick={() => {
+                  setShowCreateFolder(false);
+                  setNewFolderName('');
+                  setFolderNameError('');
+                }}
+              >
+                Cancel
+              </Button>
+            </div>
+            {folderNameError && (
+              <div className="text-danger small mt-1">{folderNameError}</div>
+            )}
+          </div>
+        )}
+      </AddEditDialog>
     </div>
   );
 };
