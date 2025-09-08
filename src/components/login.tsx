@@ -41,7 +41,10 @@ export class UserCredentails {
     this.passwordHash = passwordHash;
   }
 }
-
+type LoginForm = {
+  email: string;
+  passwordHash: string;
+};
 const Login = () => {
   const [showForGotPasswordDiglog, setShowForGotPasswordDiglog] =
     useState(false);
@@ -87,13 +90,13 @@ const Login = () => {
       elementSize: 12,
       type: ElementType.password,
       showEyeIcon: false,
-      autoComplete:"new-password",
+      autoComplete: "current-password",
       // ⬇️ block any whitespace
       regex1: /^\S+$/,
       errMsg1: "Password cannot contain spaces",
     },
   ]);
-
+type LoginForm = { email: string; passwordHash: string; };
   const validationsSchema = Yup.object().shape({
     ...Util.buildValidations(controlsList),
   });
@@ -105,14 +108,40 @@ const Login = () => {
      ) as any;
    };
 
-  const formOptions = { resolver: yupResolver(validationsSchema) };
-  const methods = useForm(formOptions);
+ const methods = useForm({
+  resolver: yupResolver(validationsSchema),
+  shouldFocusError: true,
+});
   const { handleSubmit, getValues, setValue } = methods;
-
+    // top of Login.tsx (or a utils file)
+function getApiErrorMessage(err: any) {
+  const data = err?.response?.data;
+  if (typeof data === "string") return data;
+  if (data?.errors) {
+    // take the first model-state error
+    const first = Object.values(data.errors).flat()[0] as string | undefined;
+    if (first) return first;
+  }
+  return data?.message || err?.message || "Request failed";
+}
+const showPwdError = (msg: string) => {
+  methods.setError("passwordHash" as never, { type: "manual", message: msg } as any);
+  methods.setFocus("passwordHash" as never);
+};
   const onSubmitClick = async (item: any) => {
-    let obj = Util.toClassObject(new UserCredentails(), item);
-    obj.password = obj.passwordHash;
-    obj.userName = obj.email;
+  // pull & sanitize
+  const email = (item?.email ?? "").trim();
+  const pwd   = (item?.passwordHash ?? "").trim();
+
+  // hard guards (no API call if missing)
+  if (!email) { toast.error("Email is required"); return; }
+  if (!pwd)   { toast.error("Password is required"); return; }
+
+  // build the payload you already use
+  const obj = Util.toClassObject(new UserCredentails(), item);
+  obj.userName     = email;
+  obj.passwordHash = pwd;   // backend needs PasswordHash
+  obj.password     = pwd;   // keep if you also send Password
     setLoading(true);
 
     // Only use the username and password
@@ -188,14 +217,20 @@ const Login = () => {
               setIsIncorrectCredentails(true);
             }
           })
-          .catch((err) => {
-              
-            setLoading(false);
-            toast.error(err);
-          });
+         .catch((err) => {
+  setLoading(false);
+  const msg = getApiErrorMessage(err);
+  if (msg.toLowerCase().includes("passwordhash")) {
+    showPwdError(msg);
+  } else {
+    toast.error(msg);
+  }
+});
       }
     }
   };
+
+
 
   const handlePassword = () => {
     navigate("/forgot-password"); // Redirect to the Forgot Password page
@@ -209,7 +244,10 @@ const Login = () => {
     
     let obj = { ...selectedItem };
     if (item.value == "email") obj.email = value;
-    if (item.value == "passwordHash") obj.passwordHash = value;
+    if (item.value === "passwordHash") {
+    obj.passwordHash = value;
+    methods.clearErrors("passwordHash" as any); // <-- clears inline error
+  }
 
     setSelectedItem(obj);
     setDisableLogin(Util.isNullOrUndefinedOrEmpty(obj.email) || Util.isNullOrUndefinedOrEmpty(obj.passwordHash));
@@ -294,6 +332,17 @@ const Login = () => {
               
               <Form
                   className="loginformblock"
+                onKeyDown={(e) => {
+  if (twoFactorRequired) return;           // don’t block 2FA screen
+  if (e.key === "Enter") {
+    const pwd = (methods.getValues() as any)?.passwordHash?.trim();
+    if (!pwd) {
+      e.preventDefault();
+      showPwdError("Password is required"); // <-- inline error under the field
+      return;
+    }
+  }
+}}
                   onSubmit={
     twoFactorRequired
       ? (e) => { e.preventDefault(); handleVerifyClick(); } // verify instead of login

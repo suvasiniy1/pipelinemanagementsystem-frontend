@@ -21,6 +21,9 @@ import Logo from "../../resources/images/Clinic-Lead-White.png";
 import jpg from "../../resources/images/Y1Logo.jpg";
 import svg from "../../resources/images/Clinic-Lead-White.svg";
 
+const PROGRESS_DURATION = 3; // seconds (same as ConfirmEmail)
+
+
 const ChangePassword = () => {
   const [selectedItem, setSelectedItem] = useState(
     new UserCredentails(
@@ -30,7 +33,7 @@ const ChangePassword = () => {
   const [isErrorChangingPassword, setIsErrorChangingPassword] = useState<any>();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-
+  const [elapsed, setElapsed] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -73,17 +76,25 @@ const ChangePassword = () => {
   ]);
 
   const validationsSchema = Yup.object().shape({
-    passwordHash: Yup.string()
-      .required("Password is required")
-      .min(8, "Password must be at least 8 characters long")
-      .matches(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).+$/,
-        "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
-      ),
-    confirmPasswordHash: Yup.string()
-      .oneOf([Yup.ref("passwordHash")], "Passwords must match")
-      .required("Confirm Password is required"),
-  });
+  passwordHash: Yup.string()
+    .required("Password is required")
+    .test("no-leading-trailing", "Password cannot start or end with spaces",
+      v => v != null && v === v.trim())
+    .test("no-spaces", "Password cannot contain spaces",
+      v => !!v && !/\s/.test(v))
+    .min(8, "Password must be at least 8 characters long")
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).+$/,
+      "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+    ),
+  confirmPasswordHash: Yup.string()
+    .required("Confirm Password is required")
+    .test("no-leading-trailing", "Password cannot start or end with spaces",
+      v => v != null && v === v.trim())
+    .test("no-spaces", "Password cannot contain spaces",
+      v => !!v && !/\s/.test(v))
+    .oneOf([Yup.ref("passwordHash")], "Passwords must match"),
+});
 
   const formOptions = { resolver: yupResolver(validationsSchema) };
   const methods = useForm(formOptions);
@@ -92,15 +103,25 @@ const ChangePassword = () => {
   const onSubmitClick = async () => {
     setLoading(true);
     setMessage("");
-    const formData = getValues(); // Get values from the form
-    const password = formData.passwordHash;
-    const confirmPassword = formData.confirmPasswordHash;
+    const formData = getValues();
+const password = formData.passwordHash;          // no trim
+const confirmPassword = formData.confirmPasswordHash; // no trim
 
-    // Ensure passwords match
-    if (password !== confirmPassword) {
-      setIsErrorChangingPassword("Passwords do not match");
-      return;
-    }
+    if (!password || !confirmPassword) {
+  setIsErrorChangingPassword("Password is required");
+  setLoading(false);
+  return;
+}
+if (/\s/.test(password) || /\s/.test(confirmPassword)) {
+  setIsErrorChangingPassword("Password cannot contain spaces");
+  setLoading(false);
+  return;
+}
+if (password !== confirmPassword) {
+  setIsErrorChangingPassword("Passwords do not match");
+  setLoading(false);
+  return;
+}
 
     try {
       setLoading(true);
@@ -131,6 +152,19 @@ const ChangePassword = () => {
 }
   };
 
+useEffect(() => {
+  if (linkStatus !== "invalid") return;
+  setElapsed(0);
+  const t = setInterval(() => setElapsed(e => e + 0.05), 50);
+  return () => clearInterval(t);
+}, [linkStatus]);
+
+// redirect after countdown
+useEffect(() => {
+  if (linkStatus !== "invalid") return;
+  if (elapsed >= PROGRESS_DURATION) navigate("/login");
+}, [elapsed, linkStatus, navigate]);
+
   const onChange = (value: any, item: any) => {
     let obj = { ...selectedItem };
     if (item.value === "passwordHash") obj.passwordHash = value;
@@ -152,12 +186,48 @@ useEffect(() => {
 }, [userId, token]);
 if (linkStatus === "checking") return <div className="alignCenter"><Spinner/></div>;
 if (linkStatus === "invalid") {
+  const palette = {
+    bg: "linear-gradient(90deg,#ffdde1 0%,#ee9ca7 100%)",
+    fg: "#d32f2f",
+    shadow: "0 4px 24px rgba(233,67,67,0.12)",
+    track: "#fbeaea",
+    bar: "#e94b4b",
+  };
+  const progressPercent = Math.max(0, 100 - (elapsed / PROGRESS_DURATION) * 100);
+  const countdown = Math.ceil(PROGRESS_DURATION - elapsed);
+
   return (
-    <div className="shadow p-4 bg-white rounded loginformblock">
-      <div style={{ color: "#d32f2f", fontWeight: 600, marginBottom: 12 }}>
-        {isErrorChangingPassword || "This link is invalid or has expired."}
+    <div style={{ minHeight: 300, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{
+        background: palette.bg,
+        color: palette.fg,
+        boxShadow: palette.shadow,
+        borderRadius: 16,
+        padding: "32px 40px",
+        marginTop: 40,
+        textAlign: "center",
+        minWidth: 320,
+        maxWidth: 420,
+      }}>
+        {/* ❌ red cross */}
+        <svg width="64" height="64" viewBox="0 0 24 24" style={{ marginBottom: 16 }}>
+          <circle cx="12" cy="12" r="12" fill={palette.bar} opacity="0.15" />
+          <path d="M9 9l6 6M15 9l-6 6" stroke={palette.bar} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+
+        <h2 style={{ fontWeight: 700, marginBottom: 8 }}>Link Expired</h2>
+        <p style={{ fontSize: 18, marginBottom: 16 }}>
+          {isErrorChangingPassword || "This link is invalid or has expired."}
+        </p>
+
+        <div style={{ fontSize: 16, color: "#333", marginBottom: 8 }}>
+          Redirecting you to the login page in <b>{countdown}</b> second{countdown !== 1 ? "s" : ""}…
+        </div>
+
+        <div style={{ width: 120, height: 8, background: palette.track, borderRadius: 4, margin: "0 auto", overflow: "hidden" }}>
+          <div style={{ width: `${progressPercent}%`, height: "100%", background: palette.bar, transition: "width 0.05s linear" }} />
+        </div>
       </div>
-      <Button className="w-100" onClick={() => navigate("/login")}>Back to Login</Button>
     </div>
   );
 }
