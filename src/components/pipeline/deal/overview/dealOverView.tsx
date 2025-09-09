@@ -30,6 +30,8 @@ import { useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import DealLostConfirmationDialog from "./dealLostConfirmation";
 import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
+import { useRef } from "react";
+
 
 type params = {
   dealItem: Deal;
@@ -58,6 +60,10 @@ const DealOverView = (props: params) => {
     if (!html) return ""; // Handle null or undefined input
     return html.replace(/<[^>]+>/g, "");
   };
+const prevStateRef = useRef<{ statusID:number | undefined; stageID:number; modifiedDate?: any; comments?: string | null;     // add
+  reason?: string | null;   // add (use one name consistently)
+ } | null>(null);
+
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -90,49 +96,109 @@ const DealOverView = (props: params) => {
 
 // Function to update the deal status
 
-const updateDealStatus = async (status: string, extraFields: Partial<Deal> = {}) => {
+const updateDealStatus = async (
+  status: "Open" | "Won" | "Lost" | "Closed",
+  extraFields: Partial<Deal> = {},
+  options?: { allowUndo?: boolean }
+) => {
   try {
-    const isClosed = status === 'Won' || status === 'Lost';
+    const isClosed = status === "Won" || status === "Lost";
 
-    const statusIdMap: { [key: string]: number } = {
-      "Open": 1,
-      "Won": 2, // Won status
-      "Lost": 3, // Lost status (as per your requirement)
-      "Closed": 4,
+    const statusIdMap: Record<string, number> = {
+      Open: 1,
+      Won: 2,
+      Lost: 3,
+      Closed: 4,
     };
 
-    const updatedDeal = {
+    // Save previous state (for Undo)
+prevStateRef.current = {
+  statusID: dealItem.statusID,
+  stageID: dealItem.stageID,
+  modifiedDate: dealItem.modifiedDate,
+  comments: dealItem.comments ?? null,
+  reason: (dealItem as any).reason ?? null, // or lostReason — be consistent
+};
+
+    const updatedDeal: Deal = {
       ...dealItem,
-      ...extraFields, 
-      statusID: statusIdMap[status], 
+      ...extraFields,               // e.g., comments for Lost, specific stageID on reopen, etc.
+      statusID: statusIdMap[status],
       isClosed,
-      modifiedDate: new Date(),
+      modifiedDate: new Date() as any,
     };
 
     const response = await dealSvc.updateAllDeals([updatedDeal]);
 
     if (response) {
-      toast.success(`Deal marked as ${status}!`);
-      setDealItem({ ...dealItem, statusID: statusIdMap[status] });
-    }
-    else{
+      setDealItem(updatedDeal);
+      const msg = `Deal marked as ${status}!`;
+
+      if (options?.allowUndo) {
+  toast(({ closeToast }) => (
+    <div>
+      {msg}&nbsp;
+      <button
+        onClick={async () => {
+          const prev = prevStateRef.current;
+          if (!prev) return closeToast?.();
+
+          const reverted: Deal = {
+            ...updatedDeal,          // start from current payload
+            statusID: prev.statusID!,// revert status (e.g., back to 3 "Lost")
+            stageID: prev.stageID,
+            isClosed: prev.statusID === 2 || prev.statusID === 3,
+            modifiedDate: prev.modifiedDate,
+            comments: prev.comments, // restore exact previous values
+            reason: prev.reason,     // (or lostReason if that's your field)
+          };
+
+          const ok = await dealSvc.updateAllDeals([reverted]);
+          if (ok) {
+            setDealItem(reverted);
+            toast.success("Reverted change.");
+            prevStateRef.current = null; // optional: prevent double-undo
+          } else {
+            toast.error("Failed to revert change.");
+          }
+          closeToast?.();
+        }}
+        className="btn btn-link p-0 mx-1"
+      >
+        Undo
+      </button>
+    </div>
+  ), { autoClose: 10000 });
+}
+ else {
+        toast.success(msg);
+      }
+    } else {
       toast.warning("Unable to update deal status");
     }
   } catch (error) {
-    console.error('Failed to update deal status', error);
-    toast.error('Failed to update deal status');
+    console.error("Failed to update deal status", error);
+    toast.error("Failed to update deal status");
   }
 };
 
 
+
 const handleWonClick = () => {
-  updateDealStatus('Won');
+  if (dealItem?.statusID === 2) return; // already won
+  const ok = window.confirm("Mark this deal as WON? You can undo for ~10 seconds.");
+  if (!ok) return;
+
+  updateDealStatus("Won", {}, { allowUndo: true });
   setIsDealLost(false);
 };
 
 const handleLostClick = () => {
+  if (dealItem?.statusID === 3) return; // already lost
+  // you already open a dialog; keep it:
   setIsDealLost(true);
 };
+
 
   return (
     <>
@@ -248,6 +314,33 @@ const handleLostClick = () => {
                           )}
                         </span>
                       </button>
+                      {(dealItem?.statusID === 2 || dealItem?.statusID === 3) && (
+<button
+  className="btn btn-outline-secondary ms-2"
+  onClick={() => {
+    const lastOpenStageID =
+      (dealItem as any).lastOpenStageID ??
+      dealItem.stageID ??
+      stages?.[0]?.stageID;
+
+    updateDealStatus(
+      "Open",
+      {
+        stageID: lastOpenStageID,
+        comments: null,      // clear lost comments
+        reason: null,    // clear lost reason
+      },
+      { allowUndo: true }
+    );
+  }}
+  title="Reopen this deal"
+>
+  <FontAwesomeIcon icon={faTimesCircle} className="me-1" />
+  Reopen
+</button>
+
+)}
+
                     </div>
                     {/* <div className="ellipsis-btncol">
                       <button className="ellipsis-btn">

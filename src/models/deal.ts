@@ -40,8 +40,8 @@ export class Deal extends AuditItem {
   openDealsCount?: number;
   statusID?:number;
   ownerName!: string;
-  reason!: string;
-  comments!: string;
+  comments?: string | null;
+  reason?: string | null; 
   callHistory: CallHistoryEntry[] = []; 
   wonTime!:string;
   marketing_GCLID?: string | null;
@@ -136,6 +136,7 @@ export class Deal extends AuditItem {
   occupation!: string;
   customFields!: any[];
  pipelineStages: Stage[] = [];
+  lostReason: any;
 
 
 }
