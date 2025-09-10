@@ -139,13 +139,13 @@ const [dealsData, setDealsData] = useState<DealWithPipeline[]>([]);
     setDealValue(e.target.value);
   };
 
-  const handleSaveClick = () => {
-    console.log("Saving deal value:", dealValue); // Debugging
-    setIsEditingAmount(false);
-    setDealItem({ ...dealItem, value: dealValue }); // Update the deal value
-    onDealModified(); // Save the deal using existing function
-  };
-
+const handleSaveClick = () => {
+  const clean = sanitizeMoney(String(dealValue ?? ""));
+  if (!clean) { toast.error("Please enter a valid amount."); return; }
+  setIsEditingAmount(false);
+  setDealItem({ ...dealItem, value: clean }); // value stays string
+  onDealModified();
+};
   const loadDealItem = () => {
     dealSvc.getDealsById(dealId).then((res) => {
       setDealItem(
@@ -268,13 +268,13 @@ const [dealsData, setDealsData] = useState<DealWithPipeline[]>([]);
   }
 }, [location.search]);
 
-  const onDealModified = () => {
+  const onDealModified = (cleanValue?: string) => {
     console.log("Updated dealItem before API call:", dealItem);
-
+    const valueToSend = cleanValue ?? sanitizeMoney(String(dealValue ?? ""));
     // Ensure required fields exist
     const updatedDealItem = {
       ...dealItem,
-      value: dealValue,
+      value: valueToSend ,
       operationDate: dealItem.operationDate
         ? new Date(dealItem.operationDate)
         : null,
@@ -398,6 +398,12 @@ const [dealsData, setDealsData] = useState<DealWithPipeline[]>([]);
       toast.success("Unable to sent email please re try after sometime");
     }
   };
+  const sanitizeMoney = (s: string) =>
+  s.replace(/[^\d.]/g, "")
+   .replace(/^0+(?=\d)/, "")
+   .replace(/(\..*)\./g, "$1")
+   .replace(/^(\d+\.?\d{0,2}).*$/, "$1");
+
 
   const onLoginConfirm = async () => {
     try {
@@ -530,21 +536,21 @@ const pretty = (v: any) => (isEmpty(v) ? '-' : String(v).trim());
                         <div className="appdeal-amount-container">
                           {isEditingAmount ? (
                             <div>
-                              <div style={{ display: "flex", gap: "10px" }}>
-                                <input
-                                  type="number"
-                                  value={dealValue}
-                                  onChange={handleInputChange}
-                                  className="deal-amount-input"
-                                />
-                                <select className="currency-dropdown">
-                                  <option value="GBP">
-                                    Pound Sterling (GBP)
-                                  </option>
-                                  <option value="USD">US Dollar (USD)</option>
-                                  <option value="EUR">Euro (EUR)</option>
-                                </select>
-                              </div>
+                              <div className="input-group input-group-sm" style={{ maxWidth: 360 }}>
+  <input
+    type="text"
+    inputMode="decimal"
+    className="form-control"
+    value={dealValue ?? ""}
+    onChange={(e) => setDealValue(sanitizeMoney(e.target.value))}
+    onKeyDown={(e) => { if (["e","E","+","-"].includes(e.key)) e.preventDefault(); }}
+  />
+  <select className="form-select">
+    <option value="GBP">Pound Sterling (GBP)</option>
+    <option value="USD">US Dollar (USD)</option>
+    <option value="EUR">Euro (EUR)</option>
+  </select>
+</div>
                               <div
                                 style={{ marginTop: "8px", textAlign: "right" }}
                               >
