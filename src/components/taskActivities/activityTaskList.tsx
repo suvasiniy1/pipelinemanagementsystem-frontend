@@ -23,6 +23,7 @@ const TasksList = () => {
     // Memoize the TaskService and EmailTemplateService instance
     const taskService = useMemo(() => new TaskService(ErrorBoundary), []);
     const templateSvc = useMemo(() => new EmailTemplateService(ErrorBoundary), []);
+  
 
     // Load task data from the API
     const loadTasksData = async (): Promise<void> => {
@@ -186,7 +187,7 @@ const TasksList = () => {
                 itemName={"Activity"}
                 itemType={Tasks}
                 columnMetaData={columnMetaData}
-                viewAddEditComponent={TaskAddEdit}
+                viewAddEditComponent={() => null} 
                 itemsBySubURL={"GetAllTask"} // Correct URL endpoint for getting tasks
                 rowTransformFn={rowTransform}
                 api={taskService} // Task service to interact with API
@@ -194,6 +195,7 @@ const TasksList = () => {
                 onSelectionModelChange={handleSelectionChange} // Use the selection change handler
                 rowData={rowData} // Pass row data
                 isLoading={isLoading} // Show loading spinner if data is loading
+                canDoActions={false}
             />
             <GroupEmailDialog
                 open={groupEmailDialogOpen}
