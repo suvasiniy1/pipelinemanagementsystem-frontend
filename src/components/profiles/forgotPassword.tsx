@@ -66,7 +66,12 @@ const ForgotPassword = (props: params) => {
   const formOptions = { resolver: yupResolver(validationsSchema) };
   const methods = useForm<ForgotPasswordFormData>(formOptions); // Type useForm with ForgotPasswordFormData
   const { handleSubmit, getValues, setValue } = methods;
-
+function getApiErrorMessage(err: any) {
+  const data = err?.response?.data;
+  if (!data) return err?.message || "Request failed";
+  if (typeof data === "string") return data;
+  return data.message || data.detail || data.title || "Request failed";
+}
   // onSubmit function that will call the forgot password service
   const onSubmit = async () => {
     setLoading(true);
@@ -81,9 +86,11 @@ const ForgotPassword = (props: params) => {
       if (response) {
        // setMessage('Password reset link has been sent to your email.');
         toast.success("Password reset link has been sent to your email.");
+        setDialogIsOpen(false);  
       }
-    } catch (err: any) {
-      setError(err?.response?.data || 'Something went wrong.');
+    } catch (err) {
+  const msg = getApiErrorMessage(err);
+  toast.error(msg);
     } finally {
       setLoading(false);
           setDialogIsOpen(false);
