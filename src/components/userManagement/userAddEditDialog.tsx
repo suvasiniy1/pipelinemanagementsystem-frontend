@@ -109,21 +109,30 @@ type UserFormValues = InferType<typeof validationSchema>;
       ...Util.buildValidations(list),
     });
   };
-
+const numberRequired = (msg: string) =>
+  Yup.number()
+    .transform((val, orig) => (orig === '' || orig === null ? undefined : val)) // <- key
+    .typeError(msg)      // non-number (incl. '')
+    .required(msg);      // after transform it's undefined -> required
   const validationSchema = Yup.object().shape({
   firstName: Yup.string().required("Required"),
   lastName: Yup.string().required("Required"),
   userName: Yup.string().required("Required"),
   email: Yup.string().email("Invalid email").required("Required"),
   phoneNumber: Yup.string().required("Required"),
- id: Yup.number().nullable().notRequired(), // ✅ this is fine
+id: numberRequired("Role is required"),
 isActive: Yup.boolean().notRequired(),     // ✅ this is fine
-  organizationID: Yup.number().required("Required"),
+   organizationID: numberRequired("Organization is required"),
 });
 
 
 const methods = useForm<UserFormValues>({
   resolver: yupResolver(validationSchema),
+  defaultValues: {
+    id: '',                // empty select
+    organizationID: '',    // empty select
+    isActive: true,
+  } as any,
 });
 
 
@@ -158,10 +167,6 @@ const [usernameError, setUsernameError] = useState<string | undefined>();
       setSelectedItem((prev: any) => ({ ...prev, isActive: isActiveValue }));
       return;
     }
-
-    // Set the value normally
-    setValue(field as never, value as never);
-
     // Auto-generate username when first or last name is entered
     if (field === "firstName" || field === "lastName") {
       const firstName =
@@ -175,14 +180,14 @@ const [usernameError, setUsernameError] = useState<string | undefined>();
         setValue("userName" as never, generatedUsername as never);
       }
     }
-    if (item.value === "roleID") {
-      setValue("roleID" as never, Number(value) as never);
-    }
-    if (item.value === "organizationID") {
-      setValue("organizationID" as never, Number(value) as never);
-    } else {
-      setValue(item.value as never, value as never);
-    }
+     if (field === "id" || field === "organizationID") {
+    // keep '' as '' so Yup shows "Required"
+    const normalized = value === '' ? '' : Number(value);
+    methods.setValue(field as any, normalized as any, { shouldValidate: true });
+    return;
+  }
+
+  methods.setValue(field as any, value as any, { shouldValidate: true });
   };
   const getListofItemsForDropdown = (item: any) => {
     if (item.value === "id") {
