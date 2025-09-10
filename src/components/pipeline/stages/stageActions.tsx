@@ -57,8 +57,8 @@ export const StageActions = (props: params) => {
                         <div className="colactionbtn">
                             <div className="dealprobainfo">
                                 <div className="editstage-checkbox">
-                                    <label className="checktogglebox"><input id="dealprobability" type="checkbox" /><span className="checktoggle"></span></label>
-                                    <div className="fieldchecklabel">Deal probability</div>
+                                  {/* <label className="checktogglebox"><input id="dealprobability" type="checkbox" /><span className="checktoggle"></span></label>
+                                    <div className="fieldchecklabel">Deal probability</div>*/}
                                 </div>
                                 {/* <button className="probinfobtn"><FontAwesomeIcon icon={faCircleInfo} /></button> */}
                             </div>
