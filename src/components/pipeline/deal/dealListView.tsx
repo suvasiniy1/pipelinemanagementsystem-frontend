@@ -603,14 +603,14 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
     );
     
     // Fix value display logic
-    if (userRole === 1) {
+   // if (userRole === 1) {
       const numValue = Number(item.value);
       transformedItem.value = (item.value !== null && item.value !== undefined && !isNaN(numValue) && numValue >= 0)
         ? `£${numValue}`
         : "N/A";
-    } else {
-      transformedItem.value = "£0";
-    }
+   // } else {
+     // transformedItem.value = "£0";
+   // }
     const statusText = getStatusNameById(item.statusID);
     // ✅ Emoji only for Won & Lost
   let statusDisplay = statusText;

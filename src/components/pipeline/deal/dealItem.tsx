@@ -80,7 +80,7 @@ export const DealItem = (props: params) => {
                   <i className="rs-icon rs-icon-user-circle"></i>
                 </div>
                 <div className="pdstage-value">
-                <span>£{userProfile.role === 1 ? deal?.value : 0}</span>
+                <span>£{deal?.value ?? 0}</span>
                 </div>
               </div>
               <div className='pdstage-box1 pdstage-simplebadge'>
