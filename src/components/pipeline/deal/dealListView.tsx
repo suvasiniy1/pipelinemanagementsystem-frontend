@@ -101,6 +101,7 @@ const DealListView = (props: Params) => {
   const dealSvc = new DealService(ErrorBoundary);
   const pipeLineSvc = new PipeLineService(ErrorBoundary);
  const [pageSize, setPageSize] = useState(10);
+ const [resetKey, setResetKey] = useState(0);
  const marketingColumns = [
   { columnName: "marketing_GCLID",      columnHeaderName: "GCLID",            width: 180 },
   { columnName: "marketing_source",     columnHeaderName: "Source",           width: 140 },
@@ -664,7 +665,8 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
   };
 
     const onPersonSelection=(userName:string)=>{
-    setSelectedUserId(users?.find(u=>u.name===userName)?.id as any);
+      const picked = users.find(u => u.name === userName);
+   setSelectedUserId(picked?.id ?? null);
     setSelectedFilterObj(null as any);
     setUsers((prevUsers) =>
       prevUsers.map((user) =>
@@ -679,8 +681,13 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
   const handleResetFilter = () => {
     setSelectedFilterObj(null);
     setSelectedUserId(null);
+    // clear the tick on owners
+  setUsers(prev =>
+    prev.map(u => ({ ...u, isSelected: false }))
+  );
     // Optionally, also close the filter dropdown
     setShowPipeLineFilters(false);
+    setResetKey(k => k + 1);
   };
   const handleOpenGroupEmailDialog = async () => {
   if (!selectedRows.length) {
@@ -785,6 +792,7 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
                     aria-labelledby="filters-tab"
                   >
                     <FilterDropdown
+                      key={resetKey} 
                       showPipeLineFilters={showPipeLineFilters}
                       setShowPipeLineFilters={setShowPipeLineFilters}
                       selectedFilterObj={selectedFilterObj}
