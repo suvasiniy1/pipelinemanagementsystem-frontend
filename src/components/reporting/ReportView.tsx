@@ -26,7 +26,8 @@ import { AddEditDialog } from '../../common/addEditDialog';
 import {
   mockDealData
 } from '../../data/mockDealData';
-import { ReportDefinition } from '../../models/reportModels';
+import { ReportDefinition, CreateReportRequest } from '../../models/reportModels';
+import { ReportService } from '../../services/reportService';
 
 interface ReportViewProps {
   entity: string;
@@ -86,6 +87,73 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
   const [dashboardFolders, setDashboardFolders] = useState<any[]>([]);
   const [dashboardNameError, setDashboardNameError] = useState('');
   const [folderNameError, setFolderNameError] = useState('');
+  const [previewReportId, setPreviewReportId] = useState<number | null>(null);
+  const [reportCreated, setReportCreated] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Auto-save preview report
+  const savePreviewReport = async (conditions: FilterCondition[]) => {
+    if (!reportName.trim() || conditions.length === 0) return;
+    
+    try {
+      const reportRequest = new CreateReportRequest();
+      reportRequest.createdDate = new Date();
+      reportRequest.createdBy = 0;
+      reportRequest.modifiedBy = 0;
+      reportRequest.modifiedDate = new Date();
+      reportRequest.updatedBy = 0;
+      reportRequest.updatedDate = new Date();
+      reportRequest.userId = 0;
+      reportRequest.id = previewReportId || 0;
+      reportRequest.name = reportName.trim();
+      reportRequest.chartType = chartType;
+      reportRequest.frequency = frequency;
+      reportRequest.isPreview = true;
+      reportRequest.isActive = true;
+      reportRequest.isPublic = true;
+      reportRequest.reportConditions = conditions.map(filter => ({
+        id: 0,
+        reportDefinitionId: previewReportId || 0,
+        field: filter.field,
+        operator: filter.operator,
+        value: filter.value,
+        extraValue: ''
+      }));
+      
+      const reportService = new ReportService(null);
+      
+      if (previewReportId && reportCreated) {
+        // Use PUT for existing report
+        await reportService.updateReport(previewReportId, reportRequest);
+      } else {
+        // Use POST for new report
+        const savedReport = await reportService.saveReport(reportRequest);
+        if (savedReport?.id) {
+          setPreviewReportId(savedReport.id);
+          setReportCreated(true);
+        }
+      }
+    } catch (error) {
+      console.error('Error saving preview report:', error);
+    }
+  };
+
+  // Check if newCondition is complete and auto-save
+  React.useEffect(() => {
+    if (newCondition.field && newCondition.operator && newCondition.value && reportName.trim()) {
+      const tempCondition: FilterCondition = {
+        id: 'temp-' + Date.now(),
+        entity: newCondition.entity,
+        field: newCondition.field,
+        operator: newCondition.operator,
+        value: newCondition.value,
+        displayText: `${newCondition.field} ${newCondition.operator} ${newCondition.value}`
+      };
+      
+      const allConditions = [...appliedFilters, tempCondition];
+      savePreviewReport(allConditions);
+    }
+  }, [newCondition.field, newCondition.operator, newCondition.value, reportName, appliedFilters]);
 
   // Load existing dashboards and folders from localStorage
   React.useEffect(() => {
@@ -110,15 +178,17 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
     // Set reportSaved to true if reportDefinition exists (edit mode)
     if (reportDefinition) {
       setReportSaved(true);
+      setReportCreated(true);
+      setPreviewReportId(reportDefinition.id);
       setOriginalReportName(reportDefinition.name);
       // Load existing conditions for editing
-      const existingConditions = reportDefinition.conditions.map(condition => ({
-        id: condition.id.toString(),
+      const existingConditions = (reportDefinition.reportConditions || []).map((condition: any) => ({
+        id: (condition.id || Date.now()).toString(),
         entity: 'Deal',
-        field: condition.field,
-        operator: condition.operator,
-        value: condition.value.toString(),
-        displayText: `${condition.field} ${condition.operator} ${condition.value}`
+        field: condition.field || '',
+        operator: condition.operator || '',
+        value: (condition.value || '').toString(),
+        displayText: `${condition.field || ''} ${condition.operator || ''} ${condition.value || ''}`
       }));
       setAppliedFilters(existingConditions);
       setSavedFilters(existingConditions);
@@ -229,16 +299,22 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
     return filteredData;
   };
 
-  const removeFilter = (filterId: string) => {
+  const removeFilter = async (filterId: string) => {
     const updatedFilters = appliedFilters.filter(f => f.id !== filterId);
     setAppliedFilters(updatedFilters);
+    
+    // Auto-save as preview when condition is removed
+    if (updatedFilters.length > 0) {
+      await savePreviewReport(updatedFilters);
+    }
+    
     // If removing the last filter, clear the draft condition too
     if (updatedFilters.length === 0) {
       setNewCondition({ entity: 'Deal', field: '', operator: '', value: '' });
     }
   };
 
-  const handleAddConditionClick = () => {
+  const handleAddConditionClick = async () => {
     if (newCondition.field && newCondition.operator && newCondition.value) {
       const condition: FilterCondition = {
         id: Date.now().toString(),
@@ -248,7 +324,12 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
         value: newCondition.value,
         displayText: `${newCondition.field} ${newCondition.operator} ${newCondition.value}`
       };
-      setAppliedFilters([...appliedFilters, condition]);
+      const updatedFilters = [...appliedFilters, condition];
+      setAppliedFilters(updatedFilters);
+      
+      // Auto-save as preview when condition is added
+      await savePreviewReport(updatedFilters);
+      
       // Clear the newCondition completely
       setNewCondition({ entity: 'Deal', field: '', operator: '', value: '' });
     } else {
@@ -1334,23 +1415,12 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
               <Button 
                 variant="primary" 
                 size="sm"
-                disabled={appliedFilters.length === 0 && !(newCondition.field && newCondition.operator && newCondition.value)}
-                onClick={() => {
+                disabled={isSaving || (appliedFilters.length === 0 && !(newCondition.field && newCondition.operator && newCondition.value))}
+                onClick={async () => {
+                  setIsSaving(true);
                   // Validate report name
                   if (!reportName.trim()) {
                     setReportNameError('Report name is required');
-                    return;
-                  }
-                  
-                  // Check for duplicate report names
-                  const existingReports = JSON.parse(localStorage.getItem('createdReports') || '[]');
-                  const isDuplicate = existingReports.some((r: any) => 
-                    r.name.toLowerCase() === reportName.trim().toLowerCase() && 
-                    r.id !== reportDefinition?.id
-                  );
-                  
-                  if (isDuplicate) {
-                    setReportNameError('Report name already exists. Please choose a different name.');
                     return;
                   }
                   
@@ -1368,92 +1438,87 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                     conditionsToSave.push(autoCondition);
                   }
                   
-                  // Check for incomplete newCondition (partial values)
-                  if ((newCondition.field || newCondition.operator || newCondition.value) && 
-                      !(newCondition.field && newCondition.operator && newCondition.value)) {
-                    toast.warning("Please complete the current condition or use the Add button before saving.");
-                    return;
-                  }
-                  
                   if (conditionsToSave.length === 0) {
                     toast.warning("Please add at least one condition before saving.");
                     return;
                   }
                   
-                  const reportData = {
-                    name: reportName.trim(),
-                    entity,
-                    reportType,
-                    conditions: conditionsToSave.map(filter => ({
-                      id: parseInt(filter.id) || Date.now(),
-                      field: filter.field,
-                      operator: filter.operator,
-                      value: filter.value
-                    })),
-                    frequency,
-                    chartType,
-                    viewBy,
-                    segmentBy
-                  };
-                  
-                  // Save to localStorage
-                  const savedReports = JSON.parse(localStorage.getItem('createdReports') || '[]');
-                  console.log('Current reports in localStorage before save:', savedReports.length);
-                  
-                  const reportId = reportDefinition?.id || Date.now();
-                  const newReport = {
-                    id: reportId,
-                    name: reportData.name,
-                    type: reportData.reportType,
-                    entity: reportData.entity,
-                    createdDate: new Date().toLocaleDateString(),
-                    conditions: reportData.conditions,
-                    frequency: reportData.frequency,
-                    chartType: reportData.chartType,
-                    viewBy: reportData.viewBy,
-                    segmentBy: reportData.segmentBy
-                  };
-                  
-                  const existingIndex = savedReports.findIndex((r:any) => r.id === newReport.id);
-                  if (existingIndex >= 0) {
-                    savedReports[existingIndex] = newReport;
-                    console.log('Updated existing report at index:', existingIndex);
-                  } else {
-                    savedReports.push(newReport);
-                    console.log('Added new report, total reports now:', savedReports.length);
-                  }
+                  const reportRequest = new CreateReportRequest();
+                  reportRequest.createdDate = new Date();
+                  reportRequest.createdBy = 0;
+                  reportRequest.modifiedBy = 0;
+                  reportRequest.modifiedDate = new Date();
+                  reportRequest.updatedBy = 0;
+                  reportRequest.updatedDate = new Date();
+                  reportRequest.userId = 0;
+                  reportRequest.id = reportDefinition?.id || previewReportId || 0;
+                  reportRequest.name = reportName.trim();
+                  reportRequest.chartType = chartType;
+                  reportRequest.frequency = frequency;
+                  reportRequest.isPreview = false;
+                  reportRequest.isActive = true;
+                  reportRequest.isPublic = true;
+                  reportRequest.reportConditions = conditionsToSave.map(filter => ({
+                    id: 0,
+                    reportDefinitionId: reportDefinition?.id || previewReportId || 0,
+                    field: filter.field,
+                    operator: filter.operator,
+                    value: filter.value,
+                    extraValue: ''
+                  }));
                   
                   try {
-                    localStorage.setItem('createdReports', JSON.stringify(savedReports));
-                    console.log('Report saved to localStorage successfully:', newReport);
+                    const reportService = new ReportService(null);
+                    let savedReport;
+                    let currentReportId = reportDefinition?.id || previewReportId;
                     
-                    // Verify the save worked
-                    const verifyReports = JSON.parse(localStorage.getItem('createdReports') || '[]');
-                    console.log('Verification - reports in localStorage after save:', verifyReports.length);
+                    if (currentReportId) {
+                      // Use PUT for existing report
+                      savedReport = await reportService.updateReport(currentReportId, reportRequest);
+                    } else {
+                      // Use POST for new report
+                      savedReport = await reportService.saveReport(reportRequest);
+                      if (savedReport?.id) {
+                        setPreviewReportId(savedReport.id);
+                        setReportCreated(true);
+                        currentReportId = savedReport.id;
+                      }
+                    }
+                    
+                    // Report saved via API, no localStorage needed
+                    
+                    if (onSave) {
+                      onSave(savedReport);
+                    }
+                    
+                    if (appliedFilters.length === 0 && newCondition.field && newCondition.operator && newCondition.value) {
+                      setAppliedFilters(conditionsToSave);
+                    }
+                    setSavedFilters(conditionsToSave);
+                    setNewCondition({ entity: 'Deal', field: '', operator: '', value: '' });
+                    setReportSaved(true);
+                    setReportCreated(true);
+                    setHasChanges(false);
+                    toast.success(hasChanges ? "Report updated successfully!" : "Report created successfully!");
                   } catch (error) {
-                    console.error('Error saving to localStorage:', error);
-                    toast.error('Failed to save report to local storage');
-                    return;
+                    console.error('Error saving report:', error);
+                    toast.error('Failed to save report. Please try again.');
+                  } finally {
+                    setIsSaving(false);
                   }
-                  
-                  // Call parent onSave if provided
-                  if (onSave) {
-                    onSave(reportData);
-                  }
-                  
-                  // Update applied filters if we auto-added the newCondition
-                  if (appliedFilters.length === 0 && newCondition.field && newCondition.operator && newCondition.value) {
-                    setAppliedFilters(conditionsToSave);
-                  }
-                  setSavedFilters(conditionsToSave);
-                  setNewCondition({ entity: 'Deal', field: '', operator: '', value: '' });
-                  setReportSaved(true);
-                  setHasChanges(false);
-                  toast.success(hasChanges ? "Report updated successfully!" : "Report created successfully!");
                 }}
               >
-                <FontAwesomeIcon icon={faSave} className="me-1" />
-                Save Report
+                {isSaving ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <FontAwesomeIcon icon={faSave} className="me-1" />
+                    Save Report
+                  </>
+                )}
               </Button>
             </>
           ) : (
@@ -2282,21 +2347,23 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
           itemName={reportName}
           dialogIsOpen={showDeleteModal}
           closeDialog={() => setShowDeleteModal(false)}
-          onConfirm={() => {
+          onConfirm={async () => {
             if (reportDefinition?.id) {
-              // Remove from localStorage
-              const savedReports = JSON.parse(localStorage.getItem('createdReports') || '[]');
-              const updatedReports = savedReports.filter((r: any) => r.id !== reportDefinition.id);
-              localStorage.setItem('createdReports', JSON.stringify(updatedReports));
-              
-              // Call parent onDelete callback
-              if (onDelete) {
-                onDelete(reportDefinition.id);
+              try {
+                const reportService = new ReportService(null);
+                await reportService.deleteReport(reportDefinition.id);
+                
+                if (onDelete) {
+                  onDelete(reportDefinition.id);
+                }
+                
+                toast.success("Report deleted successfully!");
+                setShowDeleteModal(false);
+                onBack();
+              } catch (error) {
+                console.error('Error deleting report:', error);
+                toast.error('Failed to delete report. Please try again.');
               }
-              
-              toast.success("Report deleted successfully!");
-              setShowDeleteModal(false);
-              onBack();
             }
           }}
           customDeleteMessage={<div>Are you sure you want to delete <strong>{reportName}</strong>?</div>}

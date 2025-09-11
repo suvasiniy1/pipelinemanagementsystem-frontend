@@ -11,6 +11,7 @@ import CreateButton from "./CreateButton";
 import DashboardView from "./DashboardView";
 import './reportingStyles.css';
 import ReportView from "./ReportView";
+import { ReportService } from '../../services/reportService';
 
 const ReportingDashboard = () => {
   const [selectedTab, setSelectedTab] = useState("Deal Conversion");
@@ -42,12 +43,20 @@ const ReportingDashboard = () => {
   
   const reportTypes = ["Performance", "Conversion", "Duration", "Progress", "Products"];
 
-  // Load saved reports and folders from localStorage
+  // Load reports from API and folders from localStorage
   useEffect(() => {
-    const savedReports = localStorage.getItem('createdReports');
-    if (savedReports) {
-      setCreatedReports(JSON.parse(savedReports));
-    }
+    const loadReports = async () => {
+      try {
+        const reportService = new ReportService(null);
+        const reports = await reportService.getReports();
+        setCreatedReports(reports || []);
+      } catch (error) {
+        console.error('Error loading reports:', error);
+        setCreatedReports([]);
+      }
+    };
+    
+    loadReports();
     
     const savedDashboards = localStorage.getItem('createdDashboards');
     if (savedDashboards) {
@@ -60,44 +69,16 @@ const ReportingDashboard = () => {
     }
   }, []);
 
-  // Sync with localStorage changes (when reports are saved from ReportView)
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const savedReports = localStorage.getItem('createdReports');
-      if (savedReports) {
-        setCreatedReports(JSON.parse(savedReports));
-      }
-      
-      const savedDashboards = localStorage.getItem('createdDashboards');
-      if (savedDashboards) {
-        setCreatedDashboards(JSON.parse(savedDashboards));
-      }
-      
-      const savedFolders = localStorage.getItem('dashboardFolders');
-      if (savedFolders) {
-        setDashboardFolders(JSON.parse(savedFolders));
-      }
-    };
-
-    // Listen for storage events (from other tabs/windows)
-    window.addEventListener('storage', handleStorageChange);
-    
-    // Also check periodically for changes within the same tab
-    const interval = setInterval(() => {
-      const savedReports = localStorage.getItem('createdReports');
-      const currentReportsString = JSON.stringify(createdReports);
-      const savedReportsString = savedReports || '[]';
-      
-      if (currentReportsString !== savedReportsString) {
-        setCreatedReports(JSON.parse(savedReportsString));
-      }
-    }, 1000);
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      clearInterval(interval);
-    };
-  }, [createdReports]);
+  // Refresh reports when needed
+  const refreshReports = async () => {
+    try {
+      const reportService = new ReportService(null);
+      const reports = await reportService.getReports();
+      setCreatedReports(reports || []);
+    } catch (error) {
+      console.error('Error refreshing reports:', error);
+    }
+  };
 
   const handleCreateSelect = (type: string) => {
     setCreateType(type);
@@ -121,9 +102,8 @@ const ReportingDashboard = () => {
   };
 
   const handleSaveReport = (reportData: any) => {
-    // ReportView already saved to localStorage, just sync the state
-    const currentReports = JSON.parse(localStorage.getItem('createdReports') || '[]');
-    setCreatedReports(currentReports);
+    // Refresh reports from API after save
+    refreshReports();
     
     // Update navigation to show the saved report
     setActiveNavItem(reportData.name);
@@ -151,7 +131,14 @@ const ReportingDashboard = () => {
       name: report.name,
       chartType: report.chartType || 'bar',
       frequency: report.frequency || 'daily',
-      conditions: report.conditions || []
+      isPreview: false,
+      isActive: true,
+      isPublic: true,
+      createdDate: report.createdDate || new Date().toISOString(),
+      createdBy: 0,
+      modifiedBy: 0,
+      modifiedDate: report.modifiedDate || new Date().toISOString(),
+      reportConditions: report.reportConditions || []
     };
     
     setCurrentReport({ 
@@ -163,9 +150,8 @@ const ReportingDashboard = () => {
   };
 
   const handleDeleteReport = (reportId: number) => {
-    // Update state to remove the deleted report
-    const updatedReports = createdReports.filter(report => report.id !== reportId);
-    setCreatedReports(updatedReports);
+    // Refresh reports from API after delete
+    refreshReports();
   };
 
   const handleReportClick = (report: any) => {
@@ -175,7 +161,14 @@ const ReportingDashboard = () => {
       name: report.name,
       chartType: report.chartType || 'bar',
       frequency: report.frequency || 'daily',
-      conditions: report.conditions || []
+      isPreview: false,
+      isActive: true,
+      isPublic: true,
+      createdDate: report.createdDate || new Date().toISOString(),
+      createdBy: 0,
+      modifiedBy: 0,
+      modifiedDate: report.modifiedDate || new Date().toISOString(),
+      reportConditions: report.reportConditions || []
     };
     
     setCurrentReport({ 

@@ -1,15 +1,36 @@
-export class Condition {
-  id!: number;                 // condition id
-  field!: string;              // e.g. "addTime", "status"
-  operator!: string;           // e.g. "=", ">", "<", "between", "in"
-  value!: string | number;     // single value or first value (for between)
-  extraValue?: string | number; // second value (for between, ranges, etc.)
+import { AuditItem } from "./base/AuditNamedItem";
+
+export interface ReportCondition {
+  id: number;
+  reportDefinitionId: number;
+  field: string;
+  operator: string;
+  value: string;
+  extraValue?: string;
 }
 
-export class ReportDefinition {
-  id!: number;                         // report id
-  name!: string;                       // report name e.g. "Deals by Status"
-  chartType!: "bar" | "line" | "pie";  // supported chart type
-  frequency!: "daily" | "monthly" | "yearly";  // aggregation interval
-  conditions: Condition[] = [];        // multiple conditions (AND)
+export class CreateReportRequest extends AuditItem {
+  id!: number;
+  name!: string;
+  chartType!: string;
+  frequency!: string;
+  isPreview!: boolean;
+  isActive!: boolean;
+  isPublic!: boolean;
+  reportConditions!: ReportCondition[];
+}
+
+export interface ReportDefinition {
+  id: number;
+  name: string;
+  chartType: string;
+  frequency: string;
+  isPreview: boolean;
+  isActive: boolean;
+  isPublic: boolean;
+  reportConditions: ReportCondition[];
+  createdDate: string;
+  createdBy: number;
+  modifiedBy: number;
+  modifiedDate: string;
 }
