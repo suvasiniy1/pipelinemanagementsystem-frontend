@@ -1075,7 +1075,7 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
 
   </div>
 )} 
-✅ 
+
               </Grid>
             </div>
           </div>

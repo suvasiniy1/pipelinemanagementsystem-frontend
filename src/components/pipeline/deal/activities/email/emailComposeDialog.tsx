@@ -37,6 +37,11 @@ const EmailComposeDialog = (props: any) => {
 
   const [attachmentFiles, setAttachmentFiles] = useState<Array<any>>([]);
   const [progress, setProgress] = useState<any>({}); // Progress for each file
+  const stripHtml = (s = "") =>
+  s.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").trim();
+
+const emailListRegex =
+  /^[\w-]+(?:\.[\w-]+)*@(?:[\w-]+\.)+[a-zA-Z]{2,7}(?:\s*[,;]\s*[\w-]+(?:\.[\w-]+)*@(?:[\w-]+\.)+[a-zA-Z]{2,7})*$/;
 
   const controlsList: Array<IControl> = [
     {
@@ -74,17 +79,28 @@ const EmailComposeDialog = (props: any) => {
       hideSpaceForEditor: true,
     },
   ];
+   const schema = Yup.object({
+  toAddress: Yup.string()
+    .required("To is required")
+    .matches(emailListRegex, "Please enter valid email addresses"),
+  fromAddress: Yup.string().required("From is required"),
+  subject: Yup.string()
+    .transform(v => (v ?? "").trim())
+    .min(1, "Subject is required")
+    .required("Subject is required"),
+  body: Yup.string()
+    .test("not-empty-html", "Body is required", v => stripHtml(v || "").length > 0)
+    .required("Body is required"),
+  cc: Yup.string().nullable(),
+  bcc: Yup.string().nullable(),
+});
 
-  const getValidationsSchema = (list: Array<any>) => {
-    return Yup.object().shape({
-      ...Util.buildValidations(list),
-    });
-  };
-
-  const formOptions = {
-    resolver: yupResolver(getValidationsSchema(controlsList)),
-  };
-  const methods = useForm(formOptions);
+const methods = useForm({
+  resolver: yupResolver(schema),
+  mode: "onChange",          // live validation (optional, but nice UX)
+  reValidateMode: "onChange"
+});
+  
   const { handleSubmit, unregister, register, resetField, setValue, setError } =
     methods;
 
@@ -147,10 +163,10 @@ const EmailComposeDialog = (props: any) => {
       ...selectedItem,
       fromAddress: fromAddress?.username, 
       toAddress: toAddresses,
-      body: selectedItem?.body?.content.replace(/<body>.*?<br>/s, handleReplyClick()),
+      body: selectedItem?.body?.content.replace(/<body>.*?<br>/, handleReplyClick()),
       subject: selectedItem.subject
         ? addReToSubject(selectedItem.subject)
-        : null,
+        : "",
       isReply: !Util.isNullOrUndefinedOrEmpty(selectedItem.subject),
     };
     setSelectedItem(obj);
@@ -160,27 +176,43 @@ const EmailComposeDialog = (props: any) => {
   }, []);
 
   const resetValidationsOnLoad = (key: any, value: any) => {
-    setValue(key as never, value as never);
-  };
+  setValue(key as never, (value ?? "") as never, {
+    shouldValidate: true,
+    shouldDirty: false,
+  });
+};
 
   const onChange = (
-    value: any,
-    item: any,
-    itemName?: any,
-    isValidationOptional: boolean = false
-  ) => {
-    if (!isValidationOptional) {
-      if (item.key === "Body") {
-        value = value === "<p><br></p>" ? null : value;
-        setSelectedItem({ ...selectedItem, body: value });
-        setValue(item.value as never, value as never);
-        if (value) unregister(item.value as never);
-        else register(item.value as never);
-        resetField(item.value as never);
-      }
-    }
-  };
+  value: any,
+  item: any,
+  itemName?: any,
+  isValidationOptional: boolean = false
+) => {
+  // Normalize BODY (Quill) and validate
+  if (item.key === "Body") {
+    const isEmpty =
+      !value ||
+      value === "<p><br></p>" ||
+      stripHtml(value).length === 0;
 
+    const normalized = isEmpty ? "" : value;
+
+    setSelectedItem({ ...selectedItem, body: normalized });
+    setValue(item.value as never, normalized as never, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+    return;
+  }
+
+  // For ALL other fields (including Subject), push the value into RHF
+  const v = typeof value === "string" ? value : (value ?? "");
+  setSelectedItem((prev: any) => ({ ...prev, [item.value]: v }));
+  setValue(item.value as never, v as never, {
+    shouldValidate: true,
+    shouldDirty: true,
+  });
+};
   const onSubmit = (item: any) => {
     let obj = Util.toClassObject(selectedItem, item);
     obj.toAddress = item.toAddress;

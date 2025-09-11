@@ -37,13 +37,13 @@ const GroupEmailDialog: React.FC<GroupEmailDialogProps> = ({
   templates,
   onTemplateSelect,
 }) => {
-  const [templateId, setTemplateId] = useState<number | string>("");
-  const [header, setHeader] = useState<any>("");
+  const [templateId, setTemplateId] = useState<string>("");
+  const [header, setHeader]     = useState<string>("");
   const { instance, accounts } = useMsal();
-  const [body, setBody] = useState<any>("");
-  const [footer, setFooter] = useState<any>("");
+  const [body, setBody]         = useState<string>("");
+  const [footer, setFooter]     = useState<string>("");
   const [emailContent, setEmailContent] = useState<string>("");
-  const [subject, setSubject] = useState<string>("");
+  const [subject, setSubject]   = useState<string>("");
   const [fromAddress, setFromAddress] = useState<string>(
     accounts[0]?.username || "Testtest@transforminglives.co.uk"
   );
@@ -56,13 +56,22 @@ const GroupEmailDialog: React.FC<GroupEmailDialogProps> = ({
     }
   },[accounts])
 
+  useEffect(() => {
+  if (open) {
+    // new open → start clean unless a template is already provided
+    if (!selectedTemplate) clearFields();
+    // refresh "From"
+    if (accounts[0]?.username) setFromAddress(accounts[0].username);
+  }
+}, [open, accounts]);
+
   const clearFields = () => {
-    setTemplateId(null as any);
-    setHeader(null);
-    setBody(null);
-    setFooter(null);
-    setEmailContent(null as any);
-    setSubject(null as any);
+    setTemplateId("");
+    setHeader(""); 
+    setBody("");
+    setFooter("");
+    setEmailContent("");
+    setSubject("");
   };
 
   // Utility function to safely extract content from EmailItemProps
@@ -106,30 +115,39 @@ const GroupEmailDialog: React.FC<GroupEmailDialogProps> = ({
 
   // Update email content whenever header, body, or footer changes
   useEffect(() => {
-    const combinedContent = `${header?.trim()}<br/><br/>${body?.trim()}<br/><br/>${footer?.trim()}`;
+    const combinedContent =
+  `${(header ?? "").trim()}<br/><br/>` +
+  `${(body ?? "").trim()}<br/><br/>` +
+  `${(footer ?? "").trim()}`;
     setEmailContent(combinedContent);
   }, [header, body, footer]);
 
   // Update form fields when selectedTemplate changes
   useEffect(() => {
-    if (selectedTemplate) {
-      setTemplateId(selectedTemplate.id);
-      const headerContent = getContent(selectedTemplate.header);
-      const bodyContent = getContent(selectedTemplate.body);
-      const footerContent = getContent(selectedTemplate.footer);
-
-      setHeader(headerContent);
-      setBody(bodyContent);
-      setFooter(footerContent);
-      setSubject(""); // Ensure subject is editable separately
-    }
-  }, [selectedTemplate]);
+  if (selectedTemplate) {
+    setTemplateId(String(selectedTemplate.id)); // ← convert to string
+    const headerContent = getContent(selectedTemplate.header);
+    const bodyContent   = getContent(selectedTemplate.body);
+    const footerContent = getContent(selectedTemplate.footer);
+    setHeader(headerContent);
+    setBody(bodyContent);
+    setFooter(footerContent);
+    setSubject("");
+  }else {
+    // deselected → wipe current fields
+    clearFields();
+  }
+}, [selectedTemplate]);
+useEffect(() => {
+  // only if you actually want a reset on recipients change
+  // setSubject("");
+}, [selectedRecipients.join(";")]);  // join → stable dep
 
   // Handle template change in dropdown
   const handleTemplateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedId = e.target.value;
     setTemplateId(selectedId);
-    const template = templates.find((t) => t.id === Number(selectedId));
+    const template = templates.find((t) => String(t.id) === selectedId);
     if (template) {
       onTemplateSelect(template);
       updateContentFields(template);
@@ -270,7 +288,7 @@ const GroupEmailDialog: React.FC<GroupEmailDialogProps> = ({
             >
               {/* Render the templates in the dropdown */}
               {templates.map((template) => (
-                <MenuItem key={template.id} value={template.id}>
+                <MenuItem key={template.id} value={String(template.id)}>
                   {template.name}
                 </MenuItem>
               ))}
@@ -289,17 +307,17 @@ const GroupEmailDialog: React.FC<GroupEmailDialogProps> = ({
             <Typography variant="h6" gutterBottom>
               Header
             </Typography>
-            <ReactQuill value={header} onChange={setHeader} />
+            <ReactQuill key={`hdr-${templateId}-${open ? 1 : 0}`} value={header || ""} onChange={setHeader} />
 
             <Typography variant="h6" gutterBottom>
               Body
             </Typography>
-            <ReactQuill value={body} onChange={setBody} />
+            <ReactQuill key={`body-${templateId}-${open ? 1 : 0}`} value={body || ""} onChange={setBody} />
 
             <Typography variant="h6" gutterBottom>
               Footer
             </Typography>
-            <ReactQuill value={footer} onChange={setFooter} />
+            <ReactQuill key={`ftr-${templateId}-${open ? 1 : 0}`} value={footer || ""} onChange={setFooter} />
 
             {/* Email Content Display TextArea */}
             <Typography variant="h6" color="textSecondary" gutterBottom>
