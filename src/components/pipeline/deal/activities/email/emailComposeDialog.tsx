@@ -37,6 +37,7 @@ const EmailComposeDialog = (props: any) => {
 
   const [attachmentFiles, setAttachmentFiles] = useState<Array<any>>([]);
   const [progress, setProgress] = useState<any>({}); // Progress for each file
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const stripHtml = (s = "") =>
   s.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").trim();
 
@@ -213,10 +214,19 @@ const methods = useForm({
     shouldDirty: true,
   });
 };
-  const onSubmit = (item: any) => {
-    let obj = Util.toClassObject(selectedItem, item);
-    obj.toAddress = item.toAddress;
-    props.onSave(obj, attachmentFiles);
+
+
+  const onSubmit = async (item: any) => {
+    
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      if (props.onSave) {
+        await props.onSave(item, attachmentFiles);
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const getAttachedData = () => {
@@ -381,11 +391,17 @@ const methods = useForm({
             Cancel
           </button>
           <button
-            onClick={handleSubmit(onSubmit)}
+            type="button"
+            onClick={() => {
+              if (!isSubmitting) {
+                handleSubmit(onSubmit)();
+              }
+            }}
             className="btn btn-primary btn-sm me-2"
             id="closeDialog"
+            disabled={isSubmitting}
           >
-            Send
+            {isSubmitting ? 'Sending...' : 'Send'}
           </button>
         </div>
       </>
@@ -399,20 +415,26 @@ const methods = useForm({
           <AddEditDialog
             dialogIsOpen={dialogIsOpen}
             header={"Email"}
-            onSave={handleSubmit(onSubmit)}
             closeDialog={oncloseDialog}
             customFooter={customFooter()}
             onClose={oncloseDialog}
           >
-            <br />
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              if (!isSubmitting) {
+                handleSubmit(onSubmit)();
+              }
+            }}>
+              <br />
 
-            <GenerateElements
-              controlsList={controlsList}
-              selectedItem={selectedItem}
-              onChange={(value: any, item: any) => onChange(value, item)}
-              getAttachedData={(e: any) => getAttachedData()}
-            />
+              <GenerateElements
+                controlsList={controlsList}
+                selectedItem={selectedItem}
+                onChange={(value: any, item: any) => onChange(value, item)}
+                getAttachedData={(e: any) => getAttachedData()}
+              />
 
+            </form>
             <div className="form-group row">
               <div className="col-5"></div>
               <div className="col-1" style={{alignItems:"center", alignContent:"center", paddingBottom:"10px"}} hidden={attachmentFiles.length==0}>Attachements:</div>

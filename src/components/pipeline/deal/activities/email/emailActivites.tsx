@@ -305,8 +305,9 @@ auditLogObj.eventDescription = "A new email was sent for the deal";
           selectedItem={selectedEmail ?? new EmailCompose()}
           setSelectedItem={setSelectedEmail}
           setDialogIsOpen={setDialogIsOpen}
-          onSave={(e: any, attachmentFiles:Array<any>) => {
-            handleSendEmail(e, attachmentFiles);
+          onSave={async (e: any, attachmentFiles:Array<any>) => {
+            
+            await handleSendEmail(e, attachmentFiles);
           }}
         />
       )}

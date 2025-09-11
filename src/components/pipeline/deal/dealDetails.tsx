@@ -377,16 +377,39 @@ const handleSaveClick = () => {
       });
   };
 
-  const handleSendEmail = async (emailObj: any) => {
+  const handleSendEmail = async (emailObj: any, attachmentFiles: Array<any> = []) => {
     try {
       const accessTokenResponse = await instance.acquireTokenSilent({
         scopes: ["Mail.Send"],
         account: accounts[0],
       });
+      
+      // Convert files to base64 for attachments
+      const fileToBase64 = (file: any) => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve((reader as any).result.split(",")[1]);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      };
+      
+      const attachments = await Promise.all(
+        attachmentFiles.map(async (file) => {
+          const base64File = await fileToBase64(file?.file);
+          return {
+            '@odata.type': '#microsoft.graph.fileAttachment',
+            name: file.file.name,
+            contentType: file.file.type,
+            contentBytes: base64File,
+          };
+        })
+      );
+      
       // Send email logic here
       let response: any = await sendEmail(
         accessTokenResponse.accessToken,
-        prepareEmailBody(emailObj, dealId),
+        await prepareEmailBody(emailObj, dealId, attachments),
         null
       );
 
@@ -395,7 +418,7 @@ const handleSaveClick = () => {
     } catch (error) {
       console.error("Email sending failed", error);
       setDialogIsOpen(false);
-      toast.success("Unable to sent email please re try after sometime");
+      toast.error("Unable to sent email please re try after sometime");
     }
   };
   const sanitizeMoney = (s: string) =>
@@ -981,7 +1004,9 @@ const pretty = (v: any) => (isEmpty(v) ? '-' : String(v).trim());
                     selectedItem={selectedEmail ?? new EmailCompose()}
                     setSelectedItem={setSelectedEmail}
                     setDialogIsOpen={setDialogIsOpen}
-                    onSave={handleSendEmail}
+                    onSave={async (emailObj: any, attachmentFiles: Array<any>) => {
+                      await handleSendEmail(emailObj, attachmentFiles);
+                    }}
                   />
                 )}
 
