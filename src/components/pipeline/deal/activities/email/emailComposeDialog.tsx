@@ -235,7 +235,7 @@ const methods = useForm({
     );
 
     let itemList: Array<any> = [];
-    list.forEach((i) => {
+    list?.forEach((i) => {
       let header: EmailItemProps = JSON.parse(i.header as any);
       let body = JSON.parse(i.body as any);
       let footer = JSON.parse(i.footer as any);
