@@ -104,8 +104,6 @@ export const DealDetails = () => {
   const [tempMedicalFormValue, setTempMedicalFormValue] = useState(
     dealItem.medicalForm ?? "None"
   );
-  const auditLogsvc = new DealAuditLogService(ErrorBoundary);
-    const dealEmailLogService = new DealEmailLogService(ErrorBoundary)
   // 👇 Just after your imports or above component state
   interface DealWithPipeline extends Deal {
     pipelineStages: Stage[];
