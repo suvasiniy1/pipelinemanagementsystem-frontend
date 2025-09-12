@@ -44,22 +44,22 @@ import DealsDialog from "./DealsDialog";
 import JustCallComponent from "./justcall";
 import MedicalFormEmailDialog from "./activities/email/MedicalFormEmailDialog";
 import { sendMedicalFormEmail } from "../../../models/medicalFormEmailService";
+import { PostAuditLog, DealEmailLog } from "../../../models/dealAutidLog";
 import { DealEmailLogService } from "../../../services/dealEmailLogService";
-import { DealEmailLog, PostAuditLog } from "../../../models/dealAutidLog";
-import { DealAuditLogService } from "../../../services/dealAuditLogService";
 
 export const DealDetails = () => {
-const navigator = useNavigate();
+  const navigator = useNavigate();
   const location = useLocation();
-    const { instance, accounts } = useMsal();
+  const { instance, accounts } = useMsal();
   const [isEditingAmount, setIsEditingAmount] = useState(false);
 
   const getSafeFilterId = (search: string): string | undefined => {
-  const raw = new URLSearchParams(search).get("filterId");
-  return raw && raw !== "null" && raw !== "undefined" && raw.trim() !== "" ? raw : undefined;
-};
-
-
+    const raw = new URLSearchParams(search).get("filterId");
+    return raw && raw !== "null" && raw !== "undefined" && raw.trim() !== ""
+      ? raw
+      : undefined;
+  };
+  const dealEmailLogService = new DealEmailLogService(ErrorBoundary);
   const [dealId, setDealId] = useState(
     new URLSearchParams(useLocation().search).get("id") as any
   );
@@ -67,8 +67,8 @@ const navigator = useNavigate();
     new URLSearchParams(useLocation().search).get("pipeLineId") as any
   );
   const [filterId, setFilterId] = useState<string | undefined>(() =>
-  getSafeFilterId(location.search)
-);
+    getSafeFilterId(location.search)
+  );
   const dealSvc = new DealService(ErrorBoundary);
   const [error, setError] = useState<AxiosError>();
   const [dealItem, setDealItem] = useState<Deal>({
@@ -91,8 +91,6 @@ const navigator = useNavigate();
   const utility: Utility = JSON.parse(
     LocalStorageUtil.getItemObject(Constants.UTILITY) as any
   );
-  
-
 
   const [isDealsModalOpen, setIsDealsModalOpen] = useState(false);
   const [relatedDeals, setRelatedDeals] = useState([]);
@@ -100,7 +98,7 @@ const navigator = useNavigate();
   const [openDealsCount, setOpenDealsCount] = useState(
     dealItem.openDealsCount || 0
   );
-    const [emailSent, setEmailSent] = useState(false);
+
   const [dealValue, setDealValue] = useState(dealItem.value);
   const [isEditingMedicalForm, setIsEditingMedicalForm] = useState(false);
   const [tempMedicalFormValue, setTempMedicalFormValue] = useState(
@@ -109,13 +107,12 @@ const navigator = useNavigate();
   const auditLogsvc = new DealAuditLogService(ErrorBoundary);
     const dealEmailLogService = new DealEmailLogService(ErrorBoundary)
   // 👇 Just after your imports or above component state
-interface DealWithPipeline extends Deal {
-  pipelineStages: Stage[];
-  pipelineName: string;
-}
-const [dealsData, setDealsData] = useState<DealWithPipeline[]>([]);
+  interface DealWithPipeline extends Deal {
+    pipelineStages: Stage[];
+    pipelineName: string;
+  }
+  const [dealsData, setDealsData] = useState<DealWithPipeline[]>([]);
   useEffect(() => {}, [dealItem]);
-  
 
   const convertUTCtoISO = (utcDateString: string) => {
     // Create a Date object from the UTC string
@@ -144,13 +141,16 @@ const [dealsData, setDealsData] = useState<DealWithPipeline[]>([]);
     setDealValue(e.target.value);
   };
 
-const handleSaveClick = () => {
-  const clean = sanitizeMoney(String(dealValue ?? ""));
-  if (!clean) { toast.error("Please enter a valid amount."); return; }
-  setIsEditingAmount(false);
-  setDealItem({ ...dealItem, value: clean }); // value stays string
-  onDealModified();
-};
+  const handleSaveClick = () => {
+    const clean = sanitizeMoney(String(dealValue ?? ""));
+    if (!clean) {
+      toast.error("Please enter a valid amount.");
+      return;
+    }
+    setIsEditingAmount(false);
+    setDealItem({ ...dealItem, value: clean }); // value stays string
+    onDealModified();
+  };
   const loadDealItem = () => {
     dealSvc.getDealsById(dealId).then((res) => {
       setDealItem(
@@ -160,7 +160,7 @@ const handleSaveClick = () => {
       );
     });
   };
-  
+
   useEffect(() => {
     Promise.all([dealSvc.getDealsById(dealId), stagesSvc.getStages(pipeLineId)])
       .then((res) => {
@@ -224,22 +224,25 @@ const handleSaveClick = () => {
 
       // Map relatedDealsData to ensure every deal has required fields for DataGrid
       const formattedData: Deal[] = await Promise.all(
-  relatedDealsData.map(async (deal) => {
-    const stagesData = await stagesSvc.getStages(deal.pipelineID);
-    const sortedStages = Util.sortList(stagesData.stageDtos, "stageOrder");
+        relatedDealsData.map(async (deal) => {
+          const stagesData = await stagesSvc.getStages(deal.pipelineID);
+          const sortedStages = Util.sortList(
+            stagesData.stageDtos,
+            "stageOrder"
+          );
 
-    return {
-      ...deal,
-      id: deal.dealID,
-      treatmentName: deal.treatmentName || "No Title",
-      personName: deal.personName || "No Contact",
-      ownerName: deal.ownerName || "No Owner",
-      organizationName: deal.name || "No Organization",
-      pipelineName: deal.pipelineName || "Unknown Pipeline", // Add this
-      pipelineStages: sortedStages,
-    };
-  })
-);
+          return {
+            ...deal,
+            id: deal.dealID,
+            treatmentName: deal.treatmentName || "No Title",
+            personName: deal.personName || "No Contact",
+            ownerName: deal.ownerName || "No Owner",
+            organizationName: deal.name || "No Organization",
+            pipelineName: deal.pipelineName || "Unknown Pipeline", // Add this
+            pipelineStages: sortedStages,
+          };
+        })
+      );
 
       setDealsData(formattedData);
       setIsDealsModalOpen(true);
@@ -261,17 +264,17 @@ const handleSaveClick = () => {
   //   }
   // }, [location.search]); // Listen for changes to the URL search params
 
- useEffect(() => {
-  const searchParams = new URLSearchParams(location.search);
-  const newDealId = searchParams.get("id");
-  const newPipelineId = searchParams.get("pipeLineId");
-  setFilterId(getSafeFilterId(location.search)); 
-  if (newDealId && newPipelineId) {
-    setDealId(newDealId);       // Update local state
-    setPipeLineId(newPipelineId); // Update local state
-    fetchDealData(+newDealId, +newPipelineId); // 🔁 Fetch updated deal
-  }
-}, [location.search]);
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const newDealId = searchParams.get("id");
+    const newPipelineId = searchParams.get("pipeLineId");
+    setFilterId(getSafeFilterId(location.search));
+    if (newDealId && newPipelineId) {
+      setDealId(newDealId); // Update local state
+      setPipeLineId(newPipelineId); // Update local state
+      fetchDealData(+newDealId, +newPipelineId); // 🔁 Fetch updated deal
+    }
+  }, [location.search]);
 
   const onDealModified = (cleanValue?: string) => {
     console.log("Updated dealItem before API call:", dealItem);
@@ -279,7 +282,7 @@ const handleSaveClick = () => {
     // Ensure required fields exist
     const updatedDealItem = {
       ...dealItem,
-      value: valueToSend ,
+      value: valueToSend,
       operationDate: dealItem.operationDate
         ? new Date(dealItem.operationDate)
         : null,
@@ -382,89 +385,84 @@ const handleSaveClick = () => {
       });
   };
 
-  const handleSendEmail = async (emailObj: any, attachmentFiles: Array<any> = []) => {
-  try {
-    const accessTokenResponse = await instance.acquireTokenSilent({
-      scopes: ["Mail.Send"],
-      account: accounts[0],
-    });
-
-    // Convert files to base64 for attachments
-    const fileToBase64 = (file: any) => {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve((reader as any).result.split(",")[1]);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
+  const handleSendEmail = async (
+    emailObj: any,
+    attachmentFiles: Array<any> = []
+  ) => {
+    try {
+      const accessTokenResponse = await instance.acquireTokenSilent({
+        scopes: ["Mail.Send"],
+        account: accounts[0],
       });
-    };
 
-    const attachments = await Promise.all(
-      attachmentFiles.map(async (file) => {
-        const base64File = await fileToBase64(file?.file);
-        return {
-          '@odata.type': '#microsoft.graph.fileAttachment',
-          name: file.file.name,
-          contentType: file.file.type,
-          contentBytes: base64File,
-        };
-      })
-    );
-
-    // Send email logic here
-    let response: any = await sendEmail(
-      accessTokenResponse.accessToken,
-      await prepareEmailBody(emailObj, dealId, attachments),
-      null
-    );
-
-          if(!response.error){
-            setEmailSent(true);
-            setDialogIsOpen(false);
-            toast.success("Email sent successfully");
-            let auditLogObj = {
-      ...new PostAuditLog(),
-      eventType: "email Send",
-      dealId: dealId,
-    };
-    auditLogObj.createdBy = Util.UserProfile()?.userId;
-    auditLogObj.eventDescription = "A new email was sent for the deal";
-    //await auditLogsvc.postAuditLog(auditLogObj);
-            let dealEmailObj:DealEmailLog=new DealEmailLog();
-            
-            dealEmailObj.dealId = dealId;
-            dealEmailObj.emailBody = emailObj.body;
-            dealEmailObj.emailTo = emailObj.toAddress;
-            dealEmailObj.emailDate = new Date();
-            dealEmailObj.createdBy = Util.UserProfile()?.userId;
-            dealEmailObj.createdDate = new Date();
-            // = {
-            //   ...new DealEmailLog(),
-            //   eventType: "email Send",
-            //   dealId: dealId,
-            // };
-    
-            // auditLogObj.createdBy = auditLogObj.userId = Util.UserProfile()?.userId;
-            // auditLogObj.eventDescription = "A new email was sent for the deal";
-            await dealEmailLogService.postDealEmailLog(dealEmailObj);
-           
-          }
-          else{
-            toast.error("Unable to send email please verify");
-          }
-    
-        } catch (error) {
-          console.error("Email sending failed", error);
-          setDialogIsOpen(false);
-          toast.warning("Unable to sent email please re try after sometime");
-        }
+      // Convert files to base64 for attachments
+      const fileToBase64 = (file: any) => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () =>
+            resolve((reader as any).result.split(",")[1]);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
       };
-  const sanitizeMoney = (s: string) =>
-  s.replace(/[^\d.]/g, "")
-   .replace(/^0+(?=\d)/, "")
-   .replace(/(\..*)\./g, "$1")
-   .replace(/^(\d+\.?\d{0,2}).*$/, "$1");
 
+      const attachments = await Promise.all(
+        attachmentFiles.map(async (file) => {
+          const base64File = await fileToBase64(file?.file);
+          return {
+            "@odata.type": "#microsoft.graph.fileAttachment",
+            name: file.file.name,
+            contentType: file.file.type,
+            contentBytes: base64File,
+          };
+        })
+      );
+
+      // Send email logic here
+      let response: any = await sendEmail(
+        accessTokenResponse.accessToken,
+        await prepareEmailBody(emailObj, dealId, attachments),
+        null
+      );
+
+      if (!response.error) {
+        setDialogIsOpen(false);
+        toast.success("Email sent successfully");
+        let auditLogObj = {
+          ...new PostAuditLog(),
+          eventType: "email Send",
+          dealId: dealId,
+        };
+        auditLogObj.createdBy = Util.UserProfile()?.userId;
+        auditLogObj.eventDescription = "A new email was sent for the deal";
+        //await auditLogsvc.postAuditLog(auditLogObj);
+        let dealEmailObj: DealEmailLog = new DealEmailLog();
+
+        dealEmailObj.dealId = dealId;
+        dealEmailObj.emailBody = emailObj.body;
+        dealEmailObj.emailTo = emailObj.toAddress;
+        dealEmailObj.emailDate = new Date();
+        dealEmailObj.createdBy = Util.UserProfile()?.userId;
+        dealEmailObj.createdDate = new Date();
+        await dealEmailLogService.postDealEmailLog(dealEmailObj);
+        
+        // Trigger refresh of activities section
+        window.dispatchEvent(new CustomEvent('emailSent', { detail: { dealId } }));
+      } else {
+        toast.error("Unable to send email please verify");
+      }
+    } catch (error) {
+      console.error("Email sending failed", error);
+      setDialogIsOpen(false);
+      toast.error("Unable to sent email please re try after sometime");
+    }
+  };
+  const sanitizeMoney = (s: string) =>
+    s
+      .replace(/[^\d.]/g, "")
+      .replace(/^0+(?=\d)/, "")
+      .replace(/(\..*)\./g, "$1")
+      .replace(/^(\d+\.?\d{0,2}).*$/, "$1");
 
   const onLoginConfirm = async () => {
     try {
@@ -508,23 +506,36 @@ const handleSaveClick = () => {
   };
 
   // Accordion state for each section
-  const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({});
+  const [expandedSections, setExpandedSections] = useState<{
+    [key: string]: boolean;
+  }>({});
   const toggleSection = (key: string) => {
     setExpandedSections((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-const safe = (v: any, placeholder = 'undefined') => {
-  if (v === null || v === undefined) return placeholder;
-  const s = String(v).trim();
-  return (s === '' || s === '-' || /^null$/i.test(s) || /^undefined$/i.test(s) || s === '(none)')
-    ? placeholder
-    : s;
-};
-const isEmpty = (v: any) => {
-  const s = (v ?? '').toString().trim().toLowerCase();
-  return !s || s === '-' || s === '—' || s === '(none)' || s === 'undefined' || s === 'null';
-};
-const pretty = (v: any) => (isEmpty(v) ? '-' : String(v).trim());
+  const safe = (v: any, placeholder = "undefined") => {
+    if (v === null || v === undefined) return placeholder;
+    const s = String(v).trim();
+    return s === "" ||
+      s === "-" ||
+      /^null$/i.test(s) ||
+      /^undefined$/i.test(s) ||
+      s === "(none)"
+      ? placeholder
+      : s;
+  };
+  const isEmpty = (v: any) => {
+    const s = (v ?? "").toString().trim().toLowerCase();
+    return (
+      !s ||
+      s === "-" ||
+      s === "—" ||
+      s === "(none)" ||
+      s === "undefined" ||
+      s === "null"
+    );
+  };
+  const pretty = (v: any) => (isEmpty(v) ? "-" : String(v).trim());
   return (
     <>
       {error && <UnAuthorized error={error as any} />}
@@ -539,12 +550,12 @@ const pretty = (v: any) => (isEmpty(v) ? '-' : String(v).trim());
               <div className="sidebardetailtopbar">
                 <div
                   className="appdealtopbartitle"
-                 onClick={() => {
-  const qs = new URLSearchParams();
-  if (pipeLineId) qs.set("pipelineID", String(pipeLineId));
-  if (filterId)   qs.set("filterId", String(filterId)); // omitted if undefined
-  navigator(`/pipeline?${qs.toString()}`);
-}}
+                  onClick={() => {
+                    const qs = new URLSearchParams();
+                    if (pipeLineId) qs.set("pipelineID", String(pipeLineId));
+                    if (filterId) qs.set("filterId", String(filterId)); // omitted if undefined
+                    navigator(`/pipeline?${qs.toString()}`);
+                  }}
                 >
                   <a href="javascript:void(0);">
                     <FontAwesomeIcon icon={faAngleLeft} /> Deals
@@ -597,21 +608,31 @@ const pretty = (v: any) => (isEmpty(v) ? '-' : String(v).trim());
                         <div className="appdeal-amount-container">
                           {isEditingAmount ? (
                             <div>
-                              <div className="input-group input-group-sm" style={{ maxWidth: 360 }}>
-  <input
-    type="text"
-    inputMode="decimal"
-    className="form-control"
-    value={dealValue ?? ""}
-    onChange={(e) => setDealValue(sanitizeMoney(e.target.value))}
-    onKeyDown={(e) => { if (["e","E","+","-"].includes(e.key)) e.preventDefault(); }}
-  />
-  <select className="form-select">
-    <option value="GBP">Pound Sterling (GBP)</option>
-    <option value="USD">US Dollar (USD)</option>
-    <option value="EUR">Euro (EUR)</option>
-  </select>
-</div>
+                              <div
+                                className="input-group input-group-sm"
+                                style={{ maxWidth: 360 }}
+                              >
+                                <input
+                                  type="text"
+                                  inputMode="decimal"
+                                  className="form-control"
+                                  value={dealValue ?? ""}
+                                  onChange={(e) =>
+                                    setDealValue(sanitizeMoney(e.target.value))
+                                  }
+                                  onKeyDown={(e) => {
+                                    if (["e", "E", "+", "-"].includes(e.key))
+                                      e.preventDefault();
+                                  }}
+                                />
+                                <select className="form-select">
+                                  <option value="GBP">
+                                    Pound Sterling (GBP)
+                                  </option>
+                                  <option value="USD">US Dollar (USD)</option>
+                                  <option value="EUR">Euro (EUR)</option>
+                                </select>
+                              </div>
                               <div
                                 style={{ marginTop: "8px", textAlign: "right" }}
                               >
@@ -692,39 +713,55 @@ const pretty = (v: any) => (isEmpty(v) ? '-' : String(v).trim());
                     <div className="appdealblock-row mt-2">
                       <ul className="appdealblock-iconlist">
                         <li>
-                          <button className="dealicon" onClick={() => {
-                            setDialogToOpen("NotesAddEdit" as any);
-                            setDialogIsOpen(true);
-                          }}>
-                            <FontAwesomeIcon
-                              icon={faPenToSquare}
-                            />
+                          <button
+                            className="dealicon"
+                            onClick={() => {
+                              setDialogToOpen("NotesAddEdit" as any);
+                              setDialogIsOpen(true);
+                            }}
+                          >
+                            <FontAwesomeIcon icon={faPenToSquare} />
                           </button>
                           <span className="dealicon-name">Note</span>
                         </li>
                         <li>
-                          <button className="dealicon" onClick={() => {
-                            setSelectedEmail({
-                              to: dealItem.email || "default@example.com",
-                            });
-                            setDialogToOpen("EmailComposeDialog" as any);
-                            accounts.length == 0 ? onLoginConfirm() : setDialogIsOpen(true);
-                          }}>
+                          <button
+                            className="dealicon"
+                            onClick={() => {
+                              setSelectedEmail({
+                                to: dealItem.email || "default@example.com",
+                              });
+                              setDialogToOpen("EmailComposeDialog" as any);
+                              accounts.length == 0
+                                ? onLoginConfirm()
+                                : setDialogIsOpen(true);
+                            }}
+                          >
                             <FontAwesomeIcon icon={faEnvelope} />
                           </button>
                           <span className="dealicon-name">Email</span>
                         </li>
                         <li>
-                          <button className="dealicon" onClick={() => setSelectedPhoneNmber(dealItem.phone as any)}>
+                          <button
+                            className="dealicon"
+                            onClick={() =>
+                              setSelectedPhoneNmber(dealItem.phone as any)
+                            }
+                          >
                             <FontAwesomeIcon icon={faPhone} />
                           </button>
                           <span className="dealicon-name">Call</span>
                         </li>
                         <li>
-                          <button className="dealicon" onClick={() => {
-                            setDialogToOpen("TaskAddEdit" as any);
-                            accounts.length == 0 ? onLoginConfirm() : setDialogIsOpen(true);
-                          }}>
+                          <button
+                            className="dealicon"
+                            onClick={() => {
+                              setDialogToOpen("TaskAddEdit" as any);
+                              accounts.length == 0
+                                ? onLoginConfirm()
+                                : setDialogIsOpen(true);
+                            }}
+                          >
                             <FontAwesomeIcon icon={faListCheck} />
                           </button>
                           <span className="dealicon-name">Task</span>
@@ -740,15 +777,32 @@ const pretty = (v: any) => (isEmpty(v) ? '-' : String(v).trim());
                   <div className="app-dealblock-inner">
                     <div className="appdealblock-head">
                       <div className="appblock-headcolleft">
-                        <button className="appblock-collapse" onClick={() => toggleSection('ownership')}>
+                        <button
+                          className="appblock-collapse"
+                          onClick={() => toggleSection("ownership")}
+                        >
                           <span className="appblock-titlelabel">
-                            <FontAwesomeIcon icon={expandedSections['ownership'] ? faAngleDown : faAngleRight} /> Transfer Ownership
+                            <FontAwesomeIcon
+                              icon={
+                                expandedSections["ownership"]
+                                  ? faAngleDown
+                                  : faAngleRight
+                              }
+                            />{" "}
+                            Transfer Ownership
                           </span>
                         </button>
                       </div>
                     </div>
 
-                    <div className="appdealblock-data" style={{ display: expandedSections['ownership'] ? 'block' : 'none' }}>
+                    <div
+                      className="appdealblock-data"
+                      style={{
+                        display: expandedSections["ownership"]
+                          ? "block"
+                          : "none",
+                      }}
+                    >
                       <div className="appdealblock-row mt-1">
                         <div className="appdeal-closedate dflex">
                           Deal Owner:{" "}
@@ -756,11 +810,14 @@ const pretty = (v: any) => (isEmpty(v) ? '-' : String(v).trim());
                             <SelectDropdown
                               isValidationOptional={true}
                               onItemChange={(e: any) => {
-                                const selectedUser = utility?.users.find(u => u.id == e);
-                                setDealItem({ 
-                                  ...dealItem, 
+                                const selectedUser = utility?.users.find(
+                                  (u) => u.id == e
+                                );
+                                setDealItem({
+                                  ...dealItem,
                                   assigntoId: e,
-                                  ownerName: selectedUser?.name || dealItem.ownerName
+                                  ownerName:
+                                    selectedUser?.name || dealItem.ownerName,
                                 });
                               }}
                               value={"" + dealItem.assigntoId}
@@ -787,15 +844,32 @@ const pretty = (v: any) => (isEmpty(v) ? '-' : String(v).trim());
                     </div>
                     <div className="appdealblock-head">
                       <div className="appblock-headcolleft">
-                        <button className="appblock-collapse" onClick={() => toggleSection('aboutDeal')}>
+                        <button
+                          className="appblock-collapse"
+                          onClick={() => toggleSection("aboutDeal")}
+                        >
                           <span className="appblock-titlelabel">
-                            <FontAwesomeIcon icon={expandedSections['aboutDeal'] ? faAngleDown : faAngleRight} /> About this deal
+                            <FontAwesomeIcon
+                              icon={
+                                expandedSections["aboutDeal"]
+                                  ? faAngleDown
+                                  : faAngleRight
+                              }
+                            />{" "}
+                            About this deal
                           </span>
                         </button>
                       </div>
                     </div>
 
-                    <div className="details-panel" style={{ display: expandedSections['aboutDeal'] ? 'block' : 'none' }}>
+                    <div
+                      className="details-panel"
+                      style={{
+                        display: expandedSections["aboutDeal"]
+                          ? "block"
+                          : "none",
+                      }}
+                    >
                       <div className="details-row">
                         <div className="details-label">Clinic -</div>
                         <div className="details-value">
@@ -817,7 +891,11 @@ const pretty = (v: any) => (isEmpty(v) ? '-' : String(v).trim());
                       <div className="details-row">
                         <div className="details-label">Last Activity -</div>
                         <div className="details-value">
-                          {dealItem.modifiedDate ? moment(dealItem.modifiedDate).format("MM/DD/YYYY HH:mm") : "-"}
+                          {dealItem.modifiedDate
+                            ? moment(dealItem.modifiedDate).format(
+                                "MM/DD/YYYY HH:mm"
+                              )
+                            : "-"}
                         </div>
                       </div>
                       <div className="details-row">
@@ -894,55 +972,90 @@ const pretty = (v: any) => (isEmpty(v) ? '-' : String(v).trim());
                       </div>
                     </div>
 
-                   {/* ---- Marketing details (separate section) ---- */}
- <div className="appdealblock-head">
+                    {/* ---- Marketing details (separate section) ---- */}
+                    <div className="appdealblock-head">
                       <div className="appblock-headcolleft">
-                        <button className="appblock-collapse" onClick={() => toggleSection('marketing')}>
+                        <button
+                          className="appblock-collapse"
+                          onClick={() => toggleSection("marketing")}
+                        >
                           <span className="appblock-titlelabel">
-                            <FontAwesomeIcon icon={expandedSections['marketing'] ? faAngleDown : faAngleRight} /> Marketing Details
+                            <FontAwesomeIcon
+                              icon={
+                                expandedSections["marketing"]
+                                  ? faAngleDown
+                                  : faAngleRight
+                              }
+                            />{" "}
+                            Marketing Details
                           </span>
                         </button>
                       </div>
                     </div>
 
-<div className="details-panel marketing-panel" style={{display: expandedSections['marketing'] ? 'block' : 'none'}}>
-  <div className="details-row">
-    <div className="details-label">GCLID</div>
-    <div className="details-value">{safe(dealItem?.marketing_GCLID)}</div>
-  </div>
-  <div className="details-row">
-    <div className="details-label">Source</div>
-    <div className="details-value">{safe(dealItem?.marketing_source)}</div>
-  </div>
-  <div className="details-row">
-    <div className="details-label">Medium</div>
-    <div className="details-value">{safe(dealItem?.marketing_medium)}</div>
-  </div>
-  <div className="details-row">
-    <div className="details-label">Term</div>
-    <div className="details-value">{safe(dealItem?.marketing_term)}</div>
-  </div>
-  <div className="details-row">
-    <div className="details-label">Content</div>
-    <div className="details-value">{safe(dealItem?.marketing_content)}</div>
-  </div>
-  <div className="details-row">
-    <div className="details-label">Submission ID</div>
-    <div className="details-value">{safe(dealItem?.submission_id)}</div>
-  </div>
-  <div className="details-row">
-    <div className="details-label">Marketing Consent</div>
-    <div className="details-value">{safe(dealItem?.MarketingConsent)}</div>
-  </div>
-  <div className="details-row">
-    <div className="details-label">T&C Consent</div>
-    <div className="details-value">{safe(dealItem?.TCCONSENT)}</div>
-  </div>
-  <div className="details-row">
-    <div className="details-label">FBCLID</div>
-    <div className="details-value">{safe(dealItem?.Marketing_FBClid)}</div>
-  </div>
-</div>
+                    <div
+                      className="details-panel marketing-panel"
+                      style={{
+                        display: expandedSections["marketing"]
+                          ? "block"
+                          : "none",
+                      }}
+                    >
+                      <div className="details-row">
+                        <div className="details-label">GCLID</div>
+                        <div className="details-value">
+                          {safe(dealItem?.marketing_GCLID)}
+                        </div>
+                      </div>
+                      <div className="details-row">
+                        <div className="details-label">Source</div>
+                        <div className="details-value">
+                          {safe(dealItem?.marketing_source)}
+                        </div>
+                      </div>
+                      <div className="details-row">
+                        <div className="details-label">Medium</div>
+                        <div className="details-value">
+                          {safe(dealItem?.marketing_medium)}
+                        </div>
+                      </div>
+                      <div className="details-row">
+                        <div className="details-label">Term</div>
+                        <div className="details-value">
+                          {safe(dealItem?.marketing_term)}
+                        </div>
+                      </div>
+                      <div className="details-row">
+                        <div className="details-label">Content</div>
+                        <div className="details-value">
+                          {safe(dealItem?.marketing_content)}
+                        </div>
+                      </div>
+                      <div className="details-row">
+                        <div className="details-label">Submission ID</div>
+                        <div className="details-value">
+                          {safe(dealItem?.submission_id)}
+                        </div>
+                      </div>
+                      <div className="details-row">
+                        <div className="details-label">Marketing Consent</div>
+                        <div className="details-value">
+                          {safe(dealItem?.MarketingConsent)}
+                        </div>
+                      </div>
+                      <div className="details-row">
+                        <div className="details-label">T&C Consent</div>
+                        <div className="details-value">
+                          {safe(dealItem?.TCCONSENT)}
+                        </div>
+                      </div>
+                      <div className="details-row">
+                        <div className="details-label">FBCLID</div>
+                        <div className="details-value">
+                          {safe(dealItem?.Marketing_FBClid)}
+                        </div>
+                      </div>
+                    </div>
 
                     <div className=" appdeal-dtrow">
                       <DealDetailsCustomFields
@@ -953,15 +1066,32 @@ const pretty = (v: any) => (isEmpty(v) ? '-' : String(v).trim());
 
                     <div className="appdealblock-head">
                       <div className="appblock-headcolleft">
-                        <button className="appblock-collapse" onClick={() => toggleSection('aboutPerson')}>
+                        <button
+                          className="appblock-collapse"
+                          onClick={() => toggleSection("aboutPerson")}
+                        >
                           <span className="appblock-titlelabel">
-                            <FontAwesomeIcon icon={expandedSections['aboutPerson'] ? faAngleDown : faAngleRight} /> About Person
+                            <FontAwesomeIcon
+                              icon={
+                                expandedSections["aboutPerson"]
+                                  ? faAngleDown
+                                  : faAngleRight
+                              }
+                            />{" "}
+                            About Person
                           </span>
                         </button>
                       </div>
                     </div>
                     {/* Content */}
-                    <div className="details-panel" style={{ display: expandedSections['aboutPerson'] ? 'block' : 'none' }}>
+                    <div
+                      className="details-panel"
+                      style={{
+                        display: expandedSections["aboutPerson"]
+                          ? "block"
+                          : "none",
+                      }}
+                    >
                       <div className="details-row">
                         <div className="details-label">Phone -</div>
                         <a
@@ -1011,7 +1141,7 @@ const pretty = (v: any) => (isEmpty(v) ? '-' : String(v).trim());
                             View Deals ({dealItem.openDealsCount || 0})
                           </a>
                         </div>
-                      </div>                    
+                      </div>
                       <div className="details-row">
                         <div className="details-label">Source -</div>
                         <div className="details-value">
@@ -1042,7 +1172,10 @@ const pretty = (v: any) => (isEmpty(v) ? '-' : String(v).trim());
                     selectedItem={selectedEmail ?? new EmailCompose()}
                     setSelectedItem={setSelectedEmail}
                     setDialogIsOpen={setDialogIsOpen}
-                    onSave={async (emailObj: any, attachmentFiles: Array<any>) => {
+                    onSave={async (
+                      emailObj: any,
+                      attachmentFiles: Array<any>
+                    ) => {
                       await handleSendEmail(emailObj, attachmentFiles);
                     }}
                   />
@@ -1094,19 +1227,22 @@ const pretty = (v: any) => (isEmpty(v) ? '-' : String(v).trim());
               </>
             )}
             {/* Deals Dialog */}
-           <DealsDialog
-                show={isDealsModalOpen}
-                onClose={closeMoveDealDialog}
-                dealsData={dealsData.map((deal, index) => ({
-                  id: deal.dealID || index,
-                  stageID: deal.stageID || 0,
-                  treatmentName: deal.treatmentName || "No Title",
-                  personName: deal.personName || "No Contact",
-                  ownerName: deal.ownerName || "No Owner",
-                  organizationName: deal.name || "No Organization",
-                  pipelineName: deal.pipelineName || "Unknown Pipeline", // ✅ add this
-                  pipelineStages: deal.pipelineStages || [], // ✅ and this
-                }))} stages={[]} currentStageId={0}/>
+            <DealsDialog
+              show={isDealsModalOpen}
+              onClose={closeMoveDealDialog}
+              dealsData={dealsData.map((deal, index) => ({
+                id: deal.dealID || index,
+                stageID: deal.stageID || 0,
+                treatmentName: deal.treatmentName || "No Title",
+                personName: deal.personName || "No Contact",
+                ownerName: deal.ownerName || "No Owner",
+                organizationName: deal.name || "No Organization",
+                pipelineName: deal.pipelineName || "Unknown Pipeline", // ✅ add this
+                pipelineStages: deal.pipelineStages || [], // ✅ and this
+              }))}
+              stages={[]}
+              currentStageId={0}
+            />
             <DealOverView
               dealItem={dealItem}
               dealId={dealId}

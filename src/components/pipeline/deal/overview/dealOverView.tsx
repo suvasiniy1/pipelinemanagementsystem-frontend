@@ -56,6 +56,18 @@ const DealOverView = (props: params) => {
   const [selectedTab, setSelectedTab] = useState("Overview");
   const [isDealLost, setIsDealLost]=useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  
+  // Listen for email sent events to refresh activities
+  useEffect(() => {
+    const handleEmailSent = (event: CustomEvent) => {
+      if (event.detail?.dealId === dealId) {
+        setRefreshTrigger(prev => prev + 1);
+      }
+    };
+    
+    window.addEventListener('emailSent', handleEmailSent as EventListener);
+    return () => window.removeEventListener('emailSent', handleEmailSent as EventListener);
+  }, [dealId]);
   const removeSpecificTags = (html: string | null | undefined): string => {
     if (!html) return ""; // Handle null or undefined input
     return html.replace(/<[^>]+>/g, "");
