@@ -44,6 +44,9 @@ import DealsDialog from "./DealsDialog";
 import JustCallComponent from "./justcall";
 import MedicalFormEmailDialog from "./activities/email/MedicalFormEmailDialog";
 import { sendMedicalFormEmail } from "../../../models/medicalFormEmailService";
+import { DealEmailLogService } from "../../../services/dealEmailLogService";
+import { DealEmailLog, PostAuditLog } from "../../../models/dealAutidLog";
+import { DealAuditLogService } from "../../../services/dealAuditLogService";
 
 export const DealDetails = () => {
 const navigator = useNavigate();
@@ -97,12 +100,14 @@ const navigator = useNavigate();
   const [openDealsCount, setOpenDealsCount] = useState(
     dealItem.openDealsCount || 0
   );
-  
+    const [emailSent, setEmailSent] = useState(false);
   const [dealValue, setDealValue] = useState(dealItem.value);
   const [isEditingMedicalForm, setIsEditingMedicalForm] = useState(false);
   const [tempMedicalFormValue, setTempMedicalFormValue] = useState(
     dealItem.medicalForm ?? "None"
   );
+  const auditLogsvc = new DealAuditLogService(ErrorBoundary);
+    const dealEmailLogService = new DealEmailLogService(ErrorBoundary)
   // 👇 Just after your imports or above component state
 interface DealWithPipeline extends Deal {
   pipelineStages: Stage[];
@@ -378,49 +383,82 @@ const handleSaveClick = () => {
   };
 
   const handleSendEmail = async (emailObj: any, attachmentFiles: Array<any> = []) => {
-    try {
-      const accessTokenResponse = await instance.acquireTokenSilent({
-        scopes: ["Mail.Send"],
-        account: accounts[0],
-      });
-      
-      // Convert files to base64 for attachments
-      const fileToBase64 = (file: any) => {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve((reader as any).result.split(",")[1]);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
-      };
-      
-      const attachments = await Promise.all(
-        attachmentFiles.map(async (file) => {
-          const base64File = await fileToBase64(file?.file);
-          return {
-            '@odata.type': '#microsoft.graph.fileAttachment',
-            name: file.file.name,
-            contentType: file.file.type,
-            contentBytes: base64File,
-          };
-        })
-      );
-      
-      // Send email logic here
-      let response: any = await sendEmail(
-        accessTokenResponse.accessToken,
-        await prepareEmailBody(emailObj, dealId, attachments),
-        null
-      );
+  try {
+    const accessTokenResponse = await instance.acquireTokenSilent({
+      scopes: ["Mail.Send"],
+      account: accounts[0],
+    });
 
-      setDialogIsOpen(false);
-      toast.success("Email sent successfully");
-    } catch (error) {
-      console.error("Email sending failed", error);
-      setDialogIsOpen(false);
-      toast.error("Unable to sent email please re try after sometime");
-    }
-  };
+    // Convert files to base64 for attachments
+    const fileToBase64 = (file: any) => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve((reader as any).result.split(",")[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    };
+
+    const attachments = await Promise.all(
+      attachmentFiles.map(async (file) => {
+        const base64File = await fileToBase64(file?.file);
+        return {
+          '@odata.type': '#microsoft.graph.fileAttachment',
+          name: file.file.name,
+          contentType: file.file.type,
+          contentBytes: base64File,
+        };
+      })
+    );
+
+    // Send email logic here
+    let response: any = await sendEmail(
+      accessTokenResponse.accessToken,
+      await prepareEmailBody(emailObj, dealId, attachments),
+      null
+    );
+
+          if(!response.error){
+            setEmailSent(true);
+            setDialogIsOpen(false);
+            toast.success("Email sent successfully");
+            let auditLogObj = {
+      ...new PostAuditLog(),
+      eventType: "email Send",
+      dealId: dealId,
+    };
+    auditLogObj.createdBy = Util.UserProfile()?.userId;
+    auditLogObj.eventDescription = "A new email was sent for the deal";
+    //await auditLogsvc.postAuditLog(auditLogObj);
+            let dealEmailObj:DealEmailLog=new DealEmailLog();
+            
+            dealEmailObj.dealId = dealId;
+            dealEmailObj.emailBody = emailObj.body;
+            dealEmailObj.emailTo = emailObj.toAddress;
+            dealEmailObj.emailDate = new Date();
+            dealEmailObj.createdBy = Util.UserProfile()?.userId;
+            dealEmailObj.createdDate = new Date();
+            // = {
+            //   ...new DealEmailLog(),
+            //   eventType: "email Send",
+            //   dealId: dealId,
+            // };
+    
+            // auditLogObj.createdBy = auditLogObj.userId = Util.UserProfile()?.userId;
+            // auditLogObj.eventDescription = "A new email was sent for the deal";
+            await dealEmailLogService.postDealEmailLog(dealEmailObj);
+           
+          }
+          else{
+            toast.error("Unable to send email please verify");
+          }
+    
+        } catch (error) {
+          console.error("Email sending failed", error);
+          setDialogIsOpen(false);
+          toast.warning("Unable to sent email please re try after sometime");
+        }
+      };
   const sanitizeMoney = (s: string) =>
   s.replace(/[^\d.]/g, "")
    .replace(/^0+(?=\d)/, "")
