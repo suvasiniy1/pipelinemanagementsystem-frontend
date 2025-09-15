@@ -77,14 +77,14 @@ transition: width 900ms !important;
 .sidenavhead img{max-width: 100%; width:auto; height: auto;}
 .sidenavhead .sidehidelogo {display: none; position: absolute; left: 9px; top: 9px; width: 37px; height: auto;}
 .ps-sidebar-root .ps-sidebar-container{background-color: #3dc2c0;}
-.ps-menu-root .ps-menuitem-root .ps-menu-button{border-bottom: 1px solid #fff; color: #fff;}
-.ps-menu-root .ps-menuitem-root .ps-menu-button:hover{background-color: #f3f3f3; color: #4F80FF;}
+.ps-menu-root .ps-menuitem-root .ps-menu-button{border-bottom: 1px solid #1f2937; color: #1f2937;}
+.ps-menu-root .ps-menuitem-root .ps-menu-button:hover{background-color: #f3f3f3; color: #1f2937;}
 .ps-menu-button .ps-menu-icon{font-size: 20px;}
-.ps-menu-button .ps-menu-icon svg {color: #fff !important;}
-.ps-menu-button:hover .ps-menu-icon svg{color: #4F80FF !important;}
+.ps-menu-button .ps-menu-icon svg {color: #1f2937 !important;}
+.ps-menu-button:hover .ps-menu-icon svg{color: #1f2937 !important;}
 .ps-submenu-content.ps-open {background-color: inherit;}
-.ps-menu-root .ps-menuitem-root .ps-submenu-content .ps-menu-button{background-color: #1f2937; color: #fff;}
-.ps-menu-root .ps-menuitem-root .ps-submenu-content .ps-menu-button:hover{color: #4F80FF;}
+.ps-menu-root .ps-menuitem-root .ps-submenu-content .ps-menu-button{background-color: #3dc2c0; color: #1f2937;}
+.ps-menu-root .ps-menuitem-root .ps-submenu-content .ps-menu-button:hover{background-color: #f3f3f3; color: #1f2937;}
 
 
 .rs-sidenav-collapse-in .sidenavhead .sideopenlogo,
