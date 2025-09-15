@@ -55,7 +55,7 @@ html textarea {
 
 
 body a {
-  color: #f4a261;
+  color: #3dc2c0;
 }
 .bggradiant, .btngradiant{background: #2FFD8A;
 background: linear-gradient(260deg, rgba(47, 253, 138, 1) 0%, rgba(79, 128, 255, 1) 80%);}
@@ -184,14 +184,14 @@ input:-webkit-autofill:active {
 
 .btn-y1app,
 .btn-y1app:focus {
-  border: 1px solid #e4cb9a;
-  background-color: #cfa34c;
+  border: 1px solid #4f80ff;
+  background-color: #4f80ff;
   color: #fff;
 }
 
 .btn-y1app:hover {
-  border: 1px solid #3f3f3f;
-  background-color: #3f3f3f;
+  border: 1px solid #3dc2c0;
+  background-color: #3dc2c0;
   color: #fff;
 }
 
@@ -211,7 +211,7 @@ input:-webkit-autofill:active {
   left: 0;
   width: 100%;
   z-index: 1;
-  margin-bottom: 30px; background-color: #3f3f3f; border-radius: 10px; padding: 20px 25px;
+  margin-bottom: 30px; background-color: #3dc2c0; border-radius: 10px; padding: 20px 25px;
 }
 .logo {max-width: 400px; margin: 0 auto;}
 
@@ -886,8 +886,8 @@ body {
 
 /* Add Deal Model Popup */
 .modalpopup .modalhead {
-  background-color: #faf5eb;
-  border-bottom: 1px solid #e4cb9a;
+  background-color: rgba(61,194,192,0.5);
+  border-bottom: 1px solid #3dc2c0;
   padding: 12px 20px 12px 16px;
   border-radius: 4px 4px 0 0;
   align-items: center;
@@ -900,8 +900,8 @@ body {
 }
 
 .modalpopup .modalfoot {
-  background-color: #faf5eb;
-  border-top: 1px solid #e4cb9a;
+  background-color: rgba(61,194,192,0.5);
+  border-top: 1px solid #3dc2c0;
   padding: 8px 16px 8px 16px;
   border-radius: 0 0 4px 4px;
 }
@@ -987,7 +987,7 @@ select.selectfield {
 }
 
 .pipelinestage-current~.pipelinestage {
-  background-color: #e4cb9a;
+  background-color: rgba(61,194,192,0.5);
   color: #21232c;
 }
 
@@ -1004,7 +1004,7 @@ select.selectfield {
 }
 
 .pipelinestage-current~.pipelinestage:after {
-  background-color: #c7b89c;
+  background-color: #3dc2c0;
 }
 
 .pipelinestage:first-of-type {
@@ -1867,18 +1867,19 @@ select.selectfield {
 .editstage-deletebtn {
   display: flex;
   align-items: center;
-  background-color: #e4cb9a;
+  background-color: #3dc2c0;
   border-radius: 4px;
-  border: 1px solid #f4a261;
+  border: 1px solid #3dc2c0;
   cursor: pointer;
   display: inline-flex;
   font-size: 14px;
   padding: 8px;
   margin-left: 10px;
+  color: #fff;
 }
 
 .editstage-deletebtn:hover {
-  background-color: rgb(33 35 44/5%);
+  background-color: #3dc2c0;
 }
 
 .editstage-deletebtn svg {
@@ -2324,9 +2325,9 @@ select.selectfield {
 }
 
 .dealicon {
-  background-color: #faf5eb;
-  border: 1px solid #e4cb9a;
-  color: #3f3f3f;
+  background-color: rgba(61,194,192,0.5);
+  border: 1px solid #3dc2c0;
+  color: #1f2937;
   font-size: 16px;
   width: 40px;
   height: 40px;
@@ -2601,18 +2602,18 @@ button.fields-editbtn {
 }
 
 .nav-tabs {
-  border-color: #e4cb9a;
+  border-color: #3dc2c0;
 }
 
 .nav-tabs .nav-link,
 .activity-subtab .nav-link {
-  color: #3f3f3f;
+  color: #1f2937;
 }
 
 .nav-tabs .nav-item.show .nav-link,
 .nav-tabs .nav-link.active {
-  border-color: #e4cb9a #e4cb9a #faf5eb;
-  background-color: #faf5eb;
+  border-color: #3dc2c0 #3dc2c0 #3dc2c0;
+  background-color: rgba(61,194,192,0.5);
 }
 
 .whiteshadowbox {
@@ -3740,7 +3741,7 @@ select {
 }
 /* Boxed appearance for Notes, Tasks, Emails, Calls */
 .highlight-box {
-  background-color: #fffbe6;
+  background-color: #ffffff;
   border-radius: 6px;
   padding: 12px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -3780,6 +3781,7 @@ select {
 .btn-secondary:hover {
   background-color: #5a6268;
 }
+.appboxdatafoot-calltext .email-structured-content {background-color: #eee !important;}
 .pdstage-box {
   position: relative;
 }

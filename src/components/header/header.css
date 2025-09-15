@@ -76,7 +76,7 @@ transition: width 900ms !important;
 .sidenavhead {background-color: #4F80FF; position: absolute; left: 0; top: 0; width: 100%; padding: 10px 20px 10px 10px; height: 58px; line-height: 38px; font-size: 30px; font-weight: 900; color: #ffffff; display: flex; align-items: center;}
 .sidenavhead img{max-width: 100%; width:auto; height: auto;}
 .sidenavhead .sidehidelogo {display: none; position: absolute; left: 9px; top: 9px; width: 37px; height: auto;}
-.ps-sidebar-root .ps-sidebar-container{background-color: #1f2937;}
+.ps-sidebar-root .ps-sidebar-container{background-color: #3dc2c0;}
 .ps-menu-root .ps-menuitem-root .ps-menu-button{border-bottom: 1px solid #fff; color: #fff;}
 .ps-menu-root .ps-menuitem-root .ps-menu-button:hover{background-color: #f3f3f3; color: #4F80FF;}
 .ps-menu-button .ps-menu-icon{font-size: 20px;}
