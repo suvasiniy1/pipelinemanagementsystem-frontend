@@ -47,6 +47,7 @@ import { sendMedicalFormEmail } from "../../../models/medicalFormEmailService";
 import { PostAuditLog, DealEmailLog } from "../../../models/dealAutidLog";
 import { DealEmailLogService } from "../../../services/dealEmailLogService";
 
+
 export const DealDetails = () => {
   const navigator = useNavigate();
   const location = useLocation();
@@ -93,6 +94,7 @@ export const DealDetails = () => {
   );
 
   const [isDealsModalOpen, setIsDealsModalOpen] = useState(false);
+  const [isDealsLoading, setIsDealsLoading] = useState(false);
   const [relatedDeals, setRelatedDeals] = useState([]);
 
   const [openDealsCount, setOpenDealsCount] = useState(
@@ -215,11 +217,13 @@ export const DealDetails = () => {
   }
   // Fetch deals data when opening the dialog
   const openMoveDealDialog = async () => {
+     setIsDealsModalOpen(true);   // 👈 open the modal right away
+     setIsDealsLoading(true);     // 👈 show loader in the modal
     try {
       const relatedDealsData: Deal[] = await dealSvc.getDealsByPersonId(
         dealItem.contactPersonID ?? 0
       );
-
+      
       // Map relatedDealsData to ensure every deal has required fields for DataGrid
       const formattedData: Deal[] = await Promise.all(
         relatedDealsData.map(async (deal) => {
@@ -246,7 +250,11 @@ export const DealDetails = () => {
       setIsDealsModalOpen(true);
     } catch (error) {
       console.error("Error fetching related deals:", error);
+      toast.error("Unable to load linked deals.");
     }
+    finally {
+    setIsDealsLoading(false);  // 👈 hide loader
+  }
   };
   const closeMoveDealDialog = () => setIsDealsModalOpen(false);
 
@@ -1128,16 +1136,13 @@ export const DealDetails = () => {
                         >
                           {dealItem.personName || "-"}
                           <a
-                            href="#"
-                            onClick={openMoveDealDialog}
-                            style={{
-                              fontSize: "0.9em",
-                              color: "#007bff",
-                              textDecoration: "underline",
-                            }}
-                          >
-                            View Deals ({dealItem.openDealsCount || 0})
-                          </a>
+  href="#"
+  onClick={(e) => { e.preventDefault(); openMoveDealDialog(); }}
+  style={{ fontSize: "0.9em", color: "#007bff", textDecoration: "underline" }}
+>
+  View Deals ({dealItem.openDealsCount || 0})
+  {isDealsLoading && <Spinner animation="border" size="sm" style={{ marginLeft: 8 }} />} {/* optional */}
+</a>
                         </div>
                       </div>
                       <div className="details-row">
@@ -1227,6 +1232,7 @@ export const DealDetails = () => {
             {/* Deals Dialog */}
             <DealsDialog
               show={isDealsModalOpen}
+              loading={isDealsLoading} 
               onClose={closeMoveDealDialog}
               dealsData={dealsData.map((deal, index) => ({
                 id: deal.dealID || index,
