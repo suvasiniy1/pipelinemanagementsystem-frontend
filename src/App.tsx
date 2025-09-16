@@ -16,30 +16,73 @@ import Util from "./others/util";
 import ChangePassword from "./components/profiles/changePassword";
 import { UserService } from "./services/UserService";
 import { ErrorBoundary } from "react-error-boundary";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { AuthProvider } from "./contexts/AuthContext";
 
 function App() {
   const [navItemsLoaded, setNavItemsLoaded] = useState(false);
   const userService = new UserService(ErrorBoundary);
-  
-  useEffect(() => {
-    const role = LocalStorageUtil.getItem(Constants.USER_Role);
-    if (role) {
-      Util.loadNavItemsForUser(parseInt(role));
-    }
-    
-    // Fetch and store users in localStorage
-    if (LocalStorageUtil.getItem(Constants.USER_LOGGED_IN) === "true") {
-      userService.getUsers().then((users) => {
-        LocalStorageUtil.setItem('USERS_DATA', JSON.stringify(users));
-      }).catch((error) => {
-        console.error('Failed to fetch users:', error);
-      });
-    }
-    
-    setNavItemsLoaded(true);
-  }, []);
   const navigate = useNavigate();
   const location = useLocation();
+  
+  const clearLocalStorage = () => {
+    LocalStorageUtil.removeItem(Constants.USER_LOGGED_IN);
+    LocalStorageUtil.removeItem(Constants.ACCESS_TOKEN);
+    LocalStorageUtil.removeItem(Constants.TOKEN_EXPIRATION_TIME);
+  };
+  
+  // Setup axios interceptor for 401 errors
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 401) {
+          window.alert('Session has expired. Please login again.');
+          clearLocalStorage();
+          window.location.href = window.config?.HomePage || '/login';
+        }
+        return Promise.reject(error);
+      }
+    );
+    
+    return () => axios.interceptors.response.eject(interceptor);
+  }, [clearLocalStorage]);
+  
+  // Additional global error handler
+  useEffect(() => {
+    const handleGlobalError = (event: any) => {
+      if (event.reason?.response?.status === 401 || event.error?.response?.status === 401) {
+        window.alert('Session has expired. Please login again.');
+        clearLocalStorage();
+        window.location.href = window.config?.HomePage || '/login';
+      }
+    };
+    
+    window.addEventListener('unhandledrejection', handleGlobalError);
+    window.addEventListener('error', handleGlobalError);
+    
+    return () => {
+      window.removeEventListener('unhandledrejection', handleGlobalError);
+      window.removeEventListener('error', handleGlobalError);
+    };
+  }, [clearLocalStorage]);
+  
+  useEffect(() => {
+    const initializeApp = async () => {
+      if (LocalStorageUtil.getItem(Constants.USER_LOGGED_IN) === "true") {
+        try {
+          const users = await userService.getUsers();
+          LocalStorageUtil.setItem('USERS_DATA', JSON.stringify(users));
+        } catch (error) {
+          console.error('Failed to fetch users:', error);
+        }
+      }
+      setNavItemsLoaded(true);
+    };
+    
+    initializeApp();
+  }, []);
   const [collapsed, setCollapsed] = useState<any>(
     (LocalStorageUtil.getItem(Constants.ISSIDEBAR_EXPANDED) as any) === "false"
       ? false
@@ -122,18 +165,12 @@ function App() {
     };
   }, []);
 
-  const clearLocalStorage = () => {
-    LocalStorageUtil.removeItem(Constants.USER_LOGGED_IN);
-    LocalStorageUtil.removeItem(Constants.ACCESS_TOKEN);
-    LocalStorageUtil.removeItem(Constants.TOKEN_EXPIRATION_TIME);
-  };
-
   useEffect(() => {
     LocalStorageUtil.setItem(Constants.ISSIDEBAR_EXPANDED, !collapsed as any);
   }, [collapsed]);
 
   return (
-    <>
+    <AuthProvider>
       {!navItemsLoaded ? (
         <div className="alignCenter">
           <Spinner />
@@ -168,7 +205,7 @@ function App() {
       ) : (
         <Login />
       )}
-    </>
+    </AuthProvider>
   );
 }
 

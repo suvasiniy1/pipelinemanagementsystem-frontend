@@ -20,6 +20,7 @@ import jpg from "../resources/images/Y1Logo.jpg";
 import svg from "../resources/images/Clinic-Lead-White.svg";
 import { LoginService } from "../services/loginService";
 import ForgotPassword from "./profiles/forgotPassword";
+import { useAuthContext } from "../contexts/AuthContext";
 
 export class UserCredentails {
   public userName!: string;
@@ -46,6 +47,7 @@ type LoginForm = {
   passwordHash: string;
 };
 const Login = () => {
+  const { setUserProfile, setUserRole, setIsLoggedIn } = useAuthContext();
   const [showForGotPasswordDiglog, setShowForGotPasswordDiglog] =
     useState(false);
   const [isIncorrectCredentails, setIsIncorrectCredentails] = useState<any>();
@@ -189,13 +191,13 @@ const showPwdError = (msg: string) => {
                 user: res.user,
                 email: res.email,
                 userId: res.userId,
-                role: res.role, // ✅ use role or roleId
+                role: res.role,
               };
-              LocalStorageUtil.setItemObject(Constants.USER_PROFILE, profile);
-              console.log("Saved user profile after login:", profile);
               
-              // Load navigation items for the user's role
-              Util.loadNavItemsForUser(res.role);
+              // Use AuthContext instead of localStorage
+              setUserProfile(profile as UserProfile);
+              setUserRole(res.role);
+              setIsLoggedIn(true);
               
               navigate("/pipeline");
             } else if (res?.twoFactorRequired) {
@@ -281,15 +283,17 @@ const showPwdError = (msg: string) => {
             Constants.TOKEN_EXPIRATION_TIME,
            convertTZ(res?.expires)
             );
-             LocalStorageUtil.setItemObject(Constants.USER_PROFILE, {
+             const profile = {
                 user: res.user,
                 email: res.email,
                userId: res.userId,
                role: res.role
-             });
+             };
              
-             // Load navigation items for the user's role
-             Util.loadNavItemsForUser(res.role);
+             // Use AuthContext instead of localStorage
+             setUserProfile(profile as UserProfile);
+             setUserRole(res.role);
+             setIsLoggedIn(true);
              
             navigate("/pipeline"); // Navigate to the next screen after successful verification
           } else {

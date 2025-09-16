@@ -15,6 +15,15 @@ export default class Util {
   };
 
   public static isAuthorized = (item: string) => {
+    // Additional security: verify role hasn't been tampered with
+    const storedRole = LocalStorageUtil.getItem(Constants.USER_Role);
+    const isLoggedIn = LocalStorageUtil.getItem(Constants.USER_LOGGED_IN) === 'true';
+    
+    if (isLoggedIn && !storedRole) {
+      console.warn('🚨 Security: User role missing, potential tampering detected');
+      return false;
+    }
+    
     const authorized = Util.navItemsList.some(
       (i) => i.toLowerCase() === item.toLowerCase()
     );
