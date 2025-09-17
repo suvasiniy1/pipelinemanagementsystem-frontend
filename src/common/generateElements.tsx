@@ -252,7 +252,7 @@ const GenerateElements: React.FC<props> = (props) => {
                       item.labelSize ? item.labelSize : 6
                     } col-form-label ${item.isRequired ? "required" : ""}`}
                   >
-                    {item.key}:
+                    {item.key}
                   </label>
                 </div>
                 <div className="form-group row d-flex">
@@ -301,7 +301,7 @@ const GenerateElements: React.FC<props> = (props) => {
                     item.labelSize ? item.labelSize : null
                   } col-form-label ${item.isRequired ? "required" : ""}`}
                 >
-                  {item.key}:124
+                  {item.key}
                 </label>
                 <div className="row">
                   <div className={`col-md-6 ${item.isRequired ? "required" : ""}`}>
@@ -331,7 +331,7 @@ const GenerateElements: React.FC<props> = (props) => {
                     item.labelSize ? item.labelSize : 6
                   } col-form-label ${item.isRequired ? "required" : ""}`}
                 >
-                  {item.key}:
+                  {item.key}
                 </label>
               </div>
 
@@ -393,7 +393,7 @@ const GenerateElements: React.FC<props> = (props) => {
                 item.isRequired ? "required" : ""
               }`}
             >
-              {item.key}:
+              {item.key}
             </label>
             <div
               className={`col-sm-${item.elementSize ?? 11} errmessage`}
