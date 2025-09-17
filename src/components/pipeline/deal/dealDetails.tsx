@@ -519,17 +519,11 @@ export const DealDetails = () => {
     setExpandedSections((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const safe = (v: any, placeholder = "undefined") => {
-    if (v === null || v === undefined) return placeholder;
-    const s = String(v).trim();
-    return s === "" ||
-      s === "-" ||
-      /^null$/i.test(s) ||
-      /^undefined$/i.test(s) ||
-      s === "(none)"
-      ? placeholder
-      : s;
-  };
+  const safe = (v: unknown, placeholder = "-") => {
+  if (v === 0) return "0";                      // keep 0
+  const s = String(v ?? "").trim();
+  return s && !/^(null|undefined|-|—|\(none\))$/i.test(s) ? s : placeholder;
+};
   const isEmpty = (v: any) => {
     const s = (v ?? "").toString().trim().toLowerCase();
     return (
