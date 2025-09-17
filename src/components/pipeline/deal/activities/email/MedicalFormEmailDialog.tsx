@@ -12,18 +12,28 @@ type MedicalEmailForm = {
   subject: string;
   body: string;    // HTML if using CKEditor
 };
-
-const stripHtml = (s: string) => (s || "").replace(/<[^>]*>/g, "").trim();
+const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const stripHtml = (s: string) => (s || "").replace(/<[^>]*>/g, "");
+const trimOrEmpty = (v: any) => (typeof v === "string" ? v.trim() : "");
+const normalizeEmailList = (input: string | string[]) => {
+  const csv = Array.isArray(input)
+    ? (input as string[]).join(",")
+    : String(input || "");
+  return csv
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+};
 
 const MedicalFormEmailDialog = ({ dialogIsOpen, selectedItem, onCloseDialog, onSend }: any) => {
   const methods = useForm<MedicalEmailForm>({
     mode: "onSubmit",
     defaultValues: {
-      to: selectedItem?.to ?? selectedItem?.email ?? "",
-      from: selectedItem?.from ?? "",
-      bcc: Array.isArray(selectedItem?.bcc) ? selectedItem.bcc.join(", ") : (selectedItem?.bcc ?? ""),
-      subject: selectedItem?.subject ?? "",
-      body: selectedItem?.body ?? "",
+      to:      trimOrEmpty(selectedItem?.to ?? selectedItem?.email ?? ""),
+      from:    trimOrEmpty(selectedItem?.from ?? ""),
+      bcc:     Array.isArray(selectedItem?.bcc) ? selectedItem.bcc.join(", ") : trimOrEmpty(selectedItem?.bcc ?? ""),
+      subject: trimOrEmpty(selectedItem?.subject ?? ""),
+      body:    selectedItem?.body ?? "",
     },
   });
 
@@ -37,36 +47,80 @@ const MedicalFormEmailDialog = ({ dialogIsOpen, selectedItem, onCloseDialog, onS
 
   // Register ONCE (no shadow inputs)
   useEffect(() => {
-    methods.register("to",      { required: "To field is required",      validate: v => v?.trim() ? true : "To field is required" });
-    methods.register("from",    { required: "From field is required" });
-    methods.register("bcc",     { required: "Bcc field is required" }); // flip to false if optional
-    methods.register("subject", { required: "Subject field is required" });
-    methods.register("body",    { required: "Body field is required",    validate: v => stripHtml(v) ? true : "Body field is required" });
+    methods.register("to", {
+      setValueAs: trimOrEmpty,
+      validate: (v) => {
+        if (!v) return "To is required";
+        if (!emailRe.test(v)) return "To must be a valid email";
+        return true;
+      },
+    });
+
+    methods.register("from", {
+      setValueAs: trimOrEmpty,
+      validate: (v) => {
+        if (!v) return "From is required";
+        if (!emailRe.test(v)) return "From must be a valid email";
+        return true;
+      },
+    });
+
+   methods.register("bcc", {
+    setValueAs: (v) => (typeof v === "string" ? v.trim() : ""),
+    validate: (v: string) => {
+      if (!v) return "Bcc is required";
+
+      // ❌ do NOT allow any whitespace after a comma
+      if (/,\s+/.test(v)) {
+        return "Remove spaces after commas (use a@x.com,b@y.com)";
+      }
+
+      // Validate each address (no trimming here, we enforce the rule above)
+      const parts = v.split(",");
+      const bad = parts.find((e) => !emailRe.test(e));
+      return bad ? `Invalid Bcc email: ${bad}` : true;
+    },
+  });
+
+    methods.register("subject", {
+      setValueAs: trimOrEmpty,
+      validate: (v) => (v ? true : "Subject is required"),
+    });
+
+    methods.register("body", {
+      validate: (v) => (trimOrEmpty(stripHtml(v)) ? true : "Body is required"),
+    });
   }, [methods]);
 
   // Avoid unnecessary state churn on every keystroke
   const handleFieldChange = useCallback(
     (val: any, field: any) => {
       const name = field.value as Path<MedicalEmailForm>;
-      if (methods.getValues(name) !== val) {
-        methods.setValue(name, val, { shouldDirty: true, shouldTouch: true });
+      // For these fields, trim as user types/changes
+      if (name === "to" || name === "from" || name === "subject" || name === "bcc") {
+        val = trimOrEmpty(val);
       }
+      methods.setValue(name, val, { shouldDirty: true, shouldTouch: true, shouldValidate: false });
     },
     [methods]
   );
 
   const onSubmit = (formData: MedicalEmailForm) => {
-    const emailData = {
-      ...selectedItem,
+    // Final sanitize before send
+    const payload = {
       ...formData,
-      bcc: formData.bcc.split(",").map(s => s.trim()).filter(Boolean),
+      to: trimOrEmpty(formData.to),
+      from: trimOrEmpty(formData.from),
+      subject: trimOrEmpty(formData.subject),
+      bcc: normalizeEmailList(formData.bcc), // array of trimmed emails
+      body: formData.body,                   // keep HTML
     };
-    onSend(emailData);
+    onSend(payload);
   };
 
   const onInvalid = (errors: any) => {
     const firstKey = Object.keys(errors)[0];
-    toast.error(errors[firstKey]?.message || "Please fill the required fields.");
+    toast.error(errors[firstKey]?.message || "Please fix the highlighted fields.");
   };
 
   return (
@@ -83,8 +137,6 @@ const MedicalFormEmailDialog = ({ dialogIsOpen, selectedItem, onCloseDialog, onS
           controlsList={controlsList as any}
           selectedItem={selectedItem}
           onChange={handleFieldChange}
-          // If you can, have GenerateElements read errors from RHF context
-          // and display errors[name]?.message below each field.
         />
       </AddEditDialog>
     </FormProvider>
