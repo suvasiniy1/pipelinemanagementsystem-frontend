@@ -273,53 +273,63 @@ export const Stages = (props: params) => {
         navigator(pipeLineId>0 ? "/pipeline?pipelineID=" + pipeLineId : "/pipeline");
     }
 
-    const deleteStage = () => {
-        // Find the stage by stageID or by index if selectedItemIndex is an index
-        let index = stages.findIndex(i => i.stageID == selectedItemIndex);
-        
-        // If not found by stageID, selectedItemIndex might be the array index
-        if (index === -1 && selectedItemIndex < stages.length) {
-            index = selectedItemIndex;
-        }
-        
-        if (index === -1) {
-            toast.error('Stage not found');
-            setShowDeleteDialog(false);
-            return;
-        }
-        
-        const stageToDelete = stages[index];
-        
-        // If it's a newly added stage (stageID = 0 or undefined), just remove it locally
-        if (!stageToDelete.stageID || stageToDelete.stageID === 0) {
-            const newStages = [...stages];
-            newStages.splice(index, 1);
-            setStages(newStages);
-            setShowDeleteDialog(false);
-            toast.success('Stage removed successfully', { autoClose: 500 });
-            return;
-        }
-        
-        // For existing stages, call the API
-        stagesSvc.delete(stageToDelete.stageID).then(res => {
-            setShowDeleteDialog(false);
-            if (res) {
-                const newStages = [...stages];
-                newStages.splice(index, 1);
-                setStages(newStages);
-                if(!res.success)
-                    toast.success(res.message, { autoClose: 5000 });
-                else
-                    toast.success(`Pipeline updated successfully`, { autoClose: 500 });
-                setTimeout(() => {
-                    navigator("/pipeline?pipelineID=" + pipeLineId);
-                }, 500);
-            }
-        }).catch((err: AxiosError) => {
-            setShowDeleteDialog(false);
-            setError(err);
-        })
+    const deleteStage = async () => {
+  try {
+    // Treat selectedItemIndex as a stageID first
+    let index = stages.findIndex(i => i.stageID === selectedItemIndex);
+
+    // If not found, allow using it as an array index ONLY for new (unsaved) stages
+    if (
+      index === -1 &&
+      selectedItemIndex >= 0 &&
+      selectedItemIndex < stages.length &&
+      (!stages[selectedItemIndex]?.stageID || stages[selectedItemIndex]?.stageID === 0)
+    ) {
+      index = selectedItemIndex;
     }
+
+    if (index === -1) {
+      toast.error('Stage not found');
+      setShowDeleteDialog(false);
+      return;
+    }
+
+    const stageToDelete = stages[index];
+
+    // If the stage is new/unsaved, just remove it locally
+    if (!stageToDelete.stageID || stageToDelete.stageID === 0) {
+      const newStages = [...stages];
+      newStages.splice(index, 1);
+      setStages(newStages);
+      setShowDeleteDialog(false);
+      toast.success('Stage removed successfully', { autoClose: 800 });
+      return;
+    }
+
+    // Saved stage: call API and only remove if server confirms success
+    const res = await stagesSvc.delete(stageToDelete.stageID);
+    setShowDeleteDialog(false);
+
+    if (!res || res.success === false) {
+      toast.error(res?.message || 'Failed to delete stage on the server', { autoClose: 3000 });
+      return; // DO NOT remove locally if server failed
+    }
+
+    const newStages = [...stages];
+    newStages.splice(index, 1);
+    setStages(newStages);
+
+    toast.success(res?.message || 'Stage deleted successfully', { autoClose: 800 });
+
+    // Optional: if you really want to reload the page view, uncomment the next line
+    // navigator(`/pipeline?pipelineID=${pipeLineId}`);
+  } catch (err: any) {
+    setShowDeleteDialog(false);
+    setError(err);
+    toast.error(err?.message || 'Error deleting stage', { autoClose: 3000 });
+    console.error('Delete stage error:', err);
+  }
+};
 
     const updateStageItem=(item:Stage, index:number)=>{
         
@@ -370,13 +380,16 @@ export const Stages = (props: params) => {
                                                 <div className="editstage-innerrow" ref={provided.innerRef} {...provided.droppableProps}>
                                                     {stages?.map((item, index) => (
                                                         <StageContainer
-                                                            key={index}
+                                                            key={item.stageID ?? `temp-${index}`}
                                                             index={index}
                                                             title={item?.stageName}
                                                             selectedItem={item}
                                                             setSelectedItem={(e:any)=>updateStageItem(e, index)}
                                                             onAddClick={(e: any) => addNewStage(e)}
-                                                            onDeleteClick={(index: number) => { setShowDeleteDialog(true); setSelectedItemIndex(index) }}
+                                                            onDeleteClick={() => { 
+    setSelectedItemIndex(item.stageID ?? index); // keep for now
+    setShowDeleteDialog(true); 
+  }}
                                                         />
                                                     ))}
 
