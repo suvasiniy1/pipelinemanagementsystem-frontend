@@ -5,10 +5,9 @@ import { ErrorBoundary } from 'react-error-boundary'
 import { toast } from 'react-toastify'
 import { DeleteDialog } from '../../../../../common/deleteDialog'
 import { UserProfile } from '../../../../../models/userProfile'
-import LocalStorageUtil from '../../../../../others/LocalStorageUtil'
-import Constants from '../../../../../others/constants'
 import { CommentsService } from '../../../../../services/commentsService'
 import { Comment } from '../../../../../models/comment'
+import { useAuthContext } from '../../../../../contexts/AuthContext'
 
 type params = {
     comment: Comment,
@@ -16,10 +15,11 @@ type params = {
 }
 
 const Comments = (props: params) => {
+    const { userProfile } = useAuthContext();
     const [comment, setComment] = useState(props.comment);
     const [commentText, setCommentText] = useState("");
     const [commentError, setCommentError] = useState("");
-    const userObj = LocalStorageUtil.getItemObject(Constants.USER_PROFILE) as UserProfile;
+    const userObj = userProfile || new UserProfile();
     const [editComment, setEditComment] = useState(false);
     const commentSvc = new CommentsService(ErrorBoundary);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);

@@ -30,6 +30,7 @@ import { Utility } from "../../../models/utility";
 import Constants from "../../../others/constants";
 import LocalStorageUtil from "../../../others/LocalStorageUtil";
 import Util, { IsMockService } from "../../../others/util";
+import { useAuthContext } from "../../../contexts/AuthContext";
 import { DealService } from "../../../services/dealService";
 import { StageService } from "../../../services/stageService";
 import { loginRequest } from "./activities/email/authConfig";
@@ -49,6 +50,7 @@ import { DealEmailLogService } from "../../../services/dealEmailLogService";
 
 
 export const DealDetails = () => {
+  const { userProfile, userRole } = useAuthContext();
   const navigator = useNavigate();
   const location = useLocation();
   const { instance, accounts } = useMsal();
@@ -82,7 +84,7 @@ export const DealDetails = () => {
   const [isLoading, setIsLoading] = useState(true);
   const stagesSvc = new StageService(ErrorBoundary);
   const [stages, setStages] = useState<Array<Stage>>([]);
-  const userProfile = Util.UserProfile();
+
 
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
   const [selectedTaskItem, setSelectedTaskItem] = useState<Tasks>();
@@ -130,7 +132,7 @@ export const DealDetails = () => {
     return istISO;
   };
   const handleEditClick = () => {
-    if (userProfile.role === 1) {
+    if (userRole === 1) {
       setIsEditingAmount(true);
     } else {
       toast.error("You do not have permission to edit the deal amount.");
@@ -375,7 +377,7 @@ export const DealDetails = () => {
       .putItemBySubURL(
         {
           newStageId: stageId,
-          modifiedById: userProfile.userId,
+          modifiedById: userProfile?.userId,
           dealId: +dealItem.dealID,
           pipelineId: dealItem.pipelineID,
           statusId: dealItem.status,
@@ -439,7 +441,7 @@ export const DealDetails = () => {
           eventType: "email Send",
           dealId: dealId,
         };
-        auditLogObj.createdBy = Util.UserProfile()?.userId;
+        auditLogObj.createdBy = userProfile?.userId;
         auditLogObj.eventDescription = "A new email was sent for the deal";
         //await auditLogsvc.postAuditLog(auditLogObj);
         let dealEmailObj: DealEmailLog = new DealEmailLog();
@@ -448,7 +450,7 @@ export const DealDetails = () => {
         dealEmailObj.emailBody = emailObj.body;
         dealEmailObj.emailTo = emailObj.toAddress;
         dealEmailObj.emailDate = new Date();
-        dealEmailObj.createdBy = Util.UserProfile()?.userId;
+        dealEmailObj.createdBy = userProfile?.userId;
         dealEmailObj.createdDate = new Date();
         await dealEmailLogService.postDealEmailLog(dealEmailObj);
         
@@ -653,11 +655,11 @@ export const DealDetails = () => {
                               }}
                             >
                               <span className="deal-amount-value">
-                                {userProfile.role === 1
+                                {userRole === 1
                                   ? `£${dealItem.value}`
                                   : "£0"}
                               </span>
-                              {userProfile.role === 1 && (
+                              {userRole === 1 && (
                                 <FontAwesomeIcon
                                   icon={faPenToSquare}
                                   className="edit-icon"

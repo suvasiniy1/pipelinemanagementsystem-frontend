@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { UserService } from "../../services/UserService";
 import { UserProfile } from "../../models/userProfile";
-import LocalStorageUtil from "../../others/LocalStorageUtil";
-import Constants from "../../others/constants";
 import { AxiosError } from "axios";
 import { UnAuthorized } from "../../common/unauthorized";
 import "./ProfilePage.css"; // Import the CSS file for styling
 import { AccountService } from "../../services/accountService"; 
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { useAuthContext } from "../../contexts/AuthContext";
 
 
 
 
 export const ProfilePage = () => {
+  const { userProfile: contextProfile } = useAuthContext();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [error, setError] = useState<AxiosError | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -25,8 +25,7 @@ export const ProfilePage = () => {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const userProfileData = LocalStorageUtil.getItemObject(Constants.USER_PROFILE) as UserProfile ?? new UserProfile();
-        const userId = userProfileData.userId;
+        const userId = contextProfile?.userId;
 
         if (!userId) {
           throw new Error("No user ID found.");

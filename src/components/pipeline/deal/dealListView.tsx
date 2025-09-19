@@ -38,6 +38,7 @@ import { useMsal } from "@azure/msal-react";
 import { loginRequest } from "../../pipeline/deal/activities/email/authConfig";
 import { EmailTemplateService } from "../../../services/emailTemplateService";
 import { EmailTemplate } from "../../../models/emailTemplate";
+import { useAuthContext } from "../../../contexts/AuthContext";
 
 type Params = {
   pipeLineId: number;
@@ -48,6 +49,7 @@ type Params = {
 };
 
 const DealListView = (props: Params) => {
+  const { userProfile } = useAuthContext();
   const {
     pipeLineId,
     setViewType,
@@ -159,10 +161,7 @@ const DealListView = (props: Params) => {
 
 
 
-  const userProfile = JSON.parse(
-    LocalStorageUtil.getItem(Constants.USER_PROFILE) || "{}"
-  );
-  const userRole = userProfile?.role || 2;
+
 
   const getOrganizationName = (orgId: number) =>
     utility.organizations.find((o) => o.organizationID === orgId)?.name ||
@@ -290,7 +289,7 @@ const DealListView = (props: Params) => {
     const req =
       selectedUserId > 0
         ? stagesSvc.getDealsByUserId(selectedUserId, pipeLineId, apiPage, size)
-        : stagesSvc.getDealsByFilterId(selectedFilterObj?.id, pipeLineId, userProfile.userId, apiPage, size);
+        : stagesSvc.getDealsByFilterId(selectedFilterObj?.id, pipeLineId, userProfile?.userId ?? 0, apiPage, size);
 
     req
       .then((res: any) => {

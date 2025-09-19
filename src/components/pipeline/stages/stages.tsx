@@ -21,6 +21,7 @@ import reorder from "../dnd/reorder";
 import { AddNewStage } from "./addNewStage";
 import { StageActions } from "./stageActions";
 import { StageContainer } from "./stageContainer";
+import { useAuthContext } from "../../../contexts/AuthContext";
 
 type params = {
     isCombineEnabled?: any,
@@ -33,6 +34,7 @@ type params = {
 }
 
 export const Stages = (props: params) => {
+    const { userProfile } = useAuthContext();
     const data = {
         medium: generateQuoteMap(5),
         large: generateQuoteMap(5),
@@ -51,7 +53,6 @@ export const Stages = (props: params) => {
     const pipeLineSvc = new PipeLineService(ErrorBoundary);
     const stagesSvc = new StageService(ErrorBoundary);
     const [error, setError] = useState<AxiosError>();
-    const userProfile: UserProfile = LocalStorageUtil.getItemObject(Constants.USER_PROFILE) as any;
     const [canSave, setCanSave] = useState(false);
     const navigator = useNavigate();
 
@@ -68,7 +69,7 @@ export const Stages = (props: params) => {
             if (defaultStages?.length > 0) {
                 let newPipeLine = new PipeLine();
                 newPipeLine.pipelineID = 0;
-                newPipeLine.createdBy = userProfile.userId;
+                newPipeLine.createdBy = userProfile?.userId;
                 newPipeLine.createdDate = new Date();
                 newPipeLine.pipelineName = newPipeLine.description = "New PipeLine";
                 newPipeLine.stages = [];
@@ -181,8 +182,7 @@ export const Stages = (props: params) => {
     }
 
     const prepareToSave = (pipeLineId: number) => {
-        let userObj: UserProfile = LocalStorageUtil.getItem(Constants.USER_PROFILE) as any;
-        let userName = userObj.user;
+        let userName = userProfile?.user;
         if (!pipeLineId || isNaN(pipeLineId)) {
             console.error("Pipeline ID is missing or invalid");
             return; // Do not proceed if pipelineID is invalid

@@ -23,6 +23,7 @@ import Util from "../others/util";
 import { BiGitBranch } from "react-icons/bi";
 import { HiOutlineFunnel } from "react-icons/hi2";
 import { GiStairsGoal } from "react-icons/gi";
+import { useAuthContext } from "../contexts/AuthContext";
 
 type params = {
   collapsed: boolean;
@@ -30,22 +31,13 @@ type params = {
 
 export const SideBar = (props: params) => {
   const { collapsed } = props;
+  const { userRole } = useAuthContext();
   const [selectedNavItem, setSelectedNavItem] = useState("pipeline");
   const [toggled, setToggled] = useState(false);
-  const [navReady, setNavReady] = useState(false); // ✅ NEW
 
   const compaignSubMenu = ["Template", "Contact", "Campaign", "Email"];
   const adminSubMenu = ["Clinic", "Treatment", "Source", "PipeLineType"];
   const activeNavColor = window.config.NavItemActiveColor;
-
-  // ✅ Setup nav access on mount
-  useEffect(() => {
-    const profile = Util.UserProfile();
-    if (profile?.role) {
-      Util.loadNavItemsForUser(parseInt(profile.role));
-      setNavReady(true);
-    }
-  }, []);
 
   const themes: any = {
     dark: {
@@ -63,7 +55,7 @@ export const SideBar = (props: params) => {
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   };
 
-  if (!navReady) return null;
+  if (!userRole) return null;
 
   const Drawer = () => {
     return (

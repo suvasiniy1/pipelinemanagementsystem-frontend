@@ -8,13 +8,12 @@ import { toast } from 'react-toastify';
 import { Comment } from '../../../../../models/comment';
 import { Notes } from '../../../../../models/notes';
 import { UserProfile } from '../../../../../models/userProfile';
-import LocalStorageUtil from '../../../../../others/LocalStorageUtil';
-import Constants from '../../../../../others/constants';
 import { CommentsService } from '../../../../../services/commentsService';
 import { NotesService } from '../../../../../services/notesService';
 import Comments from '../common/comment';
 import { Tasks } from '../../../../../models/task';
 import { TaskService } from '../../../../../services/taskService';
+import { useAuthContext } from '../../../../../contexts/AuthContext';
 
 type params = {
     task: Tasks;
@@ -27,10 +26,11 @@ type params = {
     setSelectedIndex: any;
 }
 const TaskDetails = (props: params) => {
+    const { userProfile } = useAuthContext();
     const { index, selectedIndex, ...others } = props;
     const [task, setTask] = useState<any>(props.task);
     const divRef = useRef();
-    const userObj = LocalStorageUtil.getItemObject(Constants.USER_PROFILE) as UserProfile;
+    const userObj = userProfile || new UserProfile();
     const [showcomments, setShowComments] = useState(false);
     const commentSvc = new CommentsService(ErrorBoundary);
     const taskSvc = new TaskService(ErrorBoundary);

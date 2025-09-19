@@ -181,12 +181,7 @@ const showPwdError = (msg: string) => {
                 Constants.TOKEN_EXPIRATION_TIME,
                 convertTZ(res?.expires)
               );
-              LocalStorageUtil.setItemObject(
-                Constants.USER_PROFILE,
-                res as any
-              );
               console.log("User Role from response:", res?.role); // 👈 Add this line
-              LocalStorageUtil.setItem(Constants.USER_Role, res?.role as any);
               const profile = {
                 user: res.user,
                 email: res.email,
@@ -194,7 +189,7 @@ const showPwdError = (msg: string) => {
                 role: res.role,
               };
               
-              // Use AuthContext instead of localStorage
+              // Set in AuthContext only (session-based)
               setUserProfile(profile as UserProfile);
               setUserRole(res.role);
               setIsLoggedIn(true);
@@ -204,12 +199,7 @@ const showPwdError = (msg: string) => {
               toast.success(
                 "2FA code sent to your email! Please check your inbox."
               );
-              LocalStorageUtil.setItemObject(Constants.USER_PROFILE, {
-                user: res.user,
-                email: res.email,
-                userId: res.userId,
-                role: res.role, // ✅ this is correct
-              });
+
           
               setTwoFactorRequired(true);
               setUserId(res.userId);
@@ -278,7 +268,6 @@ const showPwdError = (msg: string) => {
             LocalStorageUtil.setItem(Constants.USER_LOGGED_IN, "true");
             LocalStorageUtil.setItem(Constants.ACCESS_TOKEN, res?.token);
             LocalStorageUtil.setItem(Constants.User_Name, res?.user);
-           LocalStorageUtil.setItem(Constants.USER_Role, res?.role);
            LocalStorageUtil.setItem(
             Constants.TOKEN_EXPIRATION_TIME,
            convertTZ(res?.expires)
@@ -290,7 +279,7 @@ const showPwdError = (msg: string) => {
                role: res.role
              };
              
-             // Use AuthContext instead of localStorage
+             // Set in AuthContext only (session-based)
              setUserProfile(profile as UserProfile);
              setUserRole(res.role);
              setIsLoggedIn(true);

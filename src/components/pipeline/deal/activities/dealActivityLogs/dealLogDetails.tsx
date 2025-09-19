@@ -4,10 +4,9 @@ import moment from "moment";
 import { useEffect, useRef, useState } from "react";
 import { Accordion } from "react-bootstrap";
 import { DealAuditLog } from "../../../../../models/dealAutidLog";
-import Constants from "../../../../../others/constants";
-import LocalStorageUtil from "../../../../../others/LocalStorageUtil";
 import { UserProfile } from "../../../../../models/userProfile";
 import Util from "../../../../../others/util";
+import { useAuthContext } from "../../../../../contexts/AuthContext";
 
 type params = {
   log: DealAuditLog;
@@ -16,11 +15,10 @@ type params = {
   setSelectedIndex: any;
 };
 const DealActivityDetails = (props: params) => {
+  const { userProfile } = useAuthContext();
   const { index, selectedIndex, log, ...others } = props;
   const divRef = useRef();
-  const userObj = LocalStorageUtil.getItemObject(
-    Constants.USER_PROFILE
-  ) as UserProfile;
+  const userObj = userProfile || new UserProfile();
 
   useEffect(() => {
     if (divRef) {

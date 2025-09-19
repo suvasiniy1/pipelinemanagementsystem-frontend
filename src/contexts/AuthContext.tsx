@@ -3,6 +3,7 @@ import LocalStorageUtil from '../others/LocalStorageUtil';
 import Constants from '../others/constants';
 import Util from '../others/util';
 import { UserProfile } from '../models/userProfile';
+import SecureStorage from '../others/secureStorage';
 
 interface AuthContextType {
   userRole: number | null;
@@ -22,46 +23,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const loggedIn = LocalStorageUtil.getItem(Constants.USER_LOGGED_IN) === 'true';
-    const role = LocalStorageUtil.getItem(Constants.USER_Role);
-    const profile = LocalStorageUtil.getItemObject(Constants.USER_PROFILE) as UserProfile;
-    
     setIsLoggedInState(loggedIn);
-    if (profile && loggedIn) {
-      setUserProfileState(profile);
-    }
-    if (role && loggedIn) {
-      const roleNum = parseInt(role);
-      setUserRoleState(roleNum);
-      Util.loadNavItemsForUser(roleNum);
-    }
-  }, []);
-
-  // Watch for changes in localStorage
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const loggedIn = LocalStorageUtil.getItem(Constants.USER_LOGGED_IN) === 'true';
-      const role = LocalStorageUtil.getItem(Constants.USER_Role);
-      const profile = LocalStorageUtil.getItemObject(Constants.USER_PROFILE) as UserProfile;
-      
-      setIsLoggedInState(loggedIn);
-      if (profile && loggedIn) {
-        setUserProfileState(profile);
-      }
-      if (role && loggedIn) {
+    
+    // Load obfuscated role from localStorage on app start
+    if (loggedIn) {
+      const role = SecureStorage.getSecureItem(Constants.USER_Role);
+      if (role) {
         const roleNum = parseInt(role);
         setUserRoleState(roleNum);
         Util.loadNavItemsForUser(roleNum);
       }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    }
   }, []);
+
+
 
   const setUserRole = (role: number | null) => {
     setUserRoleState(role);
     if (role) {
-      LocalStorageUtil.setItem(Constants.USER_Role, role.toString());
+      // Store obfuscated role in localStorage
+      SecureStorage.setSecureItem(Constants.USER_Role, role.toString());
       Util.loadNavItemsForUser(role);
     }
   };
@@ -72,16 +53,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!loggedIn) {
       setUserRoleState(null);
       setUserProfileState(null);
-      LocalStorageUtil.removeItem(Constants.USER_Role);
-      LocalStorageUtil.removeItem(Constants.USER_PROFILE);
+      LocalStorageUtil.removeItem(Constants.USER_LOGGED_IN);
+      LocalStorageUtil.removeItem(Constants.ACCESS_TOKEN);
+      LocalStorageUtil.removeItem(Constants.TOKEN_EXPIRATION_TIME);
+      SecureStorage.removeSecureItem(Constants.USER_Role);
     }
   };
 
   const setUserProfile = (profile: UserProfile | null) => {
     setUserProfileState(profile);
-    if (profile) {
-      LocalStorageUtil.setItemObject(Constants.USER_PROFILE, profile);
-    }
   };
 
   return (

@@ -8,11 +8,10 @@ import { toast } from 'react-toastify';
 import { Comment } from '../../../../../models/comment';
 import { Notes } from '../../../../../models/notes';
 import { UserProfile } from '../../../../../models/userProfile';
-import LocalStorageUtil from '../../../../../others/LocalStorageUtil';
-import Constants from '../../../../../others/constants';
 import { CommentsService } from '../../../../../services/commentsService';
 import { NotesService } from '../../../../../services/notesService';
 import Comments from '../common/comment';
+import { useAuthContext } from '../../../../../contexts/AuthContext';
 
 type params = {
     note: Notes;
@@ -25,10 +24,11 @@ type params = {
     setSelectedIndex: any;
 }
 const NoteDetails = (props: params) => {
+    const { userProfile } = useAuthContext();
     const { index, selectedIndex, ...others } = props;
     const [note, setNote] = useState(props.note);
     const divRef = useRef();
-    const userObj = LocalStorageUtil.getItemObject(Constants.USER_PROFILE) as UserProfile;
+    const userObj = userProfile || new UserProfile();
     const [showcomments, setShowComments] = useState(false);
     const commentSvc = new CommentsService(ErrorBoundary);
     const noteSvc = new NotesService(ErrorBoundary);
