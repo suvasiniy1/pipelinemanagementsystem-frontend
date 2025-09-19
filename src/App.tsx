@@ -194,6 +194,7 @@ function App() {
               >
                 <HeaderComponent
                   onExpandCollapseClick={(e: any) => setCollapsed(!collapsed)}
+                  collapsed={collapsed}
                 />
                 <Content className="maincontentinner">
                   <AppRouter />

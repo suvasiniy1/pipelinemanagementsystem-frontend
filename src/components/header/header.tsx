@@ -5,11 +5,12 @@ import { SearchBar } from "./searchBar";
 import { Profile } from '../other/Profile';
 
 type params={
-    onExpandCollapseClick:any
+    onExpandCollapseClick:any,
+    collapsed?:boolean
 }
 export const HeaderComponent = (props:params) => {
     return (
-        <header id="header" className="header pt-2 pb-2 bggradiant">
+        <header id="header" className={`header pt-2 pb-2 bggradiant ${props.collapsed ? 'sidebar-collapsed' : ''}`}>
             <div className="container-fluid">
                 <div className="headerrow align-items-center">
                     <div className="header-col colheadname">
