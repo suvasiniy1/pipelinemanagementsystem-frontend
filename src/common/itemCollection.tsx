@@ -218,17 +218,19 @@ const ItemCollection: React.FC<params> = (props) => {
   const [selectedTemplate, setSelectedTemplate] =
     useState<EmailTemplate | null>(null);
   useEffect(() => {
-    // Fetch templates using the EmailTemplateService
-    const templateService = new EmailTemplateService(ErrorBoundary);
-    templateService
-      .getEmailTemplates()
-      .then((res: EmailTemplate[]) => {
-        setTemplates(res);
-      })
-      .catch((err) => {
-        console.error("Error fetching templates:", err);
-      });
-  }, []);
+    // Only fetch templates if this is not the template management screen
+    if (itemName !== "Template") {
+      const templateService = new EmailTemplateService(ErrorBoundary);
+      templateService
+        .getEmailTemplates()
+        .then((res: EmailTemplate[]) => {
+          setTemplates(res);
+        })
+        .catch((err) => {
+          console.error("Error fetching templates:", err);
+        });
+    }
+  }, [itemName]);
 
   useEffect(() => {
     let rowData = props.rowData ?? [];

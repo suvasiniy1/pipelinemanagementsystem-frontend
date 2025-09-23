@@ -90,6 +90,28 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
   const [previewReportId, setPreviewReportId] = useState<number | null>(null);
   const [reportCreated, setReportCreated] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [reportDetailsData, setReportDetailsData] = useState<any[]>([]);
+  const [isLoadingReportData, setIsLoadingReportData] = useState(false);
+
+  // Fetch report details from API
+  const fetchReportDetails = async (reportId: number) => {
+    setIsLoadingReportData(true);
+    try {
+      const reportService = new ReportService(null);
+      const response = await reportService.getReportDetails(reportId);
+      if (response?.success && response?.stages) {
+        setReportDetailsData(response.stages);
+      } else {
+        console.warn('No stages data found in response:', response);
+        setReportDetailsData([]);
+      }
+    } catch (error) {
+      console.error('Error fetching report details:', error);
+      setReportDetailsData([]);
+    } finally {
+      setIsLoadingReportData(false);
+    }
+  };
 
   // Auto-save preview report
   const savePreviewReport = async (conditions: FilterCondition[]) => {
@@ -192,6 +214,9 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
       }));
       setAppliedFilters(existingConditions);
       setSavedFilters(existingConditions);
+      
+      // Fetch report details from API
+      fetchReportDetails(reportDefinition.id);
     }
   }, [reportDefinition]);
 
@@ -218,10 +243,17 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
   }, [appliedFilters, savedFilters, reportDefinition, reportSaved, reportName, originalReportName]);
 
   const getFilteredData = () => {
-    let filteredData = mockDealData;
+    // Use API data if available, otherwise fall back to mock data
+    let filteredData = reportDetailsData.length > 0 ? reportDetailsData : mockDealData;
     console.log('Filtering data with appliedFilters:', appliedFilters);
     console.log('Current newCondition:', newCondition);
-    console.log('Original data count:', mockDealData.length);
+    console.log('Original data count:', filteredData.length);
+    console.log('Using API data:', reportDetailsData.length > 0);
+    
+    // If using API data and no filters applied, return all API data
+    if (reportDetailsData.length > 0 && appliedFilters.length === 0 && !newCondition.field) {
+      return filteredData;
+    }
     
     // Include current newCondition if it's complete for preview
     const filtersToApply = [...appliedFilters];
@@ -247,29 +279,43 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
       const beforeCount = filteredData.length;
       switch (filter.field) {
         case 'Status':
-          filteredData = filteredData.filter(deal => 
-            filter.operator === '=' ? deal.status === filter.value : deal.status !== filter.value
-          );
+          filteredData = filteredData.filter(deal => {
+            let dealStatus = 'Open';
+            if (deal.statusID !== undefined) {
+              switch (deal.statusID) {
+                case 1: dealStatus = 'Open'; break;
+                case 2: dealStatus = 'Won'; break;
+                case 3: dealStatus = 'Lost'; break;
+                default: dealStatus = 'Open';
+              }
+            } else if (deal.status) {
+              dealStatus = deal.status;
+            }
+            return filter.operator === '=' ? dealStatus === filter.value : dealStatus !== filter.value;
+          });
           break;
         case 'Pipeline':
-          filteredData = filteredData.filter(deal => 
-            filter.operator === '=' ? deal.pipeline === filter.value : deal.pipeline !== filter.value
-          );
+          filteredData = filteredData.filter(deal => {
+            const pipelineName = deal.pipelineName || deal.pipeline || '';
+            return filter.operator === '=' ? pipelineName === filter.value : pipelineName !== filter.value;
+          });
           break;
         case 'Owner':
-          filteredData = filteredData.filter(deal => 
-            filter.operator === '=' ? deal.owner === filter.value : deal.owner !== filter.value
-          );
+          filteredData = filteredData.filter(deal => {
+            const ownerName = deal.ownerName || deal.owner || '';
+            return filter.operator === '=' ? ownerName === filter.value : ownerName !== filter.value;
+          });
           break;
         case 'Deal value':
           const value = parseFloat(filter.value);
           if (!isNaN(value)) {
             filteredData = filteredData.filter(deal => {
+              const dealValue = parseFloat(deal.value) || 0;
               switch (filter.operator) {
-                case '>': return deal.value > value;
-                case '<': return deal.value < value;
-                case '=': return deal.value === value;
-                case '!=': return deal.value !== value;
+                case '>': return dealValue > value;
+                case '<': return dealValue < value;
+                case '=': return dealValue === value;
+                case '!=': return dealValue !== value;
                 default: return true;
               }
             });
@@ -278,7 +324,8 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
         case 'Deal created on':
           if (filter.value) {
             filteredData = filteredData.filter(deal => {
-              const dealDate = deal.addTime.split('T')[0]; // Get date part only
+              const dateStr = deal.createdDate || deal.addTime || '';
+              const dealDate = dateStr.split('T')[0]; // Get date part only
               switch (filter.operator) {
                 case '>': return dealDate > filter.value;
                 case '<': return dealDate < filter.value;
@@ -371,63 +418,93 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
   ];
 
   const getReportData = () => {
-    const filteredDeals = getFilteredData();
-    let data: Array<any>;
+    const deals = getFilteredData();
+    console.log('API deals data:', deals);
     
-    // Generate data based on report type instead of report name
-    if (reportType === 'Performance') {
-      if (frequency === 'Daily') {
-        data = generateDailyPerformanceDataFromDeals(filteredDeals);
-      } else if (frequency === 'Yearly') {
-        data = generateYearlyPerformanceDataFromDeals(filteredDeals);
-      } else {
-        data = generateMonthlyPerformanceDataFromDeals(filteredDeals);
-      }
-    } else {
-      switch (reportType) {
-        case 'Conversion':
-          data = generateConversionDataFromDeals(filteredDeals);
+    if (!deals.length) return [];
+    
+    // Dynamic chart data based on frequency
+    const chartData: Record<string, {won: number, lost: number, open: number, total: number, value: number}> = {};
+    
+    deals.forEach(deal => {
+      let timeKey = '';
+      const date = new Date(deal.createdDate || deal.addTime || new Date());
+      
+      // Generate time key based on frequency
+      switch (frequency) {
+        case 'Daily':
+          timeKey = date.toISOString().split('T')[0]; // YYYY-MM-DD
           break;
-        case 'Duration':
-          data = generateDurationDataFromDeals(filteredDeals);
+        case 'Yearly':
+          timeKey = date.getFullYear().toString(); // YYYY
           break;
-        case 'Progress':
-          data = generateProgressDataFromDeals(filteredDeals);
-          break;
-        case 'Products':
-          data = generateProductsDataFromDeals(filteredDeals);
-          break;
-        default:
-          data = generateMonthlyPerformanceDataFromDeals(filteredDeals);
+        default: // Monthly
+          timeKey = date.toISOString().substring(0, 7); // YYYY-MM
       }
       
-      // Apply frequency filtering for non-performance reports
-      if (frequency === 'Daily' && data.length > 7) {
-        data = data.slice(-7);
-      } else if (frequency === 'Yearly' && data.length > 3) {
-        data = data.slice(-3);
+      if (!chartData[timeKey]) {
+        chartData[timeKey] = {won: 0, lost: 0, open: 0, total: 0, value: 0};
       }
-    }
+      
+      // Count by status: 1=Open, 2=Won, 3=Lost
+      const status = deal.statusID === 2 ? 'won' : deal.statusID === 3 ? 'lost' : 'open';
+      chartData[timeKey][status]++;
+      chartData[timeKey].total++;
+      chartData[timeKey].value += parseFloat(deal.value) || 0;
+    });
     
-    return data;
+    // Convert to array and sort
+    const result = Object.entries(chartData)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([period, data]) => ({
+        month: period,
+        won: data.won,
+        lost: data.lost,
+        open: data.open,
+        total: data.total,
+        totalValue: data.value
+      }));
+    
+    console.log('Dynamic chart data:', result);
+    return result;
   };
 
   const generateMonthlyPerformanceDataFromDeals = (deals: any[]) => {
+    console.log('generateMonthlyPerformanceDataFromDeals - input deals:', deals.length, deals);
     const monthlyData: Record<string, Record<string, number>> = {};
     deals.forEach(deal => {
-      const month = deal.addTime.substring(0, 7);
+      // Handle both API and mock data date formats
+      const dateStr = deal.createdDate || deal.addTime || new Date().toISOString();
+      const month = dateStr.substring(0, 7);
       if (!monthlyData[month]) {
         monthlyData[month] = { won: 0, lost: 0, open: 0, total: 0, value: 0 };
       }
-      const statusKey = deal.status.toLowerCase();
-      if (['won', 'lost', 'open'].includes(statusKey)) {
-        monthlyData[month][statusKey] = (monthlyData[month][statusKey] || 0) + 1;
+      
+      // Handle API data status logic: statusID 1=Open, 2=Won, 3=Lost
+      let status = 'open';
+      if (deal.statusID !== undefined) {
+        switch (deal.statusID) {
+          case 1: status = 'open'; break;
+          case 2: status = 'won'; break;
+          case 3: status = 'lost'; break;
+          default: status = 'open';
+        }
+      } else if (deal.status) {
+        status = deal.status.toLowerCase();
+      }
+      
+      console.log('Processing deal:', deal.dealID, 'statusID:', deal.statusID, 'mapped status:', status, 'month:', month);
+      
+      if (['won', 'lost', 'open'].includes(status)) {
+        monthlyData[month][status] = (monthlyData[month][status] || 0) + 1;
         monthlyData[month].total += 1;
-        monthlyData[month].value += deal.value;
+        monthlyData[month].value += parseFloat(deal.value) || 0;
       }
     });
     
-    return Object.entries(monthlyData)
+    console.log('Monthly data before processing:', monthlyData);
+    
+    const result = Object.entries(monthlyData)
       .filter(([_, data]) => data.total > 0)
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([month, data]) => ({
@@ -438,6 +515,23 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
         total: data.total,
         totalValue: data.value
       }));
+    
+    console.log('generateMonthlyPerformanceDataFromDeals - final result:', result);
+    
+    // If no data, create sample data for current month
+    if (result.length === 0 && deals.length > 0) {
+      const currentMonth = new Date().toISOString().substring(0, 7);
+      return [{
+        month: currentMonth,
+        won: 0,
+        lost: 0,
+        open: deals.length,
+        total: deals.length,
+        totalValue: deals.reduce((sum, deal) => sum + (parseFloat(deal.value) || 0), 0)
+      }];
+    }
+    
+    return result;
   };
 
   const generateDailyPerformanceDataFromDeals = (deals: any[]) => {
@@ -679,16 +773,7 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
   const renderBarColumnChart = (data: any[], displayName: string) => {
     const isHorizontal = chartType === 'bar';
     const displayedData = data.slice(0, isHorizontal ? 6 : Math.min(data.length, 12));
-    const maxValue = Math.max(...displayedData.map(item => {
-      switch (reportType) {
-        case 'Performance': return item.totalValue;
-        case 'Conversion': return parseFloat(item.conversionRate);
-        case 'Duration': return item.count;
-        case 'Progress': return item.count;
-        case 'Products': return item.totalValue;
-        default: return item.totalValue || item.count || 0;
-      }
-    }));
+    const maxValue = Math.max(...displayedData.map(item => item.totalValue || 0), 1);
     
     return (
       <div style={{ position: 'relative', width: '100%', height: '400px', padding: '20px' }}>
@@ -740,46 +825,19 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
           overflow: 'hidden'
         }}>
         {displayedData.map((item, index) => {
-          let value: number, label: string, displayValue: string;
-          switch (reportType) {
-            case 'Performance':
-              value = item.totalValue;
-              label = item.month;
-              displayValue = `$${(value/1000).toFixed(0)}K`;
-              break;
-            case 'Conversion':
-              value = parseFloat(item.conversionRate || '0');
-              label = item.month || 'N/A';
-              displayValue = `${value.toFixed(1)}%`;
-              break;
-            case 'Duration':
-              value = item.count;
-              label = item.range;
-              displayValue = value.toString();
-              break;
-            case 'Progress':
-              value = item.count;
-              label = item.stage;
-              displayValue = value.toString();
-              break;
-            case 'Products':
-              value = item.totalValue;
-              label = item.product;
-              displayValue = `$${(value/1000).toFixed(0)}K`;
-              break;
-            default:
-              value = item.totalValue || item.count || 0;
-              label = item.month || item.range || item.stage || item.product || 'N/A';
-              displayValue = value > 1000 ? `$${(value/1000).toFixed(0)}K` : value.toString();
-          }
+          const value = item.totalValue || 0;
+          const label = item.month || 'N/A';
+          const displayValue = value > 1000 ? `£${(value/1000).toFixed(0)}K` : `£${value}`;
           
           const barSize = (value / maxValue) * (isHorizontal ? 70 : 280); // Percentage for horizontal, pixels for vertical
-          const colors = ['#28a745', '#f4a261', '#ADD8E6']; // Won, Lost, Open
-          const getStatusColor = (index: number) => {
-            const statusColors = ['#90EE90', '#f4a261', '#ADD8E6']; // Won, Lost, Open
-            return statusColors[index % 3];
-          };
-          const barColor = getStatusColor(index);
+          
+          // Determine bar color based on dominant status in this time period
+          let barColor = '#ADD8E6'; // Default to Open (light blue)
+          if (item.won > item.lost && item.won > item.open) {
+            barColor = '#28a745'; // Won (green)
+          } else if (item.lost > item.won && item.lost > item.open) {
+            barColor = '#f4a261'; // Lost (orange)
+          }
           
           return (
             <div key={index} className={`d-flex ${isHorizontal ? 'flex-row align-items-center' : 'flex-column align-items-center'}`} style={{ 
@@ -882,26 +940,7 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
               borderTop: '1px solid #ddd'
             }}>
               {displayedData.map((item, index) => {
-                let label: string;
-                switch (reportType) {
-                  case 'Performance':
-                    label = item.month;
-                    break;
-                  case 'Conversion':
-                    label = item.month;
-                    break;
-                  case 'Duration':
-                    label = item.range;
-                    break;
-                  case 'Progress':
-                    label = item.stage;
-                    break;
-                  case 'Products':
-                    label = item.product;
-                    break;
-                  default:
-                    label = item.month || item.range || item.stage || item.product || 'N/A';
-                }
+                const label = item.month || 'N/A';
                 return (
                   <div key={index} style={{ textAlign: 'center', fontSize: '10px' }}>
                     {label.length > 8 ? label.substring(0, 8) + '...' : label}
@@ -2174,22 +2213,30 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
 
         {tableExpanded && (
           <div className="p-3">
-            <>
-              <div className="mb-3">
-                <small className="text-muted">Showing {getFilteredData().length} deals</small>
+            {isLoadingReportData ? (
+              <div className="text-center py-4">
+                <div className="spinner-border" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </div>
+                <div className="mt-2">Loading report data...</div>
               </div>
-              <div style={{ height: 500, width: "100%" }} key={JSON.stringify(appliedFilters) + JSON.stringify(newCondition)}>
-                <DataGrid
-                rows={getFilteredData().map((deal) => ({
-                  id: deal.id,
-                  title: deal.title,
-                  value: deal.value,
-                  pipeline: deal.pipeline,
-                  owner: deal.owner,
-                  status: deal.status,
-                  addTime: deal.addTime,
-                  closeTime: deal.closeTime,
-                }))}
+            ) : (
+              <>
+                <div className="mb-3">
+                  <small className="text-muted">Showing {getFilteredData().length} deals</small>
+                </div>
+                <div style={{ height: 500, width: "100%" }} key={JSON.stringify(appliedFilters) + JSON.stringify(newCondition)}>
+                  <DataGrid
+                  rows={getFilteredData().map((deal, index) => ({
+                    id: deal.dealID || deal.id || index,
+                    title: deal.title || `${deal.personName || 'Unknown'} - ${deal.name || 'Unknown'}`,
+                    value: parseFloat(deal.value) || 0,
+                    pipeline: deal.pipelineName || deal.pipeline || 'Unknown',
+                    owner: deal.ownerName || deal.owner || 'Unknown',
+                    status: deal.statusID === 2 ? 'Won' : deal.statusID === 3 ? 'Lost' : 'Open',
+                    addTime: deal.createdDate || deal.addTime || '',
+                    closeTime: deal.expectedCloseDate || deal.closeTime || '',
+                  }))}
                 columns={[
                   { field: "title", headerName: "Title", width: 250 },
                   {
@@ -2254,9 +2301,10 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                     display: 'flex !important',
                   },
                 }}
-                  />
-                </div>
-              </>
+                    />
+                  </div>
+                </>
+              )}
           </div>
         )}
       </div>

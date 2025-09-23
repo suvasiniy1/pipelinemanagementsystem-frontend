@@ -36,6 +36,7 @@ const ReportingDashboard = () => {
   const [dashboardFolders, setDashboardFolders] = useState<any[]>([]);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const [activeNavItem, setActiveNavItem] = useState("My Dashboard");
+  const [activeReportId, setActiveReportId] = useState<number | null>(null);
   const [createType, setCreateType] = useState(""); // "Report" or "Dashboard"
   const [currentView, setCurrentView] = useState<'home' | 'dashboard' | 'report'>('home');
   const [currentReport, setCurrentReport] = useState<{entity: string, reportType: string, reportDefinition?: ReportDefinition} | null>(null);
@@ -107,6 +108,7 @@ const ReportingDashboard = () => {
     
     // Update navigation to show the saved report
     setActiveNavItem(reportData.name);
+    setActiveReportId(reportData.id);
   };
 
   const handleBackToDashboard = () => {
@@ -127,7 +129,7 @@ const ReportingDashboard = () => {
 
   const handleDashboardReportClick = (report: any) => {
     const reportDefinition: ReportDefinition = {
-      id: report.id,
+      id: 2, // Hardcoded reportId for now, will be made dynamic later
       name: report.name,
       chartType: report.chartType || 'bar',
       frequency: report.frequency || 'daily',
@@ -157,7 +159,7 @@ const ReportingDashboard = () => {
   const handleReportClick = (report: any) => {
     // Convert saved report to ReportDefinition format
     const reportDefinition: ReportDefinition = {
-      id: report.id,
+      id: 2, // Hardcoded reportId for now, will be made dynamic later
       name: report.name,
       chartType: report.chartType || 'bar',
       frequency: report.frequency || 'daily',
@@ -178,6 +180,7 @@ const ReportingDashboard = () => {
     });
     setCurrentView('report');
     setActiveNavItem(report.name);
+    setActiveReportId(report.id);
   };
 
   const filteredReports = createdReports.filter(report => 
@@ -321,7 +324,7 @@ const ReportingDashboard = () => {
                 style={{ 
                   padding: '8px 16px', 
                   cursor: 'pointer',
-                  backgroundColor: activeNavItem === report.name ? '#e4cb9a' : 'transparent',
+                  backgroundColor: activeReportId === report.id ? '#e4cb9a' : 'transparent',
                   borderRadius: '4px',
                   marginBottom: '5px',
                   fontSize: '14px'

@@ -26,4 +26,8 @@ export class ReportService extends BaseService<CreateReportRequest> {
             IsMockService() ? 'mockData/reports.json' : 'Report/GetReport'
         );
     }
+
+    getReportDetails(reportId: number, axiosCancel?: CancelTokenSource) {
+        return this.getItemsBySubURL(`GetDetailsByReport?ReportId=${reportId}`, axiosCancel);
+    }
 }
