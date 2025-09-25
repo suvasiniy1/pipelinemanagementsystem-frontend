@@ -129,7 +129,7 @@ const ReportingDashboard = () => {
 
   const handleDashboardReportClick = (report: any) => {
     const reportDefinition: ReportDefinition = {
-      id: 2, // Hardcoded reportId for now, will be made dynamic later
+      id: report.id,
       name: report.name,
       chartType: report.chartType || 'bar',
       frequency: report.frequency || 'daily',
@@ -159,7 +159,7 @@ const ReportingDashboard = () => {
   const handleReportClick = (report: any) => {
     // Convert saved report to ReportDefinition format
     const reportDefinition: ReportDefinition = {
-      id: 2, // Hardcoded reportId for now, will be made dynamic later
+      id: report.id,
       name: report.name,
       chartType: report.chartType || 'bar',
       frequency: report.frequency || 'daily',
@@ -168,6 +168,7 @@ const ReportingDashboard = () => {
       isPublic: true,
       createdDate: report.createdDate || new Date().toISOString(),
       createdBy: 0,
+
       modifiedBy: 0,
       modifiedDate: report.modifiedDate || new Date().toISOString(),
       reportConditions: report.reportConditions || []
@@ -345,6 +346,7 @@ const ReportingDashboard = () => {
       <div style={{ flex: 1, padding: currentView === 'report' ? '0' : '20px', overflowY: 'auto', height: '100vh' }}>
         {currentView === 'report' && currentReport ? (
           <ReportView 
+            key={currentReport.reportDefinition?.id || 'new'}
             entity={currentReport.entity}
             reportType={currentReport.reportType}
             reportDefinition={currentReport.reportDefinition}

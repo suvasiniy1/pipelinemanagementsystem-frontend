@@ -231,16 +231,17 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
     };
   }, []);
 
-  // Track changes in filters and report name
+  // Track changes in filters, report name, and frequency
   React.useEffect(() => {
     if (reportDefinition && reportSaved) {
       const originalFilters = savedFilters;
       const currentFilters = appliedFilters;
       const filtersChanged = JSON.stringify(originalFilters) !== JSON.stringify(currentFilters);
       const nameChanged = reportName !== originalReportName;
-      setHasChanges(filtersChanged || nameChanged);
+      const frequencyChanged = frequency !== (reportDefinition?.frequency || "Daily");
+      setHasChanges(filtersChanged || nameChanged || frequencyChanged);
     }
-  }, [appliedFilters, savedFilters, reportDefinition, reportSaved, reportName, originalReportName]);
+  }, [appliedFilters, savedFilters, reportDefinition, reportSaved, reportName, originalReportName, frequency]);
 
   const getFilteredData = () => {
     // Use API data if available, otherwise fall back to mock data
@@ -336,6 +337,81 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
             });
           }
           break;
+        case 'Stage':
+          filteredData = filteredData.filter(deal => {
+            const stageName = deal.stageName || '';
+            return filter.operator === '=' ? stageName === filter.value : stageName !== filter.value;
+          });
+          break;
+        case 'Treatment':
+          filteredData = filteredData.filter(deal => {
+            const treatmentName = deal.treatmentName || '';
+            return filter.operator === '=' ? treatmentName === filter.value : treatmentName !== filter.value;
+          });
+          break;
+        case 'Clinic':
+          filteredData = filteredData.filter(deal => {
+            const clinicName = deal.clinicName || '';
+            return filter.operator === '=' ? clinicName === filter.value : clinicName !== filter.value;
+          });
+          break;
+        case 'Source':
+          filteredData = filteredData.filter(deal => {
+            const sourceName = deal.sourceName || '';
+            return filter.operator === '=' ? sourceName === filter.value : sourceName !== filter.value;
+          });
+          break;
+        case 'Pipeline Type':
+          filteredData = filteredData.filter(deal => {
+            const pipelineTypeName = deal.pipelineTypeName || '';
+            return filter.operator === '=' ? pipelineTypeName === filter.value : pipelineTypeName !== filter.value;
+          });
+          break;
+        case 'Expected Close Date':
+          if (filter.value) {
+            filteredData = filteredData.filter(deal => {
+              const dateStr = deal.expectedCloseDate || '';
+              const dealDate = dateStr.split('T')[0];
+              switch (filter.operator) {
+                case '>': return dealDate > filter.value;
+                case '<': return dealDate < filter.value;
+                case '=': return dealDate === filter.value;
+                case '!=': return dealDate !== filter.value;
+                default: return true;
+              }
+            });
+          }
+          break;
+        case 'Probability':
+          const probValue = parseFloat(filter.value);
+          if (!isNaN(probValue)) {
+            filteredData = filteredData.filter(deal => {
+              const dealProb = parseFloat(deal.probability) || 0;
+              switch (filter.operator) {
+                case '>': return dealProb > probValue;
+                case '<': return dealProb < probValue;
+                case '=': return dealProb === probValue;
+                case '!=': return dealProb !== probValue;
+                default: return true;
+              }
+            });
+          }
+          break;
+        case 'Won Time':
+          if (filter.value) {
+            filteredData = filteredData.filter(deal => {
+              const dateStr = deal.wontime || '';
+              const dealDate = dateStr.split('T')[0];
+              switch (filter.operator) {
+                case '>': return dealDate > filter.value;
+                case '<': return dealDate < filter.value;
+                case '=': return dealDate === filter.value;
+                case '!=': return dealDate !== filter.value;
+                default: return true;
+              }
+            });
+          }
+          break;
       }
       
       const afterCount = filteredData.length;
@@ -384,38 +460,123 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
     }
   };
 
-  const getFieldOptions = () => [
-    { value: 'Deal created on', label: 'Deal created on' },
-    { value: 'Deal value', label: 'Deal value' },
-    { value: 'Status', label: 'Status' },
-    { value: 'Pipeline', label: 'Pipeline' },
-    { value: 'Owner', label: 'Owner' }
+  const fieldOptions = [
+    { value: "1", label: "Title" },
+    { value: "2", label: "Creator" },
+    { value: "ContactPersonID", label: "Owner", isNumberType: true },
+    { value: "4", label: "Value", isNumberType: true },
+    { value: "6", label: "Probability", isNumberType: true },
+    { value: "7", label: "Organization" },
+    { value: "8", label: "Pipeline" },
+    { value: "AssigntoId", label: "Assign to", isNumberType: true },
+    { value: "stageid", label: "Stage", isNumberType: true },
+    { value: "11", label: "Label" },
+    { value: "statusid", label: "Status", isNumberType: true },
+    { value: "13", label: "Deal created", isDateType: true },
+    { value: "14", label: "Update time", isDateType: true },
+    { value: "15", label: "Last stage change", isDateType: true },
+    { value: "16", label: "Next activity date", isDateType: true },
+    { value: "17", label: "Last activity date", isDateType: true },
+    { value: "18", label: "Won time", isDateType: true },
+    { value: "19", label: "Last email received", isDateType: true },
+    { value: "20", label: "Last email sent", isDateType: true },
+    { value: "21", label: "Lost time", isDateType: true },
+    { value: "22", label: "Deal closed on", isDateType: true },
+    { value: "23", label: "Lost reason" },
+    { value: "24", label: "Visible to" }
   ];
 
+  const getFieldOptions = () => fieldOptions;
+
   const getValueOptions = (field: string) => {
+    const fieldOption = fieldOptions.find(f => f.value === field);
+    
+    // Return status options for status field
+    if (field === 'statusid') {
+      return dealStatusList;
+    }
+    
+    // Return date values for date fields
+    if (fieldOption?.isDateType) {
+      return dateValues;
+    }
+    
+    // For other fields, get unique values from data
     const uniqueValues = new Set<string>();
-    mockDealData.forEach(deal => {
+    const dataSource = reportDetailsData.length > 0 ? reportDetailsData : mockDealData;
+    
+    dataSource.forEach(deal => {
       switch (field) {
-        case 'Status':
-          uniqueValues.add(deal.status);
+        case '8': // Pipeline
+          if (deal.pipelineName) uniqueValues.add(deal.pipelineName);
+          else if (deal.pipeline) uniqueValues.add(deal.pipeline);
           break;
-        case 'Pipeline':
-          uniqueValues.add(deal.pipeline);
+        case 'ContactPersonID': // Owner
+          if (deal.ownerName) uniqueValues.add(deal.ownerName);
+          else if (deal.owner) uniqueValues.add(deal.owner);
           break;
-        case 'Owner':
-          uniqueValues.add(deal.owner);
+        case 'stageid': // Stage
+          if (deal.stageName) uniqueValues.add(deal.stageName);
+          break;
+        case '7': // Organization
+          if (deal.name) uniqueValues.add(deal.name);
+          break;
+        case '1': // Title
+          if (deal.title) uniqueValues.add(deal.title);
           break;
       }
     });
     return Array.from(uniqueValues).sort().map(value => ({ value, label: value }));
   };
 
-  const operatorOptions = [
-    { value: '=', label: 'Equals' },
-    { value: '!=', label: 'Does not equal' },
-    { value: '>', label: 'Greater than' },
-    { value: '<', label: 'Less than' }
+  const operatorsForNumberType = [
+    { label: "Greater than", value: ">" },
+    { label: "Less than", value: "<" },
+    { label: "Greater than or equal to", value: ">=" },
+    { label: "Less than or equal to", value: "<=" },
   ];
+
+  const operatorOptions = [
+    { label: "Is empty", value: "IS NULL" },
+    { label: "Is not empty", value: "IS NOT NULL" },
+    { label: "Equals", value: "=" },
+    { label: "Does not equal", value: "!=" },
+  ];
+
+  const dateValues = [
+    { label: "Last Quarter", value: "lastQuarter" },
+    { label: "Next Quarter", value: "nextQuarter" },
+    { label: "This Quarter", value: "thisQuarter" },
+    { label: "Last Month", value: "lastMonth" },
+    { label: "Next Month", value: "nextMonth" },
+    { label: "This Month", value: "thisMonth" },
+    { label: "Last Week", value: "lastWeek" },
+    { label: "Next Week", value: "nextWeek" },
+    { label: "This Week", value: "thisWeek" },
+    { label: "Last Year", value: "lastYear" },
+    { label: "Next Year", value: "nextYear" },
+    { label: "This Year", value: "thisYear" },
+    { label: "6 Months Ago", value: "6MonthsAgo" },
+    { label: "5 Months Ago", value: "5MonthsAgo" },
+    { label: "4 Months Ago", value: "4MonthsAgo" },
+    { label: "3 Months Ago", value: "3MonthsAgo" },
+  ];
+
+  const dealStatusList = [
+    { value: "1", label: "Open" },
+    { value: "2", label: "Won" },
+    { value: "3", label: "Lost" },
+    { value: "4", label: "Closed" },
+    { value: "5", label: "Deleted" },
+  ];
+
+  const getOperatorOptions = (field: string) => {
+    const fieldOption = fieldOptions.find(f => f.value === field);
+    if (fieldOption?.isNumberType) {
+      return operatorOptions.concat(operatorsForNumberType);
+    }
+    return operatorOptions;
+  };
 
   const getReportData = () => {
     const deals = getFilteredData();
@@ -772,11 +933,24 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
 
   const renderBarColumnChart = (data: any[], displayName: string) => {
     const isHorizontal = chartType === 'bar';
-    const displayedData = data.slice(0, isHorizontal ? 6 : Math.min(data.length, 12));
-    const maxValue = Math.max(...displayedData.map(item => item.totalValue || 0), 1);
+    const showScrollbar = data.length > (isHorizontal ? 6 : 12);
+    const displayedData = showScrollbar ? data : data.slice(0, isHorizontal ? 6 : 12);
+    const maxValue = Math.max(...data.map(item => item.totalValue || 0), 1);
+    const chartWidth = showScrollbar && !isHorizontal ? Math.max(800, data.length * 80) : '100%';
     
     return (
-      <div style={{ position: 'relative', width: '100%', height: '400px', padding: '20px' }}>
+      <div style={{ 
+        position: 'relative', 
+        width: '100%', 
+        height: '400px', 
+        padding: '20px',
+        overflowX: showScrollbar && !isHorizontal ? 'auto' : 'hidden'
+      }}>
+        <div style={{ 
+          width: chartWidth,
+          height: '100%',
+          position: 'relative'
+        }}>
         {/* Y-axis for column chart with horizontal grid lines */}
         {!isHorizontal && (
           <>
@@ -985,6 +1159,7 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
             ))}
           </>
         )}
+        </div>
       </div>
     );
   };
@@ -1408,7 +1583,28 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
   };
 
   return (
-    <div className="report-view" style={{ padding: "20px" }}>
+    <div className="report-view" style={{ padding: "20px", position: 'relative' }}>
+      {/* Loading Overlay */}
+      {isLoadingReportData && (
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(255, 255, 255, 0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          flexDirection: 'column'
+        }}>
+          <div className="spinner-border text-primary" role="status" style={{ width: '3rem', height: '3rem' }}>
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <div className="mt-3 text-primary fw-bold">Loading report data...</div>
+        </div>
+      )}
       {/* Header */}
       <div className="d-flex justify-content-between align-items-center mb-4" style={{ minHeight: '48px' }}>
         <div className="d-flex align-items-center">
@@ -1463,22 +1659,12 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                     return;
                   }
                   
-                  // Only auto-add newCondition if there are no applied filters and newCondition is complete
+                  // Use only applied filters for saving
                   let conditionsToSave = [...appliedFilters];
-                  if (appliedFilters.length === 0 && newCondition.field && newCondition.operator && newCondition.value) {
-                    const autoCondition: FilterCondition = {
-                      id: Date.now().toString(),
-                      entity: newCondition.entity,
-                      field: newCondition.field,
-                      operator: newCondition.operator,
-                      value: newCondition.value,
-                      displayText: `${newCondition.field} ${newCondition.operator} ${newCondition.value}`
-                    };
-                    conditionsToSave.push(autoCondition);
-                  }
                   
                   if (conditionsToSave.length === 0) {
                     toast.warning("Please add at least one condition before saving.");
+                    setIsSaving(false);
                     return;
                   }
                   
@@ -1530,9 +1716,7 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                       onSave(savedReport);
                     }
                     
-                    if (appliedFilters.length === 0 && newCondition.field && newCondition.operator && newCondition.value) {
-                      setAppliedFilters(conditionsToSave);
-                    }
+                    // Conditions are already in appliedFilters, no need to add again
                     setSavedFilters(conditionsToSave);
                     setNewCondition({ entity: 'Deal', field: '', operator: '', value: '' });
                     setReportSaved(true);
@@ -1841,7 +2025,7 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                         }}
                       >
                         <option value="">Select</option>
-                        {operatorOptions.map((option) => (
+                        {getOperatorOptions(filter.field).map((option) => (
                           <option key={option.value} value={option.value}>
                             {option.label}
                           </option>
@@ -1850,7 +2034,7 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                     </div>
                     <div className="col-md-3">
                       <label className="form-label small">Value</label>
-                      {['Status', 'Pipeline', 'Owner'].includes(filter.field) ? (
+                      {['statusid', '8', 'ContactPersonID', 'stageid', '7', '1'].includes(filter.field) || fieldOptions.find(f => f.value === filter.field)?.isDateType ? (
                         <Form.Select
                           size="sm"
                           value={filter.value}
@@ -1870,10 +2054,10 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                             </option>
                           ))}
                         </Form.Select>
-                      ) : filter.field === 'Deal created on' ? (
+                      ) : fieldOptions.find(f => f.value === filter.field)?.isNumberType ? (
                         <Form.Control
                           size="sm"
-                          type="date"
+                          type="number"
                           value={filter.value}
                           onChange={(e) => {
                             const updatedFilters = appliedFilters.map((f) =>
@@ -1883,11 +2067,12 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                             );
                             setAppliedFilters(updatedFilters);
                           }}
+                          placeholder="Enter number"
                         />
                       ) : (
                         <Form.Control
                           size="sm"
-                          type={filter.field === 'Deal value' ? 'number' : 'text'}
+                          type="text"
                           value={filter.value}
                           onChange={(e) => {
                             const updatedFilters = appliedFilters.map((f) =>
@@ -1897,7 +2082,7 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                             );
                             setAppliedFilters(updatedFilters);
                           }}
-                          placeholder={filter.field === 'Deal value' ? 'Enter amount' : 'Enter value'}
+                          placeholder="Enter value"
                         />
                       )}
                     </div>
@@ -1972,7 +2157,7 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                         }
                       >
                         <option value="">Select</option>
-                        {operatorOptions.map((option) => (
+                        {getOperatorOptions(newCondition.field).map((option) => (
                           <option key={option.value} value={option.value}>
                             {option.label}
                           </option>
@@ -1981,7 +2166,7 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                     </div>
                     <div className="col-md-3">
                       <label className="form-label small fw-bold">Value</label>
-                      {['Status', 'Pipeline', 'Owner'].includes(newCondition.field) ? (
+                      {['statusid', '8', 'ContactPersonID', 'stageid', '7', '1'].includes(newCondition.field) || fieldOptions.find(f => f.value === newCondition.field)?.isDateType ? (
                         <Form.Select
                           size="sm"
                           value={newCondition.value}
@@ -1999,10 +2184,10 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                             </option>
                           ))}
                         </Form.Select>
-                      ) : newCondition.field === 'Deal created on' ? (
+                      ) : fieldOptions.find(f => f.value === newCondition.field)?.isNumberType ? (
                         <Form.Control
                           size="sm"
-                          type="date"
+                          type="number"
                           value={newCondition.value}
                           onChange={(e) =>
                             setNewCondition({
@@ -2010,11 +2195,12 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                               value: e.target.value,
                             })
                           }
+                          placeholder="Enter number"
                         />
                       ) : (
                         <Form.Control
                           size="sm"
-                          type={newCondition.field === 'Deal value' ? 'number' : 'text'}
+                          type="text"
                           value={newCondition.value}
                           onChange={(e) =>
                             setNewCondition({
@@ -2022,7 +2208,7 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                               value: e.target.value,
                             })
                           }
-                          placeholder={newCondition.field === 'Deal value' ? 'Enter amount' : 'Enter value'}
+                          placeholder="Enter value"
                         />
                       )}
                     </div>
