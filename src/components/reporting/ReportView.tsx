@@ -9,6 +9,7 @@ import {
   faFilter,
   faFolder,
   faPlus,
+  faRedo,
   faSave,
   faSearch,
   faTable,
@@ -1606,7 +1607,17 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
         </div>
       )}
       {/* Header */}
-      <div className="d-flex justify-content-between align-items-center mb-4" style={{ minHeight: '48px' }}>
+      <div className="d-flex justify-content-between align-items-center mb-4" style={{ 
+        minHeight: '48px',
+        position: 'sticky',
+        top: 0,
+        backgroundColor: 'white',
+        zIndex: 100,
+        paddingTop: '20px',
+        paddingBottom: '10px',
+        marginTop: '-20px',
+        borderBottom: '1px solid #e4cb9a'
+      }}>
         <div className="d-flex align-items-center">
           <Button 
             variant="link" 
@@ -1746,6 +1757,27 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
             </>
           ) : (
             <div className="d-flex align-items-center gap-2">
+              <Button 
+                variant="outline-secondary" 
+                size="sm"
+                onClick={() => {
+                  if (reportDefinition?.id) {
+                    fetchReportDetails(reportDefinition.id);
+                    toast.success('Report data refreshed!');
+                  }
+                }}
+                className="d-flex align-items-center"
+                style={{ 
+                  borderRadius: '6px',
+                  padding: '6px 12px',
+                  fontSize: '13px',
+                  fontWeight: '500'
+                }}
+              >
+                <FontAwesomeIcon icon={faRedo} className="me-2" style={{ fontSize: '12px' }} />
+                Refresh
+              </Button>
+              
               <Dropdown show={showAddToDashboard} onToggle={setShowAddToDashboard}>
                 <Dropdown.Toggle 
                   variant="outline-primary" 
