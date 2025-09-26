@@ -1,6 +1,6 @@
 .header {background-color:#3f3f3f; box-shadow:0px 1px 0px rgba(0,0,0,0.10);}
 .headerrow{display: flex; align-items: center; justify-content: space-between;}
-.header-col.colheadsearch{flex: 1; display: flex; justify-content: center; max-width: 600px; margin: 0 auto;}
+
 .colheadname-row{display: flex; align-items: center;}
 .sidemenuicon{background-color:inherit; color: #fff; font-size: 26px; margin-right: 20px; margin-left: 5px;}
 .headname{color:#fff; font-size: 16px; font-weight: 600; line-height: 1.3;}
@@ -26,7 +26,8 @@
 
 
 .colheadprofilerow{display: flex; align-items: center; justify-content: end;}
-.headsearchrow{justify-content: center; max-width: 600px; position: relative; margin: 0 !important;}
+.headsearchrow{ justify-content:center;  position:relative; margin:0 !important; }
+
 .headsearchrow .headsearch{width: 100%;}
 .colheadsearch{width: 600px; padding-left: 50px; transition: padding-left 0.3s ease;}
 .sidebar-collapsed .colheadsearch{padding-left: 0px;}
@@ -55,7 +56,7 @@
     position: absolute;
     z-index: 1000;
     top: 37px;
-    max-width: 600px;
+    width:100%; max-width: none;
     background-color: white;
     border: 1px solid rgb(204, 204, 204);
     border-radius: 4px;
@@ -64,6 +65,40 @@
     max-height: 500px;
     overflow-y: auto;
 }
+/* Layout: left | middle (grows) | right */
+.headerrow{ display:flex; align-items:center; gap:12px; }
+
+/* Make the middle column flexible again */
+.header-col.colheadsearch{ display:flex; justify-content:center;  margin:0; }
+.colheadsearch{ width:auto; padding-left:0; }
+.headsearchrow{ width:100%; max-width:none; }
+.search-results-dropdown{ width:100%; max-width:none; }
+
+/* Keep the input full width inside its column */
+.colheadsearch .form-control{ width:100%; }
+/* <<< final authority for search width >>> */
+:root { --search-width: 680px; }   /* set the size you want */
+
+.header-col.colheadsearch{
+  flex: 0 0 var(--search-width) !important;   /* don't grow across header */
+  max-width: var(--search-width) !important;
+  justify-content: center;
+  margin: 0;
+}
+
+.headsearchrow{
+  width: 100% !important;
+  max-width: var(--search-width) !important;
+  position: relative;
+  margin: 0 !important;
+}
+
+.search-results-dropdown{
+  width: 100% !important;
+  max-width: var(--search-width) !important;
+}
+
+
 /* Sidebar Menu */
 /* .sidenavExpand{
 width: 210px !important;

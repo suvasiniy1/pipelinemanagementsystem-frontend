@@ -3889,3 +3889,25 @@ select {
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
+/* make the whole card a clickable button-looking block */
+.pdstage-click {
+  all: unset;                 /* remove default button styles */
+  display: block;
+  width: 100%;
+  cursor: pointer;
+}
+
+/* guarantee the card can receive clicks */
+.pdstage-item,
+.pdstage-box,
+.pdstage-click {
+  position: relative;
+  pointer-events: auto !important;
+  z-index: 1;                 /* sit above any overlays */
+}
+
+/* optional focus style for keyboard users */
+.pdstage-click:focus {
+  outline: 2px solid #8bb3ff;
+  outline-offset: 2px;
+}
