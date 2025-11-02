@@ -27,6 +27,9 @@ type params = {
   setDialogIsOpen:any;
 };
 
+// Static flag to prevent multiple simultaneous API calls
+let isLoadingFilters = false;
+
 const FilterDropdown = (props: params) => {
   const {
     showPipeLineFilters,
@@ -78,12 +81,26 @@ const FilterDropdown = (props: params) => {
   }, [selectedFilterObj]);
 
   useEffect(() => {
-    loadDealFilters();
+    // Only load if filters are not already loaded and not currently loading
+    if (filters.length === 0 && !isLoading) {
+      loadDealFilters();
+    }
   }, []);
 
   const loadDealFilters = () => {
+    // Check if already loading globally
+    if (isLoadingFilters) return;
+
+    // Check if filters are already in localStorage
+    const cachedFilters = LocalStorageUtil.getItemObject(Constants.Deal_FILTERS);
+    if (cachedFilters && Array.isArray(JSON.parse(cachedFilters as string)) && JSON.parse(cachedFilters as string).length > 0) {
+      setFilters(JSON.parse(cachedFilters as string));
+      if (selectedFilterObj) onFilterSelection(selectedFilterObj);
+      return;
+    }
+
+    isLoadingFilters = true;
     setIsLoading(true);
-    LocalStorageUtil.setItemObject(Constants.Deal_FILTERS, []);
     dealFiltersSvc
       .getDealFilters()
       .then((res) => {
@@ -94,10 +111,13 @@ const FilterDropdown = (props: params) => {
             Constants.Deal_FILTERS,
             JSON.stringify(res)
           );
-          setIsLoading(false);
         }
       })
       .catch((err) => {
+        console.error('Error loading deal filters:', err);
+      })
+      .finally(() => {
+        isLoadingFilters = false;
         setIsLoading(false);
       });
   };

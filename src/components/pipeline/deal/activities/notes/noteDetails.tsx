@@ -12,6 +12,9 @@ import { CommentsService } from '../../../../../services/commentsService';
 import { NotesService } from '../../../../../services/notesService';
 import Comments from '../common/comment';
 import { useAuthContext } from '../../../../../contexts/AuthContext';
+import { Utility } from '../../../../../models/utility';
+import Constants from '../../../../../others/constants';
+import LocalStorageUtil from '../../../../../others/LocalStorageUtil';
 
 type params = {
     note: Notes;
@@ -29,6 +32,14 @@ const NoteDetails = (props: params) => {
     const [note, setNote] = useState(props.note);
     const divRef = useRef();
     const userObj = userProfile || new UserProfile();
+    const utility: Utility = JSON.parse(
+        LocalStorageUtil.getItemObject(Constants.UTILITY) as any
+    );
+    
+    const getCreatorName = (createdBy: number) => {
+        const user = utility?.users?.find(u => u.id === createdBy);
+        return user?.name || note?.userName || 'Unknown User';
+    };
     const [showcomments, setShowComments] = useState(false);
     const commentSvc = new CommentsService(ErrorBoundary);
     const noteSvc = new NotesService(ErrorBoundary);
@@ -91,7 +102,7 @@ const NoteDetails = (props: params) => {
                 props.setSelectedIndex((prevIndex: any) => prevIndex === index ? null : index);
             }}>
                 <span className='accoheader-title'>
-                    <strong>Note</strong> by {note?.userName}
+                    <strong>Note</strong> by {getCreatorName(note?.createdBy)}
                 </span>
                 <span className='accoheader-date'>{moment(note?.createdDate).format("MM-DD-YYYY hh:mm:ss a")}</span>
             </Accordion.Header>

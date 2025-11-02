@@ -11,6 +11,9 @@ import { EmailTemplate } from '../../models/emailTemplate';
 import { EmailTemplateService } from '../../services/emailTemplateService'; 
 import { TaskAddEdit } from '../pipeline/deal/activities/tasks/taskAddEdit';
 
+// Static flag to prevent multiple simultaneous API calls
+let isLoadingTemplates = false;
+
 const TasksList = () => {
     const [selectedRows, setSelectedRows] = useState<GridRowSelectionModel>([]);
     const [selectAllChecked, setSelectAllChecked] = useState(false);
@@ -19,6 +22,7 @@ const TasksList = () => {
     const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplate | null>(null);
     const [templates, setTemplates] = useState<EmailTemplate[]>([]);
     const [isLoading, setIsLoading] = useState(false); // Loading state
+    const [templatesLoaded, setTemplatesLoaded] = useState(false); // Track if templates are loaded
 
     // Memoize the TaskService and EmailTemplateService instance
     const taskService = useMemo(() => new TaskService(ErrorBoundary), []);
@@ -139,15 +143,23 @@ const TasksList = () => {
 
     // Fetch templates on component mount
     useEffect(() => {
-        templateSvc.getEmailTemplates()
-            .then((res: Array<EmailTemplate>) => {
-                setTemplates(res);
-            })
-            .catch((err) => {
-                console.error("Error loading templates:", err);
-                toast.error("Failed to load templates.");
-            });
-    }, [templateSvc]);
+        if (!templatesLoaded && templates.length === 0 && !isLoadingTemplates) {
+            isLoadingTemplates = true;
+            setTemplatesLoaded(true);
+            templateSvc.getEmailTemplates()
+                .then((res: Array<EmailTemplate>) => {
+                    setTemplates(res);
+                })
+                .catch((err) => {
+                    console.error("Error loading templates:", err);
+                    toast.error("Failed to load templates.");
+                    setTemplatesLoaded(false); // Reset on error to allow retry
+                })
+                .finally(() => {
+                    isLoadingTemplates = false;
+                });
+        }
+    }, [templateSvc, templatesLoaded, templates.length]);
 
     // Load tasks on component mount
     useEffect(() => {
@@ -196,6 +208,7 @@ const TasksList = () => {
                 rowData={rowData} // Pass row data
                 isLoading={isLoading} // Show loading spinner if data is loading
                 canDoActions={false}
+                customRowData={true} // Prevent duplicate API calls
             />
             <GroupEmailDialog
                 open={groupEmailDialogOpen}

@@ -29,6 +29,8 @@ import {
 } from '../../data/mockDealData';
 import { ReportDefinition, CreateReportRequest } from '../../models/reportModels';
 import { ReportService } from '../../services/reportService';
+import { DashboardFolderService } from '../../services/dashboardFolderService';
+import { ReportDashboardService } from '../../services/reportDashboardService';
 
 interface ReportViewProps {
   entity: string;
@@ -86,6 +88,7 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
   const [showCreateFolder, setShowCreateFolder] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
   const [dashboardFolders, setDashboardFolders] = useState<any[]>([]);
+  const [loadingFolders, setLoadingFolders] = useState(false);
   const [dashboardNameError, setDashboardNameError] = useState('');
   const [folderNameError, setFolderNameError] = useState('');
   const [previewReportId, setPreviewReportId] = useState<number | null>(null);
@@ -178,26 +181,31 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
     }
   }, [newCondition.field, newCondition.operator, newCondition.value, reportName, appliedFilters]);
 
-  // Load existing dashboards and folders from localStorage
+  // Load existing dashboards and folders
   React.useEffect(() => {
-    const savedDashboards = localStorage.getItem('createdDashboards');
-    if (savedDashboards) {
-      setExistingDashboards(JSON.parse(savedDashboards));
-    }
+    const loadData = async () => {
+      try {
+        setLoadingFolders(true);
+        const folderService = new DashboardFolderService(null);
+        const dashboardService = new ReportDashboardService(null);
+        
+        const [folders, dashboards] = await Promise.all([
+          folderService.getAllFolders(),
+          dashboardService.getAllDashboards()
+        ]);
+        
+        setDashboardFolders(folders || []);
+        setExistingDashboards(dashboards || []);
+      } catch (error) {
+        console.error('Error loading data:', error);
+        setDashboardFolders([]);
+        setExistingDashboards([]);
+      } finally {
+        setLoadingFolders(false);
+      }
+    };
     
-    const savedFolders = localStorage.getItem('dashboardFolders');
-    if (savedFolders) {
-      setDashboardFolders(JSON.parse(savedFolders));
-    } else {
-      // Initialize with default folders
-      const defaultFolders = [
-        { id: 1, name: 'General', createdDate: new Date().toLocaleDateString() },
-        { id: 2, name: 'Sales', createdDate: new Date().toLocaleDateString() },
-        { id: 3, name: 'Marketing', createdDate: new Date().toLocaleDateString() }
-      ];
-      setDashboardFolders(defaultFolders);
-      localStorage.setItem('dashboardFolders', JSON.stringify(defaultFolders));
-    }
+    loadData();
     // Set reportSaved to true if reportDefinition exists (edit mode)
     if (reportDefinition) {
       setReportSaved(true);
@@ -1824,38 +1832,44 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                         dashboard.name.toLowerCase().includes(dashboardSearch.toLowerCase())
                       )
                       .map(dashboard => {
-                        const isReportInDashboard = dashboard.reports?.some((report: any) => 
-                          report.id === (reportDefinition?.id || Date.now())
-                        );
+                        const reportIds = dashboard.reports ? dashboard.reports.split(',').map((id:any) => parseInt(id.trim())) : [];
+                        const isReportInDashboard = reportIds.includes(reportDefinition?.id || 0);
                         
                         return (
                           <Dropdown.Item 
                             key={dashboard.id}
-                            onClick={() => {
-                              if (!isReportInDashboard) {
-                                // Add report to dashboard
-                                const reportToAdd = {
-                                  id: reportDefinition?.id || Date.now(),
-                                  name: reportName,
-                                  type: reportType,
-                                  entity: entity
-                                };
-                                
-                                const updatedDashboards = existingDashboards.map(d => 
-                                  d.id === dashboard.id 
-                                    ? { ...d, reports: [...(d.reports || []), reportToAdd] }
-                                    : d
-                                );
-                                
-                                setExistingDashboards(updatedDashboards);
-                                localStorage.setItem('createdDashboards', JSON.stringify(updatedDashboards));
-                                
-                                // Notify parent component about dashboard updates
-                                if (onDashboardUpdate) {
-                                  onDashboardUpdate(updatedDashboards);
+onClick={async () => {
+                              if (!isReportInDashboard && reportDefinition?.id) {
+                                try {
+                                  const dashboardService = new ReportDashboardService(null);
+                                  const result = await dashboardService.addReportToDashboard(
+                                    dashboard.id,
+                                    reportDefinition.id,
+                                    dashboard.reports || ''
+                                  );
+                                  
+                                  if (result) {
+                                    // Update local state
+                                    const updatedDashboards = existingDashboards.map(d => 
+                                      d.id === dashboard.id 
+                                        ? { ...d, reports: result.reports }
+                                        : d
+                                    );
+                                    
+                                    setExistingDashboards(updatedDashboards);
+                                    
+                                    if (onDashboardUpdate) {
+                                      onDashboardUpdate(updatedDashboards);
+                                    }
+                                    
+                                    toast.success(`Report added to "${dashboard.name}" dashboard!`);
+                                  } else {
+                                    toast.error('Failed to add report to dashboard');
+                                  }
+                                } catch (error) {
+                                  console.error('Error adding report to dashboard:', error);
+                                  toast.error('Failed to add report to dashboard');
                                 }
-                                
-                                toast.success(`Report added to "${dashboard.name}" dashboard!`);
                               } else {
                                 toast.info(`Report is already in "${dashboard.name}" dashboard`);
                               }
@@ -2792,7 +2806,8 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
               <Button
                 variant="success"
                 size="sm"
-                onClick={() => {
+                disabled={loadingFolders}
+onClick={async () => {
                   if (!newFolderName.trim()) {
                     setFolderNameError('Folder name is required');
                     return;
@@ -2807,23 +2822,30 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
                     return;
                   }
                   
-                  const newFolder = {
-                    id: Date.now(),
-                    name: newFolderName.trim(),
-                    createdDate: new Date().toLocaleDateString()
-                  };
-                  
-                  const updatedFolders = [...dashboardFolders, newFolder];
-                  setDashboardFolders(updatedFolders);
-                  localStorage.setItem('dashboardFolders', JSON.stringify(updatedFolders));
-                  
-                  setSelectedFolder(newFolder.id.toString());
-                  setNewFolderName('');
-                  setShowCreateFolder(false);
-                  toast.success('Folder created successfully!');
+                  try {
+                    setLoadingFolders(true);
+                    const folderService = new DashboardFolderService(null);
+                    const newFolder = await folderService.createFolder(newFolderName.trim());
+                    
+                    if (newFolder) {
+                      const updatedFolders = [...dashboardFolders, newFolder];
+                      setDashboardFolders(updatedFolders);
+                      setSelectedFolder(newFolder.id.toString());
+                      setNewFolderName('');
+                      setShowCreateFolder(false);
+                      toast.success('Folder created successfully!');
+                    } else {
+                      toast.error('Failed to create folder');
+                    }
+                  } catch (error) {
+                    console.error('Error creating folder:', error);
+                    toast.error('Failed to create folder');
+                  } finally {
+                    setLoadingFolders(false);
+                  }
                 }}
               >
-                Create
+                {loadingFolders ? 'Creating...' : 'Create'}
               </Button>
               <Button
                 variant="outline-secondary"

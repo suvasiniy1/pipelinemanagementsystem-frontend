@@ -21,13 +21,17 @@ export class LoginService{
                     'Authorization': `Bearer ${getActiveUserToken()}`
                 },
                 data: item,
-                cancelToken: axiosCancel?.token
+                cancelToken: axiosCancel?.token,
+                validateStatus: function (status) {
+                    return status < 500; // Accept all status codes less than 500
+                }
             }).then((res: AxiosResponse) => {
                 console.log("postItem - res: ", res);
-                if (res?.data) {
+                if (res.status === 401) {
+                    resolve({ error: 'Invalid credentials', status: 401 });
+                } else if (res?.data) {
                     resolve(res.data);
-                }
-                else{
+                } else {
                     resolve(null);
                 }
             }).catch((err: AxiosError) => {

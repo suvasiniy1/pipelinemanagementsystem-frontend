@@ -18,6 +18,9 @@ import { ErrorBoundary } from "react-error-boundary";
 import { Deal, DealTimeLine } from "../../../../models/deal";
 import { DealAuditLogService } from "../../../../services/dealAuditLogService";
 import { DealService } from "../../../../services/dealService";
+import { Utility } from "../../../../models/utility";
+import Constants from "../../../../others/constants";
+import LocalStorageUtil from "../../../../others/LocalStorageUtil";
 import CallsActivites from "./call/callsActivites";
 import DealLogsList from "./dealActivityLogs/dealLogsList";
 import { AuthProvider } from "./email/authProvider";
@@ -70,6 +73,17 @@ const DealActivities = (props: params) => {
   const dealAuditLogSvc = new DealAuditLogService(ErrorBoundary);
   const [dealTimeLines, setDealTimeLines] = useState<Array<DealTimeLine>>([]);
   const [isLoading, setIsLoading] = useState(false);
+  
+  const utility: Utility = JSON.parse(
+    LocalStorageUtil.getItemObject(Constants.UTILITY) as any
+  );
+  
+  const getCreatorName = (createdBy: number) => {
+    if (!createdBy) return 'System';
+    const user = utility?.users?.find(u => u.id === createdBy);
+    const person = utility?.persons?.find(p => p.personID === createdBy);
+    return user?.name || person?.personName || `User ${createdBy}`;
+  };
   // Added heading and span tags to allowedTags for better parsing in extractSubjectFromHtml
   const allowedTags = ["b", "i", "u", "strong", "em", "p", "div", "br", "h1", "h2", "h3", "h4", "h5", "h6", "span"];
 
@@ -350,7 +364,14 @@ extractedSubject = "Email Activity";
               <div className={`appboxdata-rowdata ${isBasicLog ? "unified-log" : "highlight-box"}`}>
                 <div className="appboxdatarow-head">
                   <div className="appboxdatarow-headrow">
-                    <h2>{item.eventTypeId === EntitType.Email ? "Email" : item.eventType}</h2>
+                    <h2>
+                      {item.eventTypeId === EntitType.Email ? "Email" : item.eventType}
+                      {(item as any).userName && (
+                        <span style={{ fontWeight: 'normal', fontSize: '14px', marginLeft: '8px' }}>
+                          by {(item as any).userName}
+                        </span>
+                      )}
+                    </h2>
                   </div>
                   <div className="appboxdata-meta appboxdata-headmeta">
                     <div className="appboxdatameta-date">

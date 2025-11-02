@@ -136,8 +136,14 @@ const showPwdError = (msg: string) => {
   const pwd   = (item?.passwordHash ?? "").trim();
 
   // hard guards (no API call if missing)
-  if (!email) { toast.error("Email is required"); return; }
-  if (!pwd)   { toast.error("Password is required"); return; }
+  if (!email) { 
+    methods.setError("email" as never, { type: "manual", message: "Email is required" } as any);
+    return; 
+  }
+  if (!pwd) { 
+    showPwdError("Password is required");
+    return; 
+  }
 
   // build the payload you already use
   const obj = Util.toClassObject(new UserCredentails(), item);
@@ -164,7 +170,7 @@ const showPwdError = (msg: string) => {
       } else {
         loginSvc
           .login(obj)
-          .then((res: UserProfile) => {
+          .then((res: any) => {
             setLoading(false);
             
             if(res?.forcePasswordReset){
@@ -204,6 +210,9 @@ const showPwdError = (msg: string) => {
               setTwoFactorRequired(true);
               setUserId(res.userId);
               setEmail(res.email);
+            } else if ((res as any)?.status === 401 || (res as any)?.error === 'Invalid credentials') {
+              setLoginError('Invalid email or password. Please try again.' as any);
+              setIsIncorrectCredentails(true);
             } else {
               setLoginError(res as any);
               setIsIncorrectCredentails(true);

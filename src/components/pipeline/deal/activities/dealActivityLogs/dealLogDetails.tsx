@@ -7,6 +7,9 @@ import { DealAuditLog } from "../../../../../models/dealAutidLog";
 import { UserProfile } from "../../../../../models/userProfile";
 import Util from "../../../../../others/util";
 import { useAuthContext } from "../../../../../contexts/AuthContext";
+import { Utility } from "../../../../../models/utility";
+import Constants from "../../../../../others/constants";
+import LocalStorageUtil from "../../../../../others/LocalStorageUtil";
 
 type params = {
   log: DealAuditLog;
@@ -15,10 +18,30 @@ type params = {
   setSelectedIndex: any;
 };
 const DealActivityDetails = (props: params) => {
+  debugger
   const { userProfile } = useAuthContext();
   const { index, selectedIndex, log, ...others } = props;
   const divRef = useRef();
   const userObj = userProfile || new UserProfile();
+  const utility: Utility = JSON.parse(
+    LocalStorageUtil.getItemObject(Constants.UTILITY) as any
+  );
+  
+  const getCreatorName = (createdBy: number) => {
+    console.log('Looking for creator:', createdBy);
+    console.log('Available users:', utility?.users);
+    console.log('Available persons:', utility?.persons);
+    
+    if (!createdBy) return 'System';
+    
+    const user = utility?.users?.find(u => u.id === createdBy);
+    const person = utility?.persons?.find(p => p.personID === createdBy);
+    
+    console.log('Found user:', user);
+    console.log('Found person:', person);
+    
+    return user?.name || person?.personName || `User ${createdBy}`;
+  };
 
   useEffect(() => {
     if (divRef) {
@@ -37,7 +60,7 @@ const DealActivityDetails = (props: params) => {
           }}
         >
           <span className="accoheader-title">
-            <strong>{log?.eventType}</strong> by {Util.getUserNameById(log?.createdBy)}
+            <strong>{log?.eventType}</strong> by {(log as any)?.userName || getCreatorName(log?.createdBy)}
           </span>
           <span className="accoheader-date">
             {moment(log?.createdDate).format("MM-DD-YYYY hh:mm:ss a")}

@@ -7,6 +7,7 @@ export class DealAuditLog extends AuditItem {
   eventDescription!: string;
   eventDate!: string;
   userId!: number;
+  userName!: string;
 }
 
 export class PostAuditLog extends AuditItem {

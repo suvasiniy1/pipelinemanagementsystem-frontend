@@ -184,8 +184,11 @@ const Table: React.FC<TableListProps> = (props) => {
   }, [loadRowData]);
 
   useEffect(() => {
-    loadData();
-  }, []);
+    // Only load data if not using custom row data
+    if (!props.customRowData) {
+      loadData();
+    }
+  }, [props.customRowData]);
 
   const loadData = () => {
     if(!props.customRowData){

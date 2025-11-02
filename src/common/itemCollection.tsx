@@ -16,6 +16,10 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import type { DataGridProps } from '@mui/x-data-grid';
 
+// Static flag to prevent multiple simultaneous API calls
+let isLoadingTemplatesGlobal = false;
+let cachedTemplates: EmailTemplate[] = [];
+
 type params = {
   isNotListingPage?: boolean;
   itemName: any;
@@ -220,14 +224,28 @@ const ItemCollection: React.FC<params> = (props) => {
   useEffect(() => {
     // Only fetch templates if this is not the template management screen
     if (itemName !== "Template") {
+      // Use cached templates if available
+      if (cachedTemplates.length > 0) {
+        setTemplates(cachedTemplates);
+        return;
+      }
+      
+      // Prevent duplicate API calls
+      if (isLoadingTemplatesGlobal) return;
+      
+      isLoadingTemplatesGlobal = true;
       const templateService = new EmailTemplateService(ErrorBoundary);
       templateService
         .getEmailTemplates()
         .then((res: EmailTemplate[]) => {
+          cachedTemplates = res; // Cache the result
           setTemplates(res);
         })
         .catch((err) => {
           console.error("Error fetching templates:", err);
+        })
+        .finally(() => {
+          isLoadingTemplatesGlobal = false;
         });
     }
   }, [itemName]);

@@ -154,38 +154,24 @@ export const DealDetails = () => {
     onDealModified();
   };
   const loadDealItem = () => {
-    dealSvc.getDealsById(dealId).then((res) => {
-      setDealItem(
-        IsMockService()
-          ? res.find((d: Deal) => d.dealID == dealId)
-          : { ...res, operationDate: convertUTCtoISO(res.operationDate) }
-      );
-    });
+    // Only reload if absolutely necessary
+    if (!dealItem.dealID || dealItem.dealID != dealId) {
+      dealSvc.getDealsById(dealId).then((res) => {
+        setDealItem(
+          IsMockService()
+            ? res.find((d: Deal) => d.dealID == dealId)
+            : { ...res, operationDate: convertUTCtoISO(res.operationDate) }
+        );
+      });
+    }
   };
 
+  // Initial load effect
   useEffect(() => {
-    Promise.all([dealSvc.getDealsById(dealId), stagesSvc.getStages(pipeLineId)])
-      .then((res) => {
-        if (res && res.length > 0) {
-          setDealItem(
-            IsMockService()
-              ? res[0].find((d: Deal) => d.dealID == dealId)
-              : {
-                  ...res[0],
-                  operationDate: convertUTCtoISO(res[0].operationDate),
-                }
-          );
-          setDealValue(res[0].value);
-          let sortedStages = Util.sortList(res[1].stageDtos, "stageOrder");
-          setStages(sortedStages);
-        }
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        setIsLoading(false);
-        setError(err);
-      });
-  }, []);
+    if (dealId && pipeLineId) {
+      fetchDealData(+dealId, +pipeLineId);
+    }
+  }, []); // Only run on mount
 
   const fetchDealData = async (dealId: number, pipelineId: number) => {
     setIsLoading(true);
@@ -200,8 +186,12 @@ export const DealDetails = () => {
         setDealItem(
           IsMockService()
             ? dealData.find((d: Deal) => d.dealID == dealId)
-            : dealData
+            : {
+                ...dealData,
+                operationDate: convertUTCtoISO(dealData.operationDate),
+              }
         );
+        setDealValue(dealData.value);
         let sortedStages = Util.sortList(stagesData.stageDtos, "stageOrder");
         setStages(sortedStages);
       }
@@ -277,12 +267,16 @@ export const DealDetails = () => {
     const newDealId = searchParams.get("id");
     const newPipelineId = searchParams.get("pipeLineId");
     setFilterId(getSafeFilterId(location.search));
+    
     if (newDealId && newPipelineId) {
-      setDealId(newDealId); // Update local state
-      setPipeLineId(newPipelineId); // Update local state
-      fetchDealData(+newDealId, +newPipelineId); // 🔁 Fetch updated deal
+      // Only fetch if dealId or pipelineId actually changed
+      if (newDealId !== dealId || newPipelineId !== pipeLineId) {
+        setDealId(newDealId);
+        setPipeLineId(newPipelineId);
+        fetchDealData(+newDealId, +newPipelineId);
+      }
     }
-  }, [location.search]);
+  }, [location.search, dealId, pipeLineId]);
 
   const onDealModified = (cleanValue?: string) => {
     console.log("Updated dealItem before API call:", dealItem);
@@ -513,10 +507,15 @@ export const DealDetails = () => {
     }
   };
 
-  // Accordion state for each section
+  // Accordion state for each section - expand all by default
   const [expandedSections, setExpandedSections] = useState<{
     [key: string]: boolean;
-  }>({});
+  }>({
+    ownership: true,
+    aboutDeal: true,
+    marketing: true,
+    aboutPerson: true
+  });
   const toggleSection = (key: string) => {
     setExpandedSections((prev) => ({ ...prev, [key]: !prev[key] }));
   };
@@ -524,7 +523,11 @@ export const DealDetails = () => {
   const safe = (v: unknown, placeholder = "-") => {
   if (v === 0) return "0";                      // keep 0
   const s = String(v ?? "").trim();
-  return s && !/^(null|undefined|-|—|\(none\))$/i.test(s) ? s : placeholder;
+  // Check for empty, null, undefined, or common placeholder values
+  if (!s || /^(null|undefined|-|—|\(none\)|n\/a|na)$/i.test(s)) {
+    return placeholder;
+  }
+  return s;
 };
   const isEmpty = (v: any) => {
     const s = (v ?? "").toString().trim().toLowerCase();
@@ -1006,55 +1009,55 @@ export const DealDetails = () => {
                       <div className="details-row">
                         <div className="details-label">GCLID</div>
                         <div className="details-value">
-                          {safe(dealItem?.marketing_GCLID)}
+                          {safe((dealItem as any)?.marketing_GCLID)}
                         </div>
                       </div>
                       <div className="details-row">
                         <div className="details-label">Source</div>
                         <div className="details-value">
-                          {safe(dealItem?.marketing_source)}
+                          {safe((dealItem as any)?.marketing_source)}
                         </div>
                       </div>
                       <div className="details-row">
                         <div className="details-label">Medium</div>
                         <div className="details-value">
-                          {safe(dealItem?.marketing_medium)}
+                          {safe((dealItem as any)?.marketing_medium)}
                         </div>
                       </div>
                       <div className="details-row">
                         <div className="details-label">Term</div>
                         <div className="details-value">
-                          {safe(dealItem?.marketing_term)}
+                          {safe((dealItem as any)?.marketing_term)}
                         </div>
                       </div>
                       <div className="details-row">
                         <div className="details-label">Content</div>
                         <div className="details-value">
-                          {safe(dealItem?.marketing_content)}
+                          {safe((dealItem as any)?.marketing_content)}
                         </div>
                       </div>
                       <div className="details-row">
                         <div className="details-label">Submission ID</div>
                         <div className="details-value">
-                          {safe(dealItem?.submission_id)}
+                          {safe((dealItem as any)?.submission_id)}
                         </div>
                       </div>
                       <div className="details-row">
                         <div className="details-label">Marketing Consent</div>
                         <div className="details-value">
-                          {safe(dealItem?.MarketingConsent)}
+                          {safe((dealItem as any)?.marketingConsent)}
                         </div>
                       </div>
                       <div className="details-row">
                         <div className="details-label">T&C Consent</div>
                         <div className="details-value">
-                          {safe(dealItem?.TCCONSENT)}
+                          {safe((dealItem as any)?.tcconsent)}
                         </div>
                       </div>
                       <div className="details-row">
                         <div className="details-label">FBCLID</div>
                         <div className="details-value">
-                          {safe(dealItem?.Marketing_FBClid)}
+                          {safe((dealItem as any)?.marketing_FBClid)}
                         </div>
                       </div>
                     </div>

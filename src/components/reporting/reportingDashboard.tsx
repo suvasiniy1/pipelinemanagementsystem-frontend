@@ -12,6 +12,8 @@ import DashboardView from "./DashboardView";
 import './reportingStyles.css';
 import ReportView from "./ReportView";
 import { ReportService } from '../../services/reportService';
+import { DashboardFolderService } from '../../services/dashboardFolderService';
+import { ReportDashboardService } from '../../services/reportDashboardService';
 
 const ReportingDashboard = () => {
   const [selectedTab, setSelectedTab] = useState("Deal Conversion");
@@ -33,7 +35,9 @@ const ReportingDashboard = () => {
   const [folderNameError, setFolderNameError] = useState('');
   const [createdReports, setCreatedReports] = useState<any[]>([]);
   const [createdDashboards, setCreatedDashboards] = useState<any[]>([]);
+  const [loadingDashboards, setLoadingDashboards] = useState(false);
   const [dashboardFolders, setDashboardFolders] = useState<any[]>([]);
+  const [loadingFolders, setLoadingFolders] = useState(false);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const [activeNavItem, setActiveNavItem] = useState("My Dashboard");
   const [activeReportId, setActiveReportId] = useState<number | null>(null);
@@ -44,30 +48,42 @@ const ReportingDashboard = () => {
   
   const reportTypes = ["Performance", "Conversion", "Duration", "Progress", "Products"];
 
-  // Load reports from API and folders from localStorage
+  // Load reports and folders from API
   useEffect(() => {
-    const loadReports = async () => {
+    const loadData = async () => {
       try {
+        // Load reports
         const reportService = new ReportService(null);
         const reports = await reportService.getReports();
         setCreatedReports(reports || []);
+        
+        // Load folders and dashboards from API
+        setLoadingFolders(true);
+        setLoadingDashboards(true);
+        
+        const folderService = new DashboardFolderService(null);
+        const dashboardService = new ReportDashboardService(null);
+        
+        const [folders, dashboards] = await Promise.all([
+          folderService.getAllFolders(),
+          dashboardService.getAllDashboards()
+        ]);
+        
+        setDashboardFolders(folders || []);
+        setCreatedDashboards(dashboards || []);
       } catch (error) {
-        console.error('Error loading reports:', error);
+        console.error('Error loading data:', error);
         setCreatedReports([]);
+        setDashboardFolders([]);
+      } finally {
+        setLoadingFolders(false);
+        setLoadingDashboards(false);
       }
     };
     
-    loadReports();
+    loadData();
     
-    const savedDashboards = localStorage.getItem('createdDashboards');
-    if (savedDashboards) {
-      setCreatedDashboards(JSON.parse(savedDashboards));
-    }
-    
-    const savedFolders = localStorage.getItem('dashboardFolders');
-    if (savedFolders) {
-      setDashboardFolders(JSON.parse(savedFolders));
-    }
+
   }, []);
 
   // Refresh reports when needed
@@ -238,13 +254,13 @@ const ReportingDashboard = () => {
             color: '#1f2937'
           }}>
             <FontAwesomeIcon icon={faTachometerAlt} style={{ marginRight: '8px' }} />
-            Dashboards
+            Dashboards {loadingDashboards && <span className="spinner-border spinner-border-sm ms-2" />}
           </div>
           
           
           {/* Folders with Dashboards */}
           {dashboardFolders.map(folder => {
-            const folderDashboards = createdDashboards.filter(d => d.folderId === folder.id.toString());
+            const folderDashboards = createdDashboards.filter(d => d.folderId === folder.id);
             const isExpanded = expandedFolders.has(folder.id.toString());
             
             return (
@@ -435,6 +451,7 @@ const ReportingDashboard = () => {
           
           const updatedDashboards = [...createdDashboards, newDashboard];
           setCreatedDashboards(updatedDashboards);
+          // TODO: Save to API instead of localStorage
           localStorage.setItem('createdDashboards', JSON.stringify(updatedDashboards));
           
           setShowCreateModal(false);
@@ -525,7 +542,8 @@ const ReportingDashboard = () => {
               <BootstrapButton
                 variant="success"
                 size="sm"
-                onClick={() => {
+                disabled={loadingFolders}
+onClick={async () => {
                   if (!newFolderName.trim()) {
                     setFolderNameError('Folder name is required');
                     return;
@@ -540,23 +558,30 @@ const ReportingDashboard = () => {
                     return;
                   }
                   
-                  const newFolder = {
-                    id: Date.now(),
-                    name: newFolderName.trim(),
-                    createdDate: new Date().toLocaleDateString()
-                  };
-                  
-                  const updatedFolders = [...dashboardFolders, newFolder];
-                  setDashboardFolders(updatedFolders);
-                  localStorage.setItem('dashboardFolders', JSON.stringify(updatedFolders));
-                  
-                  setSelectedFolder(newFolder.id.toString());
-                  setNewFolderName('');
-                  setShowCreateFolder(false);
-                  toast.success('Folder created successfully!');
+                  try {
+                    setLoadingFolders(true);
+                    const folderService = new DashboardFolderService(null);
+                    const newFolder = await folderService.createFolder(newFolderName.trim());
+                    
+                    if (newFolder) {
+                      const updatedFolders = [...dashboardFolders, newFolder];
+                      setDashboardFolders(updatedFolders);
+                      setSelectedFolder(newFolder.id.toString());
+                      setNewFolderName('');
+                      setShowCreateFolder(false);
+                      toast.success('Folder created successfully!');
+                    } else {
+                      toast.error('Failed to create folder');
+                    }
+                  } catch (error) {
+                    console.error('Error creating folder:', error);
+                    toast.error('Failed to create folder');
+                  } finally {
+                    setLoadingFolders(false);
+                  }
                 }}
               >
-                Create
+                {loadingFolders ? 'Creating...' : 'Create'}
               </BootstrapButton>
               <BootstrapButton
                 variant="outline-secondary"
