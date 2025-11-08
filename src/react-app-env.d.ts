@@ -13,6 +13,10 @@ declare global {
             HomePage:string;
             NavItemActiveColor:string;
             SMSServiceURL:string;
+            Pagination: {
+                defaultPageSize: number;
+                pageSizeOptions: number[];
+            };
         }
     }
 }

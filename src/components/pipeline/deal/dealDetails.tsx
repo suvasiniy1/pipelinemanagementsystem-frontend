@@ -72,6 +72,9 @@ export const DealDetails = () => {
   const [filterId, setFilterId] = useState<string | undefined>(() =>
     getSafeFilterId(location.search)
   );
+  const [viewType, setViewType] = useState<string | undefined>(() =>
+    new URLSearchParams(location.search).get("viewType") || undefined
+  );
   const dealSvc = new DealService(ErrorBoundary);
   const [error, setError] = useState<AxiosError>();
   const [dealItem, setDealItem] = useState<Deal>({
@@ -267,6 +270,7 @@ export const DealDetails = () => {
     const newDealId = searchParams.get("id");
     const newPipelineId = searchParams.get("pipeLineId");
     setFilterId(getSafeFilterId(location.search));
+    setViewType(new URLSearchParams(location.search).get("viewType") || undefined);
     
     if (newDealId && newPipelineId) {
       // Only fetch if dealId or pipelineId actually changed
@@ -558,7 +562,8 @@ export const DealDetails = () => {
                   onClick={() => {
                     const qs = new URLSearchParams();
                     if (pipeLineId) qs.set("pipelineID", String(pipeLineId));
-                    if (filterId) qs.set("filterId", String(filterId)); // omitted if undefined
+                    if (filterId) qs.set("filterId", String(filterId));
+                    if (viewType === "list") qs.set("viewType", "list");
                     navigator(`/pipeline?${qs.toString()}`);
                   }}
                 >

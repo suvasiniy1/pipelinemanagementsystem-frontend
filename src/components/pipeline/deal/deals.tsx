@@ -36,6 +36,7 @@ type params = {
 };
 
 export const Deals = (props: params) => {
+  const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const pipeLineSvc = new PipeLineService(ErrorBoundary);
   const stagesSvc = new StageService(ErrorBoundary);
@@ -51,14 +52,17 @@ export const Deals = (props: params) => {
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
   const [selectedStageId, setSelectedStageId] = useState(null);
   const [stageIdForExpand, setStageIdForExpand] = useState(null);
-  const [viewType, setViewType] = useState("kanban");
+  
+  // Get initial view type from URL
+  const urlViewType = new URLSearchParams(location.search).get("viewType");
+  const [viewType, setViewType] = useState(urlViewType === "list" ? "list" : "kanban");
   const [totalDeals, setTotalDeals] = useState<Array<Deal>>([]);
   const [selectedStageName, setSelectedStageName] = useState("");
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const defaultPageSize = 10;
   const [hasMore, setHasMore] = useState(false);
   const [pipeLineId, setPipeLineId] = useState(
-    new URLSearchParams(useLocation().search).get("pipelineID") as any
+    new URLSearchParams(location.search).get("pipelineID") as any
   );
   const userProfile = Util.UserProfile();
   const utilSvc = new UtilService(ErrorBoundary);
@@ -72,7 +76,7 @@ export const Deals = (props: params) => {
   const dealFilters: Array<DealFilter> = !Array.isArray(filters)
     ? JSON.parse(filters)
     : [];
-  const selectedFilterID = new URLSearchParams(useLocation().search).get(
+  const selectedFilterID = new URLSearchParams(location.search).get(
     "filterId"
   ) as any;
   const [selectedFilterObj, setSelectedFilterObj] = useState<any>(
@@ -100,6 +104,14 @@ export const Deals = (props: params) => {
   // }, [pipeLineId])
 
   useEffect(() => {
+    // Handle viewType from URL parameters
+    const urlViewType = new URLSearchParams(location.search).get("viewType");
+    if (urlViewType === "list") {
+      setViewType("list");
+    } else if (urlViewType === "kanban" || !urlViewType) {
+      setViewType("kanban");
+    }
+    
     loadPipeLines();
     loadAllPipeLinesAndStages();
     getDotDigitalPrograms();
@@ -120,6 +132,16 @@ export const Deals = (props: params) => {
         setError(err);
       });
   }, []);
+
+  // Listen for URL changes to update view type
+  useEffect(() => {
+    const urlViewType = new URLSearchParams(location.search).get("viewType");
+    if (urlViewType === "list") {
+      setViewType("list");
+    } else if (urlViewType === "kanban" || !urlViewType) {
+      setViewType("kanban");
+    }
+  }, [location.search]);
 
   const getDotDigitalPrograms = () => {
     dotDigitalCampaignService

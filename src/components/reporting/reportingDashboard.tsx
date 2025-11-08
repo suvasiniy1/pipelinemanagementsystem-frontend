@@ -1,10 +1,11 @@
-import { faChartBar, faChevronDown, faChevronRight, faFolder, faSearch, faTachometerAlt } from '@fortawesome/free-solid-svg-icons';
+import { faChartBar, faChevronDown, faChevronRight, faFolder, faSearch, faTachometerAlt, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Form, Button as BootstrapButton } from "react-bootstrap";
 import { toast } from 'react-toastify';
 import { AddEditDialog } from '../../common/addEditDialog';
+import { DeleteDialog } from '../../common/deleteDialog';
 import { ReportDefinition } from "../../models/reportModels";
 import AddReportModal from "./AddReportModal";
 import CreateButton from "./CreateButton";
@@ -45,6 +46,10 @@ const ReportingDashboard = () => {
   const [currentView, setCurrentView] = useState<'home' | 'dashboard' | 'report'>('home');
   const [currentReport, setCurrentReport] = useState<{entity: string, reportType: string, reportDefinition?: ReportDefinition} | null>(null);
   const [currentDashboard, setCurrentDashboard] = useState<any>(null);
+  const [showDeleteFolderModal, setShowDeleteFolderModal] = useState(false);
+  const [folderToDelete, setFolderToDelete] = useState<any>(null);
+  const [showFolderWarningModal, setShowFolderWarningModal] = useState(false);
+  const [folderWithReports, setFolderWithReports] = useState<any>(null);
   
   const reportTypes = ["Performance", "Conversion", "Duration", "Progress", "Products"];
 
@@ -71,6 +76,18 @@ const ReportingDashboard = () => {
         
         setDashboardFolders(folders || []);
         setCreatedDashboards(dashboards || []);
+        
+        // Auto-select first dashboard or report
+        if (dashboards && dashboards.length > 0) {
+          const firstDashboard = dashboards[0];
+          // Expand the folder containing the first dashboard
+          const newExpanded = new Set(expandedFolders);
+          newExpanded.add(firstDashboard.folderId.toString());
+          setExpandedFolders(newExpanded);
+          handleDashboardClick(firstDashboard);
+        } else if (reports && reports.length > 0) {
+          handleReportClick(reports[0]);
+        }
       } catch (error) {
         console.error('Error loading data:', error);
         setCreatedReports([]);
@@ -137,10 +154,25 @@ const ReportingDashboard = () => {
     setCurrentDashboard(null);
   };
 
-  const handleDashboardClick = (dashboard: any) => {
-    setCurrentDashboard(dashboard);
-    setCurrentView('dashboard');
-    setActiveNavItem(dashboard.name);
+  const handleDashboardClick = async (dashboard: any) => {
+    try {
+      // Fetch full dashboard details including reports
+      const dashboardService = new ReportDashboardService(null);
+      const fullDashboard = await dashboardService.getDashboardById(dashboard.id);
+      
+      if (fullDashboard) {
+        setCurrentDashboard(fullDashboard);
+        setCurrentView('dashboard');
+        setActiveNavItem(dashboard.name);
+        // Clear any selected report when selecting dashboard
+        setActiveReportId(null);
+      } else {
+        toast.error('Failed to load dashboard details');
+      }
+    } catch (error) {
+      console.error('Error loading dashboard:', error);
+      toast.error('Failed to load dashboard');
+    }
   };
 
   const handleDashboardReportClick = (report: any) => {
@@ -165,6 +197,9 @@ const ReportingDashboard = () => {
       reportDefinition: reportDefinition
     });
     setCurrentView('report');
+    setActiveNavItem(report.name);
+    setActiveReportId(report.id);
+    setCurrentDashboard(null);
   };
 
   const handleDeleteReport = (reportId: number) => {
@@ -184,7 +219,6 @@ const ReportingDashboard = () => {
       isPublic: true,
       createdDate: report.createdDate || new Date().toISOString(),
       createdBy: 0,
-
       modifiedBy: 0,
       modifiedDate: report.modifiedDate || new Date().toISOString(),
       reportConditions: report.reportConditions || []
@@ -198,6 +232,8 @@ const ReportingDashboard = () => {
     setCurrentView('report');
     setActiveNavItem(report.name);
     setActiveReportId(report.id);
+    // Clear dashboard selection when selecting a report
+    setCurrentDashboard(null);
   };
 
   const filteredReports = createdReports.filter(report => 
@@ -269,30 +305,57 @@ const ReportingDashboard = () => {
                 <div 
                   style={{ 
                     padding: '8px 16px', 
-                    cursor: 'pointer',
                     backgroundColor: 'transparent',
                     borderRadius: '4px',
                     display: 'flex',
                     alignItems: 'center',
+                    justifyContent: 'space-between',
                     fontSize: '14px',
                     fontWeight: '500',
                     color: '#1f2937'
                   }}
-                  onClick={() => {
-                    const newExpanded = new Set(expandedFolders);
-                    if (isExpanded) {
-                      newExpanded.delete(folder.id.toString());
-                    } else {
-                      newExpanded.add(folder.id.toString());
-                    }
-                    setExpandedFolders(newExpanded);
-                  }}
                 >
+                  <div 
+                    style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', flex: 1 }}
+                    onClick={() => {
+                      const newExpanded = new Set(expandedFolders);
+                      if (isExpanded) {
+                        newExpanded.delete(folder.id.toString());
+                      } else {
+                        newExpanded.add(folder.id.toString());
+                      }
+                      setExpandedFolders(newExpanded);
+                    }}
+                  >
+                    <FontAwesomeIcon 
+                      icon={isExpanded ? faChevronDown : faChevronRight} 
+                      style={{ marginRight: '8px', fontSize: '12px' }} 
+                    />
+                    {folder.name} ({folderDashboards.length})
+                  </div>
                   <FontAwesomeIcon 
-                    icon={isExpanded ? faChevronDown : faChevronRight} 
-                    style={{ marginRight: '8px', fontSize: '12px' }} 
+                    icon={faTrash} 
+                    style={{ 
+                      fontSize: '12px', 
+                      color: '#dc3545', 
+                      cursor: 'pointer',
+                      padding: '4px'
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (folderDashboards.length > 0) {
+                        const dashboardsWithReports = folderDashboards.filter(d => d.reports && d.reports.length > 0);
+                        if (dashboardsWithReports.length > 0) {
+                          setFolderWithReports({ folder, dashboardsWithReports });
+                          setShowFolderWarningModal(true);
+                          return;
+                        }
+                      }
+                      setFolderToDelete(folder);
+                      setShowDeleteFolderModal(true);
+                    }}
+                    title="Delete folder"
                   />
-                  {folder.name} ({folderDashboards.length})
                 </div>
                 
                 {/* Dashboards in Folder */}
@@ -563,7 +626,7 @@ onClick={async () => {
                     const folderService = new DashboardFolderService(null);
                     const newFolder = await folderService.createFolder(newFolderName.trim());
                     
-                    if (newFolder) {
+                    if (newFolder && newFolder.id) {
                       const updatedFolders = [...dashboardFolders, newFolder];
                       setDashboardFolders(updatedFolders);
                       setSelectedFolder(newFolder.id.toString());
@@ -608,6 +671,94 @@ onClick={async () => {
         closeDialog={() => setShowAddReportModal(false)}
         onSubmit={handleReportSubmit}
       />
+
+      {/* Delete Folder Modal */}
+      {showDeleteFolderModal && folderToDelete && (
+        <DeleteDialog
+          itemType="Folder"
+          itemName={folderToDelete.name}
+          dialogIsOpen={showDeleteFolderModal}
+          closeDialog={() => {
+            setShowDeleteFolderModal(false);
+            setFolderToDelete(null);
+          }}
+          onConfirm={async () => {
+            try {
+              const folderService = new DashboardFolderService(null);
+              await folderService.deleteFolder(folderToDelete.id);
+              setDashboardFolders(dashboardFolders.filter(f => f.id !== folderToDelete.id));
+              toast.success('Folder deleted successfully!');
+            } catch (error) {
+              console.error('Error deleting folder:', error);
+              toast.error('Failed to delete folder');
+            }
+            setShowDeleteFolderModal(false);
+            setFolderToDelete(null);
+          }}
+          customDeleteMessage={
+            <div>
+              Are you sure you want to delete the folder <strong>{folderToDelete.name}</strong>?
+              {(() => {
+                const folderDashboards = createdDashboards.filter(d => d.folderId === folderToDelete.id);
+                if (folderDashboards.length > 0) {
+                  return (
+                    <div className="mt-2 text-warning">
+                      <small>
+                        <strong>Warning:</strong> This will also delete {folderDashboards.length} dashboard(s) in this folder.
+                      </small>
+                    </div>
+                  );
+                }
+                return null;
+              })()
+            }
+            </div>
+          }
+          isPromptOnly={false}
+          confirmLabel="Delete"
+          cancelLabel="Cancel"
+          actionType="Delete"
+        />
+      )}
+
+      {/* Folder Warning Modal */}
+      {showFolderWarningModal && folderWithReports && (
+        <DeleteDialog
+          itemType="Folder"
+          itemName={folderWithReports.folder.name}
+          dialogIsOpen={showFolderWarningModal}
+          closeDialog={() => {
+            setShowFolderWarningModal(false);
+            setFolderWithReports(null);
+          }}
+          onConfirm={() => {
+            setShowFolderWarningModal(false);
+            setFolderWithReports(null);
+          }}
+          customDeleteMessage={
+            <div>
+              <div className="text-danger mb-3">
+                <strong>Cannot delete folder "{folderWithReports.folder.name}"</strong>
+              </div>
+              <div className="mb-2">
+                This folder contains {folderWithReports.dashboardsWithReports.length} dashboard(s) with reports:
+              </div>
+              <ul className="mb-3">
+                {folderWithReports.dashboardsWithReports.map((dashboard: any) => (
+                  <li key={dashboard.id}>{dashboard.name}</li>
+                ))}
+              </ul>
+              <div className="text-muted">
+                Please remove reports from these dashboards first, then try deleting the folder again.
+              </div>
+            </div>
+          }
+          isPromptOnly={true}
+          confirmLabel="OK"
+          cancelLabel=""
+          actionType="Warning"
+        />
+      )}
     </div>
   );
 };

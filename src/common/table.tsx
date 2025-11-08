@@ -362,9 +362,9 @@ const clientPaginationDefaults: Partial<DataGridProps> = props.hidePagination
   ? {} // ⛔️ don't pass `pagination: false` — just omit it
   : {
       pagination: true, // ✅ must be true (or omitted)
-      pageSizeOptions: [8, 16, 32, 64],
+      pageSizeOptions: window.config?.Pagination?.pageSizeOptions || [8, 16, 32, 64],
       initialState: {
-        pagination: { paginationModel: { pageSize: 8, page: 0 } },
+        pagination: { paginationModel: { pageSize: window.config?.Pagination?.defaultPageSize || 8, page: 0 } },
       },
       slotProps: {
         pagination: { showFirstButton: true, showLastButton: true },
@@ -563,15 +563,15 @@ const clientPaginationDefaults: Partial<DataGridProps> = props.hidePagination
 }}
           hideFooter={props.hidePagination}
           density="standard"
-          sx={{ minWidth: 800, height: 'calc(100vh - 220px)', maxHeight: 'calc(100vh - 220px)', overflowY: 'auto' }}
+          sx={{ minWidth: 800, height: 'calc(100vh - 220px)' }}
            {...clientPaginationDefaults}
           {...(props.dataGridProps ?? {})}
           {...(!props.hidePagination ? { 
             pagination: true, 
-            pageSizeOptions: [8, 16, 32, 64], 
+            pageSizeOptions: window.config?.Pagination?.pageSizeOptions || [8, 16, 32, 64], 
             initialState: { 
               pagination: { 
-                paginationModel: { pageSize: 8, page: 0 } 
+                paginationModel: { pageSize: window.config?.Pagination?.defaultPageSize || 8, page: 0 } 
               } 
             },
             slotProps: {

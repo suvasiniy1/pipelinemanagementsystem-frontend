@@ -39,6 +39,9 @@ import { loginRequest } from "../../pipeline/deal/activities/email/authConfig";
 import { EmailTemplateService } from "../../../services/emailTemplateService";
 import { EmailTemplate } from "../../../models/emailTemplate";
 import { useAuthContext } from "../../../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { GridCellParams } from "@mui/x-data-grid";
+import React from "react";
 
 type Params = {
   pipeLineId: number;
@@ -50,6 +53,7 @@ type Params = {
 
 const DealListView = (props: Params) => {
   const { userProfile } = useAuthContext();
+  const navigate = useNavigate();
   const {
     pipeLineId,
     setViewType,
@@ -66,9 +70,19 @@ const DealListView = (props: Params) => {
   const [dealsList, setDealsList] = useState<Array<Deal>>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-    const [paginationModel, setPaginationModel] = useState<{ page: number; pageSize: number }>({
-    page: 0,
-    pageSize: 8,
+    const [paginationModel, setPaginationModel] = useState<{ page: number; pageSize: number }>(() => {
+    const saved = localStorage.getItem('dealListView_paginationModel');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        // fallback if parsing fails
+      }
+    }
+    return {
+      page: 0,
+      pageSize: window.config?.Pagination?.defaultPageSize || 8,
+    };
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
@@ -119,9 +133,34 @@ const DealListView = (props: Params) => {
   const columnMetaData = [
     { columnName: "stageName", columnHeaderName: "Stage", width: 150 },
     {
+      field: "treatmentName",
       columnName: "treatmentName",
       columnHeaderName: "Treatment Name",
       width: 150,
+      renderCell: (params: GridCellParams) => {
+        console.log('Treatment renderCell called:', params);
+        return (
+          <span
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              console.log('Treatment clicked:', params.row);
+              const dealId = params.row.dealID || params.row.id;
+              const pipelineId = params.row.pipelineID;
+              console.log('Navigating to deal:', dealId, pipelineId);
+              navigate(`/deal?id=${dealId}&pipeLineId=${pipelineId}&viewType=list`);
+            }}
+            style={{
+              color: "#007bff",
+              textDecoration: "underline",
+              cursor: "pointer",
+              fontWeight: 500
+            }}
+          >
+            {String(params.value) || "N/A"}
+          </span>
+        );
+      },
     },
     { columnName: "value", columnHeaderName: "Value" },
     {
@@ -317,6 +356,11 @@ const DealListView = (props: Params) => {
   };
 // only load pipelines once
 useEffect(() => { loadPipeLines(); }, []);
+  // Save pagination state to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('dealListView_paginationModel', JSON.stringify(paginationModel));
+  }, [paginationModel]);
+
   // --- Update effect to load deals when filter/user/page changes ---
   useEffect(() => {
     if (selectedFilterObj || selectedUserId) loadDealsByFilter();
@@ -402,14 +446,17 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
   }
 };
 
-  const handleExportToExcel = async (columnsOverride?: any[]) => {
-  const columns = columnsOverride ?? selectedColumns;
+  // Function to convert camelCase to proper header format
+  const formatHeader = (key: string): string => {
+    return key
+      .replace(/([A-Z])/g, ' $1') // Add space before capital letters
+      .replace(/^./, str => str.toUpperCase()) // Capitalize first letter
+      .replace(/ID/g, 'ID') // Keep ID capitalized
+      .replace(/URL/g, 'URL') // Keep URL capitalized
+      .trim();
+  };
 
-  if (columns.length === 0) {
-    alert("Please select at least one column to proceed");
-    return;
-  }
-
+  const handleExportToExcel = async () => {
   const allDeals = await loadAllDeals();
 
   if (!allDeals.length) {
@@ -417,12 +464,20 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
     return;
   }
 
+  // Export all properties with formatted headers
   const dataToExport = allDeals.map((deal: any) => {
-    const row: any = {};
-    columns.forEach((col) => {
-      row[col.name] = deal[col.value] ?? "N/A";
+    const formattedDeal: any = {};
+    
+    // Transform each property with proper header formatting
+    Object.keys(deal).forEach(key => {
+      const formattedKey = formatHeader(key);
+      const value = deal[key];
+      
+      // Convert null/undefined/empty values to "N/A"
+      formattedDeal[formattedKey] = (value === null || value === undefined || value === '') ? 'N/A' : value;
     });
-    return row;
+    
+    return formattedDeal;
   });
 
   if (exportFormat === "xlsx") {
@@ -620,6 +675,7 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
     statusDisplay = `🔴 ${statusText}`;
   }
   const person = utility.persons.find(p => p.personID === item.contactPersonID);
+  
   return {
     ...transformedItem,
     organization: getOrganizationName(item.organizationID),
@@ -960,10 +1016,31 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
         dataGridProps={{
     paginationMode: 'server',
     rowCount: totalCount, 
-    paginationModel,                    // ✅ use the state object
-    onPaginationModelChange: setPaginationModel, // ✅ update it directly
-    pageSizeOptions: [10, 25, 50, 100],
-    // getRowId: (row) => row.dealID,    // only if your rows don't have `id`
+    paginationModel,
+    onPaginationModelChange: setPaginationModel,
+    pageSizeOptions: window.config?.Pagination?.pageSizeOptions || [10, 25, 50, 100],
+    disableRowSelectionOnClick: true,
+    onCellClick: (params: any) => {
+      console.log('Cell clicked:', params);
+      if (params.field === 'treatmentName') {
+        const dealId = params.row.dealID || params.row.id;
+        const pipelineId = params.row.pipelineID;
+        console.log('Navigating to deal:', dealId, pipelineId);
+        navigate(`/deal?id=${dealId}&pipeLineId=${pipelineId}&viewType=list`);
+      }
+    },
+    sx: {
+      height: 'calc(100vh - 220px)',
+      '& .MuiDataGrid-cell[data-field="treatmentName"]': {
+        color: '#007bff',
+        textDecoration: 'underline',
+        cursor: 'pointer',
+        fontWeight: 500,
+        '&:hover': {
+          color: '#0056b3'
+        }
+      }
+    },
   }}
       />
       
@@ -1066,18 +1143,9 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
     <Button
   variant="contained"
   fullWidth
-  onClick={async () => {
-    const allColumns = columnMetaData.map((c) => ({
-      name: c.columnHeaderName,
-      value: c.columnName,
-    }));
-    setSelectedColumns(allColumns);
-
-    // Call export after state is set using a local copy instead of waiting
-    await handleExportToExcel(allColumns);
-  }}
+  onClick={handleExportToExcel}
 >
-  Export
+  Export All Data
 </Button>
 
   </div>

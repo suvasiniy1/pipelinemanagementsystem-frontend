@@ -67,7 +67,11 @@ window.config = {
       ],
     },
   ],
-  NavItemActiveColor: "#0098e5"
+  NavItemActiveColor: "#0098e5",
+  Pagination: {
+    defaultPageSize: 50,
+    pageSizeOptions: [50, 100, 200, 500, 1000]
+  }
 };
 
    

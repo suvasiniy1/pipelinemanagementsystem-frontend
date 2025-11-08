@@ -106,6 +106,16 @@ export const DealHeader = (props: params) => {
     setShowPipeLineFilters(false);
   },[])
 
+  // Sync selectedViewType with parent viewType
+  useEffect(() => {
+    const urlViewType = new URLSearchParams(window.location.search).get("viewType");
+    if (urlViewType === "list") {
+      setSelectedViewType("list");
+    } else {
+      setSelectedViewType("kanban");
+    }
+  }, []);
+
   const addorUpdateStage = () => {
     return (
       <>
@@ -432,6 +442,10 @@ export const DealHeader = (props: params) => {
                         onClick={(e: any) => {
                           setSelectedViewType("list");
                           props.setViewType("list");
+                          // Update URL to include viewType parameter
+                          const currentParams = new URLSearchParams(window.location.search);
+                          currentParams.set('viewType', 'list');
+                          navigate(`/pipeline?${currentParams.toString()}`);
                         }}
                       >
                         List View
@@ -440,6 +454,10 @@ export const DealHeader = (props: params) => {
                         onClick={(e: any) => {
                           setSelectedViewType("kanban");
                           props.setViewType("kanban");
+                          // Update URL to remove viewType parameter (default to kanban)
+                          const currentParams = new URLSearchParams(window.location.search);
+                          currentParams.delete('viewType');
+                          navigate(`/pipeline?${currentParams.toString()}`);
                         }}
                       >
                         Kanban View

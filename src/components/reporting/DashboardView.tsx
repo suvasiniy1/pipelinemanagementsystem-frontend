@@ -1,10 +1,12 @@
 import { faChartBar, faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { DeleteDialog } from '../../common/deleteDialog';
 import DashboardReportChart from './DashboardReportChart';
+import { ReportService } from '../../services/reportService';
+import { ReportDashboardService } from '../../services/reportDashboardService';
 
 interface DashboardViewProps {
   dashboard: any;
@@ -17,15 +19,49 @@ const DashboardView: React.FC<DashboardViewProps> = ({ dashboard, onBack, onRepo
   const [showRemoveModal, setShowRemoveModal] = useState(false);
   const [reportToRemove, setReportToRemove] = useState<any>(null);
   const [showAddReportModal, setShowAddReportModal] = useState(false);
+  const [dashboardReports, setDashboardReports] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [allReports, setAllReports] = useState<any[]>([]);
   
-  // Get all saved reports from localStorage
-  const allReports = JSON.parse(localStorage.getItem('createdReports') || '[]');
+  // Load reports for this dashboard
+  useEffect(() => {
+    const loadDashboardReports = async () => {
+      if (!dashboard.reports) {
+        setDashboardReports([]);
+        setLoading(false);
+        return;
+      }
+      
+      try {
+        // Parse the reports string (e.g., "1,2,3") into array of IDs
+        const reportIds = dashboard.reports.split(',').map((id: string) => parseInt(id.trim())).filter((id: number) => !isNaN(id));
+        
+        if (reportIds.length === 0) {
+          setDashboardReports([]);
+          setLoading(false);
+          return;
+        }
+        
+        // Fetch report details for each ID
+        const reportService = new ReportService(null);
+        const fetchedReports = await reportService.getReports();
+        setAllReports(fetchedReports);
+        
+        // Filter reports that are in this dashboard
+        const filteredReports = fetchedReports.filter((report: any) => reportIds.includes(report.id));
+        setDashboardReports(filteredReports);
+      } catch (error) {
+        console.error('Error loading dashboard reports:', error);
+        setDashboardReports([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadDashboardReports();
+  }, [dashboard.reports]);
   
-  // Filter reports that are mapped to this dashboard
-  const mappedReports = dashboard.reports || [];
-  const reports = allReports.filter((report: any) => 
-    mappedReports.some((mapped: any) => mapped.id === report.id)
-  );
+  const reports = dashboardReports;
 
   return (
     <div style={{ padding: '20px' }}>
@@ -57,36 +93,64 @@ const DashboardView: React.FC<DashboardViewProps> = ({ dashboard, onBack, onRepo
         </div>
       </div>
 
+      {/* Loading State */}
+      {loading ? (
+        <div className="text-center py-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="mt-3 text-muted">Loading dashboard reports...</p>
+        </div>
+      ) : (
+        <>
       {/* Reports Grid */}
       {reports.length > 0 ? (
-        <div className="row g-4">
-          {reports.map((report: any) => (
-            <div key={report.id} className="col-lg-6">
-              <div className="position-relative">
-                <DashboardReportChart report={report} />
-                <Button
-                  variant="outline-danger"
-                  size="sm"
-                  className="position-absolute"
-                  style={{
-                    top: '8px',
-                    right: '8px',
-                    zIndex: 10,
-                    padding: '4px 8px',
-                    fontSize: '12px'
-                  }}
-                  onClick={() => {
-                    setReportToRemove(report);
-                    setShowRemoveModal(true);
-                  }}
-                  title="Remove from dashboard"
+        <>
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h5 className="mb-0">Reports ({reports.length})</h5>
+            <Button 
+              variant="outline-primary" 
+              size="sm"
+              onClick={() => setShowAddReportModal(true)}
+            >
+              <FontAwesomeIcon icon={faPlus} className="me-2" />
+              Add Report
+            </Button>
+          </div>
+          <div className="row g-4">
+            {reports.map((report: any) => (
+              <div key={report.id} className="col-lg-6">
+                <div 
+                  className="position-relative"
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => onReportClick(report)}
                 >
-                  <FontAwesomeIcon icon={faTimes} />
-                </Button>
+                  <DashboardReportChart report={report} />
+                  <Button
+                    variant="outline-danger"
+                    size="sm"
+                    className="position-absolute"
+                    style={{
+                      top: '8px',
+                      right: '8px',
+                      zIndex: 10,
+                      padding: '4px 8px',
+                      fontSize: '12px'
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent triggering the report click
+                      setReportToRemove(report);
+                      setShowRemoveModal(true);
+                    }}
+                    title="Remove from dashboard"
+                  >
+                    <FontAwesomeIcon icon={faTimes} />
+                  </Button>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </>
       ) : (
         <div className="text-center py-5">
           <FontAwesomeIcon 
@@ -107,6 +171,8 @@ const DashboardView: React.FC<DashboardViewProps> = ({ dashboard, onBack, onRepo
           </Button>
         </div>
       )}
+        </>
+      )}
       
       {/* Remove Report Confirmation Dialog */}
       {showRemoveModal && reportToRemove && (
@@ -118,24 +184,29 @@ const DashboardView: React.FC<DashboardViewProps> = ({ dashboard, onBack, onRepo
             setShowRemoveModal(false);
             setReportToRemove(null);
           }}
-          onConfirm={() => {
-            // Remove report from dashboard
-            const updatedReports = dashboard.reports.filter((r: any) => r.id !== reportToRemove.id);
-            const updatedDashboard = { ...dashboard, reports: updatedReports };
-            
-            // Update localStorage
-            const savedDashboards = JSON.parse(localStorage.getItem('createdDashboards') || '[]');
-            const updatedDashboards = savedDashboards.map((d: any) => 
-              d.id === dashboard.id ? updatedDashboard : d
-            );
-            localStorage.setItem('createdDashboards', JSON.stringify(updatedDashboards));
-            
-            toast.success(`Report "${reportToRemove.name}" removed from dashboard!`);
-            setShowRemoveModal(false);
-            setReportToRemove(null);
-            
-            // Update parent component with new dashboard data
-            onDashboardUpdate(updatedDashboard);
+          onConfirm={async () => {
+            try {
+              // Remove report from dashboard (reports is a string like "1,2,3")
+              const reportIds = dashboard.reports ? dashboard.reports.split(',').map((id: string) => parseInt(id.trim())) : [];
+              const updatedReportIds = reportIds.filter((id: number) => id !== reportToRemove.id);
+              const updatedReportsString = updatedReportIds.join(',');
+              
+              // Save to API
+              const dashboardService = new ReportDashboardService(null);
+              await dashboardService.updateDashboardReports(dashboard.id, updatedReportsString, dashboard.folderId, dashboard.name, 0);
+              
+              const updatedDashboard = { ...dashboard, reports: updatedReportsString };
+              
+              toast.success(`Report "${reportToRemove.name}" removed from dashboard!`);
+              setShowRemoveModal(false);
+              setReportToRemove(null);
+              
+              // Update parent component with new dashboard data
+              onDashboardUpdate(updatedDashboard);
+            } catch (error) {
+              console.error('Error removing report from dashboard:', error);
+              toast.error('Failed to remove report from dashboard');
+            }
           }}
           customDeleteMessage={<div>Are you sure you want to remove <strong>{reportToRemove.name}</strong> from this dashboard?</div>}
           isPromptOnly={false}
@@ -157,37 +228,39 @@ const DashboardView: React.FC<DashboardViewProps> = ({ dashboard, onBack, onRepo
             <div>
               <h6 className="mb-3">Select Reports to Add</h6>
               <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                {JSON.parse(localStorage.getItem('createdReports') || '[]')
-                  .filter((report: any) => 
-                    !dashboard.reports?.some((dashReport: any) => dashReport.id === report.id)
-                  )
+                {allReports
+                  .filter((report: any) => {
+                    const reportIds = dashboard.reports ? dashboard.reports.split(',').map((id: string) => parseInt(id.trim())) : [];
+                    return !reportIds.includes(report.id);
+                  })
                   .map((report: any) => (
                     <div 
                       key={report.id}
                       className="d-flex justify-content-between align-items-center p-2 border rounded mb-2"
                       style={{ cursor: 'pointer', backgroundColor: '#f8f9fa' }}
-                      onClick={() => {
-                        const reportToAdd = {
-                          id: report.id,
-                          name: report.name,
-                          type: report.type,
-                          entity: report.entity
-                        };
-                        
-                        const updatedDashboard = {
-                          ...dashboard,
-                          reports: [...(dashboard.reports || []), reportToAdd]
-                        };
-                        
-                        const savedDashboards = JSON.parse(localStorage.getItem('createdDashboards') || '[]');
-                        const updatedDashboards = savedDashboards.map((d: any) => 
-                          d.id === dashboard.id ? updatedDashboard : d
-                        );
-                        localStorage.setItem('createdDashboards', JSON.stringify(updatedDashboards));
-                        
-                        onDashboardUpdate(updatedDashboard);
-                        toast.success(`Report "${report.name}" added to dashboard!`);
-                        setShowAddReportModal(false);
+                      onClick={async () => {
+                        try {
+                          // Add report ID to the reports string
+                          const currentReportIds = dashboard.reports ? dashboard.reports.split(',').map((id: string) => parseInt(id.trim())) : [];
+                          const updatedReportIds = [...currentReportIds, report.id];
+                          const updatedReportsString = updatedReportIds.join(',');
+                          
+                          // Save to API
+                          const dashboardService = new ReportDashboardService(null);
+                          await dashboardService.addReportToDashboard(dashboard.id, report.id, dashboard.reports || '', dashboard.folderId, dashboard.name, 0);
+                          
+                          const updatedDashboard = {
+                            ...dashboard,
+                            reports: updatedReportsString
+                          };
+                          
+                          onDashboardUpdate(updatedDashboard);
+                          toast.success(`Report "${report.name}" added to dashboard!`);
+                          setShowAddReportModal(false);
+                        } catch (error) {
+                          console.error('Error adding report to dashboard:', error);
+                          toast.error('Failed to add report to dashboard');
+                        }
                       }}
                     >
                       <div>
@@ -200,10 +273,11 @@ const DashboardView: React.FC<DashboardViewProps> = ({ dashboard, onBack, onRepo
                     </div>
                   ))
                 }
-                {JSON.parse(localStorage.getItem('createdReports') || '[]')
-                  .filter((report: any) => 
-                    !dashboard.reports?.some((dashReport: any) => dashReport.id === report.id)
-                  ).length === 0 && (
+                {allReports
+                  .filter((report: any) => {
+                    const reportIds = dashboard.reports ? dashboard.reports.split(',').map((id: string) => parseInt(id.trim())) : [];
+                    return !reportIds.includes(report.id);
+                  }).length === 0 && (
                   <div className="text-center text-muted py-3">
                     No available reports to add
                   </div>

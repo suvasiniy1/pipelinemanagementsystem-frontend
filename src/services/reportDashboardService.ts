@@ -29,21 +29,49 @@ export class ReportDashboardService extends BaseService<ReportDashboard> {
     }
   }
 
-  async addReportToDashboard(dashboardId: number, reportId: number, existingReports: string): Promise<ReportDashboard | null> {
+  async getDashboardById(dashboardId: number): Promise<ReportDashboard | null> {
+    try {
+      const response = await this.getItemsBySubURL(`GetReportDashboardById/${dashboardId}`);
+      return response;
+    } catch (error) {
+      console.error('Error fetching dashboard by ID:', error);
+      return null;
+    }
+  }
+
+  async updateDashboardReports(dashboardId: number, reportsString: string, folderId: number, dashboardName: string, createdBy: number): Promise<ReportDashboard | null> {
+    try {
+      const dashboardData = {
+        createdDate: new Date().toISOString(),
+        createdBy: createdBy,
+        modifiedBy: createdBy,
+        modifiedDate: new Date().toISOString(),
+        id: dashboardId,
+        name: dashboardName,
+        folderId: folderId,
+        reports: reportsString
+      };
+      
+      const response = await this.postItemBySubURL(dashboardData, "AddReportDashboard");
+      return response;
+    } catch (error) {
+      console.error('Error updating dashboard reports:', error);
+      return null;
+    }
+  }
+
+  async addReportToDashboard(dashboardId: number, reportId: number, existingReports: string, folderId: number, dashboardName: string, createdBy: number): Promise<ReportDashboard | null> {
     try {
       const updatedReports = existingReports ? `${existingReports},${reportId}` : reportId.toString();
       
       const dashboardData = {
-        createdDate: new Date(),
-        createdBy: 0,
-        modifiedBy: 0,
-        modifiedDate: new Date(),
-        updatedBy: 0,
-        updatedDate: new Date(),
-        userId: 0,
+        createdDate: new Date().toISOString(),
+        createdBy: createdBy,
+        modifiedBy: createdBy,
+        modifiedDate: new Date().toISOString(),
         id: dashboardId,
-        name: "string",
-        folderId: 0,
+        name: dashboardName,
+        folderId: folderId,
         reports: updatedReports
       };
       

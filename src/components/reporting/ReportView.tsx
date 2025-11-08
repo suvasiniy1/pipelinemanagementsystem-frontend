@@ -31,6 +31,7 @@ import { ReportDefinition, CreateReportRequest } from '../../models/reportModels
 import { ReportService } from '../../services/reportService';
 import { DashboardFolderService } from '../../services/dashboardFolderService';
 import { ReportDashboardService } from '../../services/reportDashboardService';
+import Util from '../../others/util';
 
 interface ReportViewProps {
   entity: string;
@@ -1845,7 +1846,10 @@ onClick={async () => {
                                   const result = await dashboardService.addReportToDashboard(
                                     dashboard.id,
                                     reportDefinition.id,
-                                    dashboard.reports || ''
+                                    dashboard.reports || '',
+                                    dashboard.folderId,
+                                    dashboard.name,
+                                    Util.UserProfile()?.userId || 0
                                   );
                                   
                                   if (result) {

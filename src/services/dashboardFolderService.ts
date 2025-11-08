@@ -48,4 +48,14 @@ export class DashboardFolderService extends BaseService<DashboardFolder> {
       return null;
     }
   }
+
+  async deleteFolder(folderId: number): Promise<boolean> {
+    try {
+      await this.delete(folderId);
+      return true;
+    } catch (error) {
+      console.error('Error deleting dashboard folder:', error);
+      return false;
+    }
+  }
 }
