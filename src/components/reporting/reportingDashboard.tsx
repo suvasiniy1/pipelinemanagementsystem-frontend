@@ -1,8 +1,7 @@
-import { faChartBar, faChevronDown, faChevronRight, faFolder, faSearch, faTachometerAlt, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faChartBar, faChevronDown, faChevronRight, faFolder, faSearch, faTachometerAlt, faTrash, faBars } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Button } from "@mui/material";
 import { useEffect, useState } from "react";
-import { Form, Button as BootstrapButton } from "react-bootstrap";
+import { Form, Button, Button as BootstrapButton } from "react-bootstrap";
 import { toast } from 'react-toastify';
 import { AddEditDialog } from '../../common/addEditDialog';
 import { DeleteDialog } from '../../common/deleteDialog';
@@ -51,6 +50,7 @@ const ReportingDashboard = () => {
   const [folderToDelete, setFolderToDelete] = useState<any>(null);
   const [showFolderWarningModal, setShowFolderWarningModal] = useState(false);
   const [folderWithReports, setFolderWithReports] = useState<any>(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   
   const reportTypes = ["Performance", "Conversion", "Duration", "Progress", "Products"];
 
@@ -246,19 +246,32 @@ const ReportingDashboard = () => {
     <div style={{ display: 'flex', height: '100vh' }}>
       {/* Navigation Sidebar */}
       <div style={{ 
-        width: '250px', 
+        width: sidebarCollapsed ? '60px' : '250px', 
         backgroundColor: '#f8f9fa', 
         borderRight: '1px solid #e4cb9a',
-        padding: '20px',
-        overflowY: 'auto'
+        padding: sidebarCollapsed ? '10px' : '20px',
+        overflowY: sidebarCollapsed ? 'visible' : 'auto',
+        overflowX: 'visible',
+        transition: 'width 0.3s ease'
       }}>
-        <h5 style={{ marginBottom: '20px', color: '#3f3f3f' }}>Navigation</h5>
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          {!sidebarCollapsed && <h5 style={{ marginBottom: '0', color: '#3f3f3f' }}>Navigation</h5>}
+          <Button
+            variant="outline-secondary"
+            size="sm"
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            style={{ padding: '4px 8px' }}
+            title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            <FontAwesomeIcon icon={faBars} />
+          </Button>
+        </div>
         
         {/* Create Button */}
-        <CreateButton onSelect={handleCreateSelect} />
+        {!sidebarCollapsed && <CreateButton onSelect={handleCreateSelect} />}
         
         {/* Search Bar */}
-        <div style={{ marginBottom: '20px' }}>
+        {!sidebarCollapsed && <div style={{ marginBottom: '20px' }}>
           <div style={{ position: 'relative' }}>
             <FontAwesomeIcon 
               icon={faSearch} 
@@ -279,10 +292,71 @@ const ReportingDashboard = () => {
               size="sm"
             />
           </div>
-        </div>
+        </div>}
         
         {/* Dashboards Section */}
         <div style={{ marginBottom: '20px' }}>
+          {sidebarCollapsed ? (
+            <div 
+              style={{ 
+                textAlign: 'center', 
+                marginBottom: '10px',
+                position: 'relative'
+              }}
+              className="collapsed-menu-item"
+            >
+              <div 
+                style={{ 
+                  padding: '12px 8px',
+                  cursor: 'pointer',
+                  borderRadius: '4px',
+                  transition: 'background-color 0.2s',
+                  backgroundColor: currentView === 'dashboard' ? '#e4cb9a' : 'transparent'
+                }}
+                className="collapsed-menu-trigger"
+              >
+                <FontAwesomeIcon icon={faTachometerAlt} style={{ fontSize: '18px', color: '#1f2937' }} />
+              </div>
+              
+              {/* Hover Dropdown */}
+              <div 
+                className="collapsed-menu-dropdown"
+                style={{
+                  position: 'absolute',
+                  left: '100%',
+                  top: '0',
+                  backgroundColor: 'white',
+                  border: '1px solid #e4cb9a',
+                  borderRadius: '4px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                  minWidth: '200px',
+                  maxWidth: '300px',
+                  zIndex: 9999,
+                  display: 'none'
+                }}
+              >
+                <div style={{ padding: '8px 0' }}>
+                  <div style={{ padding: '8px 16px', fontWeight: 'bold', borderBottom: '1px solid #eee' }}>Dashboards</div>
+                  {createdDashboards.map(dashboard => (
+                    <div 
+                      key={dashboard.id}
+                      style={{ 
+                        padding: '8px 16px',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        backgroundColor: activeNavItem === dashboard.name ? '#e4cb9a' : 'transparent'
+                      }}
+                      onClick={() => handleDashboardClick(dashboard)}
+                      onMouseEnter={(e) => (e.target as HTMLElement).style.backgroundColor = '#f8f9fa'}
+                      onMouseLeave={(e) => (e.target as HTMLElement).style.backgroundColor = activeNavItem === dashboard.name ? '#e4cb9a' : 'transparent'}
+                    >
+                      {dashboard.name}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
           <div style={{ 
             display: 'flex', 
             alignItems: 'center', 
@@ -293,10 +367,11 @@ const ReportingDashboard = () => {
             <FontAwesomeIcon icon={faTachometerAlt} style={{ marginRight: '8px' }} />
             Dashboards {loadingDashboards && <span className="spinner-border spinner-border-sm ms-2" />}
           </div>
+          )}
           
           
           {/* Folders with Dashboards */}
-          {dashboardFolders.map(folder => {
+          {!sidebarCollapsed && dashboardFolders.map(folder => {
             const folderDashboards = createdDashboards.filter(d => d.folderId === folder.id);
             const isExpanded = expandedFolders.has(folder.id.toString());
             
@@ -384,6 +459,67 @@ const ReportingDashboard = () => {
 
         {/* Reports Section */}
         <div>
+          {sidebarCollapsed ? (
+            <div 
+              style={{ 
+                textAlign: 'center', 
+                marginBottom: '10px',
+                position: 'relative'
+              }}
+              className="collapsed-menu-item"
+            >
+              <div 
+                style={{ 
+                  padding: '12px 8px',
+                  cursor: 'pointer',
+                  borderRadius: '4px',
+                  transition: 'background-color 0.2s',
+                  backgroundColor: currentView === 'report' ? '#e4cb9a' : 'transparent'
+                }}
+                className="collapsed-menu-trigger"
+              >
+                <FontAwesomeIcon icon={faChartBar} style={{ fontSize: '18px', color: '#1f2937' }} />
+              </div>
+              
+              {/* Hover Dropdown */}
+              <div 
+                className="collapsed-menu-dropdown"
+                style={{
+                  position: 'absolute',
+                  left: '100%',
+                  top: '0',
+                  backgroundColor: 'white',
+                  border: '1px solid #e4cb9a',
+                  borderRadius: '4px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                  minWidth: '200px',
+                  maxWidth: '300px',
+                  zIndex: 9999,
+                  display: 'none'
+                }}
+              >
+                <div style={{ padding: '8px 0' }}>
+                  <div style={{ padding: '8px 16px', fontWeight: 'bold', borderBottom: '1px solid #eee' }}>Reports</div>
+                  {createdReports.map(report => (
+                    <div 
+                      key={report.id}
+                      style={{ 
+                        padding: '8px 16px',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        backgroundColor: activeReportId === report.id ? '#e4cb9a' : 'transparent'
+                      }}
+                      onClick={() => handleReportClick(report)}
+                      onMouseEnter={(e) => (e.target as HTMLElement).style.backgroundColor = '#f8f9fa'}
+                      onMouseLeave={(e) => (e.target as HTMLElement).style.backgroundColor = activeReportId === report.id ? '#e4cb9a' : 'transparent'}
+                    >
+                      {report.name}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
           <div style={{ 
             display: 'flex', 
             alignItems: 'center', 
@@ -394,30 +530,33 @@ const ReportingDashboard = () => {
             <FontAwesomeIcon icon={faChartBar} style={{ marginRight: '8px' }} />
             Reports
           </div>
-          {createdReports.length === 0 ? (
-            <div style={{ padding: '8px 16px', fontSize: '14px', color: '#6c757d' }}>
-              No saved reports
-            </div>
-          ) : (
-            createdReports.map(report => (
-              <div 
-                key={report.id}
-                style={{ 
-                  padding: '8px 16px', 
-                  cursor: 'pointer',
-                  backgroundColor: activeReportId === report.id ? '#e4cb9a' : 'transparent',
-                  borderRadius: '4px',
-                  marginBottom: '5px',
-                  fontSize: '14px'
-                }}
-                onClick={() => handleReportClick(report)}
-              >
-                <div style={{ fontWeight: 'bold' }}>{report.name}</div>
-                <div style={{ fontSize: '12px', color: '#6c757d' }}>
-                  {report.entity} {report.type}
-                </div>
+          )}
+          {!sidebarCollapsed && (
+            createdReports.length === 0 ? (
+              <div style={{ padding: '8px 16px', fontSize: '14px', color: '#6c757d' }}>
+                No saved reports
               </div>
-            ))
+            ) : (
+              createdReports.map(report => (
+                <div 
+                  key={report.id}
+                  style={{ 
+                    padding: '8px 16px', 
+                    cursor: 'pointer',
+                    backgroundColor: activeReportId === report.id ? '#e4cb9a' : 'transparent',
+                    borderRadius: '4px',
+                    marginBottom: '5px',
+                    fontSize: '14px'
+                  }}
+                  onClick={() => handleReportClick(report)}
+                >
+                  <div style={{ fontWeight: 'bold' }}>{report.name}</div>
+                  <div style={{ fontSize: '12px', color: '#6c757d' }}>
+                    {report.entity} {report.type}
+                  </div>
+                </div>
+              ))
+            )
           )}
         </div>
       </div>

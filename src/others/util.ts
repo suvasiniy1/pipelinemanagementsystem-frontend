@@ -199,6 +199,12 @@ export default class Util {
     return inputString && inputString[0].toUpperCase() + inputString.slice(1);
   }
 
+  public static formatDateToBrowserTimezone(dateString: string): string {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleString();
+  }
+
   public static removeDuplicates(array: Array<any>, property: string) {
     // Step 1: Create an empty object to keep track of unique items
     let uniqueMap: any = {};

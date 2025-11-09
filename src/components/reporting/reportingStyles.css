@@ -5,3 +5,24 @@
 .form-select:focus {
   background-image: none !important;
 }
+
+/* Collapsed menu hover styles */
+.collapsed-menu-item:hover .collapsed-menu-dropdown {
+  display: block !important;
+}
+
+.collapsed-menu-trigger:hover {
+  background-color: #f8f9fa;
+}
+
+.collapsed-menu-dropdown {
+  pointer-events: none;
+}
+
+.collapsed-menu-item:hover .collapsed-menu-dropdown {
+  pointer-events: auto;
+}
+
+.collapsed-menu-dropdown > div {
+  pointer-events: auto;
+}

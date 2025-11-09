@@ -68,18 +68,6 @@ const DashboardView: React.FC<DashboardViewProps> = ({ dashboard, onBack, onRepo
       {/* Header */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div className="d-flex align-items-center">
-          <Button 
-            variant="link" 
-            onClick={onBack} 
-            className="p-0 me-3 text-decoration-none"
-            style={{ 
-              color: '#6c757d',
-              fontSize: '14px',
-              fontWeight: '500'
-            }}
-          >
-            ← Back
-          </Button>
           <h4 className="mb-0" style={{ 
             color: '#1f2937',
             fontWeight: '600',
@@ -89,7 +77,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({ dashboard, onBack, onRepo
           </h4>
         </div>
         <div className="text-muted small">
-          Folder: {dashboard.folderName} | Created: {dashboard.createdDate}
+          Folder: {dashboard.folderName} | Created: {new Date(dashboard.createdDate).toLocaleString()}
         </div>
       </div>
 
