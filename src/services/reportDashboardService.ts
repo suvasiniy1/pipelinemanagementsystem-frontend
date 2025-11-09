@@ -82,4 +82,14 @@ export class ReportDashboardService extends BaseService<ReportDashboard> {
       return null;
     }
   }
+
+  async createDashboard(dashboardData: Partial<ReportDashboard>): Promise<ReportDashboard | null> {
+    try {
+      const response = await this.postItemBySubURL(dashboardData, "AddReportDashboard");
+      return response?.success ? response.result : response;
+    } catch (error) {
+      console.error('Error creating dashboard:', error);
+      return null;
+    }
+  }
 }

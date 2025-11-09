@@ -9,7 +9,7 @@ const HandleIdleTime = () => {
         window.alert("You have been logged out due to inactivity");
         navigate("/login");
     }
-    useIdleTimeout({ onIdle: handleIdle, idleTime: 1200 });
+    useIdleTimeout({ onIdle: handleIdle, idleTime: window.config?.SessionTimeout?.idleTimeoutSeconds || 1200 });
 
     return(<></>)
 }

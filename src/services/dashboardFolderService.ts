@@ -29,20 +29,23 @@ export class DashboardFolderService extends BaseService<DashboardFolder> {
 
   async createFolder(folderName: string): Promise<DashboardFolder | null> {
     try {
+      const Util = (await import('../others/util')).default;
+      const userId = Util.UserProfile()?.userId || 0;
+      
       const folderData = {
         createdDate: new Date(),
-        createdBy: 0,
-        modifiedBy: 0,
+        createdBy: userId,
+        modifiedBy: userId,
         modifiedDate: new Date(),
-        updatedBy: 0,
+        updatedBy: userId,
         updatedDate: new Date(),
-        userId: 0,
+        userId: userId,
         id: 0,
         name: folderName
       };
       
       const response = await this.postItemBySubURL(folderData, "AddDashboardFolder");
-      return response;
+      return response?.success ? response.result : response;
     } catch (error) {
       console.error('Error creating dashboard folder:', error);
       return null;

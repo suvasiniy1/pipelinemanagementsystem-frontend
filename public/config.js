@@ -71,6 +71,10 @@ window.config = {
   Pagination: {
     defaultPageSize: 50,
     pageSizeOptions: [50, 100, 200, 500, 1000]
+  },
+  SessionTimeout: {
+    idleTimeoutSeconds: 1440,
+    maxSessionTimeoutMinutes: 1440
   }
 };
 

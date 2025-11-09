@@ -15,6 +15,7 @@ import ReportView from "./ReportView";
 import { ReportService } from '../../services/reportService';
 import { DashboardFolderService } from '../../services/dashboardFolderService';
 import { ReportDashboardService } from '../../services/reportDashboardService';
+import Util from '../../others/util';
 
 const ReportingDashboard = () => {
   const [selectedTab, setSelectedTab] = useState("Deal Conversion");
@@ -481,7 +482,7 @@ const ReportingDashboard = () => {
         dialogIsOpen={showCreateModal}
         header="Create New Dashboard"
         dialogSize="lg"
-        onSave={() => {
+        onSave={async () => {
           if (!reportName.trim()) {
             setDashboardNameError('Dashboard name is required');
             return;
@@ -503,29 +504,44 @@ const ReportingDashboard = () => {
           
           const selectedFolderObj = dashboardFolders.find(f => f.id.toString() === selectedFolder);
           
-          const newDashboard = {
-            id: Date.now(),
-            name: reportName.trim(),
-            folderId: selectedFolder,
-            folderName: selectedFolderObj?.name || 'Unknown',
-            createdDate: new Date().toLocaleDateString(),
-            reports: []
-          };
-          
-          const updatedDashboards = [...createdDashboards, newDashboard];
-          setCreatedDashboards(updatedDashboards);
-          // TODO: Save to API instead of localStorage
-          localStorage.setItem('createdDashboards', JSON.stringify(updatedDashboards));
-          
-          setShowCreateModal(false);
-          setShowCreateFolder(false);
-          setReportName('');
-          setSelectedFolder('');
-          setNewFolderName('');
-          setDashboardNameError('');
-          setFolderNameError('');
-          
-          toast.success(`Dashboard "${newDashboard.name}" created successfully in "${selectedFolderObj?.name}" folder!`);
+          try {
+            const dashboardService = new ReportDashboardService(null);
+            const dashboardData = {
+              name: reportName.trim(),
+              folderId: parseInt(selectedFolder),
+              reports: '',
+              createdDate: new Date(),
+              createdBy: Util.UserProfile()?.userId || 0,
+              modifiedBy: Util.UserProfile()?.userId || 0,
+              modifiedDate: new Date(),
+              updatedBy: Util.UserProfile()?.userId || 0,
+              updatedDate: new Date(),
+              userId: Util.UserProfile()?.userId || 0,
+              id: 0
+            };
+            
+            const newDashboard = await dashboardService.createDashboard(dashboardData);
+            
+            if (newDashboard) {
+              const updatedDashboards = [...createdDashboards, newDashboard];
+              setCreatedDashboards(updatedDashboards);
+              
+              setShowCreateModal(false);
+              setShowCreateFolder(false);
+              setReportName('');
+              setSelectedFolder('');
+              setNewFolderName('');
+              setDashboardNameError('');
+              setFolderNameError('');
+              
+              toast.success(`Dashboard "${newDashboard.name}" created successfully in "${selectedFolderObj?.name}" folder!`);
+            } else {
+              toast.error('Failed to create dashboard');
+            }
+          } catch (error) {
+            console.error('Error creating dashboard:', error);
+            toast.error('Failed to create dashboard');
+          }
         }}
         closeDialog={() => {
           setShowCreateModal(false);

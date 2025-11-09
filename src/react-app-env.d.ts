@@ -17,6 +17,10 @@ declare global {
                 defaultPageSize: number;
                 pageSizeOptions: number[];
             };
+            SessionTimeout: {
+                idleTimeoutSeconds: number;
+                maxSessionTimeoutMinutes: number;
+            };
         }
     }
 }
