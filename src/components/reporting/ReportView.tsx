@@ -1628,18 +1628,6 @@ const ReportView: React.FC<ReportViewProps> = ({ entity, reportType, reportDefin
         borderBottom: '1px solid #e4cb9a'
       }}>
         <div className="d-flex align-items-center">
-          <Button 
-            variant="link" 
-            onClick={onBack} 
-            className="p-0 me-3 text-decoration-none"
-            style={{ 
-              color: '#6c757d',
-              fontSize: '14px',
-              fontWeight: '500'
-            }}
-          >
-            ← Back
-          </Button>
           <h4 className="mb-0" style={{ 
             color: '#1f2937',
             fontWeight: '600',
@@ -1933,7 +1921,52 @@ onClick={async () => {
                   <FontAwesomeIcon icon={faEllipsisV} style={{ fontSize: '14px' }} />
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
-                  <Dropdown.Item onClick={() => console.log('Duplicate report')}>
+                  <Dropdown.Item onClick={async () => {
+                    if (reportDefinition?.id) {
+                      try {
+                        const reportService = new ReportService(null);
+                        
+                        // Create a new report request with cloned data
+                        const cloneRequest = new CreateReportRequest();
+                        cloneRequest.createdDate = new Date();
+                        cloneRequest.createdBy = 0;
+                        cloneRequest.modifiedBy = 0;
+                        cloneRequest.modifiedDate = new Date();
+                        cloneRequest.updatedBy = 0;
+                        cloneRequest.updatedDate = new Date();
+                        cloneRequest.userId = 0;
+                        cloneRequest.id = 0; // New report, so ID is 0
+                        cloneRequest.name = `${reportName} Clone`;
+                        cloneRequest.chartType = chartType;
+                        cloneRequest.frequency = frequency;
+                        cloneRequest.isPreview = false;
+                        cloneRequest.isActive = true;
+                        cloneRequest.isPublic = true;
+                        cloneRequest.reportConditions = appliedFilters.map(filter => ({
+                          id: 0,
+                          reportDefinitionId: 0,
+                          field: filter.field,
+                          operator: filter.operator,
+                          value: filter.value,
+                          extraValue: ''
+                        }));
+                        
+                        const clonedReport = await reportService.saveReport(cloneRequest);
+                        
+                        if (clonedReport) {
+                          if (onSave) {
+                            onSave(clonedReport);
+                          }
+                          toast.success(`Report cloned successfully as "${cloneRequest.name}"!`);
+                        } else {
+                          toast.error('Failed to clone report');
+                        }
+                      } catch (error) {
+                        console.error('Error cloning report:', error);
+                        toast.error('Failed to clone report. Please try again.');
+                      }
+                    }
+                  }}>
                     <FontAwesomeIcon icon={faCopy} className="me-2" />
                     Duplicate Report
                   </Dropdown.Item>
