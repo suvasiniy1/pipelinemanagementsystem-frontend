@@ -66,17 +66,18 @@ const DashboardView: React.FC<DashboardViewProps> = ({ dashboard, onBack, onRepo
   return (
     <div style={{ padding: '20px' }}>
       {/* Header */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div className="d-flex align-items-center">
+      <div className="d-flex justify-content-between align-items-start mb-4" style={{ flexWrap: 'wrap', gap: '10px' }}>
+        <div className="d-flex align-items-center" style={{ flex: '1 1 auto', minWidth: '200px' }}>
           <h4 className="mb-0" style={{ 
             color: '#1f2937',
             fontWeight: '600',
-            fontSize: '24px'
+            fontSize: '24px',
+            wordBreak: 'break-word'
           }}>
             {dashboard.name}
           </h4>
         </div>
-        <div className="text-muted small">
+        <div className="text-muted small" style={{ flex: '0 0 auto', textAlign: 'right' }}>
           Folder: {dashboard.folderName} | Created: {new Date(dashboard.createdDate).toLocaleString()}
         </div>
       </div>

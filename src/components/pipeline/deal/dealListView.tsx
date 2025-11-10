@@ -125,9 +125,9 @@ const DealListView = (props: Params) => {
   { columnName: "marketing_term",       columnHeaderName: "Term",             width: 140 },
   { columnName: "marketing_content",    columnHeaderName: "Content",          width: 160 },
   { columnName: "submission_id",        columnHeaderName: "Submission ID",    width: 180 },
-  { columnName: "MarketingConsent",     columnHeaderName: "Marketing Consent",width: 180 },
-  { columnName: "TCCONSENT",            columnHeaderName: "T&C Consent",      width: 160 },
-  { columnName: "Marketing_FBClid",     columnHeaderName: "FBCLID",           width: 180 },
+  { columnName: "marketingConsent",     columnHeaderName: "Marketing Consent",width: 180 },
+  { columnName: "tcconsent",            columnHeaderName: "T&C Consent",      width: 160 },
+  { columnName: "marketing_FBClid",     columnHeaderName: "FBCLID",           width: 180 },
 ];
  
   const columnMetaData = [
@@ -163,21 +163,16 @@ const DealListView = (props: Params) => {
       },
     },
     { columnName: "value", columnHeaderName: "Value" },
-    {
-      columnName: "organization",
-      columnHeaderName: "Organisation",
-      width: 150,
-    },
-    {
-      columnName: "contactPerson",
-      columnHeaderName: "Contact Person",
-      width: 150,
-    },
+    { columnName: "personName", columnHeaderName: "Contact Person", width: 150 },
+    { columnName: "name", columnHeaderName: "Organisation", width: 150 },
     { columnName: "phone", columnHeaderName: "Phone", width: 150 },
-    { columnName: "email", columnHeaderName: "Email", width: 180 }, // ✅ NEW
-    
-  { columnName: "statusDisplay", columnHeaderName: "Status", width: 120 },
-
+    { columnName: "email", columnHeaderName: "Email", width: 180 },
+    { columnName: "pipelineName", columnHeaderName: "Pipeline", width: 150 },
+    { columnName: "labelName", columnHeaderName: "Label", width: 120 },
+    { columnName: "clinicName", columnHeaderName: "Clinic", width: 150 },
+    { columnName: "sourceName", columnHeaderName: "Source", width: 120 },
+    { columnName: "ownerName", columnHeaderName: "Owner", width: 120 },
+    { columnName: "statusDisplay", columnHeaderName: "Status", width: 120 },
     {
       columnName: "expectedCloseDate",
       columnHeaderName: "Expected Close Date",
@@ -647,45 +642,66 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
 };
 
 
+  // Helper function to handle undefined values
+  const safeValue = (value: any): string => {
+    if (value === null || value === undefined || value === "undefined" || value === "") {
+      return "N/A";
+    }
+    return String(value);
+  };
+
  const rowTransform = (item: Deal) => {
     const transformedItem = { ...item };
     
-    transformedItem.expectedCloseDate = moment(item.expectedCloseDate).format(
+    transformedItem.expectedCloseDate = item.expectedCloseDate ? moment(item.expectedCloseDate).format(
       window.config.DateFormat
-    );
-    transformedItem.operationDate = moment(item.operationDate).format(
+    ) : "N/A";
+    transformedItem.operationDate = item.operationDate ? moment(item.operationDate).format(
       window.config.DateFormat
-    );
+    ) : "N/A";
     
     // Fix value display logic
-   // if (userRole === 1) {
-      const numValue = Number(item.value);
-      transformedItem.value = (item.value !== null && item.value !== undefined && !isNaN(numValue) && numValue >= 0)
-        ? `£${numValue}`
-        : "N/A";
-   // } else {
-     // transformedItem.value = "£0";
-   // }
+    const numValue = Number(item.value);
+    transformedItem.value = (item.value !== null && item.value !== undefined && !isNaN(numValue) && numValue >= 0)
+      ? `£${numValue}`
+      : "N/A";
+    
     const statusText = getStatusNameById(item.statusID);
     // ✅ Emoji only for Won & Lost
-  let statusDisplay = statusText;
-  if (statusText === "Won") {
-    statusDisplay = `🟢 ${statusText}`;
-  } else if (statusText === "Lost") {
-    statusDisplay = `🔴 ${statusText}`;
-  }
-  const person = utility.persons.find(p => p.personID === item.contactPersonID);
-  
-  return {
-    ...transformedItem,
-    organization: getOrganizationName(item.organizationID),
-    contactPerson: getContactPersonName(item.contactPersonID),
-    phone: getContactPersonPhone(item.contactPersonID),
-    email: person?.email || "N/A", 
-    statusText,
-    statusDisplay, 
+    let statusDisplay = statusText;
+    if (statusText === "Won") {
+      statusDisplay = `🟢 ${statusText}`;
+    } else if (statusText === "Lost") {
+      statusDisplay = `🔴 ${statusText}`;
+    }
+    
+    return {
+      ...transformedItem,
+      // Add null checks for all fields that might be undefined
+      personName: safeValue(transformedItem.personName),
+      name: safeValue(transformedItem.name),
+      phone: safeValue(transformedItem.phone),
+      email: safeValue(transformedItem.email),
+      pipelineName: safeValue(transformedItem.pipelineName),
+      stageName: safeValue(transformedItem.stageName),
+      treatmentName: safeValue(transformedItem.treatmentName),
+      labelName: safeValue(transformedItem.labelName),
+      clinicName: safeValue(transformedItem.clinicName),
+      sourceName: safeValue(transformedItem.sourceName),
+      ownerName: safeValue(transformedItem.ownerName),
+      marketing_GCLID: safeValue(transformedItem.marketing_GCLID),
+      marketing_source: safeValue(transformedItem.marketing_source),
+      marketing_medium: safeValue(transformedItem.marketing_medium),
+      marketing_term: safeValue(transformedItem.marketing_term),
+      marketing_content: safeValue(transformedItem.marketing_content),
+      submission_id: safeValue(transformedItem.submission_id),
+      marketingConsent: safeValue((transformedItem as any).marketingConsent),
+      tcconsent: safeValue((transformedItem as any).tcconsent),
+      marketing_FBClid: safeValue((transformedItem as any).marketing_FBClid),
+      statusText,
+      statusDisplay,
+    };
   };
-};
 
   const updateRowData = () =>
   processRowData(dealsList).map((item, index) => {

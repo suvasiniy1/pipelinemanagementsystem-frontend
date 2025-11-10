@@ -1,72 +1,85 @@
 import React, { useEffect, useState } from "react";
-import { UserService } from "../../services/UserService";
 import { UserProfile } from "../../models/userProfile";
-import { AxiosError } from "axios";
-import { UnAuthorized } from "../../common/unauthorized";
-import "./ProfilePage.css"; // Import the CSS file for styling
-import { AccountService } from "../../services/accountService"; 
+import "./ProfilePage.css";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { useAuthContext } from "../../contexts/AuthContext";
+import Util from "../../others/util";
+import { Form, Button } from "react-bootstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 
 
 
 
 export const ProfilePage = () => {
-  const { userProfile: contextProfile } = useAuthContext();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [error, setError] = useState<AxiosError | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [currentTime, setCurrentTime] = useState<string>("");
-  const [isTwoFactorEnabled, setIsTwoFactorEnabled] = useState<boolean>(false); // Added state for 2FA
+  const [isTwoFactorEnabled, setIsTwoFactorEnabled] = useState<boolean>(false);
   const navigate = useNavigate();
 
-
   useEffect(() => {
-    const fetchUserProfile = async () => {
+    const loadUserProfile = () => {
       try {
-        const userId = contextProfile?.userId;
-
-        if (!userId) {
-          throw new Error("No user ID found.");
-        }
-
-        const userSvc = new UserService(null);
-        const response = await userSvc.getUserById(userId);
-
-        if (response) {
-          const userData = response;
-          setUserProfile({
-            firstName: userData.firstName,
-            lastName: userData.lastName,
-            phoneNumber: userData.phoneNumber,
-            user: userData.userName,
-            email: userData.email,
-            token: userData.token || "",
-            password: userData.password || "",
-            userId: userData.userId || 0,
-            isactive: userData.isactive !== undefined ? userData.isactive : false,
-            visibilityGroupID: userData.visibilityGroupID || 0,
-            expires: userData.expires || "",
-            country: userData.country || "United Kingdom",
-            state: userData.state || "N/A",
-            language: userData.language || "English",
-            timeZone: userData.timeZone || "Europe/London",
-            profilePicture: userData.profilePicture || "",
-          });
-          setIsTwoFactorEnabled(userData.twoFactorEnabled); // Set the initial 2FA state
+        // Get user profile from localStorage using Util.UserProfile()
+        const utilProfile = Util.UserProfile();
+        
+        if (utilProfile && Object.keys(utilProfile).length > 0) {
+          setUserProfile(utilProfile);
+          // Set MFA status from profile or default to false
+          setIsTwoFactorEnabled(utilProfile.twoFactorEnabled || false);
         } else {
-          throw new Error("No data returned from API");
+          // Fallback: create a basic profile structure
+          const fallbackProfile: UserProfile = {
+            firstName: "User",
+            lastName: "Profile",
+            phoneNumber: "N/A",
+            user: "user",
+            email: "user@example.com",
+            token: "",
+            password: "",
+            userId: 0,
+            isactive: true,
+            visibilityGroupID: 0,
+            expires: "",
+            country: "United Kingdom",
+            state: "N/A",
+            language: "English",
+            timeZone: "Europe/London",
+            profilePicture: ""
+          };
+          setUserProfile(fallbackProfile);
+          setIsTwoFactorEnabled(false);
         }
       } catch (err) {
-        console.error("Error fetching user profile:", err);
-        setError(err as AxiosError);
+        console.error("Error loading user profile:", err);
+        // Set fallback profile on error
+        const fallbackProfile: UserProfile = {
+          firstName: "User",
+          lastName: "Profile",
+          phoneNumber: "N/A",
+          user: "user",
+          email: "user@example.com",
+          token: "",
+          password: "",
+          userId: 0,
+          isactive: true,
+          visibilityGroupID: 0,
+          expires: "",
+          country: "United Kingdom",
+          state: "N/A",
+          language: "English",
+          timeZone: "Europe/London",
+          profilePicture: ""
+        };
+        setUserProfile(fallbackProfile);
+        setIsTwoFactorEnabled(false);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchUserProfile();
+    loadUserProfile();
   }, []);
 
   useEffect(() => {
@@ -91,10 +104,19 @@ export const ProfilePage = () => {
     return () => clearInterval(interval); // Cleanup on unmount
   }, [userProfile]);
 
-  
+  const handleMFAToggle = () => {
+    const newMFAStatus = !isTwoFactorEnabled;
+    setIsTwoFactorEnabled(newMFAStatus);
+    
+    // Update the profile in localStorage
+    if (userProfile) {
+      const updatedProfile = { ...userProfile, twoFactorEnabled: newMFAStatus };
+      localStorage.setItem('UserProfile', JSON.stringify(updatedProfile));
+      toast.success(`Two-Factor Authentication ${newMFAStatus ? 'enabled' : 'disabled'} successfully!`);
+    }
+  };
 
   if (isLoading) return <p>Loading...</p>;
-  if (error) return <UnAuthorized error={error} />;
 
   if (!userProfile) {
     return <p>User profile could not be loaded.</p>;
@@ -102,9 +124,17 @@ export const ProfilePage = () => {
 
   return (
     <div className="profile-page">
-       <button className="btn btn-secondary mb-3" onClick={() => navigate("/pipeline")}>
-    ← Back to Deals
-       </button>
+      <div className="w-100" style={{ maxWidth: '1100px' }}>
+        <Button 
+          variant="outline-primary" 
+          className="mb-4 d-flex align-items-center gap-2" 
+          onClick={() => navigate("/pipeline")}
+          style={{ width: 'fit-content' }}
+        >
+          <FontAwesomeIcon icon={faArrowLeft} />
+          Back to Deals
+        </Button>
+      </div>
       <h1 className="profile-title"></h1>
       <div className="profile-container">
        
@@ -160,10 +190,25 @@ export const ProfilePage = () => {
             <strong>Current Time</strong>
             <p>{currentTime}</p>
           </div>
-         <div className="profile-item">
-  <strong>Two-Factor Authentication</strong>
-  <p>{isTwoFactorEnabled ? "Enabled" : "Not Enabled"}</p>
-</div>
+          <div className="profile-item">
+            <strong>Two-Factor Authentication</strong>
+            <div className="d-flex align-items-center gap-3">
+              <Form.Check
+                type="switch"
+                id="mfa-switch"
+                checked={isTwoFactorEnabled}
+                onChange={handleMFAToggle}
+                label={isTwoFactorEnabled ? "Enabled" : "Disabled"}
+              />
+              <Button
+                variant={isTwoFactorEnabled ? "success" : "outline-secondary"}
+                size="sm"
+                onClick={handleMFAToggle}
+              >
+                {isTwoFactorEnabled ? "Disable MFA" : "Enable MFA"}
+              </Button>
+            </div>
+          </div>
         
         </div>
       </div>

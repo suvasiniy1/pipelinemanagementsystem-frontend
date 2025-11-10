@@ -16,10 +16,11 @@ export class UserProfile {
   language?: string; // Optional fields
   timeZone?: string; // Optional fields
   profilePicture?: string; // Optional field
-  twoFactorRequired?: boolean; 
+  twoFactorRequired?: boolean;
+  twoFactorEnabled?: boolean;
   concurrencyStamp?:string;
   securityStamp?:string;
   forcePasswordReset?:boolean;
   encryptedUserId?:string;
- encryptedToken?: string; 
+  encryptedToken?: string; 
 }
