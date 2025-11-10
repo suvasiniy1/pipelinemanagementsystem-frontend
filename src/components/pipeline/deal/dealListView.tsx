@@ -127,7 +127,7 @@ const DealListView = (props: Params) => {
   { columnName: "submission_id",        columnHeaderName: "Submission ID",    width: 180 },
   { columnName: "marketingConsent",     columnHeaderName: "Marketing Consent",width: 180 },
   { columnName: "tcconsent",            columnHeaderName: "T&C Consent",      width: 160 },
-  { columnName: "marketing_FBClid",     columnHeaderName: "FBCLID",           width: 180 },
+  { columnName: "marketing_FBClid",     columnHeaderName: "FBCLID",           width: 180 }, 
 ];
  
   const columnMetaData = [

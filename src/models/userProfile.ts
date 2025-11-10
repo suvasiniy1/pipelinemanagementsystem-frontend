@@ -6,7 +6,7 @@ export class UserProfile {
   userId!: number;
   firstName?: string; // Optional fields
   lastName?: string;  // Optional fields
-  phoneNumber?: string; // Optional field
+  phoneNumber?: string; // Optional field 
   role?: any;
   isactive!: boolean;
   visibilityGroupID!: number;

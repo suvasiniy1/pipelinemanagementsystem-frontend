@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import Util from "../../others/util";
 import { Form, Button } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"; 
 
 
 

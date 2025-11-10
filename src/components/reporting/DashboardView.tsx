@@ -205,7 +205,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({ dashboard, onBack, onRepo
         />
       )}
       
-      {/* Add Report to Dashboard Modal */}
+      {/* Add Report to Dashboard Modal */} 
       {showAddReportModal && (
         <DeleteDialog
           itemType="Report"

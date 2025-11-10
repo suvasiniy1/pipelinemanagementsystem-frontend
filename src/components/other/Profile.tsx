@@ -33,6 +33,6 @@ export const Profile = () => {
             <Dropdown.Item onClick={(e:any)=>doLogout()}>Logout</Dropdown.Item>
         </Dropdown.Menu>
     </Dropdown>
-
+ 
     );
 }
