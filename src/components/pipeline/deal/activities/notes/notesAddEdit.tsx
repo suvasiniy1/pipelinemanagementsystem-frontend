@@ -7,6 +7,8 @@ import { NotesService } from '../../../../../services/notesService';
 import { ErrorBoundary } from 'react-error-boundary';
 import Util from '../../../../../others/util';
 import { toast } from 'react-toastify';
+import { useAuthContext } from '../../../../../contexts/AuthContext'
+import { UserProfile } from '../../../../../models/userProfile'
 
 type params = {
     dealId: number;
@@ -17,7 +19,7 @@ type params = {
     onCloseDialog?:any;
 }
 const NotesAddEdit = (props: params) => {
-
+    const { userProfile } = useAuthContext();
     const { dialogIsOpen, setDialogIsOpen, dealId, noteItem, ...Others } = props;
     const [selectedItem, setSelectedItem] = useState(noteItem ?? new Notes());
     const noteSvc = new NotesService(ErrorBoundary);
@@ -46,11 +48,11 @@ const NotesAddEdit = (props: params) => {
         }
 
         setIsSaving(true);
-        
+        const userObj = userProfile || new UserProfile();        
         let obj = { ...selectedItem };
         obj.dealID = dealId;
-        obj.createdBy = obj.userID = Util.UserProfile()?.userId;
-        obj.userName = Util.UserProfile()?.user;
+        obj.createdBy =  userObj?.userId;
+        obj.userName =userObj?.user;
         
         (obj.noteID>0 ? noteSvc.putItemBySubURL(obj, `${obj.noteID}`) : noteSvc.postItemBySubURL(obj, "SaveNoteDetails")).then(res => {
             setDialogIsOpen(false);
