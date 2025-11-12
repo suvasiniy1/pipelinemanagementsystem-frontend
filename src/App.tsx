@@ -19,12 +19,14 @@ import { ErrorBoundary } from "react-error-boundary";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { AuthProvider } from "./contexts/AuthContext";
+import { useSignalR } from "./hooks/useSignalR";
 
-function App() {
+function AppContent() {
   const [navItemsLoaded, setNavItemsLoaded] = useState(false);
   const userService = new UserService(ErrorBoundary);
   const navigate = useNavigate();
   const location = useLocation();
+  const { isConnected, notifications } = useSignalR();
   
   const clearLocalStorage = () => {
     LocalStorageUtil.removeItem(Constants.USER_LOGGED_IN);
@@ -170,7 +172,7 @@ function App() {
   }, [collapsed]);
 
   return (
-    <AuthProvider>
+    <>
       {!navItemsLoaded ? (
         <div className="alignCenter">
           <Spinner />
@@ -206,6 +208,14 @@ function App() {
       ) : (
         <Login />
       )}
+    </>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
     </AuthProvider>
   );
 }
