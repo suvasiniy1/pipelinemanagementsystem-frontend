@@ -24,6 +24,7 @@ import DealsByStage from "./dealsByStage";
 import { DealFilter } from "../../../models/dealFilters";
 import { DotDigitalCampaignService } from "../../../services/dotDigitalCampaignService";
 import { JustcallCampaignService } from "../../../services/justCallCampaignService";
+import { useAuthContext } from "../../../contexts/AuthContext";
 
 type params = {
   isCombineEnabled?: any;
@@ -64,7 +65,7 @@ export const Deals = (props: params) => {
   const [pipeLineId, setPipeLineId] = useState(
     new URLSearchParams(location.search).get("pipelineID") as any
   );
-  const userProfile = Util.UserProfile();
+  const { userProfile } = useAuthContext();
   const utilSvc = new UtilService(ErrorBoundary);
   const dotDigitalCampaignService = new DotDigitalCampaignService(
     ErrorBoundary
@@ -286,13 +287,30 @@ export const Deals = (props: params) => {
 
         setStages([...stagesList]);
 
+        // Get userId from userProfile or fallback to token
+        const getUserId = () => {
+          if (userProfile?.userId) return userProfile.userId;
+          // Fallback: decode userId from token if available
+          const token = LocalStorageUtil.getItem(Constants.ACCESS_TOKEN);
+          if (token) {
+            try {
+              const payload = JSON.parse(atob(token.split('.')[1]));
+              return payload.userId || payload.sub || 0;
+            } catch {
+              return 0;
+            }
+          }
+          return 0;
+        };
+
         dealsSvc
           .putItemBySubURL(
             {
               newStageId: +destination.droppableId,
-              modifiedById: userProfile.userId,
+              modifiedById: getUserId(),
               dealId: +source.index,
-              pipelineId: selectedItem?.pipelineID,
+              pipelineId: selectedItem?.pipelineID || pipeLineId,
+              statusId: dItem?.statusID || 1,
             },
             +source.index + "/stage"
           )
@@ -325,7 +343,7 @@ export const Deals = (props: params) => {
       : stagesSvc.getDealsByFilterId(
           selectedFilterObj?.id,
           selectedItem?.pipelineID ?? pipeLineId,
-          userProfile.userId,
+          userProfile?.userId ?? 0,
           1,
           pageSize ?? pageSize
         )
