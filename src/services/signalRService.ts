@@ -4,24 +4,53 @@ import LocalStorageUtil from '../others/LocalStorageUtil';
 import Constants from '../others/constants';
 
 class SignalRService {
+  private static instance: SignalRService;
   private connection: signalR.HubConnection | null = null;
   private isConnected = false;
   private currentUserId: string | null = null;
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private sessionInfo: any = null;
+  private isConnecting = false;
+
+  public static getInstance(): SignalRService {
+    if (!SignalRService.instance) {
+      SignalRService.instance = new SignalRService();
+    }
+    return SignalRService.instance;
+  }
 
   async startConnection(userId?: string): Promise<void> {
-    if (this.connection && this.isConnected && this.currentUserId === userId) {
+    // Prevent multiple connection attempts
+    if (this.isConnecting) {
+      console.log('SignalR connection already in progress');
       return;
     }
 
+    if (this.connection && this.isConnected && this.currentUserId === userId) {
+      console.log('SignalR already connected for user:', userId);
+      return;
+    }
+
+    // Prevent connection if already connecting
+    if (this.connection?.state === signalR.HubConnectionState.Connecting) {
+      console.log('SignalR already connecting, skipping...');
+      return;
+    }
+
+    this.isConnecting = true;
     this.currentUserId = userId || null;
     
     // Check if user is still logged in
     if (!this.isUserLoggedIn()) {
       console.log('User not logged in, skipping SignalR connection');
+      this.isConnecting = false;
       return;
+    }
+
+    // Stop existing connection if any
+    if (this.connection) {
+      await this.stopConnection();
     }
 
     this.connection = new signalR.HubConnectionBuilder()
@@ -55,6 +84,8 @@ class SignalRService {
       console.error('SignalR Connection Error:', error);
       this.isConnected = false;
       this.handleConnectionError(error);
+    } finally {
+      this.isConnecting = false;
     }
   }
 
@@ -125,9 +156,14 @@ class SignalRService {
       return;
     }
 
-    // Retry connection after delay
+    // Don't retry if already connected or connecting
+    if (this.isConnected || this.connection?.state === signalR.HubConnectionState.Connecting) {
+      return;
+    }
+
+    // Retry connection after delay (only if not already connected)
     setTimeout(() => {
-      if (!this.isConnected && this.currentUserId) {
+      if (!this.isConnected && this.currentUserId && this.connection?.state !== signalR.HubConnectionState.Connecting) {
         this.startConnection(this.currentUserId);
       }
     }, 5000);
@@ -149,7 +185,9 @@ class SignalRService {
         console.error('Error stopping connection:', error);
       }
       
+      this.connection = null;
       this.isConnected = false;
+      this.isConnecting = false;
       this.currentUserId = null;
       this.sessionInfo = null;
       console.log('SignalR Disconnected');
@@ -211,4 +249,4 @@ class SignalRService {
   }
 }
 
-export default new SignalRService();
+export default SignalRService.getInstance();

@@ -89,11 +89,15 @@ const DealLostConfirmationDialog: React.FC<ViewEditProps> = (props) => {
   setIsSubmitting(true);
   submitRef.current = true;
 
+  // Find the display name for the selected reason
+  const selectedReason = lostDealReasons.find(r => r.value === item["reason"]);
+  const reasonDisplayName = selectedReason ? selectedReason.name : item["reason"];
+
   const updatedDeal: Partial<Deal> = {
     statusID: 3,
     isClosed: true,
     modifiedDate: new Date(),
-    reason: item["reason"],
+    reason: reasonDisplayName,
     comments: item["comments"],
   };
 

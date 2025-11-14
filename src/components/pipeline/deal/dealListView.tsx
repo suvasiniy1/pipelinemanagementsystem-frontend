@@ -68,7 +68,8 @@ const DealListView = (props: Params) => {
   const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplate | null>(null);
   const [exportFormat, setExportFormat] = useState<string>("csv");
   const [dealsList, setDealsList] = useState<Array<Deal>>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasInitialLoad, setHasInitialLoad] = useState(false);
 
     const [paginationModel, setPaginationModel] = useState<{ page: number; pageSize: number }>(() => {
     const saved = localStorage.getItem('dealListView_paginationModel');
@@ -192,6 +193,7 @@ const DealListView = (props: Params) => {
   const [selectedUserId, setSelectedUserId] = useState<any>(null);
   const [dealFilterDialogIsOpen, setDealFilterDialogIsOpen] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
+  const [isExporting, setIsExporting] = useState(false);
 
 
 
@@ -300,6 +302,7 @@ const DealListView = (props: Params) => {
         console.log('API totalCount:', total, 'rows:', rows.length);
         setDealsList(rows);
         setTotalCount(total);
+        setHasInitialLoad(true);
 
         // Clamp page if API says we’re past the end
         const last = Math.max(0, Math.ceil(total / size) - 1);
@@ -330,6 +333,7 @@ const DealListView = (props: Params) => {
         const list: Deal[] = [];
         (res?.stages ?? []).forEach((s: any) => (s?.deals ?? []).forEach((d: any) => list.push(d)));
         setDealsList(list);
+        setHasInitialLoad(true);
 
         // Prefer API total if present; otherwise fall back so DataGrid can compute pages.
         const apiTotal = res?.dealsDtos?.totalCount ?? res?.totalCount ?? 0;
@@ -452,21 +456,60 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
   };
 
   const handleExportToExcel = async () => {
-  const allDeals = await loadAllDeals();
-
-  if (!allDeals.length) {
-    alert("No deals found to export.");
+  if (isExporting) {
+    toast.warning('Export already in progress. Please wait...');
     return;
   }
 
-  // Export all properties with formatted headers
+  setIsExporting(true);
+  toast.info('Preparing export... Please wait', { autoClose: 2000 });
+
+  try {
+    const allDeals = await loadAllDeals();
+
+    if (!allDeals.length) {
+      toast.error("No deals found to export.");
+      setIsExporting(false);
+      return;
+    }
+
+  // List of ID properties to exclude from export
+  const excludeProperties = [
+    'dealID', 'contactPersonID', 'organizationID', 'pipelineID', 'stageID', 
+    'labelID', 'clinicID', 'sourceID', 'treatmentID', 'pipelineTypeID', 
+    'visibilityGroupID', 'assigntoId', 'createdBy', 'modifiedBy'
+  ];
+
+  // Export filtered properties with formatted headers
   const dataToExport = allDeals.map((deal: any) => {
     const formattedDeal: any = {};
     
     // Transform each property with proper header formatting
     Object.keys(deal).forEach(key => {
+      // Skip ID properties
+      if (excludeProperties.includes(key)) {
+        return;
+      }
+      
       const formattedKey = formatHeader(key);
-      const value = deal[key];
+      let value = deal[key];
+      
+      // Convert statusID to meaningful status text
+      if (key === 'statusID') {
+        formattedDeal['Deal Status'] = getStatusNameById(value);
+        return;
+      }
+      
+      // Convert isClosed boolean to Yes/No
+      if (key === 'isClosed') {
+        formattedDeal['Is Closed'] = value === true ? 'Yes' : 'No';
+        return;
+      }
+      
+      // Format dates
+      if (key.includes('Date') && value && value !== '0001-01-01T00:00:00') {
+        value = moment(value).format('DD/MM/YYYY');
+      }
       
       // Convert null/undefined/empty values to "N/A"
       formattedDeal[formattedKey] = (value === null || value === undefined || value === '') ? 'N/A' : value;
@@ -475,26 +518,36 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
     return formattedDeal;
   });
 
-  if (exportFormat === "xlsx") {
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Deals");
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array",
-    });
-    const data = new Blob([excelBuffer], {
-      type: "application/octet-stream",
-    });
-    saveAs(data, `All_Deals_${new Date().toISOString()}.xlsx`);
-  } else {
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-    const csv = XLSX.utils.sheet_to_csv(worksheet);
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    saveAs(blob, `All_Deals_${new Date().toISOString()}.csv`);
-  }
+    toast.info('Generating file... Almost done!', { autoClose: 1500 });
 
-  setDrawerOpen(false);
+    if (exportFormat === "xlsx") {
+      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Deals");
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
+      const data = new Blob([excelBuffer], {
+        type: "application/octet-stream",
+      });
+      saveAs(data, `All_Deals_${new Date().toISOString().split('T')[0]}.xlsx`);
+      toast.success(`Excel file downloaded successfully! (${allDeals.length} records)`);
+    } else {
+      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+      const csv = XLSX.utils.sheet_to_csv(worksheet);
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      saveAs(blob, `All_Deals_${new Date().toISOString().split('T')[0]}.csv`);
+      toast.success(`CSV file downloaded successfully! (${allDeals.length} records)`);
+    }
+
+    setDrawerOpen(false);
+  } catch (error) {
+    console.error('Export error:', error);
+    toast.error('Export failed. Please try again.');
+  } finally {
+    setIsExporting(false);
+  }
 };
 
 
@@ -1012,7 +1065,8 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
       )}
      
 
-      <ItemCollection
+      {hasInitialLoad ? (
+        <ItemCollection
         itemName={"Deals"}
         itemType={Deal}
         columnMetaData={columnMetaData}
@@ -1058,7 +1112,8 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
       }
     },
   }}
-      />
+        />
+      ) : null}
       
  
       <div className="pdstage-area">
@@ -1157,12 +1212,36 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
       </div>
     </div>
     <Button
-  variant="contained"
-  fullWidth
-  onClick={handleExportToExcel}
->
-  Export All Data
-</Button>
+      variant="contained"
+      fullWidth
+      onClick={handleExportToExcel}
+      disabled={isExporting}
+      style={{ position: 'relative' }}
+    >
+      {isExporting ? (
+        <>
+          <span style={{ marginRight: 8 }}>Exporting...</span>
+          <div 
+            style={{
+              width: 16,
+              height: 16,
+              border: '2px solid #ffffff40',
+              borderTop: '2px solid #ffffff',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite'
+            }}
+          />
+          <style>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
+        </>
+      ) : (
+        'Export All Data'
+      )}
+    </Button>
 
   </div>
 )} 

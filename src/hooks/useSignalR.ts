@@ -4,6 +4,8 @@ import { useAuthContext } from '../contexts/AuthContext';
 import LocalStorageUtil from '../others/LocalStorageUtil';
 import Constants from '../others/constants';
 
+let globalConnectionInitialized = false;
+
 export const useSignalR = () => {
   const { userProfile } = useAuthContext();
   const [isConnected, setIsConnected] = useState(false);
@@ -19,6 +21,8 @@ export const useSignalR = () => {
   }, []);
 
   useEffect(() => {
+    let connectionTimeout: NodeJS.Timeout;
+    
     const connectSignalR = async () => {
       if (!userProfile?.userId) return;
       
@@ -29,15 +33,19 @@ export const useSignalR = () => {
         return;
       }
 
-      try {
-        await signalRService.startConnection(userProfile.userId.toString());
-        setConnectionError(null);
-        checkConnectionStatus();
-      } catch (error) {
-        console.error('Failed to connect SignalR:', error);
-        setConnectionError(error instanceof Error ? error.message : 'Connection failed');
-        setIsConnected(false);
-      }
+      // Debounce connection attempts
+      clearTimeout(connectionTimeout);
+      connectionTimeout = setTimeout(async () => {
+        try {
+          await signalRService.startConnection(userProfile.userId.toString());
+          setConnectionError(null);
+          checkConnectionStatus();
+        } catch (error) {
+          console.error('Failed to connect SignalR:', error);
+          setConnectionError(error instanceof Error ? error.message : 'Connection failed');
+          setIsConnected(false);
+        }
+      }, 1000); // 1 second debounce
     };
 
     const handleNotification = (event: CustomEvent) => {
@@ -59,15 +67,17 @@ export const useSignalR = () => {
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        // Check connection when tab becomes visible
-        setTimeout(checkConnectionStatus, 1000);
+        // Only check if not already connected
+        if (!signalRService.isConnectionActive()) {
+          setTimeout(checkConnectionStatus, 2000);
+        }
       }
     };
 
     const handleOnline = () => {
-      // Reconnect when coming back online
-      if (userProfile?.userId) {
-        connectSignalR();
+      // Only reconnect if not already connected
+      if (userProfile?.userId && !signalRService.isConnectionActive()) {
+        setTimeout(() => connectSignalR(), 3000);
       }
     };
 
@@ -76,8 +86,9 @@ export const useSignalR = () => {
       signalRService.stopConnection();
     };
 
-    // Connect when user is authenticated
-    if (userProfile?.userId) {
+    // Connect when user is authenticated (only once globally)
+    if (userProfile?.userId && !globalConnectionInitialized) {
+      globalConnectionInitialized = true;
       connectSignalR();
     }
 
@@ -87,10 +98,11 @@ export const useSignalR = () => {
     window.addEventListener('online', handleOnline);
     window.addEventListener('beforeunload', handleBeforeUnload);
 
-    // Check connection status periodically
-    const statusInterval = setInterval(checkConnectionStatus, 30000);
+    // Check connection status less frequently
+    const statusInterval = setInterval(checkConnectionStatus, 60000); // Every 1 minute instead of 30 seconds
 
     return () => {
+      clearTimeout(connectionTimeout);
       window.removeEventListener('signalr-notification', handleNotification as EventListener);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('online', handleOnline);
@@ -100,6 +112,7 @@ export const useSignalR = () => {
       // Only disconnect if user is logging out
       const isLoggedIn = LocalStorageUtil.getItem(Constants.USER_LOGGED_IN) === 'true';
       if (!isLoggedIn) {
+        globalConnectionInitialized = false;
         signalRService.stopConnection();
       }
     };

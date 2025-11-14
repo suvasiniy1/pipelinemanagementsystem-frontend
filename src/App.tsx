@@ -27,6 +27,7 @@ function AppContent() {
   const navigate = useNavigate();
   const location = useLocation();
   const { isConnected, notifications } = useSignalR();
+  const [signalRInitialized, setSignalRInitialized] = useState(false);
   
   const clearLocalStorage = () => {
     LocalStorageUtil.removeItem(Constants.USER_LOGGED_IN);
@@ -85,6 +86,16 @@ function AppContent() {
     
     initializeApp();
   }, []);
+
+  // Initialize SignalR only once when user is logged in
+  useEffect(() => {
+    const isLoggedIn = LocalStorageUtil.getItem(Constants.USER_LOGGED_IN) === "true";
+    if (isLoggedIn && !signalRInitialized) {
+      setSignalRInitialized(true);
+    } else if (!isLoggedIn && signalRInitialized) {
+      setSignalRInitialized(false);
+    }
+  }, [location.pathname, signalRInitialized]);
   const [collapsed, setCollapsed] = useState<any>(
     (LocalStorageUtil.getItem(Constants.ISSIDEBAR_EXPANDED) as any) === "false"
       ? false
