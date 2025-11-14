@@ -26,9 +26,9 @@ export default class Util {
     return string.charAt(0).toUpperCase() + string.slice(1);
   };
   public static UserProfile = () => {
-    return LocalStorageUtil.getItemObject(
-      Constants.USER_PROFILE
-    ) as UserProfile;
+    // This method is deprecated - use useAuthContext() instead
+    console.warn('Util.UserProfile() is deprecated. Use useAuthContext() hook instead.');
+    return null as any;
   };
 
   public static convertTZ = (dateTime: any) => {

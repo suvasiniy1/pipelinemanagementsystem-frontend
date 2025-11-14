@@ -65,7 +65,7 @@ export const Deals = (props: params) => {
   const [pipeLineId, setPipeLineId] = useState(
     new URLSearchParams(location.search).get("pipelineID") as any
   );
-  const { userProfile } = useAuthContext();
+  const { userProfile, isLoggedIn } = useAuthContext();
   const utilSvc = new UtilService(ErrorBoundary);
   const dotDigitalCampaignService = new DotDigitalCampaignService(
     ErrorBoundary
@@ -287,27 +287,18 @@ export const Deals = (props: params) => {
 
         setStages([...stagesList]);
 
-        // Get userId from userProfile or fallback to token
-        const getUserId = () => {
-          if (userProfile?.userId) return userProfile.userId;
-          // Fallback: decode userId from token if available
-          const token = LocalStorageUtil.getItem(Constants.ACCESS_TOKEN);
-          if (token) {
-            try {
-              const payload = JSON.parse(atob(token.split('.')[1]));
-              return payload.userId || payload.sub || 0;
-            } catch {
-              return 0;
-            }
-          }
-          return 0;
-        };
+        // Only proceed if userProfile is available
+        if (!userProfile?.userId) {
+          toast.error('User session not available. Please refresh the page.');
+          setStages([...originalStages]);
+          return;
+        }
 
         dealsSvc
           .putItemBySubURL(
             {
               newStageId: +destination.droppableId,
-              modifiedById: getUserId(),
+              modifiedById: userProfile.userId,
               dealId: +source.index,
               pipelineId: selectedItem?.pipelineID || pipeLineId,
               statusId: dItem?.statusID || 1,
@@ -394,6 +385,16 @@ export const Deals = (props: params) => {
     loadDealsByFilter();
   }
 }, [selectedFilterObj, selectedUserId]);
+
+  // Wait for userProfile to be available if user is logged in
+  if (isLoggedIn && !userProfile) {
+    return (
+      <div className="alignCenter">
+        <Spinner />
+      </div>
+    );
+  }
+
   return (
     <>
       {isLoading ? (
