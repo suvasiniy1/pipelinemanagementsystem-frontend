@@ -386,14 +386,7 @@ export const Deals = (props: params) => {
   }
 }, [selectedFilterObj, selectedUserId]);
 
-  // Wait for userProfile to be available if user is logged in
-  if (isLoggedIn && !userProfile) {
-    return (
-      <div className="alignCenter">
-        <Spinner />
-      </div>
-    );
-  }
+  // Remove the userProfile waiting condition to prevent infinite loading
 
   return (
     <>

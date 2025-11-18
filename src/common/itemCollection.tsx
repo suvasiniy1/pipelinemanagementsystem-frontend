@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import Util from "../others/util";
 import ErrorFallback from "./errorFallBack";
@@ -15,6 +15,8 @@ import MultiSelectDropdown from "../elements/multiSelectDropdown";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import type { DataGridProps } from '@mui/x-data-grid';
+import SimpleGridPreferencesButton from './SimpleGridPreferencesButton';
+import { useGridPreferences } from '../hooks/useGridPreferences';
 
 // Static flag to prevent multiple simultaneous API calls
 let isLoadingTemplatesGlobal = false;
@@ -75,6 +77,7 @@ type params = {
 
 const ItemCollection: React.FC<params> = (props) => {
   console.log("ItemCollection - props: ", props);
+  const { savePreferences, resetPreferences, updatePreferences, preferences: gridPreferences, hasChanges, hasExistingPreferences } = useGridPreferences(`${props.itemName}-grid`);
   const [excludeColumnsForExport, setExcludeColumnsForExport] = useState(
     (props.excludeColumnsForExport ?? []).concat([
       "renderValueinCustomFormat",
@@ -143,6 +146,19 @@ const ItemCollection: React.FC<params> = (props) => {
   const [isLoading, setIsloading] = useState(
     props.isLoading ? props.isLoading : false
   );
+  const currentGridPreferencesRef = useRef<{
+    columnOrder: string[];
+    columnWidths: { [key: string]: number };
+    sortModel: any[];
+    filterModel: any;
+    hiddenColumns: string[];
+  }>({
+    columnOrder: [],
+    columnWidths: {},
+    sortModel: [],
+    filterModel: {},
+    hiddenColumns: []
+  });
   const [propNameforSelector, setPropNameforSelector] = useState(
     props.propNameforSelector ? props.propNameforSelector : null
   );
@@ -299,6 +315,17 @@ const ItemCollection: React.FC<params> = (props) => {
     console.log("Selected Rows Updated: ", selectedRows);
   }, [selectedRows]);
 
+  // Initialize preferences ref
+  useEffect(() => {
+    currentGridPreferencesRef.current = {
+      columnOrder: gridPreferences.columnOrder || [],
+      columnWidths: gridPreferences.columnWidths || {},
+      sortModel: gridPreferences.sortModel || [],
+      filterModel: gridPreferences.filterModel || {},
+      hiddenColumns: gridPreferences.hiddenColumns || []
+    };
+  }, [gridPreferences]);
+
   const handleSelectionChange = (newSelection: GridRowSelectionModel) => {
     console.log("Selection Changed in ItemCollection: ", newSelection);
     setSelectedRows(newSelection);
@@ -356,7 +383,11 @@ const ItemCollection: React.FC<params> = (props) => {
       }
     });
   
-  const updatedColumnMetaData = sortedFields;
+  // Apply saved column widths to column metadata
+  const updatedColumnMetaData = sortedFields.map(field => ({
+    ...field,
+    width: gridPreferences.columnWidths?.[field.columnName] || field.width
+  }));
 
   const tableListProps: any = {
     rowClassName: (params: any) => {
@@ -399,7 +430,47 @@ const ItemCollection: React.FC<params> = (props) => {
     canShowDropdownForFilter: canShowDropdownForFilter,
     customRowData: customRowData,
     hidePagination: props.hidePagination,
-    dataGridProps: props.dataGridProps, 
+    dataGridProps: {
+      ...props.dataGridProps,
+      // Apply loaded preferences
+      initialState: {
+        ...props.dataGridProps?.initialState,
+        columns: {
+          columnVisibilityModel: gridPreferences.hiddenColumns?.reduce((acc, col) => {
+            acc[col] = false; // false means hidden
+            return acc;
+          }, {} as any) || {},
+        },
+        sorting: {
+          sortModel: Array.isArray(gridPreferences.sortModel) ? gridPreferences.sortModel : [],
+        },
+      },
+      columnOrder: gridPreferences.columnOrder || undefined,
+      onSortModelChange: (sortModel: any) => {
+        currentGridPreferencesRef.current.sortModel = sortModel;
+        updatePreferences({...currentGridPreferencesRef.current});
+      },
+      onColumnOrderChange: (columnOrder: string[]) => {
+        currentGridPreferencesRef.current.columnOrder = columnOrder;
+        updatePreferences({...currentGridPreferencesRef.current});
+      },
+      onColumnWidthChange: (params: any) => {
+        currentGridPreferencesRef.current.columnWidths = {
+          ...currentGridPreferencesRef.current.columnWidths,
+          [params.colDef.field]: params.width
+        };
+        updatePreferences({...currentGridPreferencesRef.current});
+      },
+      onColumnVisibilityModelChange: (model: any) => {
+        const hiddenColumns = Object.keys(model).filter(key => !model[key]);
+        currentGridPreferencesRef.current.hiddenColumns = hiddenColumns;
+        updatePreferences({...currentGridPreferencesRef.current});
+      },
+      onFilterModelChange: (filterModel: any) => {
+        currentGridPreferencesRef.current.filterModel = filterModel;
+        updatePreferences({...currentGridPreferencesRef.current});
+      },
+    }, 
     customActions: customActions,
     viewAddEditComponentProps: {
       dialogIsOpen: dialogIsOpen,
@@ -563,8 +634,8 @@ if (exportFormat === "csv") {
         <div className="pipe-toolbar pt-3 pb-3">
           <div className="container-fluid">
             <div className="row toolbarview-row">
-              <div className="col-sm-5 toolbarview-actions">
-                <h4>{itemName + " List"}</h4>
+              <div className="col-sm-5 toolbarview-actions" style={{ display: 'flex', alignItems: 'center' }}>
+                <h4 style={{ margin: 0 }}>{itemName + " List"}</h4>
               </div>
               {props.isCustomHeaderActions ? (
                 props.customHeaderActions()
@@ -583,7 +654,20 @@ if (exportFormat === "csv") {
                       boxSizing: 'border-box',
                     }}>
                     {renderSendGroupEmailButton()}
+                    
+                    {/* Grid Preferences Buttons - positioned before Export and Add buttons */}
+                    <SimpleGridPreferencesButton
+                      gridName={`${itemName}-grid`}
+                      hasChanges={hasChanges}
+                      hasExistingPreferences={hasExistingPreferences}
+                      onSave={() => {
+                        savePreferences(currentGridPreferencesRef.current);
+                      }}
+                      onReset={resetPreferences}
+                    />
+                    
                     {canExport ? renderExportButton() : null}
+                    
                     <Button
                       type="button"
                       variant="contained"

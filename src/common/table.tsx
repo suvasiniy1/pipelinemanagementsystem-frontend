@@ -365,6 +365,8 @@ const clientPaginationDefaults: Partial<DataGridProps> = props.hidePagination
       pageSizeOptions: window.config?.Pagination?.pageSizeOptions || [8, 16, 32, 64],
       initialState: {
         pagination: { paginationModel: { pageSize: window.config?.Pagination?.defaultPageSize || 8, page: 0 } },
+        // Merge with preferences from dataGridProps
+        ...props.dataGridProps?.initialState
       },
       slotProps: {
         pagination: { showFirstButton: true, showLastButton: true },
@@ -544,35 +546,34 @@ const clientPaginationDefaults: Partial<DataGridProps> = props.hidePagination
         </div>
       ) : (
         <StripedDataGrid
+          key={`grid-${JSON.stringify(props.dataGridProps?.initialState || {})}`}
           rows={rowData}
           columns={columnsMetaData as any}
           columnVisibilityModel={columnVisibilityModel}
-          onColumnVisibilityModelChange={(newModel) => setColumnVisibilityModel(newModel)}
-          checkboxSelection={checkboxSelection} // Enable checkbox selection
+          onColumnVisibilityModelChange={setColumnVisibilityModel}
+          checkboxSelection={checkboxSelection}
           onRowSelectionModelChange={checkboxSelection ? handleSelectionChange : undefined}
           disableRowSelectionOnClick={!checkboxSelection}
           getRowClassName={(params) => {
-  const base = params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd";
-
-  // Use whatever field you have on the row. You were setting both statusText and status in some places.
-  const status = params.row?.statusText ?? params.row?.status;
-
-  if (status === "Won") return `${base} row-won`;
-  if (status === "Lost") return `${base} row-lost`;
-  return base; // Open/Closed: no special color
-}}
+            const base = params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd";
+            const status = params.row?.statusText ?? params.row?.status;
+            if (status === "Won") return `${base} row-won`;
+            if (status === "Lost") return `${base} row-lost`;
+            return base;
+          }}
           hideFooter={props.hidePagination}
           density="standard"
           sx={{ minWidth: 800, height: 'calc(100vh - 220px)' }}
-           {...clientPaginationDefaults}
-          {...(props.dataGridProps ?? {})}
+          {...clientPaginationDefaults}
           {...(!props.hidePagination ? { 
             pagination: true, 
             pageSizeOptions: window.config?.Pagination?.pageSizeOptions || [8, 16, 32, 64], 
             initialState: { 
               pagination: { 
                 paginationModel: { pageSize: window.config?.Pagination?.defaultPageSize || 8, page: 0 } 
-              } 
+              },
+              // Merge with preferences from dataGridProps
+              ...props.dataGridProps?.initialState
             },
             slotProps: {
               pagination: {
@@ -580,8 +581,11 @@ const clientPaginationDefaults: Partial<DataGridProps> = props.hidePagination
                 showLastButton: true,
               },
             }
-          } : { pageSizeOptions: [], initialState: {} })}
-         
+          } : { 
+            pageSizeOptions: [], 
+            initialState: props.dataGridProps?.initialState || {} 
+          })}
+          {...(props.dataGridProps ?? {})}
         />
       )}
     </Grid>

@@ -42,6 +42,8 @@ import { useAuthContext } from "../../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { GridCellParams } from "@mui/x-data-grid";
 import React from "react";
+import SimpleGridPreferencesButton from "../../../common/SimpleGridPreferencesButton";
+import { GridPreferences } from "../../../hooks/useGridPreferences";
 
 type Params = {
   pipeLineId: number;
@@ -194,6 +196,7 @@ const DealListView = (props: Params) => {
   const [dealFilterDialogIsOpen, setDealFilterDialogIsOpen] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
   const [isExporting, setIsExporting] = useState(false);
+  const [currentGridPreferences, setCurrentGridPreferences] = useState<GridPreferences>({});
 
 
 
@@ -833,7 +836,7 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
   const customHeaderActions = () => {
     return (
       <div className="col-sm-7 toolbarview-summery">
-        <div className="toolbarview-actionsrow" style={{ paddingRight: "20px", display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div className="toolbarview-actionsrow" style={{ paddingRight: "20px", display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           <div style={{ fontSize: 14, fontWeight: 500, marginRight: 16 }}>
            Total Deals: {totalCount}
           </div>
@@ -978,6 +981,13 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
               </button>
             )}
           </div>
+          
+          {/* Grid Preferences Buttons */}
+          <SimpleGridPreferencesButton
+            gridName="deals-grid"
+            currentPreferences={currentGridPreferences}
+          />
+          
           {/* Combined More Actions menu */}
           <div style={{ position: 'relative', zIndex: 1050 }}>
             <Dropdown align="end">
@@ -1090,6 +1100,30 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
     onPaginationModelChange: setPaginationModel,
     pageSizeOptions: window.config?.Pagination?.pageSizeOptions || [10, 25, 50, 100],
     disableRowSelectionOnClick: true,
+    onSortModelChange: (sortModel: any) => {
+      console.log('Sort model changed:', sortModel);
+      setCurrentGridPreferences(prev => ({ ...prev, sortModel }));
+    },
+    onColumnOrderChange: (columnOrder: string[]) => {
+      console.log('Column order changed:', columnOrder);
+      setCurrentGridPreferences(prev => ({ ...prev, columnOrder }));
+    },
+    onColumnWidthChange: (params: any) => {
+      console.log('Column width changed:', params);
+      setCurrentGridPreferences(prev => ({
+        ...prev,
+        columnWidths: { ...prev.columnWidths, [params.colDef.field]: params.width }
+      }));
+    },
+    onColumnVisibilityModelChange: (model: any) => {
+      console.log('Column visibility changed:', model);
+      const hiddenColumns = Object.keys(model).filter(key => !model[key]);
+      setCurrentGridPreferences(prev => ({ ...prev, hiddenColumns }));
+    },
+    onFilterModelChange: (filterModel: any) => {
+      console.log('Filter model changed:', filterModel);
+      setCurrentGridPreferences(prev => ({ ...prev, filterModel }));
+    },
     onCellClick: (params: any) => {
       console.log('Cell clicked:', params);
       if (params.field === 'treatmentName') {
