@@ -436,10 +436,29 @@ const ItemCollection: React.FC<params> = (props) => {
       initialState: {
         ...props.dataGridProps?.initialState,
         columns: {
-          columnVisibilityModel: gridPreferences.hiddenColumns?.reduce((acc, col) => {
-            acc[col] = false; // false means hidden
-            return acc;
-          }, {} as any) || {},
+          columnVisibilityModel: gridPreferences.hiddenColumns && gridPreferences.hiddenColumns.length > 0 
+            ? {
+                // Show all columns by default
+                ...updatedColumnMetaData.reduce((acc, col) => {
+                  acc[col.columnName] = true; // true means visible
+                  return acc;
+                }, {} as any),
+                // Hide only the columns in hiddenColumns array
+                ...gridPreferences.hiddenColumns.reduce((acc, col) => {
+                  // Only include columns that exist in current grid
+                  if (updatedColumnMetaData.some(colDef => colDef.columnName === col)) {
+                    acc[col] = false; // false means hidden
+                  }
+                  return acc;
+                }, {} as any)
+              }
+            : {
+                // No saved preferences, use default visibility from metadata
+                ...updatedColumnMetaData.reduce((acc, col) => {
+                  acc[col.columnName] = !col.hidden; // hidden: true => visible: false
+                  return acc;
+                }, {} as any)
+              },
         },
         sorting: {
           sortModel: Array.isArray(gridPreferences.sortModel) ? gridPreferences.sortModel : [],

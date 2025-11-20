@@ -505,12 +505,7 @@ const clientPaginationDefaults: Partial<DataGridProps> = props.hidePagination
 
   const columnsMetaData = generateGridColDef();
 
-  const [columnVisibilityModel, setColumnVisibilityModel] = useState<Record<string, boolean>>(
-    columnMetaData.reduce((acc, col) => {
-      acc[col.columnName] = !col.hidden; // hidden: true => visible: false
-      return acc;
-    }, {} as Record<string, boolean>)
-  );
+  // Column visibility is now handled by preferences in dataGridProps
 
   return (
     <Grid
@@ -544,13 +539,16 @@ const clientPaginationDefaults: Partial<DataGridProps> = props.hidePagination
         <div className="alignCenter">
           <Spinner />
         </div>
-      ) : (
+      ) : rowData && rowData.length >= 0 ? (
         <StripedDataGrid
-          key={`grid-${JSON.stringify(props.dataGridProps?.initialState || {})}`}
+          key={`grid-${props.itemName}`}
           rows={rowData}
           columns={columnsMetaData as any}
-          columnVisibilityModel={columnVisibilityModel}
-          onColumnVisibilityModelChange={setColumnVisibilityModel}
+          onColumnVisibilityModelChange={(model, details) => {
+            if (props.dataGridProps?.onColumnVisibilityModelChange) {
+              props.dataGridProps.onColumnVisibilityModelChange(model, details);
+            }
+          }}
           checkboxSelection={checkboxSelection}
           onRowSelectionModelChange={checkboxSelection ? handleSelectionChange : undefined}
           disableRowSelectionOnClick={!checkboxSelection}
@@ -565,28 +563,13 @@ const clientPaginationDefaults: Partial<DataGridProps> = props.hidePagination
           density="standard"
           sx={{ minWidth: 800, height: 'calc(100vh - 220px)' }}
           {...clientPaginationDefaults}
-          {...(!props.hidePagination ? { 
-            pagination: true, 
-            pageSizeOptions: window.config?.Pagination?.pageSizeOptions || [8, 16, 32, 64], 
-            initialState: { 
-              pagination: { 
-                paginationModel: { pageSize: window.config?.Pagination?.defaultPageSize || 8, page: 0 } 
-              },
-              // Merge with preferences from dataGridProps
-              ...props.dataGridProps?.initialState
-            },
-            slotProps: {
-              pagination: {
-                showFirstButton: true,
-                showLastButton: true,
-              },
-            }
-          } : { 
-            pageSizeOptions: [], 
-            initialState: props.dataGridProps?.initialState || {} 
-          })}
+
           {...(props.dataGridProps ?? {})}
         />
+      ) : (
+        <div className="alignCenter">
+          <span>Loading data...</span>
+        </div>
       )}
     </Grid>
   );
