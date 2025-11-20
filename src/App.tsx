@@ -20,6 +20,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { AuthProvider } from "./contexts/AuthContext";
 import { useSignalR } from "./hooks/useSignalR";
+import { checkForUpdates } from "./utils/versionCheck";
 
 function AppContent() {
   const [navItemsLoaded, setNavItemsLoaded] = useState(false);
@@ -73,6 +74,9 @@ function AppContent() {
   
   useEffect(() => {
     const initializeApp = async () => {
+      // Check for updates on app start
+      checkForUpdates();
+      
       if (LocalStorageUtil.getItem(Constants.USER_LOGGED_IN) === "true") {
         try {
           const users = await userService.getUsers();
@@ -85,6 +89,10 @@ function AppContent() {
     };
     
     initializeApp();
+    
+    // Check for updates every 5 minutes
+    const interval = setInterval(checkForUpdates, 5 * 60 * 1000);
+    return () => clearInterval(interval);
   }, []);
 
   // Initialize SignalR only once when user is logged in
