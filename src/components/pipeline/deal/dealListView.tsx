@@ -43,7 +43,7 @@ import { useNavigate } from "react-router-dom";
 import { GridCellParams } from "@mui/x-data-grid";
 import React from "react";
 import SimpleGridPreferencesButton from "../../../common/SimpleGridPreferencesButton";
-import { GridPreferences } from "../../../hooks/useGridPreferences";
+import { useGridPreferences } from "../../../hooks/useGridPreferences";
 
 type Params = {
   pipeLineId: number;
@@ -196,7 +196,8 @@ const DealListView = (props: Params) => {
   const [dealFilterDialogIsOpen, setDealFilterDialogIsOpen] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
   const [isExporting, setIsExporting] = useState(false);
-  const [currentGridPreferences, setCurrentGridPreferences] = useState<GridPreferences>({});
+  const { preferences } = useGridPreferences('Deals-grid');
+
 
 
 
@@ -984,8 +985,7 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
           
           {/* Grid Preferences Buttons */}
           <SimpleGridPreferencesButton
-            gridName="deals-grid"
-            currentPreferences={currentGridPreferences}
+            gridName="Deals-grid"
           />
           
           {/* Combined More Actions menu */}
@@ -1077,11 +1077,12 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
 
       {hasInitialLoad ? (
         <ItemCollection
+        key={`deals-${dealsList.length}`}
         itemName={"Deals"}
         itemType={Deal}
         columnMetaData={columnMetaData}
         canAdd={false}
-        canExport={false}
+        canExport={true}
         canDoActions={false}
         viewAddEditComponent={null}
         checkboxSelection={true}
@@ -1090,62 +1091,142 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
         hidePagination={false} // Ensure DataGrid pagination is hidden
    
         isCustomHeaderActions={true}
-        customHeaderActions={customHeaderActions}
+        customHeaderActions={(itemCollectionPrefs: any) => (
+          <div className="col-sm-7 toolbarview-summery">
+            <div className="toolbarview-actionsrow" style={{ paddingRight: "20px", display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+              <div style={{ fontSize: 14, fontWeight: 500, marginRight: 16 }}>
+                Total Deals: {totalCount}
+              </div>
+              
+              <div className="pipeselectbtngroup" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div className="pipeselectbox variantselectbox" onClick={() => setShowPipeLineFilters(!showPipeLineFilters)}>
+                  <button className="pipeselect" type="button">
+                    <FontAwesomeIcon icon={faChartSimple} />
+                    <span>{selectedFilterObj?.name ?? users?.find((u) => u.id === selectedUserId)?.name ?? "Select"}</span>
+                  </button>
+                  <div className="pipeselectcontent pipeselectfilter" hidden={!showPipeLineFilters} style={{ position: 'absolute', right: 0, left: 'auto', transform: 'translateX(0)', zIndex: showPipeLineFilters ? 999 : -1, pointerEvents: showPipeLineFilters ? 'auto' : 'none' }}>
+                    <ul className="nav nav-tabs pipefilternav-tabs" id="myTab" role="tablist">
+                      <li className="nav-item" role="presentation">
+                        <button className="nav-link active" id="filters-tab" data-bs-toggle="tab" data-bs-target="#filters" type="button" role="tab">
+                          <FilterListIcon /> Filters
+                        </button>
+                      </li>
+                      <li className="nav-item" role="presentation">
+                        <button className="nav-link" id="owners-tab" data-bs-toggle="tab" data-bs-target="#owners" type="button" role="tab">
+                          <PersonOutlineIcon /> Owners
+                        </button>
+                      </li>
+                    </ul>
+                    <div className="tab-content pipefiltertab-content" id="myTabContent">
+                      <div className="tab-pane fade show active" id="filters" role="tabpanel">
+                        <FilterDropdown key={resetKey} showPipeLineFilters={showPipeLineFilters} setShowPipeLineFilters={setShowPipeLineFilters} selectedFilterObj={selectedFilterObj} setSelectedFilterObj={setSelectedFilterObj} setDialogIsOpen={setDealFilterDialogIsOpen} dialogIsOpen={dealFilterDialogIsOpen} />
+                      </div>
+                      <div className="tab-pane fade" id="owners" role="tabpanel">
+                        <div className="pipeselectpadlr filterownersbox">
+                          {users?.filter((u) => u.isActive).map((item, index) => (
+                            <ul className="pipeselectlist filterownerslist" key={index}>
+                              <li>
+                                <div className="filterownerli-row" onClick={() => onPersonSelection(item.name)}>
+                                  <AccountCircleIcon className="userCircleIcon" />
+                                  <span>{item.name}</span>
+                                  <div className="filterownerli-icon">
+                                    <a className="filterowner-tick" hidden={!item.isSelected}>
+                                      <DoneIcon />
+                                    </a>
+                                  </div>
+                                </div>
+                              </li>
+                            </ul>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {(selectedFilterObj || selectedUserId) && (
+                  <button className="btn btn-link p-0 m-0" title="Reset Filter" style={{ color: '#1976d2', marginLeft: 4 }} onClick={handleResetFilter}>
+                    <FilterAltOffIcon fontSize="medium" />
+                  </button>
+                )}
+              </div>
+              
+              <SimpleGridPreferencesButton 
+                gridName="Deals-grid" 
+                hasChanges={itemCollectionPrefs?.hasChanges || false}
+                hasExistingPreferences={itemCollectionPrefs?.hasExistingPreferences || false}
+                onSave={itemCollectionPrefs?.onSave}
+                onReset={itemCollectionPrefs?.onReset}
+              />
+              
+              <div style={{ position: 'relative', zIndex: 1050 }}>
+                <Dropdown align="end">
+                  <Dropdown.Toggle variant="secondary" id="dropdown-more-actions">
+                    <FontAwesomeIcon icon={faEllipsisV} />
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu style={{ zIndex: 2000, minWidth: 180 }}>
+                    <Dropdown.Item onClick={() => setOpenAddDealDialog(true)}>
+                      <FontAwesomeIcon icon={faAdd} style={{ marginRight: 8, color: '#28a745' }} /> New Deal
+                    </Dropdown.Item>
+                    <Dropdown.Divider />
+                    <Dropdown.Header style={{ fontSize: '12px', color: '#6c757d' }}>VIEW OPTIONS</Dropdown.Header>
+                    <Dropdown.Item onClick={() => props.setViewType("list")}>
+                      <FontAwesomeIcon icon={faBars} style={{ marginRight: 8, color: '#007bff' }} /> List View
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={() => props.setViewType("kanban")}>
+                      <FontAwesomeIcon icon={faGrip} style={{ marginRight: 8, color: '#007bff' }} /> Kanban View
+                    </Dropdown.Item>
+                    <Dropdown.Divider />
+                    <Dropdown.Header style={{ fontSize: '12px', color: '#6c757d' }}>BULK ACTIONS</Dropdown.Header>
+                    <Dropdown.Item onClick={() => setDrawerOpen(true)} disabled={selectedRows.length > 0}>
+                      <FontAwesomeIcon icon={faDownload} style={{ marginRight: 8, color: '#17a2b8' }} /> Export
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={handleOpenGroupEmailDialog} disabled={selectedRows.length === 0}>
+                      📧 Send Group Email
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={() => setDrawerOpen(true)} disabled={selectedRows.length === 0}>
+                      <FontAwesomeIcon icon={faEnvelope} style={{ marginRight: 8, color: '#ffc107' }} /> Send SMS
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={handleOpenSalesDialer} disabled={selectedRows.length === 0}>
+                      <FontAwesomeIcon icon={faPhone} style={{ marginRight: 8, color: '#6f42c1' }} /> JustCall Sales Dialer
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+              </div>
+            </div>
+          </div>
+        )}
         onSelectionModelChange={handleRowSelection}
-       
+        
         dataGridProps={{
-    paginationMode: 'server',
-    rowCount: totalCount, 
-    paginationModel,
-    onPaginationModelChange: setPaginationModel,
-    pageSizeOptions: window.config?.Pagination?.pageSizeOptions || [10, 25, 50, 100],
-    disableRowSelectionOnClick: true,
-    onSortModelChange: (sortModel: any) => {
-      console.log('Sort model changed:', sortModel);
-      setCurrentGridPreferences(prev => ({ ...prev, sortModel }));
-    },
-    onColumnOrderChange: (columnOrder: string[]) => {
-      console.log('Column order changed:', columnOrder);
-      setCurrentGridPreferences(prev => ({ ...prev, columnOrder }));
-    },
-    onColumnWidthChange: (params: any) => {
-      console.log('Column width changed:', params);
-      setCurrentGridPreferences(prev => ({
-        ...prev,
-        columnWidths: { ...prev.columnWidths, [params.colDef.field]: params.width }
-      }));
-    },
-    onColumnVisibilityModelChange: (model: any) => {
-      console.log('Column visibility changed:', model);
-      const hiddenColumns = Object.keys(model).filter(key => !model[key]);
-      setCurrentGridPreferences(prev => ({ ...prev, hiddenColumns }));
-    },
-    onFilterModelChange: (filterModel: any) => {
-      console.log('Filter model changed:', filterModel);
-      setCurrentGridPreferences(prev => ({ ...prev, filterModel }));
-    },
-    onCellClick: (params: any) => {
-      console.log('Cell clicked:', params);
-      if (params.field === 'treatmentName') {
-        const dealId = params.row.dealID || params.row.id;
-        const pipelineId = params.row.pipelineID;
-        console.log('Navigating to deal:', dealId, pipelineId);
-        navigate(`/deal?id=${dealId}&pipeLineId=${pipelineId}&viewType=list`);
-      }
-    },
-    sx: {
-      height: 'calc(100vh - 220px)',
-      '& .MuiDataGrid-cell[data-field="treatmentName"]': {
-        color: '#007bff',
-        textDecoration: 'underline',
-        cursor: 'pointer',
-        fontWeight: 500,
-        '&:hover': {
-          color: '#0056b3'
-        }
-      }
-    },
-  }}
+          getRowId: (row: any) => row.id,
+          sortingMode: 'client',
+          initialState: {
+            sorting: {
+              sortModel: preferences.sortModel || []
+            }
+          },
+          onCellClick: (params: any) => {
+            if (params.field === 'treatmentName') {
+              const dealId = params.row.dealID || params.row.id;
+              const pipelineId = params.row.pipelineID;
+              navigate(`/deal?id=${dealId}&pipeLineId=${pipelineId}&viewType=list`);
+            }
+          },
+          sx: {
+            height: 'calc(100vh - 220px)',
+            '& .MuiDataGrid-cell[data-field="treatmentName"]': {
+              color: '#007bff',
+              textDecoration: 'underline',
+              cursor: 'pointer',
+              fontWeight: 500,
+              '&:hover': {
+                color: '#0056b3'
+              }
+            }
+          }
+        }}
+       
+
         />
       ) : null}
       

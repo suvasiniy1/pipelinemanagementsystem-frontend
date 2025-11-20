@@ -657,7 +657,12 @@ if (exportFormat === "csv") {
                 <h4 style={{ margin: 0 }}>{itemName + " List"}</h4>
               </div>
               {props.isCustomHeaderActions ? (
-                props.customHeaderActions()
+                props.customHeaderActions({
+                  hasChanges,
+                  hasExistingPreferences,
+                  onSave: () => savePreferences(currentGridPreferencesRef.current),
+                  onReset: resetPreferences
+                })
               ) : (
                 <div
                   className="col-sm-7 toolbarview-summery"
