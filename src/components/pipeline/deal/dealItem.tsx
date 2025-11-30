@@ -55,6 +55,7 @@ export const DealItem = (props: params) => {
         data-testid={deal?.dealID}
         data-index={index}
         key={index}
+        style={provided.draggableProps.style}
       >
         <div className="pdstage-item">
           <div className='pdstage-box'>

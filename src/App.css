@@ -3911,3 +3911,13 @@ select {
   outline: 2px solid #8bb3ff;
   outline-offset: 2px;
 }
+
+/* Simple Drag and Drop Styles */
+[data-is-dragging="true"] {
+  opacity: 0.8;
+  transform: rotate(2deg);
+}
+
+[data-is-over="true"] {
+  background-color: #e8f5e8 !important;
+}

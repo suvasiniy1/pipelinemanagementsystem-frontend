@@ -18,12 +18,16 @@ export const NotificationBell: React.FC = () => {
 
   const handleNotificationClick = (notificationId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    removeNotification(notificationId);
+    if (notificationId && removeNotification) {
+      removeNotification(notificationId);
+    }
   };
 
   const handleRemoveNotification = (notificationId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    removeNotification(notificationId);
+    if (notificationId && removeNotification) {
+      removeNotification(notificationId);
+    }
   };
 
   const getTimeAgo = (timestamp: string) => {
@@ -49,7 +53,11 @@ export const NotificationBell: React.FC = () => {
   };
 
   return (
-    <Dropdown show={showDropdown} onToggle={setShowDropdown}>
+    <Dropdown show={showDropdown} onToggle={(isOpen) => {
+      if (typeof isOpen === 'boolean') {
+        setShowDropdown(isOpen);
+      }
+    }}>
       <Dropdown.Toggle
         variant="link"
         className="p-0 border-0 position-relative"

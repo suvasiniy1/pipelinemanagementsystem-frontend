@@ -30,6 +30,8 @@ interface AuthContextType {
   updateUserPreference: (gridName: string, preferences: any) => void;
   loadUserPreferences: (userId: number) => Promise<void>;
   getPreferencesForGrid: (gridName: string) => UserPreference | null;
+  userTenants: any[];
+  setUserTenants: (tenants: any[]) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -39,6 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoggedIn, setIsLoggedInState] = useState(false);
   const [userProfile, setUserProfileState] = useState<UserProfile | null>(null);
   const [userPreferences, setUserPreferencesState] = useState<UserPreference[]>([]);
+  const [userTenants, setUserTenantsState] = useState<any[]>([]);
   const userPreferencesService = new UserPreferencesService(ErrorBoundary);
 
   useEffect(() => {
@@ -66,6 +69,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Load user preferences from API on app start
           if (profile.userId) {
             loadUserPreferences(profile.userId);
+          }
+          
+          // Load tenant information from localStorage
+          try {
+            const storedTenants = LocalStorageUtil.getItemObject('USER_TENANTS');
+            if (storedTenants) {
+              const tenants = JSON.parse(storedTenants as string);
+              setUserTenantsState(tenants);
+              console.log('Loaded user tenants from localStorage:', tenants);
+            }
+          } catch (error) {
+            console.error('Error loading user tenants from storage:', error);
           }
         } else {
           // If no stored profile, try to reconstruct from available data
@@ -108,6 +123,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       LocalStorageUtil.removeItem(Constants.ACCESS_TOKEN);
       LocalStorageUtil.removeItem(Constants.TOKEN_EXPIRATION_TIME);
       LocalStorageUtil.removeItem(Constants.USER_PROFILE);
+      LocalStorageUtil.removeItem('USER_TENANTS');
       SecureStorage.removeSecureItem(Constants.USER_Role);
     }
   };
@@ -124,14 +140,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Load preferences from API if not in login response
         loadUserPreferences(profile.userId);
       }
+      // Extract and store tenant information from login response
+      if ((profile as any).tenant && Array.isArray((profile as any).tenant)) {
+        console.log('Loading user tenants from login response:', (profile as any).tenant);
+        setUserTenantsState((profile as any).tenant);
+        LocalStorageUtil.setItemObject('USER_TENANTS', JSON.stringify((profile as any).tenant));
+      }
     } else {
       LocalStorageUtil.removeItem(Constants.USER_PROFILE);
       setUserPreferencesState([]);
+      setUserTenantsState([]);
     }
   };
 
   const setUserPreferences = (preferences: UserPreference[]) => {
     setUserPreferencesState(preferences);
+  };
+
+  const setUserTenants = (tenants: any[]) => {
+    setUserTenantsState(tenants);
+    LocalStorageUtil.setItemObject('USER_TENANTS', JSON.stringify(tenants));
   };
 
   const loadUserPreferences = async (userId: number) => {
@@ -186,7 +214,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUserPreferences, 
       updateUserPreference,
       loadUserPreferences,
-      getPreferencesForGrid
+      getPreferencesForGrid,
+      userTenants,
+      setUserTenants
     }}>
       {children}
     </AuthContext.Provider>

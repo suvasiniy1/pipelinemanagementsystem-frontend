@@ -193,10 +193,11 @@ const showPwdError = (msg: string) => {
                 email: res.email,
                 userId: res.userId,
                 role: res.role,
+                tenant: res.tenant, // Add tenant data
               };
               
               // Set in AuthContext only (session-based)
-              setUserProfile(profile as UserProfile);
+              setUserProfile(profile as any as UserProfile);
               setUserRole(res.role);
               setIsLoggedIn(true);
               
@@ -285,11 +286,12 @@ const showPwdError = (msg: string) => {
                 user: res.user,
                 email: res.email,
                userId: res.userId,
-               role: res.role
+               role: res.role,
+               tenant: res.tenant, // Add tenant data
              };
              
              // Set in AuthContext only (session-based)
-             setUserProfile(profile as UserProfile);
+             setUserProfile(profile as any as UserProfile);
              setUserRole(res.role);
              setIsLoggedIn(true);
              

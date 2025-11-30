@@ -3,6 +3,7 @@ import moment from "moment";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./App.css";
+import "./styles/themes.css";
 import Login from "./components/login";
 import { SideBar } from "./components/sidebar";
 import LocalStorageUtil from "./others/LocalStorageUtil";
@@ -19,6 +20,8 @@ import { ErrorBoundary } from "react-error-boundary";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { AuthProvider } from "./contexts/AuthContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
+import { ThemeToggle } from "./components/common/ThemeToggle";
 import { useSignalR } from "./hooks/useSignalR";
 import { checkForUpdates } from "./utils/versionCheck";
 
@@ -233,9 +236,12 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <AppContent />
+        <ThemeToggle />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

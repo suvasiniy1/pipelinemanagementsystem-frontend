@@ -311,7 +311,7 @@ const Table: React.FC<TableListProps> = (props) => {
   const onDeleteConfirm = () => {
     setIsLoading(true);
     props.serviceAPI
-      .delete(selectedItem.id, userProfile.userId)
+      .delete(selectedItem.id, userProfile?.userId || 0)
       .then((res: any) => {
         toast.success(itemType + " deleted successfully");
 

@@ -1,0 +1,1236 @@
+/* CSS Variables for Light Theme */
+:root[data-theme="light"], .light-theme {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f6;
+  --bg-tertiary: #eaeaea;
+  --text-primary: #21232c;
+  --text-secondary: #65686f;
+  --text-muted: #999999;
+  --border-color: rgba(33, 35, 44, 0.12);
+  --border-light: rgba(33, 35, 44, 0.24);
+  --shadow: 0 0 1px 1px rgb(0 0 0/5%), 0 1px 2px -2px rgb(0 0 0/6%), 0 1px 3px 0 rgb(0 0 0/7%);
+  --primary-color: #4f80ff;
+  --success-color: #2ffd8a;
+  --warning-color: #f4a261;
+  --danger-color: #dc3545;
+  --accent-color: #3dc2c0;
+  --hover-bg: #ececed;
+  --modal-bg: #ffffff;
+  --input-bg: #ffffff;
+  --card-bg: #ffffff;
+}
+
+/* CSS Variables for Dark Theme */
+:root[data-theme="dark"], .dark-theme {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --bg-tertiary: #3a3a3a;
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --text-muted: #888888;
+  --border-color: rgba(255, 255, 255, 0.12);
+  --border-light: rgba(255, 255, 255, 0.24);
+  --shadow: 0 0 1px 1px rgb(255 255 255/5%), 0 1px 2px -2px rgb(255 255 255/6%), 0 1px 3px 0 rgb(255 255 255/7%);
+  --primary-color: #6b9eff;
+  --success-color: #4eff9a;
+  --warning-color: #ffb366;
+  --danger-color: #ff5555;
+  --accent-color: #5dd4d2;
+  --hover-bg: #404040;
+  --modal-bg: #2d2d2d;
+  --input-bg: #3a3a3a;
+  --card-bg: #2d2d2d;
+}
+
+/* Apply theme variables to existing classes */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.maincontentinner {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.pdstage-col {
+  background-color: var(--bg-secondary);
+}
+
+.pdstage-head {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-top-color: var(--text-primary);
+}
+
+.pdstage-box {
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+  box-shadow: var(--shadow);
+  border-left-color: var(--text-primary);
+}
+
+.pdstage-boxlink {
+  color: var(--text-primary);
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-success {
+  background-color: var(--success-color);
+  border-color: var(--success-color);
+}
+
+.form-control {
+  background-color: var(--input-bg);
+  border-color: var(--border-light);
+  color: var(--text-primary);
+}
+
+.form-control:focus {
+  background-color: var(--input-bg);
+  border-color: var(--primary-color);
+  color: var(--text-primary);
+}
+
+.modal-content {
+  background-color: var(--modal-bg);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.modal-header {
+  border-bottom-color: var(--border-color);
+  background-color: var(--bg-secondary);
+}
+
+.modal-footer {
+  border-top-color: var(--border-color);
+  background-color: var(--bg-secondary);
+}
+
+.pdlist-table th,
+.pdlist-table td {
+  border-color: var(--border-color);
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+}
+
+.pdstage-box:hover,
+.fields-listrow:hover {
+  background-color: var(--hover-bg);
+}
+
+.dropdown-menu {
+  background-color: var(--modal-bg);
+  border-color: var(--border-color);
+}
+
+.dropdown-item {
+  color: var(--text-primary);
+}
+
+.dropdown-item:hover {
+  background-color: var(--hover-bg);
+  color: var(--text-primary);
+}
+
+.sidebardetail-col {
+  background-color: var(--card-bg);
+  border-right-color: var(--border-color);
+}
+
+.timelinecontent-col {
+  background-color: var(--bg-secondary);
+}
+
+.whiteshadowbox {
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+}
+
+.nav-tabs {
+  border-bottom-color: var(--border-color);
+}
+
+.nav-tabs .nav-link {
+  color: var(--text-secondary);
+}
+
+.nav-tabs .nav-link.active {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.accordion-item {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+.accordion-button {
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.theme-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-light);
+  color: var(--text-primary);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+}
+
+.theme-toggle:hover {
+  background-color: var(--hover-bg);
+  transform: scale(1.1);
+}
+
+/* Sidebar - only apply in dark theme */
+.dark-theme .ps-sidebar-root {
+  background-color: var(--bg-secondary) !important;
+}
+
+.dark-theme .ps-menu-button {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .ps-menu-button:hover {
+  background-color: var(--hover-bg) !important;
+}
+
+.dark-theme .ps-active > .ps-menu-button {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+}
+
+/* Sidebar icons */
+.dark-theme .ps-menu-button svg,
+.dark-theme .ps-menu-button i,
+.dark-theme .ps-menu-button .fa,
+.dark-theme .ps-menu-button .rs-icon {
+  color: var(--text-primary) !important;
+  fill: var(--text-primary) !important;
+}
+
+.dark-theme .ps-active > .ps-menu-button svg,
+.dark-theme .ps-active > .ps-menu-button i,
+.dark-theme .ps-active > .ps-menu-button .fa,
+.dark-theme .ps-active > .ps-menu-button .rs-icon {
+  color: white !important;
+  fill: white !important;
+}
+
+/* Fix Activities and other sidebar icons specifically */
+.dark-theme .ps-menu-button .MuiSvgIcon-root {
+  color: var(--text-primary) !important;
+  fill: var(--text-primary) !important;
+}
+
+.dark-theme .ps-active > .ps-menu-button .MuiSvgIcon-root {
+  color: white !important;
+  fill: white !important;
+}
+
+/* Fix all possible icon types in sidebar */
+.dark-theme .ps-menu-button svg path {
+  fill: var(--text-primary) !important;
+}
+
+.dark-theme .ps-active > .ps-menu-button svg path {
+  fill: white !important;
+}
+
+.dark-theme .ps-menu-button .fa-solid,
+.dark-theme .ps-menu-button .fas {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .ps-active > .ps-menu-button .fa-solid,
+.dark-theme .ps-active > .ps-menu-button .fas {
+  color: white !important;
+}
+
+/* Fix Campaigns icon specifically */
+.dark-theme .ps-menu-button .fa-bullhorn {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .ps-active > .ps-menu-button .fa-bullhorn {
+  color: white !important;
+}
+
+/* Fix all other specific sidebar icons */
+.dark-theme .ps-menu-button .fa-home,
+.dark-theme .ps-menu-button .fa-chart-line,
+.dark-theme .ps-menu-button .fa-users,
+.dark-theme .ps-menu-button .fa-cog,
+.dark-theme .ps-menu-button .fa-envelope,
+.dark-theme .ps-menu-button .fa-calendar {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .ps-active > .ps-menu-button .fa-home,
+.dark-theme .ps-active > .ps-menu-button .fa-chart-line,
+.dark-theme .ps-active > .ps-menu-button .fa-users,
+.dark-theme .ps-active > .ps-menu-button .fa-cog,
+.dark-theme .ps-active > .ps-menu-button .fa-envelope,
+.dark-theme .ps-active > .ps-menu-button .fa-calendar {
+  color: white !important;
+}
+
+/* Universal fix for ALL sidebar icons */
+.dark-theme .ps-menu-button * {
+  color: var(--text-primary) !important;
+  fill: var(--text-primary) !important;
+}
+
+.dark-theme .ps-active > .ps-menu-button * {
+  color: white !important;
+  fill: white !important;
+}
+
+/* Override any specific icon colors */
+.dark-theme .ps-menu-button [class*="fa-"] {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .ps-active > .ps-menu-button [class*="fa-"] {
+  color: white !important;
+}
+
+/* Fix icon containers */
+.dark-theme .ps-menu-icon {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .ps-active > .ps-menu-button .ps-menu-icon {
+  color: white !important;
+}
+
+/* Fix List/Kanban View toggle dropdown */
+.dark-theme .toolbutton-group .dropdown-toggle {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-light) !important;
+}
+
+.dark-theme .toolbutton-group .dropdown-toggle:hover {
+  background-color: var(--hover-bg) !important;
+}
+
+.dark-theme .toolbutton-group .dropdown-toggle::after {
+  border-top-color: var(--text-primary) !important;
+}
+
+.dark-theme .toolbutton-group .dropdown-menu {
+  background-color: var(--modal-bg) !important;
+  border-color: var(--border-color) !important;
+}
+
+.dark-theme .toolbutton-group .dropdown-item {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .toolbutton-group .dropdown-item:hover {
+  background-color: var(--hover-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Fix view toggle icons */
+.dark-theme .toolbutton-group .fa-chart-simple,
+.dark-theme .toolbutton-group .fa-align-center {
+  color: var(--text-primary) !important;
+}
+
+/* Fix toggle button default state visibility */
+.dark-theme .toolbutton-group button {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-light) !important;
+}
+
+.dark-theme .toolbutton-group button svg {
+  color: var(--text-primary) !important;
+  fill: var(--text-primary) !important;
+}
+
+.dark-theme .toolbutton-group button span {
+  color: var(--text-primary) !important;
+}
+
+/* Ensure active button visibility */
+.dark-theme .toolbutton-group .activetoolbtn {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+  border-color: var(--primary-color) !important;
+}
+
+.dark-theme .toolbutton-group .activetoolbtn svg {
+  color: white !important;
+  fill: white !important;
+}
+
+/* Force visibility with more specific selectors */
+.dark-theme .toolbutton-group button,
+.dark-theme .toolbutton-group .btn {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-light) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.dark-theme .toolbutton-group button *,
+.dark-theme .toolbutton-group .btn * {
+  color: var(--text-primary) !important;
+  fill: var(--text-primary) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Override any white text that might be invisible */
+.dark-theme .toolbutton-group [style*="color: white"],
+.dark-theme .toolbutton-group [style*="color: #fff"],
+.dark-theme .toolbutton-group [style*="color: #ffffff"] {
+  color: var(--text-primary) !important;
+}
+
+/* Override white background that makes text invisible in dark mode */
+.dark-theme .toolbutton-group [style*="background-color: white"],
+.dark-theme .toolbutton-group [style*="background-color: #fff"],
+.dark-theme .toolbutton-group [style*="background-color: #ffffff"],
+.dark-theme .toolbutton-group [style*="background: white"],
+.dark-theme .toolbutton-group [style*="background: #fff"],
+.dark-theme .toolbutton-group [style*="background: #ffffff"] {
+  background-color: var(--card-bg) !important;
+  background: var(--card-bg) !important;
+}
+
+/* More aggressive white background override */
+.dark-theme .toolbutton-group button,
+.dark-theme .toolbutton-group .btn,
+.dark-theme .toolbutton-group .dropdown-toggle {
+  background-color: var(--card-bg) !important;
+  background: var(--card-bg) !important;
+}
+
+.dark-theme .toolbutton-group * {
+  background-color: transparent !important;
+}
+
+.dark-theme .toolbutton-group button:not(.activetoolbtn),
+.dark-theme .toolbutton-group .btn:not(.activetoolbtn) {
+  background-color: var(--card-bg) !important;
+  background: var(--card-bg) !important;
+}
+
+/* Target specific button classes */
+.dark-theme .tooldealbtn,
+.dark-theme .tooltimebtn {
+  background-color: var(--card-bg) !important;
+  background: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Complete sidebar dark mode coverage */
+.dark-theme .ps-sidebar-container {
+  background-color: var(--bg-secondary) !important;
+}
+
+.dark-theme .ps-sidebar-root,
+.dark-theme .ps-sidebar-root * {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .ps-menu-root {
+  background-color: var(--bg-secondary) !important;
+}
+
+.dark-theme .ps-menu-label {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .ps-submenu-content {
+  background-color: var(--bg-tertiary) !important;
+}
+
+.dark-theme .ps-menu-button:hover {
+  background-color: var(--hover-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Fix all sidebar text */
+.dark-theme .ps-sidebar-root .ps-menu-button span {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .ps-active > .ps-menu-button span {
+  color: white !important;
+}
+
+/* Fix sidebar borders */
+.dark-theme .ps-sidebar-root {
+  border-right: 1px solid var(--border-color) !important;
+}
+
+/* Fix collapse/expand button */
+.dark-theme .ps-sidebar-root .ps-menu-button[data-testid="toggle-button"] {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .ps-sidebar-root .ps-menu-button[data-testid="toggle-button"]:hover {
+  background-color: var(--hover-bg) !important;
+}
+
+/* Header bar dark mode */
+.dark-theme .header,
+.dark-theme .header-component {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+.dark-theme .headsearchrow {
+  background-color: var(--bg-secondary) !important;
+}
+
+.dark-theme .headsearch input.form-control {
+  background-color: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-light) !important;
+}
+
+.dark-theme .search-icon-button {
+  color: var(--text-secondary) !important;
+}
+
+/* Header profile section */
+.dark-theme .header .dropdown-toggle {
+  background-color: transparent !important;
+  color: var(--text-primary) !important;
+  border: none !important;
+}
+
+.dark-theme .header .dropdown-menu {
+  background-color: var(--modal-bg) !important;
+  border-color: var(--border-color) !important;
+}
+
+.dark-theme .header .dropdown-item {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .header .dropdown-item:hover {
+  background-color: var(--hover-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Header icons */
+.dark-theme .header svg,
+.dark-theme .header i,
+.dark-theme .header .fa {
+  color: var(--text-primary) !important;
+}
+
+/* Header text */
+.dark-theme .header span,
+.dark-theme .header p,
+.dark-theme .header div {
+  color: var(--text-primary) !important;
+}
+
+/* Override specific header background color */
+.dark-theme .header {
+  background-color: var(--bg-secondary) !important;
+}
+
+/* Override header row */
+.dark-theme .headerrow {
+  background-color: var(--bg-secondary) !important;
+}
+
+/* Fix header text colors */
+.dark-theme .headname {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .sidemenuicon {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .profiledroupdown-row {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .profilename span {
+  color: var(--text-primary) !important;
+}
+
+/* Fix header buttons */
+.dark-theme .headicon button {
+  color: var(--text-primary) !important;
+  background-color: transparent !important;
+}
+
+.dark-theme .headicon button:hover {
+  background-color: var(--hover-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Fix quick add menu */
+.dark-theme .quickadd-menu button {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-light) !important;
+}
+
+.dark-theme .quickadd-menu button:hover {
+  background-color: var(--hover-bg) !important;
+}
+
+/* Fix white text on white background issues */
+.dark-theme .text-white {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .bg-white {
+  background-color: var(--card-bg) !important;
+}
+
+.dark-theme .border-white {
+  border-color: var(--border-color) !important;
+}
+
+/* Fix specific problematic elements */
+.dark-theme .btn-light {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-light) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .btn-outline-light {
+  border-color: var(--border-light) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .btn-outline-light:hover {
+  background-color: var(--hover-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Fix text colors that might be white */
+.dark-theme .text-light {
+  color: var(--text-secondary) !important;
+}
+
+.dark-theme .text-muted {
+  color: var(--text-muted) !important;
+}
+
+/* Fix any hardcoded white backgrounds */
+.dark-theme [style*="background-color: white"],
+.dark-theme [style*="background-color: #ffffff"],
+.dark-theme [style*="background-color: #fff"] {
+  background-color: var(--card-bg) !important;
+}
+
+/* Fix any hardcoded white text */
+.dark-theme [style*="color: white"],
+.dark-theme [style*="color: #ffffff"],
+.dark-theme [style*="color: #fff"] {
+  color: var(--text-primary) !important;
+}
+
+/* Fix spinner and loading elements */
+.dark-theme .spinner-border {
+  color: var(--primary-color) !important;
+}
+
+.dark-theme .spinner-grow {
+  color: var(--primary-color) !important;
+}
+
+/* Fix any remaining contrast issues */
+.dark-theme .bg-light {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .border-light {
+  border-color: var(--border-light) !important;
+}
+
+/* Fix select options */
+.dark-theme option {
+  background-color: var(--modal-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Fix any white overlays or masks */
+.dark-theme .overlay,
+.dark-theme .mask {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Fix placeholder text */
+.dark-theme ::placeholder {
+  color: var(--text-muted) !important;
+  opacity: 0.7;
+}
+
+.dark-theme ::-webkit-input-placeholder {
+  color: var(--text-muted) !important;
+}
+
+.dark-theme ::-moz-placeholder {
+  color: var(--text-muted) !important;
+}
+
+.dark-theme :-ms-input-placeholder {
+  color: var(--text-muted) !important;
+}
+
+/* Deal-specific dark mode fixes */
+.dark-theme .pdstage-mainarea {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .pdstage-area {
+  background-color: var(--bg-primary) !important;
+}
+
+.dark-theme .pdstagearea-inner {
+  background-color: var(--bg-primary) !important;
+}
+
+.dark-theme .pdstage-row {
+  background-color: var(--bg-primary) !important;
+}
+
+.dark-theme .pdstage-col {
+  background-color: var(--bg-secondary) !important;
+}
+
+.dark-theme .pdstage-head {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border-top-color: var(--accent-color) !important;
+}
+
+.dark-theme .pdstagehead-title {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .pdstagehead-btns button {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-light) !important;
+}
+
+.dark-theme .pdstagehead-btns button:hover {
+  background-color: var(--hover-bg) !important;
+}
+
+.dark-theme .pdstage-summary {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .pdstage-price,
+.dark-theme .pdstage-num {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .pdstage-box {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+  border-left-color: var(--accent-color) !important;
+}
+
+.dark-theme .pdstage-title {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .pdstage-description {
+  color: var(--text-secondary) !important;
+}
+
+.dark-theme .pdstage-descitem a {
+  color: var(--accent-color) !important;
+}
+
+.dark-theme .pdstage-value {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .pdstage-avatar i {
+  color: var(--text-secondary) !important;
+}
+
+.dark-theme .rs-icon {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .toolgrip-dot {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .nopipelinesmsg {
+  color: var(--text-primary) !important;
+}
+
+/* Filter dialog specific fixes */
+.dark-theme .pipeselectcontent {
+  background-color: var(--modal-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.dark-theme .pipeselectlist li {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .pipeselectlink {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .pipeselectlist li:hover {
+  background-color: var(--hover-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .pipeselect {
+  background-color: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-light) !important;
+}
+
+.dark-theme .fa-caret-down,
+.dark-theme .fa-chart-simple,
+.dark-theme .fa-align-center {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .add-new-filter button {
+  background-color: var(--warning-color) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--warning-color) !important;
+}
+
+.dark-theme .add-new-filter button:hover {
+  background-color: var(--hover-bg) !important;
+  color: var(--warning-color) !important;
+}
+
+/* Deal filter specific */
+.dark-theme .nav-tabs.pipefilternav-tabs > li .nav-link {
+  color: var(--text-primary) !important;
+  border-bottom-color: var(--border-color) !important;
+}
+
+.dark-theme .filterownerli-row {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .filterowner-star {
+  color: var(--warning-color) !important;
+}
+
+.dark-theme .filterowner-tick {
+  color: var(--success-color) !important;
+}
+
+.dark-theme .userCircleIcon {
+  color: var(--text-secondary) !important;
+}
+
+/* Toolbar and header fixes */
+.dark-theme .toolbarview-actionsrow,
+.dark-theme .toolbarview-filtersrow {
+  background-color: var(--bg-primary) !important;
+}
+
+.dark-theme .toolsummary-deals {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .filterbtn .btn {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .filterbtn .btn:hover {
+  background-color: var(--primary-color) !important;
+}
+
+/* Loading more button */
+.dark-theme .loadingmore {
+  color: var(--text-primary) !important;
+}
+
+/* Fix deal count and price display */
+.dark-theme .pdstage-price,
+.dark-theme .pdstage-num,
+.dark-theme .pdstage-value span {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .pdstage-num::after {
+  background-color: var(--text-primary) !important;
+}
+
+/* Fix edit pipeline button */
+.dark-theme .updatestagebtn .btn {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-light) !important;
+}
+
+.dark-theme .updatestagebtn .btn:hover {
+  background-color: var(--hover-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-light) !important;
+}
+
+.dark-theme .updatestagebtn .btn .fa-pencil {
+  color: var(--text-primary) !important;
+}
+
+/* Fix all FontAwesome icons in deals */
+.dark-theme .fa-pencil,
+.dark-theme .fa-plus,
+.dark-theme .fa-arrow-right,
+.dark-theme .fa-ellipsis-vertical,
+.dark-theme .fa-user-circle {
+  color: var(--text-primary) !important;
+}
+
+/* Fix deal summary section */
+.dark-theme .pdstage-summary .pdstage-value {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .pdstage-summary .pdstage-price {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .pdstage-summary .pdstage-num {
+  color: var(--text-primary) !important;
+}
+
+/* Fix toolbar summary */
+.dark-theme .toolsummary-deals span {
+  color: var(--text-primary) !important;
+}
+
+/* Fix pipeline edit button specifically */
+.dark-theme .toolbutton-group .toolpipebtn {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+  border-color: var(--primary-color) !important;
+}
+
+.dark-theme .toolbutton-group .toolpipebtn:hover {
+  background-color: var(--accent-color) !important;
+  color: white !important;
+}
+
+/* Force visibility for deal count text - more specific targeting */
+.dark-theme .pdstage-summary * {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .pdstage-value * {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme span.pdstage-price {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme span.pdstage-num {
+  color: var(--text-primary) !important;
+}
+
+/* Target all text content in stage summary */
+.dark-theme .pdstage-summary .pdstage-value span {
+  color: var(--text-primary) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Override any inherited text colors */
+.dark-theme .pdstage-col * {
+  color: inherit;
+}
+
+.dark-theme .pdstage-col {
+  color: var(--text-primary) !important;
+}
+
+/* Ensure all child elements inherit the color */
+.dark-theme .pdstage-summary,
+.dark-theme .pdstage-summary *,
+.dark-theme .pdstage-value,
+.dark-theme .pdstage-value * {
+  color: var(--text-primary) !important;
+  text-shadow: none !important;
+  background-color: transparent !important;
+}
+
+/* Fix white backgrounds in dark mode */
+.dark-theme .pdstage-summary {
+  background-color: transparent !important;
+}
+
+.dark-theme .pdstage-value {
+  background-color: transparent !important;
+}
+
+.dark-theme .pdstage-header {
+  background-color: var(--bg-secondary) !important;
+}
+
+/* Override any white backgrounds */
+.dark-theme [style*="background-color: white"],
+.dark-theme [style*="background-color: #ffffff"],
+.dark-theme [style*="background-color: #fff"],
+.dark-theme [style*="background: white"],
+.dark-theme [style*="background: #ffffff"],
+.dark-theme [style*="background: #fff"] {
+  background-color: var(--card-bg) !important;
+  background: var(--card-bg) !important;
+}
+
+/* Material-UI DataGrid - apply to both themes */
+[data-theme="dark"] .MuiDataGrid-root {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .MuiDataGrid-cell {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .MuiDataGrid-columnHeader {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .MuiDataGrid-row {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .MuiDataGrid-row:hover {
+  background-color: var(--hover-bg) !important;
+}
+
+[data-theme="dark"] .MuiDataGrid-footerContainer {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .MuiTablePagination-root {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .MuiSelect-select {
+  background-color: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .MuiMenuItem-root {
+  background-color: var(--modal-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .MuiMenuItem-root:hover {
+  background-color: var(--hover-bg) !important;
+}
+
+[data-theme="dark"] .MuiPaper-root {
+  background-color: var(--modal-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+/* RSuite components */
+.rs-picker-toggle {
+  background-color: var(--input-bg) !important;
+  border-color: var(--border-light) !important;
+  color: var(--text-primary) !important;
+}
+
+.rs-picker-menu {
+  background-color: var(--modal-bg) !important;
+  border-color: var(--border-color) !important;
+}
+
+.rs-picker-menu-item {
+  color: var(--text-primary) !important;
+}
+
+.rs-picker-menu-item:hover {
+  background-color: var(--hover-bg) !important;
+}
+
+/* Header - only dark theme */
+.dark-theme .header {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border-bottom-color: var(--border-color) !important;
+}
+
+/* Toolbar - only dark theme */
+.dark-theme .toolbutton-group button {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-light) !important;
+}
+
+.dark-theme .toolbutton-group button:hover {
+  background-color: var(--hover-bg) !important;
+}
+
+.dark-theme .activetoolbtn {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+}
+
+/* Pipeline select */
+.pipeselect {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-light) !important;
+}
+
+.pipeselectcontent {
+  background-color: var(--modal-bg) !important;
+  border-color: var(--border-color) !important;
+}
+
+.pipeselectlink {
+  color: var(--text-primary) !important;
+}
+
+.pipeselectlist li:hover {
+  background-color: var(--hover-bg) !important;
+}
+
+/* Toast notifications */
+.Toastify__toast {
+  background-color: var(--modal-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+.Toastify__toast--success {
+  background-color: var(--success-color) !important;
+}
+
+.Toastify__toast--error {
+  background-color: var(--danger-color) !important;
+}
+
+.Toastify__toast--warning {
+  background-color: var(--warning-color) !important;
+}
+
+/* React DatePicker */
+.react-datepicker {
+  background-color: var(--modal-bg) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.react-datepicker__header {
+  background-color: var(--bg-secondary) !important;
+  border-bottom-color: var(--border-color) !important;
+}
+
+.react-datepicker__day {
+  color: var(--text-primary) !important;
+}
+
+.react-datepicker__day:hover {
+  background-color: var(--hover-bg) !important;
+}
+
+/* Bootstrap overrides */
+.table {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+.table th,
+.table td {
+  border-color: var(--border-color) !important;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: var(--bg-secondary) !important;
+}
+
+.card {
+  background-color: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.card-header {
+  background-color: var(--bg-secondary) !important;
+  border-bottom-color: var(--border-color) !important;
+}
+
+.list-group-item {
+  background-color: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Input groups */
+.input-group-text {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-light) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Badges */
+.badge {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Alerts */
+.alert {
+  background-color: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}

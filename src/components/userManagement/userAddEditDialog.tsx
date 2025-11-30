@@ -14,6 +14,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import LocalStorageUtil from "../../others/LocalStorageUtil";
 import { InferType } from "yup";
+import { useAuthContext } from "../../contexts/AuthContext";
+import { TenantService } from "../../services/tenantService";
 
 const UsersAddEditDialog: React.FC<any> = (props) => {
   const {
@@ -37,9 +39,43 @@ const UsersAddEditDialog: React.FC<any> = (props) => {
   const [organizations, setOrganizations] = useState<Array<any>>(
     JSON.parse(LocalStorageUtil.getItemObject("organizations") as any) ?? []
   ); // Updated structure
+  const { userProfile } = useAuthContext();
+  const [tenants, setTenants] = useState<Array<any>>([]);
+  
+  useEffect(() => {
+    console.log('=== TENANT DEBUG ===');
+    console.log('User profile:', userProfile);
+    console.log('User profile tenant:', userProfile ? (userProfile as any).tenant : 'No profile');
+    
+    // Check localStorage directly
+    const storedProfile = LocalStorageUtil.getItemObject('USER_PROFILE');
+    console.log('Stored profile in localStorage:', storedProfile);
+    
+    const storedTenants = LocalStorageUtil.getItemObject('USER_TENANTS');
+    console.log('Stored tenants in localStorage:', storedTenants);
+    
+    // Check if user profile has tenant data
+    if (userProfile && (userProfile as any).tenant && Array.isArray((userProfile as any).tenant)) {
+      console.log('✅ Found tenant data in user profile:', (userProfile as any).tenant);
+      setTenants((userProfile as any).tenant);
+    } else if (storedTenants) {
+      try {
+        const parsedTenants = JSON.parse(storedTenants as string);
+        console.log('✅ Using tenants from localStorage:', parsedTenants);
+        setTenants(parsedTenants);
+      } catch (error) {
+        console.error('❌ Error parsing stored tenants:', error);
+        setTenants([]);
+      }
+    } else {
+      console.log('❌ No tenant data found for user');
+      setTenants([]);
+    }
+    console.log('=== END TENANT DEBUG ===');
+  }, [userProfile]);
 type UserFormValues = InferType<typeof validationSchema>;
   // Controls for the form fields
-  const [controlsList, setControlsList] = useState<IControl[]>([
+  const controlsList: IControl[] = [
     {
       key: "First Name",
       value: "firstName",
@@ -69,40 +105,40 @@ type UserFormValues = InferType<typeof validationSchema>;
       isSideByItem: true,
     },
     {
-      key: "Phone Number",
-      type: ElementType.number,
-      value: "phoneNumber",
-      elementSize: 12,
-      isRequired: true,
-      sidebyItem: "Role",
-    },
-    {
       key: "Role",
       value: "id",
       elementSize: 12,
       type: ElementType.dropdown,
       options: roles,
       isRequired: true,
-      isSideByItem: true, // Use roles directly
+      sidebyItem: "Tenant",
     },
     {
-      key: "Is Active",
-      value: "isActive",
-      elementSize: 12,
-      type: ElementType.slider,
-      defaultValue: true,
-      sidebyItem: "Organization",
-    },
-    {
-      key: "Organization",
-      value: "organizationID",
+      key: "Tenant",
+      value: "tenantId",
       elementSize: 12,
       type: ElementType.dropdown,
-      options: organizations,
-      isRequired: true, // Use organizations directly
+      options: tenants,
+      isRequired: true,
       isSideByItem: true,
     },
-  ]);
+        {
+      key: "Phone Number",
+      type: ElementType.number,
+      value: "phoneNumber",
+      elementSize: 12,
+      isRequired: true,
+      isSideByItem: true,
+    },
+    {
+      key: "Active",
+      value: "isActive",
+      elementSize: 12,
+      type: ElementType.checkbox,
+      defaultValue: true,
+      isControlInNewLine: true,
+    }
+  ];
 
   const getValidationsSchema = (list: Array<any>) => {
     return Yup.object().shape({
@@ -122,7 +158,7 @@ const numberRequired = (msg: string) =>
   phoneNumber: Yup.string().required("Required"),
 id: numberRequired("Role is required"),
 isActive: Yup.boolean().notRequired(),     // ✅ this is fine
-   organizationID: numberRequired("Organization is required"),
+   tenantId: numberRequired("Tenant is required"),
 });
 
 
@@ -130,7 +166,7 @@ const methods = useForm<UserFormValues>({
   resolver: yupResolver(validationSchema),
   defaultValues: {
     id: '',                // empty select
-    organizationID: '',    // empty select
+    tenantId: '',          // empty select
     isActive: true,
   } as any,
 });
@@ -143,19 +179,25 @@ const methods = useForm<UserFormValues>({
   };
 const [usernameError, setUsernameError] = useState<string | undefined>();
   useEffect(() => {
-    if (selectedItem.userId > 0) {
-      setValue(
-        "id" as never,
-        roles.find((i) => i.name === selectedItem["roleName"])?.id as never
-      );
-      setValue(
-        "organizationID" as never,
-        organizations.find((i) => i.name === selectedItem["name"])
-          ?.organizationID as never
-      );
+    console.log('=== EDIT USER DEBUG ===');
+    console.log('selectedItem:', selectedItem);
+    console.log('selectedItem.organizationId:', selectedItem?.organizationId);
+    
+    if (selectedItem?.userId > 0) {
+      // Set role
+      const roleValue = roles.find((i) => i.name === selectedItem["roleName"])?.id;
+      console.log('Setting role value:', roleValue);
+      setValue("id" as never, roleValue as never);
+
+      // Set tenant (from organizationId)
+      console.log('Setting tenant value from organizationId:', selectedItem.organizationId);
+      setValue("tenantId" as never, selectedItem.organizationId as never);
+      
+      // Set active status
       setValue("isActive" as never, selectedItem.isActive as never);
     }
-  }, []);
+    console.log('=== END EDIT USER DEBUG ===');
+  }, [selectedItem, roles, tenants]);
 
   const onChange = (value: any, item: any) => {
     const field = item.value;
@@ -180,7 +222,7 @@ const [usernameError, setUsernameError] = useState<string | undefined>();
         setValue("userName" as never, generatedUsername as never);
       }
     }
-     if (field === "id" || field === "organizationID") {
+     if (field === "id" || field === "tenantId") {
     // keep '' as '' so Yup shows "Required"
     const normalized = value === '' ? '' : Number(value);
     methods.setValue(field as any, normalized as any, { shouldValidate: true });
@@ -196,10 +238,12 @@ const [usernameError, setUsernameError] = useState<string | undefined>();
         name: role.name,
       }));
     }
-    if (item.value === "organizationID") {
-      return organizations.map((org) => ({
-        value: org.organizationID,
-        name: org.name,
+
+    if (item.value === "tenantId") {
+      console.log('Mapping tenants for dropdown:', tenants);
+      return tenants.map((tenant) => ({
+        value: tenant.id,
+        name: tenant.name,
       }));
     }
     return [];
@@ -229,7 +273,8 @@ const [usernameError, setUsernameError] = useState<string | undefined>();
     obj.isActive = selectedItem.isActive;
 
     obj.roleId = item.id !== null ? Number(item.id) : 0;
-    obj.organizationId = item.organizationID !== null ? Number(item.organizationID) : 0;
+    obj.organizationId = item.tenantId !== null ? Number(item.tenantId) : 0; // Map tenantId to organizationId
+    obj.tenantId = item.tenantId !== null ? Number(item.tenantId) : 0;
     obj.lastLogin = new Date();
     obj.createdBy = String(Util.UserProfile()?.userId);
     obj.modifiedBy = obj.userId > 0 ? String(Util.UserProfile()?.userId) : null;

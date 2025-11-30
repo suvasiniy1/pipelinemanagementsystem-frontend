@@ -1,9 +1,10 @@
-import { faBars, faEnvelope, faGear } from '@fortawesome/free-solid-svg-icons';
+import { faBars } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import "./header.css";
 import { SearchBar } from "./searchBar";
 import { Profile } from '../other/Profile';
 import { NotificationBell } from '../notifications/NotificationBell';
+import { ThemeSelector } from '../common/ThemeSelector';
 
 type params={
     onExpandCollapseClick:any,
@@ -25,14 +26,11 @@ export const HeaderComponent = (props:params) => {
                     </div>
                     <div className="header-col colheadprofile">                        
                         <div className="colheadprofilerow">
-                            <div className="headicon headbtngear">
-                                <button><FontAwesomeIcon icon={faGear} /></button>
-                            </div>
                             <div className="headicon headbtnbell">
                                 <NotificationBell />
                             </div>
-                            <div className="headicon headbtnenvelope">
-                                <button><FontAwesomeIcon icon={faEnvelope} /></button>
+                            <div className="headicon">
+                                <ThemeSelector />
                             </div>
                             <Profile />
                         </div>

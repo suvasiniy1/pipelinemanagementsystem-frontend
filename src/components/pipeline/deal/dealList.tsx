@@ -47,7 +47,11 @@ const InnerQuoteList = (props: paramsForQuote) => {
         <>
             {
                 deals.map((deal, index) => (
-                    <Draggable key={deal.dealID} draggableId={"" + deal.dealID as any} index={deal.dealID} disableInteractiveElementBlocking={true}>
+                    <Draggable 
+                        key={deal.dealID} 
+                        draggableId={"" + deal.dealID as any} 
+                        index={index}
+                    >
                         {(dragProvided, dragSnapshot) => (
                             <DealItem
                                 key={deal.dealID}
@@ -171,17 +175,20 @@ export const DealList = (props: params) => {
                 type={listType}
                 ignoreContainerClipping={true}
                 isDropDisabled={false}
-                isCombineEnabled={false}>
+                isCombineEnabled={false}
+                direction="vertical">
                 {(dropProvided, dropSnapshot) => (
-                    <InnerList deals={deals}
-                        stageID={stageID}
-                        title={title}
-                        isDragging={isDragging}
-                        dropProvided={dropProvided}
-                        showAddButton={showAddButton}
-                        pipeLinesList={pipeLinesList}
-                        onDealModify={(e:any)=>props.onDealModify()}
-                        onSaveChanges={(e: any) => props.onSaveChanges()} />
+                    <div data-is-over={dropSnapshot.isDraggingOver}>
+                        <InnerList deals={deals}
+                            stageID={stageID}
+                            title={title}
+                            isDragging={isDragging}
+                            dropProvided={dropProvided}
+                            showAddButton={showAddButton}
+                            pipeLinesList={pipeLinesList}
+                            onDealModify={(e:any)=>props.onDealModify()}
+                            onSaveChanges={(e: any) => props.onSaveChanges()} />
+                    </div>
                 )}
             </Droppable>
         </div>

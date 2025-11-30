@@ -12,6 +12,7 @@ export class User extends AuditItem {
     roleId!: number;
     isActive!:boolean;
     organizationId!: number;
+    tenantId?: number;
     name!:string;
     roleName!:string;
     lastLogin?: Date;

@@ -1,6 +1,6 @@
 window.config = {
-   //ServicesBaseURL: "https://localhost:7182/api",
- ServicesBaseURL: "https://www.y1crm.com/PLMSDev/api",
+  //ServicesBaseURL: "https://localhost:7182/api",
+ ServicesBaseURL: "https://www.y1crm.com/Cliniclead/api",
   SMSServiceURL:"https://www.y1crm.com/PLMSDev/send-sms",
   DefaultStages: [
     "Qualified",
@@ -42,6 +42,7 @@ window.config = {
           "Treatment",
           "profile",
           "PipeLineType",
+          "Tenant"
       ],
     },
     {
@@ -70,7 +71,7 @@ window.config = {
   NavItemActiveColor: "#0098e5",
   Pagination: {
     defaultPageSize: 50,
-    pageSizeOptions: [50, 100, 200, 500, 1000]
+    pageSizeOptions: [25, 50, 100, 200, 500, 1000]
   },
   SessionTimeout: {
     idleTimeoutSeconds: 1440,

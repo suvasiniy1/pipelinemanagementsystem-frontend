@@ -21,8 +21,7 @@ export const SelectDropdownWithValidation = (props: params) => {
                 id={item.value}
                 key={"region"}
                 disabled={disable ?? item.disabled}
-                defaultValue={selectedItem[item.value]}
-                value={value ?? selectedItem[item.value]}
+                value={value ?? selectedItem[item.value] ?? ''}
                 {...register(item.value)}
                 onChange={(e: any) => onItemChange(e.target.value)}
             >
@@ -50,7 +49,7 @@ const SelectDropdown = (props: params) => {
                 <select className="form-control"
                 id={value}
                 key={"region"}
-                defaultValue={value}
+                value={value ?? ''}
                 onChange={(e: any) => onItemChange(e.target.value)}
             >
                 <option value="" hidden={hideSelect}>Select</option>

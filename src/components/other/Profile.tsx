@@ -17,15 +17,13 @@ export const Profile = () => {
     return (
         <Dropdown className="headerprofile">
         <Dropdown.Toggle className="profiledroupdown" variant="" id="dropdown-profile">
-            <span className="profiledroupdown-row">
-                <span className="profileicon"><FontAwesomeIcon icon={faCircleUser} /></span>
-                <strong className="profilename">
-                    {user}
-                    <span>{email}</span>
-                </strong>
-            </span>
+            <span className="profileicon"><FontAwesomeIcon icon={faCircleUser} /></span>
         </Dropdown.Toggle>
         <Dropdown.Menu>
+            <div className="dropdown-header px-3 py-2 border-bottom">
+                <div className="fw-bold">{user}</div>
+                <div className="text-muted small">{email}</div>
+            </div>
             <Dropdown.Item onClick={() => {
                 console.log('Navigating to profile page');
                 navigate("/profile");

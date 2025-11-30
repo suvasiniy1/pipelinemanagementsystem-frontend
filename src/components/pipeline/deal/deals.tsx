@@ -265,26 +265,44 @@ export const Deals = (props: params) => {
   const onDragEnd = (result: any) => {
     const source = result.source;
     const destination = result.destination;
+    
+    setIsDragging(false);
+    
+    // If no destination, don't allow the drop
+    if (!destination) {
+      return;
+    }
+    
+    // If same stage, show warning and don't allow the drop
+    if (source.droppableId === destination.droppableId) {
+      toast.warning("Moving deals within the same stage is not supported");
+      return;
+    }
+    
     if (source && destination) {
-      if (source.droppableId === destination.droppableId) {
-        return;
-      } else {
-        let stagesList = [...stages];
-        let sourceIndex = stagesList.findIndex(
-          (s) => s.stageID == +source.droppableId
-        );
-        let destinationIndex = stagesList.findIndex(
-          (s) => s.stageID == +destination.droppableId
-        );
-        let dItem = stagesList[sourceIndex]?.deals?.find(
-          (d) => d.dealID == +source.index
-        );
-        let dIndex = stagesList[sourceIndex]?.deals?.findIndex(
-          (d) => d.dealID == +source.index
-        );
-        stagesList[sourceIndex]?.deals.splice(dIndex, 1);
-        stagesList[destinationIndex].deals.push(dItem as any);
-
+      let stagesList = [...stages];
+      let sourceStageIndex = stagesList.findIndex(
+        (s) => s.stageID == +source.droppableId
+      );
+      let destinationStageIndex = stagesList.findIndex(
+        (s) => s.stageID == +destination.droppableId
+      );
+      
+      // Find the deal being moved by draggableId (which is the dealID)
+      let dealToMove = stagesList[sourceStageIndex]?.deals?.find(
+        (d) => d.dealID == +result.draggableId
+      );
+      let dealIndex = stagesList[sourceStageIndex]?.deals?.findIndex(
+        (d) => d.dealID == +result.draggableId
+      );
+      
+      if (dealToMove && dealIndex !== -1) {
+        // Remove from source stage
+        stagesList[sourceStageIndex].deals.splice(dealIndex, 1);
+        
+        // Insert at the correct position in destination stage
+        stagesList[destinationStageIndex].deals.splice(destination.index, 0, dealToMove);
+        
         setStages([...stagesList]);
 
         // Only proceed if userProfile is available
@@ -299,13 +317,14 @@ export const Deals = (props: params) => {
             {
               newStageId: +destination.droppableId,
               modifiedById: userProfile.userId,
-              dealId: +source.index,
+              dealId: dealToMove.dealID,
               pipelineId: selectedItem?.pipelineID || pipeLineId,
-              statusId: dItem?.statusID || 1,
+              statusId: dealToMove?.statusID || 1,
             },
-            +source.index + "/stage"
+            dealToMove.dealID + "/stage"
           )
           .then((res) => {
+            toast.success("Deal moved to another stage successfully");
             if (selectedFilterObj?.id > 0) {
               loadDealsByFilter();
             } else {
@@ -313,6 +332,7 @@ export const Deals = (props: params) => {
             }
           })
           .catch((err) => {
+            toast.error("Failed to move deal. Please try again.");
             setError("No deals found under selected combination" as any);
             setStages([...originalStages]);
           });
@@ -425,6 +445,7 @@ export const Deals = (props: params) => {
                     <DragDropContext
                       onDragEnd={onDragEnd}
                       onDragStart={(e: any) => setIsDragging(true)}
+                      onDragUpdate={(e: any) => setIsDragging(true)}
                     >
                       <Droppable
                         droppableId="board"

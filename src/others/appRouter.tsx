@@ -26,6 +26,7 @@ import ClinicList from "../components/clinic/clinicList";
 import SourceList from "../components/source/sourceList";
 import TreatMentList from "../components/treatment/treatmentList";
 import PipeLineTypeList from "../components/pipeLineType/pipeLineTypeList";
+import TenantList from "../components/tenant/tenantList";
 import ConfirmEmail from "../components/ConfirmEmail";
 import ActivityTaskList from "../components/taskActivities/activityTaskList"
 import ChangePassword from '../components/profiles/changePassword';
@@ -79,6 +80,7 @@ export const AppRouter = () => {
         <Route path="/Source" element={<SourceList />}/>
         <Route path="/Treatment" element={<TreatMentList />}/>
         <Route path="/PipeLineType" element={<PipeLineTypeList />} />
+        <Route path="/Tenant" element={<TenantList />} />
         <Route path="/confirm-email" element={<ConfirmEmail />} />
         <Route path="/Activities" element={ <AuthProvider><ActivityTaskList /></AuthProvider>} />
  
