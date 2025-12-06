@@ -21,6 +21,7 @@ import { useGridPreferences } from '../hooks/useGridPreferences';
 // Static flag to prevent multiple simultaneous API calls
 let isLoadingTemplatesGlobal = false;
 let cachedTemplates: EmailTemplate[] = [];
+let isMasterAdminGlobal = false;
 
 type params = {
   isNotListingPage?: boolean;
@@ -238,6 +239,45 @@ const ItemCollection: React.FC<params> = (props) => {
   const [selectedTemplate, setSelectedTemplate] =
     useState<EmailTemplate | null>(null);
   useEffect(() => {
+    // Check if user is master admin - use direct flag first
+    const checkMasterAdmin = () => {
+      try {
+        // Priority 1: Check direct flag
+        const masterAdminFlag = localStorage.getItem('IS_MASTER_ADMIN');
+        if (masterAdminFlag === 'true') {
+          return true;
+        }
+        
+        // Priority 2: Check role from secure storage
+        const roleStr = localStorage.getItem('USER_Role_obf');
+        if (roleStr) {
+          const role = parseInt(atob(roleStr));
+          if (role === 0) return true;
+        }
+        
+        // Priority 3: Check profile
+        const storedProfile = localStorage.getItem('USER_PROFILE');
+        if (storedProfile) {
+          const profile = JSON.parse(storedProfile);
+          if (profile.role === 0 || profile.isMasterAdmin || !profile.tenant || profile.tenant.length === 0) {
+            return true;
+          }
+        }
+      } catch (error) {
+        console.error('Error checking master admin status:', error);
+      }
+      return false;
+    };
+    
+    isMasterAdminGlobal = checkMasterAdmin();
+    console.log('ItemCollection - Is Master Admin:', isMasterAdminGlobal, 'Item Name:', itemName);
+    
+    // CRITICAL: Do not load templates for master admin at all
+    if (isMasterAdminGlobal) {
+      console.log('Skipping template load for master admin');
+      return;
+    }
+    
     // Only fetch templates if this is not the template management screen
     if (itemName !== "Template") {
       // Use cached templates if available

@@ -190,21 +190,35 @@ const showPwdError = (msg: string) => {
               console.log("Login Response:", res);
               console.log("Tenant Data:", res?.tenant);
               
+              const isMasterAdmin = !res.tenant || res.tenant.length === 0;
+              const userRole = isMasterAdmin ? 0 : res.role;
+              
+              // Store master admin flag immediately
+              LocalStorageUtil.setItem('IS_MASTER_ADMIN', isMasterAdmin.toString());
+              
               const profile = {
                 user: res.user,
                 email: res.email,
                 userId: res.userId,
-                role: res.role,
+                role: userRole,
                 tenant: res.tenant,
+                isMasterAdmin: isMasterAdmin
               };
               
               console.log("Setting user profile:", profile);
+              console.log("Is Master Admin:", isMasterAdmin);
               
               setUserProfile(profile as any as UserProfile);
-              setUserRole(res.role);
+              setUserRole(userRole);
               setIsLoggedIn(true);
               
-              navigate("/pipeline");
+              Util.loadNavItemsForUser(userRole);
+              
+              if (isMasterAdmin) {
+                navigate("/Tenant");
+              } else {
+                navigate("/pipeline");
+              }
             } else if (res?.twoFactorRequired) {
               toast.success(
                 "2FA code sent to your email! Please check your inbox."

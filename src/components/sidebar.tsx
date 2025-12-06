@@ -95,7 +95,7 @@ export const SideBar = (props: params) => {
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   };
 
-  if (!userRole) return null;
+  if (userRole === null || userRole === undefined) return null;
 
   const Drawer = () => {
     return (
@@ -147,7 +147,12 @@ export const SideBar = (props: params) => {
             <p hidden={selectedNavItem === "Settings"}>Manage User</p>
           </MenuItem>
 
-          <SubMenu icon={<RiAdminFill color={adminSubMenu.includes(selectedNavItem) ? activeNavColor : "black"} />} hidden={!Util.isAuthorized("Admin")} defaultOpen={adminSubMenu.includes(selectedNavItem)} title="Admin" label="Admin" style={{ color: adminSubMenu.includes(selectedNavItem) ? activeNavColor : "black" }}>
+          <MenuItem hidden={userRole !== 0 || !Util.isAuthorized("Tenant")} title="Tenants" component={<Link to="/Tenant" />} onClick={() => setSelectedNavItem("Tenant")} icon={<FaBuilding color={selectedNavItem === "Tenant" ? activeNavColor : "black"} />}>
+            <b hidden={selectedNavItem !== "Tenant"} style={{ color: selectedNavItem === "Tenant" ? activeNavColor : "black" }}>Tenants</b>
+            <p hidden={selectedNavItem === "Tenant"}>Tenants</p>
+          </MenuItem>
+
+          <SubMenu icon={<RiAdminFill color={adminSubMenu.includes(selectedNavItem) ? activeNavColor : "black"} />} hidden={userRole === 0 || !Util.isAuthorized("Admin")} defaultOpen={adminSubMenu.includes(selectedNavItem)} title="Admin" label="Admin" style={{ color: adminSubMenu.includes(selectedNavItem) ? activeNavColor : "black" }}>
             <MenuItem hidden={!Util.isAuthorized("Clinic")} title="Clinic" component={<Link to="/Clinic" />} onClick={() => setSelectedNavItem("Clinic")} icon={<FaClinicMedical color={selectedNavItem === "Clinic" ? activeNavColor : "black"} />}>
               <b hidden={selectedNavItem !== "Clinic"} style={{ color: selectedNavItem === "Clinic" ? activeNavColor : "black" }}>Clinic</b>
               <p hidden={selectedNavItem === "Clinic"}>Clinic</p>
@@ -164,7 +169,7 @@ export const SideBar = (props: params) => {
               <b hidden={selectedNavItem !== "PipeLineType"} style={{ color: selectedNavItem === "PipeLineType" ? activeNavColor : "black" }}>Pipeline Type</b>
               <p hidden={selectedNavItem === "PipeLineType"}>Pipeline Type</p>
             </MenuItem>
-            <MenuItem hidden={!Util.isAuthorized("Tenant")} title="Tenants" component={<Link to="/Tenant" />} onClick={() => setSelectedNavItem("Tenant")} icon={<FaBuilding color={selectedNavItem === "Tenant" ? activeNavColor : "black"} />}>
+            <MenuItem hidden={userRole === 0 || !Util.isAuthorized("Tenant")} title="Tenants" component={<Link to="/Tenant" />} onClick={() => setSelectedNavItem("Tenant")} icon={<FaBuilding color={selectedNavItem === "Tenant" ? activeNavColor : "black"} />}>
               <b hidden={selectedNavItem !== "Tenant"} style={{ color: selectedNavItem === "Tenant" ? activeNavColor : "black" }}>Tenants</b>
               <p hidden={selectedNavItem === "Tenant"}>Tenants</p>
             </MenuItem>

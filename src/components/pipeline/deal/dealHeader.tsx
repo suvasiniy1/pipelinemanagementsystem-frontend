@@ -87,7 +87,9 @@ export const DealHeader = (props: params) => {
   const utility: Utility = JSON.parse(
     LocalStorageUtil.getItemObject(Constants.UTILITY) as any
   );
-  const [users, setUsers]=useState<Array<any>>(utility?.users);
+  const [users, setUsers]=useState<Array<any>>(utility?.users || []);
+  const userRole = parseInt(LocalStorageUtil.getItem(Constants.USER_Role) || '0');
+  const isMasterAdmin = userRole === 0;
   
   useEffect(() => {
     setPipeLinesList(props.pipeLinesList);
@@ -223,7 +225,7 @@ export const DealHeader = (props: params) => {
 
   useEffect(()=>{
     setUsers((prevUsers) =>
-      prevUsers.map((user) =>
+      prevUsers?.map((user) =>
         user.id === selectedUserId
           ? { ...user, isSelected: true }
           : { ...user, isSelected: false }
@@ -235,7 +237,7 @@ export const DealHeader = (props: params) => {
     setSelectedUserId(users?.find(u=>u.name===userName)?.id as any);
     setSelectedFilterObj(null as any);
     setUsers((prevUsers) =>
-      prevUsers.map((user) =>
+      prevUsers?.map((user) =>
         user.name === userName
           ? { ...user, isSelected: true }
           : { ...user, isSelected: false }
@@ -275,7 +277,7 @@ export const DealHeader = (props: params) => {
                 </div>
                 <div className="updatestagebtn">{addorUpdateStage()}</div>
 
-                <div className="pipeselectbtngroup">
+                {!isMasterAdmin && <div className="pipeselectbtngroup">
                   <div
                     className="pipeselectbox variantselectbox"
                     onClick={(e: any) =>
@@ -362,7 +364,7 @@ export const DealHeader = (props: params) => {
                           <div className="pipeselectpadlr filterownersbox">
                             {users
                               ?.filter((u) => u.isActive)
-                              .map((item, index) => (
+                              ?.map((item, index) => (
                                 <>
                                   <ul className="pipeselectlist filterownerslist">
                                     <li>
@@ -396,8 +398,8 @@ export const DealHeader = (props: params) => {
                       </div>
                     </div>
                   </div>
-                </div>
-                <div className="pipefilterbtn" style={{ position: 'relative', zIndex: 2001 }}>
+                </div>}
+                {!isMasterAdmin && <div className="pipefilterbtn" style={{ position: 'relative', zIndex: 2001 }}>
                   <div className="filterbtn">
                     <a
                       className="btn"
@@ -418,7 +420,7 @@ export const DealHeader = (props: params) => {
                       <FilterAltOffIcon />
                     </a>
                   </div>
-                </div>
+                </div>}
 
                 {/* <div className="pipeselectbox selecteveryonebox">
                                     <button className="pipeselect" type="button"><FontAwesomeIcon icon={faAlignCenter} /> Everyone <FontAwesomeIcon icon={faCaretDown} /></button>

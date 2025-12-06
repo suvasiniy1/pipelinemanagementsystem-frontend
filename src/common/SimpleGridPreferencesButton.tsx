@@ -26,6 +26,12 @@ const SimpleGridPreferencesButton: React.FC<SimpleGridPreferencesButtonProps> = 
 }) => {
   const { savePreferences, resetPreferences, updatePreferences, isLoading } = useGridPreferences(gridName);
   const [showResetDialog, setShowResetDialog] = useState(false);
+  
+  const isMasterAdmin = localStorage.getItem('IS_MASTER_ADMIN') === 'true';
+
+  if (isMasterAdmin) {
+    return null;
+  }
 
 
 

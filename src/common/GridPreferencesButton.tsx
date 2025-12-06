@@ -21,6 +21,12 @@ const GridPreferencesButton: React.FC<GridPreferencesButtonProps> = ({
   
   const { preferences, savePreferences, resetPreferences, isLoading } = useGridPreferences(gridName);
   const [hasError, setHasError] = React.useState(false);
+  
+  const isMasterAdmin = localStorage.getItem('IS_MASTER_ADMIN') === 'true';
+
+  if (isMasterAdmin) {
+    return null;
+  }
 
   // Notify parent when preferences are loaded
   React.useEffect(() => {

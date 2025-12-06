@@ -1751,6 +1751,18 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       console.log('ThemeContext - userProfile changed:', userProfile);
       
       if (userProfile) {
+        const isMasterAdmin = (userProfile as any).isMasterAdmin || !(userProfile as any).tenant || (userProfile as any).tenant.length === 0;
+        
+        if (isMasterAdmin) {
+          console.log('Master admin detected - using default theme');
+          setBaseTheme(PREDEFINED_THEMES[0]);
+          if (!isDarkMode) {
+            setCurrentTheme(PREDEFINED_THEMES[0]);
+            applyTheme(PREDEFINED_THEMES[0]);
+          }
+          return;
+        }
+        
         try {
           // PRIORITY 1: Check tenant-based theme
           const tenant = (userProfile as any).tenant;

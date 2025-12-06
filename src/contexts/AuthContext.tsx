@@ -52,10 +52,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (loggedIn) {
       let roleNum: number | null = null;
       const role = SecureStorage.getSecureItem(Constants.USER_Role);
-      if (role) {
+      if (role !== null && role !== undefined) {
         roleNum = parseInt(role);
         setUserRoleState(roleNum);
         Util.loadNavItemsForUser(roleNum);
+        console.log('Loaded role on init:', roleNum, 'Nav items:', Util.navItemsList);
       }
       
       // Load user profile from localStorage
@@ -106,10 +107,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const setUserRole = (role: number | null) => {
     setUserRoleState(role);
-    if (role) {
+    if (role !== null && role !== undefined) {
       // Store obfuscated role in localStorage
       SecureStorage.setSecureItem(Constants.USER_Role, role.toString());
       Util.loadNavItemsForUser(role);
+      console.log('Nav items loaded for role:', role, 'Items:', Util.navItemsList);
     }
   };
 
@@ -124,6 +126,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       LocalStorageUtil.removeItem(Constants.TOKEN_EXPIRATION_TIME);
       LocalStorageUtil.removeItem(Constants.USER_PROFILE);
       LocalStorageUtil.removeItem('USER_TENANTS');
+      LocalStorageUtil.removeItem('IS_MASTER_ADMIN');
       SecureStorage.removeSecureItem(Constants.USER_Role);
     }
   };
@@ -164,6 +167,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const loadUserPreferences = async (userId: number) => {
     try {
+      const storedProfile = LocalStorageUtil.getItemObject(Constants.USER_PROFILE);
+      if (storedProfile) {
+        const profile = JSON.parse(storedProfile as string);
+        if (profile.isMasterAdmin || !profile.tenant || profile.tenant.length === 0) {
+          console.log('Skipping user preferences for master admin');
+          return;
+        }
+      }
+      
       const response = await userPreferencesService.getUserPreferencesByUserId(userId);
       if (Array.isArray(response)) {
         setUserPreferencesState(response);
