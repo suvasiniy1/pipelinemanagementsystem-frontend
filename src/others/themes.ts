@@ -23,17 +23,6 @@ export const PREDEFINED_THEMES: Theme[] = [
     headerColor: '#0098e5'
   },
   {
-    id: 'dark',
-    name: 'dark',
-    displayName: 'Dark Theme',
-    primaryColor: '#bb86fc',
-    secondaryColor: '#3700b3',
-    backgroundColor: '#121212',
-    textColor: '#ffffff',
-    sidebarColor: '#1e1e1e',
-    headerColor: '#2d2d2d'
-  },
-  {
     id: 'green',
     name: 'green',
     displayName: 'Nature Green',
@@ -78,6 +67,18 @@ export const PREDEFINED_THEMES: Theme[] = [
     headerColor: '#009688'
   }
 ];
+
+export const DARK_THEME: Theme = {
+  id: 'dark',
+  name: 'dark',
+  displayName: 'Dark Theme',
+  primaryColor: '#bb86fc',
+  secondaryColor: '#3700b3',
+  backgroundColor: '#121212',
+  textColor: '#ffffff',
+  sidebarColor: '#1e1e1e',
+  headerColor: '#2d2d2d'
+};
 
 export const getThemeById = (id: string): Theme | undefined => {
   return PREDEFINED_THEMES.find(theme => theme.id === id);

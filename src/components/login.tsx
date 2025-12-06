@@ -187,16 +187,19 @@ const showPwdError = (msg: string) => {
                 Constants.TOKEN_EXPIRATION_TIME,
                 convertTZ(res?.expires)
               );
-              console.log("User Role from response:", res?.role); // 👈 Add this line
+              console.log("Login Response:", res);
+              console.log("Tenant Data:", res?.tenant);
+              
               const profile = {
                 user: res.user,
                 email: res.email,
                 userId: res.userId,
                 role: res.role,
-                tenant: res.tenant, // Add tenant data
+                tenant: res.tenant,
               };
               
-              // Set in AuthContext only (session-based)
+              console.log("Setting user profile:", profile);
+              
               setUserProfile(profile as any as UserProfile);
               setUserRole(res.role);
               setIsLoggedIn(true);

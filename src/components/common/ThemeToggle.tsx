@@ -2,20 +2,15 @@ import React from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
 
 export const ThemeToggle: React.FC = () => {
-  const { currentTheme, setTheme } = useTheme();
-
-  const toggleTheme = () => {
-    const newThemeId = currentTheme.id === 'default' ? 'dark' : 'default';
-    setTheme(newThemeId);
-  };
+  const { isDarkMode, toggleDarkMode } = useTheme();
 
   return (
     <button
       className="theme-toggle"
-      onClick={toggleTheme}
-      title={`Switch to ${currentTheme.id === 'default' ? 'dark' : 'light'} mode`}
+      onClick={toggleDarkMode}
+      title={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}
     >
-      {currentTheme.id === 'default' ? '🌙' : '☀️'}
+      {isDarkMode ? '☀️' : '🌙'}
     </button>
   );
 };
