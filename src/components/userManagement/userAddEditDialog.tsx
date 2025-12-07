@@ -218,7 +218,6 @@ const [usernameError, setUsernameError] = useState<string | undefined>();
     );
   };
   const onSubmit = async (item: any) => {
-    debugger
   try {
     let obj: User = { ...selectedItem };
     obj = Util.toClassObject(obj, item);
