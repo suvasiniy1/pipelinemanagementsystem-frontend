@@ -3,6 +3,7 @@ import { Theme, getThemeById, PREDEFINED_THEMES, DARK_THEME } from '../others/th
 import { useAuthContext } from './AuthContext';
 import { UserPreferencesService } from '../services/userPreferencesService';
 import { UserPreferences } from '../models/userPreferences';
+import { updateFavicon } from '../others/faviconUtil';
 
 export interface ThemeContextType {
   currentTheme: Theme;
@@ -54,6 +55,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
   const applyTheme = (theme: Theme) => {
     const root = document.documentElement;
+    
+    // Update favicon with theme color
+    updateFavicon(theme.primaryColor);
     
     // Set theme-specific CSS custom properties
     root.style.setProperty('--primary-color', theme.primaryColor);

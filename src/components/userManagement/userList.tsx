@@ -12,9 +12,11 @@ import { toast } from "react-toastify";
 import LockResetIcon from "@mui/icons-material/LockReset";
 import moment from "moment";
 import MailOutlineIcon from "@mui/icons-material/MailOutline";
+import { TenantService } from "../../services/tenantService";
 
 const UsersList = () => {
   const userSvc = new UserService(ErrorBoundary);
+  const tenantSvc = new TenantService();
   const [loadingData, setLoadingData] = useState(true);
   const [isUnlockClicked, setIsUnlockClicked] = useState(false);
   const [isResetpasswordClicked, setIsResetpasswordClicked] = useState(false);
@@ -23,6 +25,9 @@ const UsersList = () => {
   const [userItem, setUserItem] = useState<User>(new User());
   const [loadRowData, setLoadRowData] = useState(true);
   const [isResendClicked, setIsResendClicked] = useState(false);
+  const [tenants, setTenants] = useState<Array<any>>([]);
+  const [roles, setRoles] = useState<Array<any>>([]);
+  const isMasterAdmin = localStorage.getItem('IS_MASTER_ADMIN') === 'true';
 
   const columnMetaData = [
     { columnName: "firstName", columnHeaderName: "FirstName", width: 150 },
@@ -30,7 +35,7 @@ const UsersList = () => {
     { columnName: "userName", columnHeaderName: "Username", width: 150 },
     { columnName: "phoneNumber", columnHeaderName: "Phonenumber", width: 150 },
     { columnName: "email", columnHeaderName: "Email Address", width: 150 },
-    { columnName: "name", columnHeaderName: "Organization", width: 150 },
+    ...(isMasterAdmin ? [{ columnName: "tenantName", columnHeaderName: "Tenant", width: 150 }] : []),
     { columnName: "roleName", columnHeaderName: "Role", width: 150 },
     { columnName: "isActive", columnHeaderName: "Status", width: 150 },
     { columnName: "lastLogin", columnHeaderName: "Last Login", width: 150 },
@@ -38,36 +43,58 @@ const UsersList = () => {
 
   useEffect(() => {
     setLoadingData(true);
-    Promise.all([
-      userSvc.getRoles().catch(() => []), // If API fails, return an empty array
-      userSvc.getOrganizations().catch(() => []), // Handle failure
-    ])
-      .then((res) => {
-        LocalStorageUtil.setItemObject(
-          "userRoles",
-          JSON.stringify(res[0] || [])
-        );
-        LocalStorageUtil.setItemObject(
-          "organizations",
-          JSON.stringify(res[1] || [])
-        );
-      })
-      .catch((error) => {
-        console.error("Error fetching roles or organizations:", error);
-      })
-      .finally(() => {
-        setLoadingData(false);
-      });
+    
+    const hardcodedRoles = [
+      { id: 1, name: "Admin", normalizedName: "ADMIN", concurrencyStamp: "7E7EC14F-BD52-4FE5-BEAF-A0A4D6132751", createdDate: "2024-08-15T15:38:48.6", createdBy: 1 },
+      { id: 2, name: "Sales User", normalizedName: "SALES USER", concurrencyStamp: "878F6B12-1651-4651-8B30-C9131FF7D813", createdDate: "2024-08-15T12:52:17.73", createdBy: 1 },
+      { id: 3, name: "Manager", normalizedName: "MANAGER", concurrencyStamp: "209B305E-7D78-4850-85B8-1258020F31C2", createdDate: "2024-08-15T12:52:17.73", createdBy: 1 }
+    ];
+
+    if (isMasterAdmin) {
+      Promise.all([
+        userSvc.getOrganizations().catch(() => []),
+        tenantSvc.getItems().catch(() => [])
+      ])
+        .then((res) => {
+          setRoles(hardcodedRoles);
+          LocalStorageUtil.setItemObject("userRoles", JSON.stringify(hardcodedRoles));
+          LocalStorageUtil.setItemObject("organizations", JSON.stringify(res[0] || []));
+          setTenants(res[1] || []);
+        })
+        .catch((error) => {
+          console.error("Error fetching organizations or tenants:", error);
+        })
+        .finally(() => {
+          setLoadingData(false);
+        });
+    } else {
+      Promise.all([
+        userSvc.getRoles().catch(() => []),
+        userSvc.getOrganizations().catch(() => [])
+      ])
+        .then((res) => {
+          setRoles(res[0] || []);
+          LocalStorageUtil.setItemObject("userRoles", JSON.stringify(res[0] || []));
+          LocalStorageUtil.setItemObject("organizations", JSON.stringify(res[1] || []));
+        })
+        .catch((error) => {
+          console.error("Error fetching roles or organizations:", error);
+        })
+        .finally(() => {
+          setLoadingData(false);
+        });
+    }
   }, []);
 
   const rowTransform = (item: User, index: number) => {
-    
+    const tenant = tenants.find(t => t.id === item.tenantId);
     return {
       ...item,
       roleId: item.roleId,
       organizationId: item.organizationId,
+      ...(isMasterAdmin && { tenantName: tenant?.name || 'N/A' }),
       id: item.userId > 0 ? item.userId : index,
-    }; // Ensure a unique id
+    };
   };
 
   const unLockUserAccount = (item: User) => {
@@ -166,13 +193,15 @@ const UsersList = () => {
         itemName={"User"}
         itemType={User}
         columnMetaData={columnMetaData}
-        viewAddEditComponent={UsersAddEditDialog}
+        viewAddEditComponent={(props: any) => (
+          <UsersAddEditDialog {...props} tenants={tenants} roles={roles} />
+        )}
         itemsBySubURL={"GetUsers"}
         rowTransformFn={rowTransform}
         api={new UserService(ErrorBoundary)}
         enableCheckboxSelection={false}
         customActions={(e: any) => customActions(e)}
-        onSelectionModelChange={() => {}} 
+        onSelectionModelChange={() => {}}
       />
     </>
   );

@@ -436,7 +436,32 @@ const clientPaginationDefaults: Partial<DataGridProps> = props.hidePagination
         const isUserList = props.itemName === 'User' || props.itemType?.name === 'User';
         const currentUserId = userProfile?.userId;
         const rowUserId = cellValues.row?.userId;
-        const isCurrentUser = isUserList && currentUserId && rowUserId && String(currentUserId) === String(rowUserId);
+        const isCurrentUser = isUserList && currentUserId && rowUserId && Number(currentUserId) === Number(rowUserId);
+        
+        if (isCurrentUser) {
+          return (
+            <>
+              <Button
+                color="primary"
+                startIcon={<EditIcon />}
+                title="Cannot edit your own account"
+                className="rowActionIcon"
+                disabled={true}
+                style={{ opacity: 0.3, cursor: 'not-allowed' }}
+              ></Button>
+              <Button
+                color="primary"
+                startIcon={<DeleteIcon />}
+                title="Cannot delete your own account"
+                className="rowActionIcon"
+                disabled={true}
+                style={{ opacity: 0.3, cursor: 'not-allowed' }}
+              ></Button>
+              {props.customActions ? props.customActions(cellValues) : null}
+            </>
+          );
+        }
+        
         return (
           <>
             <Button
@@ -451,29 +476,9 @@ const clientPaginationDefaults: Partial<DataGridProps> = props.hidePagination
                     ]
                   : "editItem"
               }`}
-              onClick={(event) => {
-                if (!isCurrentUser) onClickEditListener(event, cellValues, false);
-              }}
+              onClick={(event) => onClickEditListener(event, cellValues, false)}
               className="rowActionIcon"
-              disabled={isCurrentUser}
             ></Button>
-            {/* <Button
-              color="primary"
-              startIcon={<PluseIcon />}
-              title="Clone"
-              id={`$${
-                propNameforSelector
-                  ? "cloneItem_" +
-                    getSelectedItemfromCellValues(cellValues)[
-                      propNameforSelector
-                    ]
-                  : "cloneItem"
-              }`}
-              onClick={(event) => {
-                onClickEditListener(event, cellValues, false, true);
-              }}
-              className="rowActionIcon"
-            ></Button> */}
             <Button
               color="primary"
               startIcon={<DeleteIcon />}
@@ -486,11 +491,8 @@ const clientPaginationDefaults: Partial<DataGridProps> = props.hidePagination
                     ]
                   : "deleteItem"
               }`}
-              onClick={(event) => {
-                if (!isCurrentUser) onClickDeleteListener(event, cellValues);
-              }}
+              onClick={(event) => onClickDeleteListener(event, cellValues)}
               className="rowActionIcon"
-              disabled={isCurrentUser}
             ></Button>
             {props.customActions ? props.customActions(cellValues) : null}
           </>

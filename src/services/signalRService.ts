@@ -126,11 +126,6 @@ class SignalRService {
       if (this.currentUserId) {
         this.connection?.invoke('JoinGroup', this.currentUserId);
       }
-      
-      toast.success('Connection restored', {
-        position: "top-right",
-        autoClose: 2000,
-      });
     });
 
     this.connection.onclose((error) => {

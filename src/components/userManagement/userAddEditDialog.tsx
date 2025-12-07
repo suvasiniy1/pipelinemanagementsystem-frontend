@@ -29,50 +29,18 @@ const UsersAddEditDialog: React.FC<any> = (props) => {
     isReadOnly,
     setIsReadOnly,
     setLoadRowData,
+    tenants = [],
+    roles = [],
     ...others
   } = props;
 
   const userSvc = new UserService(ErrorBoundary);
-  const [roles, setRoles] = useState<Array<any>>(
-    JSON.parse(LocalStorageUtil.getItemObject("userRoles") as any) ?? []
-  ); // Updated structure
-  const [organizations, setOrganizations] = useState<Array<any>>(
-    JSON.parse(LocalStorageUtil.getItemObject("organizations") as any) ?? []
-  ); // Updated structure
+  const [organizations, setOrganizations] = useState<Array<any>>([]);
   const { userProfile } = useAuthContext();
-  const [tenants, setTenants] = useState<Array<any>>([]);
+  const isMasterAdmin = localStorage.getItem('IS_MASTER_ADMIN') === 'true';
+  const userTenantId = (userProfile as any)?.tenant?.[0]?.id || null;
   
-  useEffect(() => {
-    console.log('=== TENANT DEBUG ===');
-    console.log('User profile:', userProfile);
-    console.log('User profile tenant:', userProfile ? (userProfile as any).tenant : 'No profile');
-    
-    // Check localStorage directly
-    const storedProfile = LocalStorageUtil.getItemObject('USER_PROFILE');
-    console.log('Stored profile in localStorage:', storedProfile);
-    
-    const storedTenants = LocalStorageUtil.getItemObject('USER_TENANTS');
-    console.log('Stored tenants in localStorage:', storedTenants);
-    
-    // Check if user profile has tenant data
-    if (userProfile && (userProfile as any).tenant && Array.isArray((userProfile as any).tenant)) {
-      console.log('✅ Found tenant data in user profile:', (userProfile as any).tenant);
-      setTenants((userProfile as any).tenant);
-    } else if (storedTenants) {
-      try {
-        const parsedTenants = JSON.parse(storedTenants as string);
-        console.log('✅ Using tenants from localStorage:', parsedTenants);
-        setTenants(parsedTenants);
-      } catch (error) {
-        console.error('❌ Error parsing stored tenants:', error);
-        setTenants([]);
-      }
-    } else {
-      console.log('❌ No tenant data found for user');
-      setTenants([]);
-    }
-    console.log('=== END TENANT DEBUG ===');
-  }, [userProfile]);
+
 type UserFormValues = InferType<typeof validationSchema>;
   // Controls for the form fields
   const controlsList: IControl[] = [
@@ -111,18 +79,9 @@ type UserFormValues = InferType<typeof validationSchema>;
       type: ElementType.dropdown,
       options: roles,
       isRequired: true,
-      sidebyItem: "Tenant",
+      sidebyItem: "Phone Number",
     },
     {
-      key: "Tenant",
-      value: "tenantId",
-      elementSize: 12,
-      type: ElementType.dropdown,
-      options: tenants,
-      isRequired: true,
-      isSideByItem: true,
-    },
-        {
       key: "Phone Number",
       type: ElementType.number,
       value: "phoneNumber",
@@ -130,13 +89,23 @@ type UserFormValues = InferType<typeof validationSchema>;
       isRequired: true,
       isSideByItem: true,
     },
+    ...(isMasterAdmin ? [{
+      key: "Tenant",
+      value: "tenantId",
+      elementSize: 12,
+      type: ElementType.dropdown,
+      options: tenants,
+      isRequired: true,
+      sidebyItem: "Active",
+    }] : []),
     {
       key: "Active",
       value: "isActive",
       elementSize: 12,
       type: ElementType.checkbox,
       defaultValue: true,
-      isControlInNewLine: true,
+      isSideByItem: isMasterAdmin,
+      isControlInNewLine: !isMasterAdmin,
     }
   ];
 
@@ -147,19 +116,20 @@ type UserFormValues = InferType<typeof validationSchema>;
   };
 const numberRequired = (msg: string) =>
   Yup.number()
-    .transform((val, orig) => (orig === '' || orig === null ? undefined : val)) // <- key
-    .typeError(msg)      // non-number (incl. '')
-    .required(msg);      // after transform it's undefined -> required
+    .transform((val, orig) => (orig === '' || orig === null ? undefined : val))
+    .typeError(msg)
+    .required(msg);
+
   const validationSchema = Yup.object().shape({
-  firstName: Yup.string().required("Required"),
-  lastName: Yup.string().required("Required"),
-  userName: Yup.string().required("Required"),
-  email: Yup.string().email("Invalid email").required("Required"),
-  phoneNumber: Yup.string().required("Required"),
-id: numberRequired("Role is required"),
-isActive: Yup.boolean().notRequired(),     // ✅ this is fine
-   tenantId: numberRequired("Tenant is required"),
-});
+    firstName: Yup.string().required("Required"),
+    lastName: Yup.string().required("Required"),
+    userName: Yup.string().required("Required"),
+    email: Yup.string().email("Invalid email").required("Required"),
+    phoneNumber: Yup.string().required("Required"),
+    id: numberRequired("Role is required"),
+    isActive: Yup.boolean().notRequired(),
+    tenantId: numberRequired("Tenant is required"),
+  });
 
 
 const methods = useForm<UserFormValues>({
@@ -179,25 +149,15 @@ const methods = useForm<UserFormValues>({
   };
 const [usernameError, setUsernameError] = useState<string | undefined>();
   useEffect(() => {
-    console.log('=== EDIT USER DEBUG ===');
-    console.log('selectedItem:', selectedItem);
-    console.log('selectedItem.organizationId:', selectedItem?.organizationId);
-    
     if (selectedItem?.userId > 0) {
-      // Set role
-      const roleValue = roles.find((i) => i.name === selectedItem["roleName"])?.id;
-      console.log('Setting role value:', roleValue);
-      setValue("id" as never, roleValue as never);
-
-      // Set tenant (from organizationId)
-      console.log('Setting tenant value from organizationId:', selectedItem.organizationId);
-      setValue("tenantId" as never, selectedItem.organizationId as never);
-      
-      // Set active status
+      setValue("id" as never, selectedItem.roleID as never);
+      const tenantValue = selectedItem.tenantId || selectedItem.organizationID || selectedItem.organizationId;
+      setValue("tenantId" as never, tenantValue as never);
       setValue("isActive" as never, selectedItem.isActive as never);
+    } else if (!isMasterAdmin && userTenantId) {
+      setValue("tenantId" as never, userTenantId as never);
     }
-    console.log('=== END EDIT USER DEBUG ===');
-  }, [selectedItem, roles, tenants]);
+  }, [selectedItem]);
 
   const onChange = (value: any, item: any) => {
     const field = item.value;
@@ -233,15 +193,14 @@ const [usernameError, setUsernameError] = useState<string | undefined>();
   };
   const getListofItemsForDropdown = (item: any) => {
     if (item.value === "id") {
-      return roles.map((role) => ({
+      return roles.map((role: any) => ({
         value: role.id,
         name: role.name,
       }));
     }
 
     if (item.value === "tenantId") {
-      console.log('Mapping tenants for dropdown:', tenants);
-      return tenants.map((tenant) => ({
+      return tenants.map((tenant: any) => ({
         value: tenant.id,
         name: tenant.name,
       }));
@@ -259,6 +218,7 @@ const [usernameError, setUsernameError] = useState<string | undefined>();
     );
   };
   const onSubmit = async (item: any) => {
+    debugger
   try {
     let obj: User = { ...selectedItem };
     obj = Util.toClassObject(obj, item);
@@ -273,11 +233,13 @@ const [usernameError, setUsernameError] = useState<string | undefined>();
     obj.isActive = selectedItem.isActive;
 
     obj.roleId = item.id !== null ? Number(item.id) : 0;
-    obj.organizationId = item.tenantId !== null ? Number(item.tenantId) : 0; // Map tenantId to organizationId
-    obj.tenantId = item.tenantId !== null ? Number(item.tenantId) : 0;
+    const finalTenantId = isMasterAdmin ? (item.tenantId !== null ? Number(item.tenantId) : 0) : userTenantId;
+    obj.organizationId = finalTenantId;
+    obj.tenantId = finalTenantId;
     obj.lastLogin = new Date();
-    obj.createdBy = String(Util.UserProfile()?.userId);
-    obj.modifiedBy = obj.userId > 0 ? String(Util.UserProfile()?.userId) : null;
+    const loggedInUserId = userProfile?.userId || (userProfile as any)?.userId;
+    obj.createdBy = loggedInUserId ? String(loggedInUserId) : null;
+    obj.modifiedBy = obj.userId > 0 && loggedInUserId ? String(loggedInUserId) : null;
     obj.Id = obj.userId ?? 0;
     obj.userId = obj.userId ?? 0;
 

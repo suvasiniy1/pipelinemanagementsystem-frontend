@@ -147,7 +147,7 @@ export const SideBar = (props: params) => {
             <p hidden={selectedNavItem === "Settings"}>Manage User</p>
           </MenuItem>
 
-          <MenuItem hidden={userRole !== 0 || !Util.isAuthorized("Tenant")} title="Tenants" component={<Link to="/Tenant" />} onClick={() => setSelectedNavItem("Tenant")} icon={<FaBuilding color={selectedNavItem === "Tenant" ? activeNavColor : "black"} />}>
+          <MenuItem hidden={userRole !== 0} title="Tenants" component={<Link to="/Tenant" />} onClick={() => setSelectedNavItem("Tenant")} icon={<FaBuilding color={selectedNavItem === "Tenant" ? activeNavColor : "black"} />}>
             <b hidden={selectedNavItem !== "Tenant"} style={{ color: selectedNavItem === "Tenant" ? activeNavColor : "black" }}>Tenants</b>
             <p hidden={selectedNavItem === "Tenant"}>Tenants</p>
           </MenuItem>
@@ -169,10 +169,7 @@ export const SideBar = (props: params) => {
               <b hidden={selectedNavItem !== "PipeLineType"} style={{ color: selectedNavItem === "PipeLineType" ? activeNavColor : "black" }}>Pipeline Type</b>
               <p hidden={selectedNavItem === "PipeLineType"}>Pipeline Type</p>
             </MenuItem>
-            <MenuItem hidden={userRole === 0 || !Util.isAuthorized("Tenant")} title="Tenants" component={<Link to="/Tenant" />} onClick={() => setSelectedNavItem("Tenant")} icon={<FaBuilding color={selectedNavItem === "Tenant" ? activeNavColor : "black"} />}>
-              <b hidden={selectedNavItem !== "Tenant"} style={{ color: selectedNavItem === "Tenant" ? activeNavColor : "black" }}>Tenants</b>
-              <p hidden={selectedNavItem === "Tenant"}>Tenants</p>
-            </MenuItem>
+
           </SubMenu>
 
           <MenuItem hidden={!Util.isAuthorized("Reporting")} title="Reporting" component={<Link to="/Reporting" />} onClick={() => setSelectedNavItem("Reporting")} icon={<RiDashboard2Fill color={selectedNavItem === "Reporting" ? activeNavColor : "black"} />}>
