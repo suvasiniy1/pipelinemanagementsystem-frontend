@@ -1,6 +1,6 @@
 window.config = {
-  //ServicesBaseURL: "https://localhost:7182/api",
- ServicesBaseURL: "https://www.y1crm.com/Cliniclead/api",
+ ServicesBaseURL: "https://localhost:7182/api",
+ //ServicesBaseURL: "https://api.cliniclead.app/api",
   SMSServiceURL:"https://www.y1crm.com/PLMSDev/send-sms",
   DefaultStages: [
     "Qualified",
@@ -17,6 +17,16 @@ window.config = {
   DateFormat: "MM/DD/YYYY",
   FrontendBaseURL: "http://localhost:3000/PLMSUI",
   NavItemsForUser: [
+    {
+      Role: 0,
+      NavItems: [
+        "Tenant",
+        "users",
+        "Login",
+        "Home",
+        "confirm-email"
+      ],
+    },
     {
       Role: 1,
       NavItems: [

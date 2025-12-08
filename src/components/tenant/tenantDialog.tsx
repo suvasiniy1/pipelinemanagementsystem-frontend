@@ -17,7 +17,9 @@ import { PREDEFINED_THEMES } from "../../others/themes";
 type TenantFormData = {
   name: string;
   isActive: boolean;
-  themeId?: string;
+  connectionString: string;
+  tenantKey: string;
+  theamCode?: string;
   logo?: string;
   emailCLinetId?: string;
   port?: string;
@@ -42,6 +44,15 @@ const TenantDialog: React.FC<ViewEditProps> = (props) => {
 
   const tenantSvc = new TenantService();
 
+  // Check if connection string is encrypted (doesn't contain plain SQL connection string patterns)
+  const isConnectionStringEncrypted = selectedItem?.connectionString && 
+    selectedItem.connectionString.length > 0 &&
+    !(selectedItem.connectionString.includes('Server=') || 
+      selectedItem.connectionString.includes('Data Source=') ||
+      selectedItem.connectionString.includes('Database=') ||
+      selectedItem.connectionString.includes('User ID=') ||
+      selectedItem.connectionString.includes('Password='));
+
   const controlsList: Array<IControl> = [
     {
       key: "Tenant Name",
@@ -51,8 +62,23 @@ const TenantDialog: React.FC<ViewEditProps> = (props) => {
       elementSize: 12
     },
     {
+      key: isConnectionStringEncrypted ? "Connection String (Encrypted)" : "Connection String",
+      value: "connectionString",
+      isRequired: true,
+      isControlInNewLine: true,
+      elementSize: 12,
+      type: ElementType.textarea
+    },
+    {
+      key: "Tenant Key",
+      value: "tenantKey",
+      isRequired: true,
+      isControlInNewLine: true,
+      elementSize: 12
+    },
+    {
       key: "Theme",
-      value: "themeId",
+      value: "theamCode",
       isRequired: false,
       isControlInNewLine: true,
       elementSize: 12,
@@ -108,7 +134,9 @@ const TenantDialog: React.FC<ViewEditProps> = (props) => {
 
   const validationSchema = Yup.object().shape({
     name: Yup.string().required("Tenant Name is required"),
-    themeId: Yup.string().optional(),
+    connectionString: Yup.string().required("Connection String is required"),
+    tenantKey: Yup.string().required("Tenant Key is required"),
+    theamCode: Yup.string().optional(),
     logo: Yup.string().optional(),
     emailCLinetId: Yup.string().optional(),
     port: Yup.string().optional(),
@@ -119,7 +147,9 @@ const TenantDialog: React.FC<ViewEditProps> = (props) => {
 
   const defaultValues: TenantFormData = {
     name: selectedItem?.name || '',
-    themeId: selectedItem?.themeId || 'default',
+    connectionString: selectedItem?.connectionString || '',
+    tenantKey: selectedItem?.tenantKey || '',
+    theamCode: selectedItem?.theamCode || 'default',
     logo: selectedItem?.logo || '',
     emailCLinetId: selectedItem?.emailCLinetId || '',
     port: selectedItem?.port || '',
@@ -141,7 +171,7 @@ const TenantDialog: React.FC<ViewEditProps> = (props) => {
   };
 
   const getListofItemsForDropdown = (item: any) => {
-    if (item.value === "themeId") {
+    if (item.value === "theamCode") {
       return PREDEFINED_THEMES.map((theme) => ({
         value: theme.id,
         name: theme.displayName,
@@ -155,9 +185,9 @@ const TenantDialog: React.FC<ViewEditProps> = (props) => {
       const boolValue = value === true || value === "true" || value === 1 || value === "1";
       setValue("isActive" as keyof TenantFormData, boolValue);
       setSelectedItem((prev: any) => ({ ...prev, isActive: boolValue }));
-    } else if (item.value === "themeId") {
-      setValue("themeId" as keyof TenantFormData, value);
-      setSelectedItem((prev: any) => ({ ...prev, themeId: value }));
+    } else if (item.value === "theamCode") {
+      setValue("theamCode" as keyof TenantFormData, value);
+      setSelectedItem((prev: any) => ({ ...prev, theamCode: value }));
     } else {
       setValue(item.value as keyof TenantFormData, value);
       setSelectedItem((prev: any) => ({ ...prev, [item.value]: value }));

@@ -31,7 +31,7 @@ const TenantList = () => {
     ];
 
     const rowTransform = (item: Tenant) => {
-        const theme = getThemeById(item.themeId || 'default');
+        const theme = getThemeById(item.theamCode || 'default');
         return {
             ...item,
             isActive: item.isActive ? 'Active' : 'Inactive',
