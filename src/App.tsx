@@ -33,6 +33,38 @@ function AppContent() {
   const { isConnected, notifications } = useSignalR();
   const [signalRInitialized, setSignalRInitialized] = useState(false);
   
+  // Handle auto-login from subdomain redirect
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const authData = params.get('auth');
+    
+    if (authData) {
+      try {
+        const loginData = JSON.parse(atob(authData));
+        
+        const convertTZ = (dateTime: any) => {
+          return moment(new Date(Util.toLocalTimeZone(dateTime))).format(
+            "MM/DD/YYYY hh:mm:ss a"
+          ) as any;
+        };
+        
+        LocalStorageUtil.setItem(Constants.USER_LOGGED_IN, "true");
+        LocalStorageUtil.setItem(Constants.ACCESS_TOKEN, loginData.token);
+        LocalStorageUtil.setItem(Constants.User_Name, loginData.user);
+        LocalStorageUtil.setItem(Constants.TOKEN_EXPIRATION_TIME, convertTZ(loginData.expires));
+        LocalStorageUtil.setItem('IS_MASTER_ADMIN', loginData.isMasterAdmin.toString());
+        
+        Util.loadNavItemsForUser(loginData.role);
+        
+        window.history.replaceState({}, document.title, '/pipeline');
+        navigate('/pipeline');
+      } catch (error) {
+        console.error('Failed to auto-login:', error);
+        navigate('/login');
+      }
+    }
+  }, []);
+  
   const clearLocalStorage = () => {
     LocalStorageUtil.removeItem(Constants.USER_LOGGED_IN);
     LocalStorageUtil.removeItem(Constants.ACCESS_TOKEN);

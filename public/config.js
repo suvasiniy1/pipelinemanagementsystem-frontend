@@ -86,6 +86,11 @@ window.config = {
   SessionTimeout: {
     idleTimeoutSeconds: 1440,
     maxSessionTimeoutMinutes: 1440
+  },
+  TenantSubdomains: {
+    1: "transformus.cliniclead.app",
+    2: "signatureclinic.cliniclead.app"
+    // Add more tenants as needed: tenantId: "subdomain.cliniclead.app"
   }
 };
 

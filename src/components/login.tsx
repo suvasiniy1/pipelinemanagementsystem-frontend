@@ -217,7 +217,28 @@ const showPwdError = (msg: string) => {
               if (isMasterAdmin) {
                 navigate("/Tenant");
               } else {
-                navigate("/pipeline");
+                // Get tenant subdomain from config
+                const tenantId = res.tenant?.[0]?.id;
+                const tenantSubdomain = (window as any).config?.TenantSubdomains?.[tenantId];
+                
+                if (tenantSubdomain) {
+                  // Encode login response as base64 to pass all data
+                  const loginData = {
+                    token: res.token,
+                    user: res.user,
+                    email: res.email,
+                    userId: res.userId,
+                    role: userRole,
+                    tenant: res.tenant,
+                    expires: res.expires,
+                    isMasterAdmin: isMasterAdmin
+                  };
+                  const encodedData = btoa(JSON.stringify(loginData));
+                  window.location.href = `https://${tenantSubdomain}?auth=${encodedData}`;
+                } else {
+                  // Fallback to pipeline if no subdomain configured
+                  navigate("/pipeline");
+                }
               }
             } else if (res?.twoFactorRequired) {
               toast.success(
