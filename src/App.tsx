@@ -19,7 +19,7 @@ import { UserService } from "./services/UserService";
 import { ErrorBoundary } from "react-error-boundary";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { AuthProvider } from "./contexts/AuthContext";
+import { AuthProvider, useAuthContext } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { ThemeToggle } from "./components/common/ThemeToggle";
 import { useSignalR } from "./hooks/useSignalR";
@@ -32,15 +32,20 @@ function AppContent() {
   const location = useLocation();
   const { isConnected, notifications } = useSignalR();
   const [signalRInitialized, setSignalRInitialized] = useState(false);
+  const { setUserProfile, setUserRole, setIsLoggedIn } = useAuthContext();
   
-  // Handle auto-login from subdomain redirect
+  // Handle auto-login from subdomain redirect - MUST RUN FIRST
   useEffect(() => {
+    console.log('🔍 Auto-login useEffect triggered');
     const params = new URLSearchParams(window.location.search);
     const authData = params.get('auth');
+    console.log('🔍 Auth data present:', !!authData);
     
     if (authData) {
+      console.log('✅ Processing auto-login...');
       try {
         const loginData = JSON.parse(atob(authData));
+        console.log('✅ Decoded login data:', loginData);
         
         const convertTZ = (dateTime: any) => {
           return moment(new Date(Util.toLocalTimeZone(dateTime))).format(
@@ -53,15 +58,34 @@ function AppContent() {
         LocalStorageUtil.setItem(Constants.User_Name, loginData.user);
         LocalStorageUtil.setItem(Constants.TOKEN_EXPIRATION_TIME, convertTZ(loginData.expires));
         LocalStorageUtil.setItem('IS_MASTER_ADMIN', loginData.isMasterAdmin.toString());
+        console.log('✅ LocalStorage populated');
+        
+        // Set AuthContext
+        const profile = {
+          user: loginData.user,
+          email: loginData.email,
+          userId: loginData.userId,
+          role: loginData.role,
+          tenant: loginData.tenant,
+          isMasterAdmin: loginData.isMasterAdmin
+        };
+        setUserProfile(profile as any);
+        setUserRole(loginData.role);
+        setIsLoggedIn(true);
+        console.log('✅ AuthContext set:', profile);
         
         Util.loadNavItemsForUser(loginData.role);
+        setNavItemsLoaded(true);
+        console.log('✅ Nav items loaded, navigating to /pipeline');
         
         window.history.replaceState({}, document.title, '/pipeline');
         navigate('/pipeline');
       } catch (error) {
-        console.error('Failed to auto-login:', error);
+        console.error('❌ Failed to auto-login:', error);
         navigate('/login');
       }
+    } else {
+      console.log('ℹ️ No auth data, skipping auto-login');
     }
   }, []);
   
@@ -163,6 +187,12 @@ function AppContent() {
   };
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const authData = params.get('auth');
+    
+    // Skip redirect if we have auth data (auto-login in progress)
+    if (authData) return;
+    
     if (
       LocalStorageUtil.getItem(Constants.USER_LOGGED_IN) != "true" &&
       !IsChangePassword()

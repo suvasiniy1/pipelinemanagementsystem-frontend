@@ -1,6 +1,6 @@
 window.config = {
- ServicesBaseURL: "https://localhost:7182/api",
- //ServicesBaseURL: "https://api.cliniclead.app/api",
+ //ServicesBaseURL: "https://localhost:7182/api",
+ ServicesBaseURL: "https://api.cliniclead.app/api",
   SMSServiceURL:"https://www.y1crm.com/PLMSDev/send-sms",
   DefaultStages: [
     "Qualified",
@@ -89,9 +89,10 @@ window.config = {
   },
   TenantSubdomains: {
     1: "transformus.cliniclead.app",
-    2: "signatureclinic.cliniclead.app"
+    2: "transformus.cliniclead.app"
     // Add more tenants as needed: tenantId: "subdomain.cliniclead.app"
-  }
+  },
+  EnableSubdomainRedirect: false // Set to true for production, false for local development
 };
 
    

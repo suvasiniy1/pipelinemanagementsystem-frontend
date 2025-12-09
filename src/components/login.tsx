@@ -217,11 +217,12 @@ const showPwdError = (msg: string) => {
               if (isMasterAdmin) {
                 navigate("/Tenant");
               } else {
-                // Get tenant subdomain from config
+                // Check if subdomain redirect is enabled
+                const enableSubdomainRedirect = (window as any).config?.EnableSubdomainRedirect;
                 const tenantId = res.tenant?.[0]?.id;
                 const tenantSubdomain = (window as any).config?.TenantSubdomains?.[tenantId];
                 
-                if (tenantSubdomain) {
+                if (enableSubdomainRedirect && tenantSubdomain) {
                   // Encode login response as base64 to pass all data
                   const loginData = {
                     token: res.token,
@@ -236,7 +237,7 @@ const showPwdError = (msg: string) => {
                   const encodedData = btoa(JSON.stringify(loginData));
                   window.location.href = `https://${tenantSubdomain}?auth=${encodedData}`;
                 } else {
-                  // Fallback to pipeline if no subdomain configured
+                  // Local development or no subdomain configured
                   navigate("/pipeline");
                 }
               }
