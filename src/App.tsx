@@ -255,6 +255,10 @@ function AppContent() {
     LocalStorageUtil.setItem(Constants.ISSIDEBAR_EXPANDED, !collapsed as any);
   }, [collapsed]);
 
+  useEffect(() => {
+    toast.dismiss();
+  }, [location.pathname]);
+
   return (
     <>
       {!navItemsLoaded ? (

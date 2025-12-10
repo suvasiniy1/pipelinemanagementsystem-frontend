@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Spinner } from 'react-bootstrap';
 import { ErrorBoundary } from 'react-error-boundary';
 import { FormProvider, useForm } from 'react-hook-form';
+import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 import { AddEditDialog } from '../../../common/addEditDialog';
 import GenerateElements from '../../../common/generateElements';
@@ -83,6 +84,7 @@ const MoveDeal = (props: params) => {
             "dealId": +dealId,
             "pipelineId": selectedItem?.pipelineId
         }, +dealId + "/stage").then(res => {
+            toast.success("Deal moved successfully");
             setDialogIsOpen(false);
             props.onDealModify();
         }).catch(err => {
