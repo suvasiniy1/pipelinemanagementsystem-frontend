@@ -28,8 +28,8 @@
 .headerprofile .dropdown-header{background-color: #f8f9fa !important; margin-bottom: 0 !important;}
 .headerprofile .dropdown-header .fw-bold{color: #333 !important; font-size: 14px;}
 .headerprofile .dropdown-header .text-muted{color: #666 !important; font-size: 12px;}
-.dropdown-menu .dropdown-item{font-size: 14px; padding: 8px 15px;}
-.dropdown-menu .dropdown-item:hover{text-decoration: none; background-color: rgb(33 35 44/5%);}
+.dropdown-menu .dropdown-item{font-size: 14px; padding: 8px 15px; color: #333 !important;}
+.dropdown-menu .dropdown-item:hover{text-decoration: none; background-color: #f8f9fa !important; color: #333 !important;}
 
 
 .colheadprofilerow{display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding-right: 10px;}

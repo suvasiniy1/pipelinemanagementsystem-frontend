@@ -789,6 +789,88 @@ export const DealDetails = () => {
                       <div className="appblock-headcolleft">
                         <button
                           className="appblock-collapse"
+                          onClick={() => toggleSection("aboutPerson")}
+                        >
+                          <span className="appblock-titlelabel">
+                            <FontAwesomeIcon
+                              icon={
+                                expandedSections["aboutPerson"]
+                                  ? faAngleDown
+                                  : faAngleRight
+                              }
+                            />{" "}
+                            About Person
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+                    <div
+                      className="details-panel"
+                      style={{
+                        display: expandedSections["aboutPerson"]
+                          ? "block"
+                          : "none",
+                      }}
+                    >
+                      <div className="details-row">
+                        <div className="details-label">Phone -</div>
+                        <a
+                          href="javascript:void(0);"
+                          style={{
+                            fontSize: "0.9em",
+                            color: "#007bff",
+                            textDecoration: "underline",
+                          }}
+                        >
+                          <div
+                            className="details-value"
+                            onClick={(e: any) =>
+                              setSelectedPhoneNmber(dealItem.phone as any)
+                            }
+                          >
+                            {dealItem.phone || "-"}
+                          </div>
+                        </a>
+                      </div>
+                      <div className="details-row">
+                        <div className="details-label">Email -</div>
+                        <div className="details-value">
+                          {dealItem.email || "-"}
+                        </div>
+                      </div>
+                      <div className="details-row">
+                        <div className="details-label">Person Name -</div>
+                        <div
+                          className="details-value"
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                          }}
+                        >
+                          {dealItem.personName || "-"}
+                          <a
+  href="#"
+  onClick={(e) => { e.preventDefault(); openMoveDealDialog(); }}
+  style={{ fontSize: "0.9em", color: "#007bff", textDecoration: "underline" }}
+>
+  View Deals ({dealItem.openDealsCount || 0})
+  {isDealsLoading && <Spinner animation="border" size="sm" style={{ marginLeft: 8 }} />}
+</a>
+                        </div>
+                      </div>
+                      <div className="details-row">
+                        <div className="details-label">Source -</div>
+                        <div className="details-value">
+                          {dealItem.sourceName || "-"}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="appdealblock-head">
+                      <div className="appblock-headcolleft">
+                        <button
+                          className="appblock-collapse"
                           onClick={() => toggleSection("ownership")}
                         >
                           <span className="appblock-titlelabel">
@@ -1074,88 +1156,7 @@ export const DealDetails = () => {
                       />
                     </div>
 
-                    <div className="appdealblock-head">
-                      <div className="appblock-headcolleft">
-                        <button
-                          className="appblock-collapse"
-                          onClick={() => toggleSection("aboutPerson")}
-                        >
-                          <span className="appblock-titlelabel">
-                            <FontAwesomeIcon
-                              icon={
-                                expandedSections["aboutPerson"]
-                                  ? faAngleDown
-                                  : faAngleRight
-                              }
-                            />{" "}
-                            About Person
-                          </span>
-                        </button>
-                      </div>
-                    </div>
-                    {/* Content */}
-                    <div
-                      className="details-panel"
-                      style={{
-                        display: expandedSections["aboutPerson"]
-                          ? "block"
-                          : "none",
-                      }}
-                    >
-                      <div className="details-row">
-                        <div className="details-label">Phone -</div>
-                        <a
-                          href="javascript:void(0);"
-                          style={{
-                            fontSize: "0.9em",
-                            color: "#007bff",
-                            textDecoration: "underline",
-                          }}
-                        >
-                          <div
-                            className="details-value"
-                            onClick={(e: any) =>
-                              setSelectedPhoneNmber(dealItem.phone as any)
-                            }
-                          >
-                            {dealItem.phone || "-"}
-                          </div>
-                        </a>
-                      </div>
-                      <div className="details-row">
-                        <div className="details-label">Email -</div>
-                        <div className="details-value">
-                          {dealItem.email || "-"}
-                        </div>
-                      </div>
-                      <div className="details-row">
-                        <div className="details-label">Person Name -</div>
-                        <div
-                          className="details-value"
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "10px",
-                          }}
-                        >
-                          {dealItem.personName || "-"}
-                          <a
-  href="#"
-  onClick={(e) => { e.preventDefault(); openMoveDealDialog(); }}
-  style={{ fontSize: "0.9em", color: "#007bff", textDecoration: "underline" }}
->
-  View Deals ({dealItem.openDealsCount || 0})
-  {isDealsLoading && <Spinner animation="border" size="sm" style={{ marginLeft: 8 }} />} {/* optional */}
-</a>
-                        </div>
-                      </div>
-                      <div className="details-row">
-                        <div className="details-label">Source -</div>
-                        <div className="details-value">
-                          {dealItem.sourceName || "-"}
-                        </div>
-                      </div>
-                    </div>
+
                   </div>
                 </div>
               </div>

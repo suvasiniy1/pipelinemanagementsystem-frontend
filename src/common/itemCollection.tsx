@@ -10,7 +10,8 @@ import GroupEmailDialog from "../components/GroupEmailDialog";
 import { EmailTemplateService } from "../services/emailTemplateService"; // Import the EmailTemplateService
 import { EmailTemplate } from "../models/emailTemplate"; // Import EmailTemplate model
 import Drawer from "@mui/material/Drawer";
-import { Button, Grid } from "@mui/material";
+import { Button, Grid, Menu, MenuItem, IconButton, ListItemIcon, ListItemText } from "@mui/material";
+import { MoreVert as MoreVertIcon, Email, FileDownload, Save, Refresh } from "@mui/icons-material";
 import MultiSelectDropdown from "../elements/multiSelectDropdown";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -238,6 +239,7 @@ const ItemCollection: React.FC<params> = (props) => {
   const [exportFormat, setExportFormat] = useState<string>("xlsx");
   const [selectedTemplate, setSelectedTemplate] =
     useState<EmailTemplate | null>(null);
+  const [moreActionsAnchor, setMoreActionsAnchor] = useState<null | HTMLElement>(null);
   useEffect(() => {
     // Check if user is master admin - use direct flag first
     const checkMasterAdmin = () => {
@@ -637,17 +639,18 @@ if (exportFormat === "csv") {
     );
   };
 
-  // Shared style for both buttons
+  // Shared style for buttons
   const toolbarButtonStyle: React.CSSProperties = {
-    minWidth: 140,
-    minHeight: 40,
-    fontWeight: 600,
-    padding: '0 24px',
-    borderRadius: 8,
+    minWidth: 100,
+    minHeight: 32,
+    fontWeight: 500,
+    padding: '0 12px',
+    borderRadius: 4,
     boxSizing: 'border-box',
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
+    fontSize: '13px',
   };
 
   // Detect sidebar state from localStorage
@@ -659,12 +662,12 @@ if (exportFormat === "csv") {
     return true;
   })();
 
-  // Conditionally Render the Send Group Email Button
+  // Export button
   const renderExportButton = () => (
     <Button
       variant="outlined"
       color="secondary"
-      size="medium"
+      size="small"
       style={toolbarButtonStyle}
       onClick={(e: any) => setDrawerOpen(true)}
       disabled={selectedRows.length > 0 && isLoading}
@@ -673,20 +676,129 @@ if (exportFormat === "csv") {
     </Button>
   );
 
-  // Conditionally Render the Send Group Email Button
-  const renderSendGroupEmailButton = () =>
-    props.checkboxSelection && selectedRows.length > 0 && (
-      <Button
-        type="button"
-        variant="outlined"
-        color="secondary"
-        size="medium"
-        style={{ ...toolbarButtonStyle, marginRight: 12 }}
-        onClick={openGroupEmailDialog}
+  // More Actions dropdown menu
+  const renderMoreActionsMenu = () => (
+    <>
+      <IconButton
+        onClick={(e) => setMoreActionsAnchor(e.currentTarget)}
+        size="small"
+        style={{
+          ...toolbarButtonStyle,
+          minWidth: 36,
+          width: 36,
+          height: 32,
+          padding: 0
+        }}
       >
-        + Send Group Email
-      </Button>
-    );
+        <MoreVertIcon fontSize="small" />
+      </IconButton>
+      <Menu
+        anchorEl={moreActionsAnchor}
+        open={Boolean(moreActionsAnchor)}
+        onClose={() => setMoreActionsAnchor(null)}
+        PaperProps={{
+          style: {
+            minWidth: 180,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+            borderRadius: 8
+          }
+        }}
+      >
+        {props.checkboxSelection && (
+          <MenuItem
+            onClick={() => {
+              openGroupEmailDialog();
+              setMoreActionsAnchor(null);
+            }}
+            disabled={selectedRows.length === 0}
+            sx={{
+              py: 1,
+              px: 2,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              '&:hover': {
+                backgroundColor: '#f5f5f5'
+              },
+              '&.Mui-disabled': {
+                opacity: 0.5
+              }
+            }}
+          >
+            <Email fontSize="small" color={selectedRows.length === 0 ? 'disabled' : 'primary'} />
+            <span style={{ fontSize: 14, fontWeight: 500 }}>Send Email ({selectedRows.length})</span>
+          </MenuItem>
+        )}
+        {canExport && (
+          <MenuItem
+            onClick={() => {
+              setDrawerOpen(true);
+              setMoreActionsAnchor(null);
+            }}
+            sx={{
+              py: 1,
+              px: 2,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              '&:hover': {
+                backgroundColor: '#f5f5f5'
+              }
+            }}
+          >
+            <FileDownload fontSize="small" color="primary" />
+            <span style={{ fontSize: 14, fontWeight: 500 }}>Export</span>
+          </MenuItem>
+        )}
+        <MenuItem
+          onClick={() => {
+            savePreferences(currentGridPreferencesRef.current);
+            setMoreActionsAnchor(null);
+          }}
+          disabled={!hasChanges}
+          sx={{
+            py: 1,
+            px: 2,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            '&:hover': {
+              backgroundColor: '#f5f5f5'
+            },
+            '&.Mui-disabled': {
+              opacity: 0.5
+            }
+          }}
+        >
+          <Save fontSize="small" color={!hasChanges ? 'disabled' : 'primary'} />
+          <span style={{ fontSize: 14, fontWeight: 500 }}>Save Settings</span>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            resetPreferences();
+            setMoreActionsAnchor(null);
+          }}
+          disabled={!hasExistingPreferences}
+          sx={{
+            py: 1,
+            px: 2,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            '&:hover': {
+              backgroundColor: '#f5f5f5'
+            },
+            '&.Mui-disabled': {
+              opacity: 0.5
+            }
+          }}
+        >
+          <Refresh fontSize="small" color={!hasExistingPreferences ? 'disabled' : 'primary'} />
+          <span style={{ fontSize: 14, fontWeight: 500 }}>Reset Settings</span>
+        </MenuItem>
+      </Menu>
+    </>
+  );
   const addorUpdateItem = () => {
     return (
       <>
@@ -709,7 +821,7 @@ if (exportFormat === "csv") {
                 >
                   <div className="toolbarview-actionsrow" style={{
                       display: 'flex',
-                      gap: 12,
+                      gap: 8,
                       alignItems: 'center',
                       justifyContent: isSidebarCollapsed ? 'flex-end' : 'flex-end',
                       paddingRight: isSidebarCollapsed ? 24 : 60, // More padding when expanded
@@ -717,26 +829,13 @@ if (exportFormat === "csv") {
                       flexWrap: 'wrap',
                       boxSizing: 'border-box',
                     }}>
-                    {renderSendGroupEmailButton()}
-                    
-                    {/* Grid Preferences Buttons - positioned before Export and Add buttons */}
-                    <SimpleGridPreferencesButton
-                      gridName={`${itemName}-grid`}
-                      hasChanges={hasChanges}
-                      hasExistingPreferences={hasExistingPreferences}
-                      onSave={() => {
-                        savePreferences(currentGridPreferencesRef.current);
-                      }}
-                      onReset={resetPreferences}
-                    />
-                    
-                    {canExport ? renderExportButton() : null}
+                    {renderMoreActionsMenu()}
                     
                     <Button
                       type="button"
                       variant="contained"
                       color="primary"
-                      size="medium"
+                      size="small"
                       style={toolbarButtonStyle}
                       hidden={!canAdd}
                       onClick={(e: any) => {
@@ -744,7 +843,7 @@ if (exportFormat === "csv") {
                         setDialogIsOpen(true);
                       }}
                     >
-                      + New {itemName}
+                      + Add {itemName}
                     </Button>
                   </div>
                 </div>

@@ -67,10 +67,12 @@ export const DealAddEditDialog = (props: params) => {
     const controlsList1: Array<IControl> = [
         { key: "Contact Person", value: "contactPersonID", sidebyItem: "Deal Value", type: ElementType.custom, isRequired: true },
         { key: "Deal Value", value: "value", type: ElementType.textbox, isSideByItem: true, isRequired: true },
-        { key: "Organization", value: "organizationID", sidebyItem: "Probability Of Winning", type: ElementType.dropdown, isRequired: true },
+        { key: "Title", value: "title", sidebyItem: "Probability Of Winning", type: ElementType.textbox, isRequired: true },
         { key: "Probability Of Winning", value: "probability", type: ElementType.textbox, isSideByItem: true, isRequired: true },
-        { key: "Title", value: "title", sidebyItem: "Expected Close Date", type: ElementType.textbox, isRequired: true },
-        { key: "Expected Close Date", value: "expectedCloseDate", type: ElementType.datepicker, isSideByItem: true, isRequired: true },
+        { key: "Expected Close Date", value: "expectedCloseDate", type: ElementType.datepicker, sidebyItem: "Phone", isRequired: true },
+        { key: "Phone", value: "phone", type: ElementType.textbox, isSideByItem: true, isRequired: true },
+        { key: "Email", value: "email", type: ElementType.textbox, sidebyItem: "Treatment", isRequired: true },
+        { key: "Treatment", value: "treatmentID", type: ElementType.dropdown, isSideByItem: true, isRequired: true },
     ];
     
    const controlsList2: Array<IControl> = [
@@ -82,13 +84,6 @@ export const DealAddEditDialog = (props: params) => {
 
   { key: "Pipeline Type", value: "pipelineTypeID", type: ElementType.dropdown, isRequired: true, sidebyItem: "Clinic" },
   { key: "Clinic", value: "clinicID", type: ElementType.dropdown, isSideByItem: true, isRequired: true },
-
-  // Final row: Phone + Email
-  { key: "Phone", value: "phone", type: ElementType.textbox, isRequired: true, sidebyItem: "Email" },
-  { key: "Email", value: "email", type: ElementType.textbox, isSideByItem: true, isRequired: true },
-
-  // ✅ Now place Treatment last
-  { key: "Treatment", value: "treatmentID", type: ElementType.dropdown, isRequired: true, isControlInNewLine: true },
 ];
     const controlsList = [controlsList1, controlsList2];
 
@@ -303,6 +298,7 @@ export const DealAddEditDialog = (props: params) => {
         addUpdateItem.sourceID = item.leadSourceID;
         addUpdateItem.phone = item.phone;
         addUpdateItem.email = item.email;
+        addUpdateItem.organizationID = 1; // Hardcoded value
     
         if (selectedItem.expectedCloseDate) {
             const parsedDate = new Date(selectedItem.expectedCloseDate);

@@ -58,12 +58,12 @@ export const DealItem = (props: params) => {
         style={provided.draggableProps.style}
       >
         <div className="pdstage-item">
-          <div className='pdstage-box'>
+          <div className='pdstage-box' style={{ overflow: 'visible' }}>
             <a className='pdstage-boxlink'>
               <div className="pdstage-title">{deal?.treatmentName}
               </div>
               <div>
-                <Dropdown className='dropdownbox-toolgripdot' style={{ cursor: 'pointer' }}>
+                <Dropdown className='dropdownbox-toolgripdot' style={{ cursor: 'pointer' }} drop="up">
                   <Dropdown.Toggle className='toolgrip-dot' variant="success" id="dropdown-toolgripdot"><FontAwesomeIcon icon={faEllipsisVertical} /></Dropdown.Toggle>
                   <Dropdown.Menu className='toolgrip-dropdown'>
                     <Dropdown.Item onClick={(e: any) => onDeleteClick()}>Delete</Dropdown.Item>

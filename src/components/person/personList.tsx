@@ -22,6 +22,7 @@ import { EmailTemplateService } from "../../services/emailTemplateService";
 import { AuthProvider } from "../pipeline/deal/activities/email/authProvider";
 import { useMsal } from "@azure/msal-react";
 import { loginRequest } from "../pipeline/deal/activities/email/authConfig";
+import "./personList.css";
 
 const PersonList = () => {
   const MemoizedPersonAddEditDialog = React.memo(PersonAddEditDialog);

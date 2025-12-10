@@ -3,84 +3,25 @@ import { UserProfile } from "../../models/userProfile";
 import "./ProfilePage.css";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import Util from "../../others/util";
 import { Form, Button } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"; 
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { useAuthContext } from "../../contexts/AuthContext"; 
 
 
 
 
 export const ProfilePage = () => {
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { userProfile } = useAuthContext();
   const [currentTime, setCurrentTime] = useState<string>("");
   const [isTwoFactorEnabled, setIsTwoFactorEnabled] = useState<boolean>(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const loadUserProfile = () => {
-      try {
-        // Get user profile from localStorage using Util.UserProfile()
-        const utilProfile = Util.UserProfile();
-        
-        if (utilProfile && Object.keys(utilProfile).length > 0) {
-          setUserProfile(utilProfile);
-          // Set MFA status from profile or default to false
-          setIsTwoFactorEnabled(utilProfile.twoFactorEnabled || false);
-        } else {
-          // Fallback: create a basic profile structure
-          const fallbackProfile: UserProfile = {
-            firstName: "User",
-            lastName: "Profile",
-            phoneNumber: "N/A",
-            user: "user",
-            email: "user@example.com",
-            token: "",
-            password: "",
-            userId: 0,
-            isactive: true,
-            visibilityGroupID: 0,
-            expires: "",
-            country: "United Kingdom",
-            state: "N/A",
-            language: "English",
-            timeZone: "Europe/London",
-            profilePicture: ""
-          };
-          setUserProfile(fallbackProfile);
-          setIsTwoFactorEnabled(false);
-        }
-      } catch (err) {
-        console.error("Error loading user profile:", err);
-        // Set fallback profile on error
-        const fallbackProfile: UserProfile = {
-          firstName: "User",
-          lastName: "Profile",
-          phoneNumber: "N/A",
-          user: "user",
-          email: "user@example.com",
-          token: "",
-          password: "",
-          userId: 0,
-          isactive: true,
-          visibilityGroupID: 0,
-          expires: "",
-          country: "United Kingdom",
-          state: "N/A",
-          language: "English",
-          timeZone: "Europe/London",
-          profilePicture: ""
-        };
-        setUserProfile(fallbackProfile);
-        setIsTwoFactorEnabled(false);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadUserProfile();
-  }, []);
+    if (userProfile) {
+      setIsTwoFactorEnabled(userProfile.twoFactorEnabled || false);
+    }
+  }, [userProfile]);
 
   useEffect(() => {
     const updateTime = () => {
@@ -116,7 +57,7 @@ export const ProfilePage = () => {
     }
   };
 
-  if (isLoading) return <p>Loading...</p>;
+
 
   if (!userProfile) {
     return <p>User profile could not be loaded.</p>;
@@ -150,26 +91,26 @@ export const ProfilePage = () => {
             )}
           </div>
           <div className="profile-header-info">
-            <h2>{`${userProfile.firstName || "Full"} ${userProfile.lastName || "Name"}`}</h2>
-            <p className="email">{userProfile.email || "email@example.com"}</p>
+            <h2>{`${userProfile.firstName || "User"} ${userProfile.lastName || "Profile"}`}</h2>
+            <p className="email">{userProfile.email || "No email provided"}</p>
           </div>
         </div>
         <div className="profile-details">
           <div className="profile-item">
             <strong>Full Name</strong>
-            <p>{`${userProfile.firstName || "Julia"} ${userProfile.lastName || "Turner"}`}</p>
+            <p>{`${userProfile.firstName || "Not provided"} ${userProfile.lastName || ""}`}</p>
           </div>
           <div className="profile-item">
             <strong>Display Name</strong>
-            <p>{userProfile.user || "user"}</p>
+            <p>{userProfile.user || "Not provided"}</p>
           </div>
           <div className="profile-item">
             <strong>Email</strong>
-            <p>{userProfile.email || "user@gmail.com"}</p>
+            <p>{userProfile.email || "Not provided"}</p>
           </div>
           <div className="profile-item">
             <strong>Phone Number</strong>
-            <p>{userProfile.phoneNumber || "09876545678"}</p>
+            <p>{userProfile.phoneNumber || "Not provided"}</p>
           </div>
           <div className="profile-item">
             <strong>Country/Region</strong>

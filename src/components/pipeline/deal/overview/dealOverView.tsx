@@ -53,7 +53,7 @@ const DealOverView = (props: params) => {
   const dealSvc = new DealService(ErrorBoundary); // Instantiate DealService
   const [notesList, setNotesList] = useState<Array<Notes>>([]);
   const [error, setError] = useState<AxiosError>();
-  const [selectedTab, setSelectedTab] = useState("Overview");
+  const [selectedTab, setSelectedTab] = useState("activities");
   const [isDealLost, setIsDealLost]=useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   
@@ -397,108 +397,12 @@ const handleLostClick = () => {
             </div>
             <div className="timeline-blockinner">
               <Tabs
-                defaultActiveKey="overview"
+                defaultActiveKey="activities"
                 transition={false}
                 onSelect={(e: any) => setSelectedTab(e)}
                 id="noanim-tab-example"
                 className="mb-5 timelinetab-block"
               >
-                <Tab
-                  eventKey="overview"
-                  title="Overview"
-                  className="timelinetab overviewtab"
-                >
-                  <div className="timeline-tabscontent">
-                    <div className="whiteshadowbox datahighlightsbox">
-                      <div className="tabcard-header">
-                        <h2>Data Highlights</h2>
-                        {/* <div className="tabcard-actions">
-                          <button className="summerysetting-btn">
-                            <FontAwesomeIcon icon={faGear} />
-                          </button>
-                        </div> */}
-                      </div>
-                      <div className="tabcard-content">
-                        <div className="datahighlights-list">
-                          <div className="datahighlights-item">
-                            <h3>Create Date</h3>
-                            <div className="datahighlights-datetxt">
-                              { moment(createdDate).format("MM/DD/YYYY hh:mm:ss a")}
-                            </div>
-                          </div>
-                          <div className="datahighlights-item">
-                            <h3>DEAL STAGE</h3>
-                            <div className="datahighlights-datetxt">
-                              {stageName} ( {pipelineName} Pipeline)
-                            </div>
-                          </div>
-                          <div className="datahighlights-item">
-                            <h3>LAST ACTIVITY DATE</h3>
-                            <div className="datahighlights-datetxt">
-                              {moment(dealItem.modifiedDate ?? dealItem.createdDate).format("MM/DD/YYYY hh:mm:ss a")}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* <div className="whiteshadowbox datahighlightsbox">
-                      <div className="tabcard-header">
-                        <h2>Recent activities</h2>
-                      </div>
-                      <div className="tabcard-content">
-                        <div className="activityfilter-row pb-3">
-                          <div className="activityfilter-col1">
-                            <label>Filter by:</label>
-                            <SelectDropdown
-                              isValidationOptional={true}
-                              list={recentActivitesFilters}
-                              value={activityFilter}
-                            />
-                          </div>
-                          <div className="activityfilter-col2">
-                            <Dropdown className="dropdown-collapseall">
-                              <Dropdown.Toggle id="dropdown-collapseall">
-                                Collapse all
-                              </Dropdown.Toggle>
-                              <Dropdown.Menu className="dropdown-collapsealllist">
-                                <Dropdown.Item href="#/action-1">
-                                  Collapse all
-                                </Dropdown.Item>
-                                <Dropdown.Item href="#/action-3">
-                                  Expand all
-                                </Dropdown.Item>
-                              </Dropdown.Menu>
-                            </Dropdown>
-                          </div>
-                        </div>
-                        <div className="activityfilter-accrow">
-                          <Accordion className="activityfilter-acco">
-                            {notesList.map((note, index) => (
-                              <Accordion.Item eventKey={"" + index} key={index}>
-                                <Accordion.Header>
-                                  <span className="accoheader-title">
-                                    <FontAwesomeIcon icon={faPenToSquare} />{" "}
-                                    {note.userName} a{" "}
-                                    <span className="accocolortext"> note</span>
-                                  </span>
-                                  <span className="accoheader-date">
-                                    {moment(note.createdDate).format(
-                                      "MM-DD-YYYY hh:mm:ss a"
-                                    )}
-                                  </span>
-                                </Accordion.Header>
-                                <Accordion.Body>
-                                {removeSpecificTags(note.noteDetails)}
-                                </Accordion.Body>
-                              </Accordion.Item>
-                            ))}
-                          </Accordion>
-                        </div>
-                      </div>
-                    </div> */}
-                  </div>
-                </Tab>
                 <Tab
                   eventKey="activities"
                   title="Activities"
