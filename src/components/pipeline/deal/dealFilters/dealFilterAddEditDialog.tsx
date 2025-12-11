@@ -231,13 +231,20 @@ const FilterCondition: React.FC<FilterConditionProps> = ({
   }, []);
 
   const getPipelines = (): Pipeline[] => {
-    const res = JSON.parse(
-      localStorage.getItem("getAllPipeLinesAndStages") || "[]"
-    );
-    return res.map((pipeline: any) => ({
-      pipelineID: pipeline.pipelineStages?.[0]?.pipelineID || "",
-      pipelineName: pipeline.pipelineName || "Unknown Pipeline",
-    }));
+    try {
+      const data = localStorage.getItem("getAllPipeLinesAndStages");
+      if (!data || data.trim() === '') {
+        return [];
+      }
+      const res = JSON.parse(data);
+      return res.map((pipeline: any) => ({
+        pipelineID: pipeline.pipelineStages?.[0]?.pipelineID || "",
+        pipelineName: pipeline.pipelineName || "Unknown Pipeline",
+      }));
+    } catch (error) {
+      console.error('Error parsing getAllPipeLinesAndStages:', error);
+      return [];
+    }
   };
 
   const getAllPipeLinesAndStages = (): Array<{
@@ -246,9 +253,12 @@ const FilterCondition: React.FC<FilterConditionProps> = ({
     stages: Array<{ stageID: string; stageName: string }>;
   }> => {
     let list: Array<any> = [];
-    const res = JSON.parse(
-      localStorage.getItem("getAllPipeLinesAndStages") || "[]"
-    );
+    try {
+      const data = localStorage.getItem("getAllPipeLinesAndStages");
+      if (!data || data.trim() === '') {
+        return [];
+      }
+      const res = JSON.parse(data);
     console.log("Raw pipelines with stages:", res); // Log raw data for debugging
 
     res.forEach((pipeline: any) => {
@@ -265,7 +275,11 @@ const FilterCondition: React.FC<FilterConditionProps> = ({
       list.push(obj);
     });
 
-    return list;
+      return list;
+    } catch (error) {
+      console.error('Error parsing getAllPipeLinesAndStages:', error);
+      return [];
+    }
   };
 
   const valueJSX = (key: string) => {
@@ -555,16 +569,25 @@ const DealFilterAddEditDialog = (props: params) => {
   const [isDotDigitalSelected, setIsDotDigitalSelected] = useState(false);
   const [isJustCallSelected, setisJustCallSelected] = useState(false);
   const [previewResponse, setPreviewResponse] = useState<any>();
-  const dotDigitalCampaignList = JSON.parse(
-    (LocalStorageUtil.getItemObject(
-      Constants.DOT_DIGITAL_CAMPAIGNSLIST
-    ) as any) ?? []
-  );
-  const justCallCampaignList = JSON.parse(
-    (LocalStorageUtil.getItemObject(
-      Constants.JUST_CALL_CAMPAIGNSLIST
-    ) as any) ?? []
-  );
+  const dotDigitalCampaignList = (() => {
+    try {
+      const data = LocalStorageUtil.getItemObject(Constants.DOT_DIGITAL_CAMPAIGNSLIST) as any;
+      return data ? JSON.parse(data) : [];
+    } catch (error) {
+      console.error('Error parsing DOT_DIGITAL_CAMPAIGNSLIST:', error);
+      return [];
+    }
+  })();
+  
+  const justCallCampaignList = (() => {
+    try {
+      const data = LocalStorageUtil.getItemObject(Constants.JUST_CALL_CAMPAIGNSLIST) as any;
+      return data ? JSON.parse(data) : [];
+    } catch (error) {
+      console.error('Error parsing JUST_CALL_CAMPAIGNSLIST:', error);
+      return [];
+    }
+  })();
 
   const [allConditions, setAllConditions] = useState<Condition[]>([
     { object: "", field: "", operator: "", value: null as any },
@@ -739,12 +762,19 @@ const DealFilterAddEditDialog = (props: params) => {
     condition.glue = glue;
     condition.conditionList = [];
 
-    const pipelines = JSON.parse(
-      localStorage.getItem("getAllPipeLinesAndStages") || "[]"
-    ).map((pipeline: any) => ({
-      pipelineID: pipeline.pipelineID || null,
-      pipelineName: pipeline.pipelineName || "Unknown Pipeline",
-    }));
+    let pipelines: Array<{pipelineID: string | null; pipelineName: string}> = [];
+    try {
+      const data = localStorage.getItem("getAllPipeLinesAndStages");
+      if (data && data.trim() !== '') {
+        pipelines = JSON.parse(data).map((pipeline: any) => ({
+          pipelineID: pipeline.pipelineID || null,
+          pipelineName: pipeline.pipelineName || "Unknown Pipeline",
+        }));
+      }
+    } catch (error) {
+      console.error('Error parsing pipelines in buildConditionsArray:', error);
+      pipelines = [];
+    }
 
     list.forEach((ac, index) => {
       let objItem = objList[index];
@@ -765,7 +795,7 @@ const DealFilterAddEditDialog = (props: params) => {
 
         if (pipeline) {
           console.log("Matched Pipeline: ", pipeline);
-          conditionCSV.value = pipeline.pipelineID;
+          conditionCSV.value = pipeline.pipelineID || "";
           conditionCSV.extraValue = pipeline.pipelineName;
         } else {
           console.log("No matching pipeline found!");

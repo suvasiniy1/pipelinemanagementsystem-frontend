@@ -1172,7 +1172,12 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
                     <Dropdown.Item onClick={() => props.setViewType("list")}>
                       <FontAwesomeIcon icon={faBars} style={{ marginRight: 8, color: '#007bff' }} /> List View
                     </Dropdown.Item>
-                    <Dropdown.Item onClick={() => props.setViewType("kanban")}>
+                    <Dropdown.Item onClick={() => {
+                      props.setViewType("kanban");
+                      const currentParams = new URLSearchParams(window.location.search);
+                      currentParams.set('viewType', 'kanban');
+                      navigate(`/pipeline?${currentParams.toString()}`);
+                    }}>
                       <FontAwesomeIcon icon={faGrip} style={{ marginRight: 8, color: '#007bff' }} /> Kanban View
                     </Dropdown.Item>
                     <Dropdown.Divider />

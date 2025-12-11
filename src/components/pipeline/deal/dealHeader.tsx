@@ -108,7 +108,7 @@ export const DealHeader = (props: params) => {
     setShowPipeLineFilters(false);
   },[])
 
-  // Sync selectedViewType with parent viewType
+  // Sync selectedViewType with parent viewType and URL changes
   useEffect(() => {
     const urlViewType = new URLSearchParams(window.location.search).get("viewType");
     if (urlViewType === "list") {
@@ -116,6 +116,21 @@ export const DealHeader = (props: params) => {
     } else {
       setSelectedViewType("kanban");
     }
+  }, []);
+
+  // Listen for URL changes
+  useEffect(() => {
+    const handleLocationChange = () => {
+      const urlViewType = new URLSearchParams(window.location.search).get("viewType");
+      if (urlViewType === "list") {
+        setSelectedViewType("list");
+      } else {
+        setSelectedViewType("kanban");
+      }
+    };
+
+    window.addEventListener('popstate', handleLocationChange);
+    return () => window.removeEventListener('popstate', handleLocationChange);
   }, []);
 
   const addorUpdateStage = () => {
@@ -253,7 +268,7 @@ export const DealHeader = (props: params) => {
             <div className="col-sm-5 toolbarview-actions">
               <div
                 className="toolbarview-filtersrow"
-                hidden={selectedViewType != "kanban"}
+                style={{ display: selectedViewType === "kanban" ? "flex" : "none" }}
               >
                 <div className="pipeselectbtngroup">
                   <div
@@ -456,9 +471,9 @@ export const DealHeader = (props: params) => {
                         onClick={(e: any) => {
                           setSelectedViewType("kanban");
                           props.setViewType("kanban");
-                          // Update URL to remove viewType parameter (default to kanban)
+                          // Update URL to include viewType parameter for consistency
                           const currentParams = new URLSearchParams(window.location.search);
-                          currentParams.delete('viewType');
+                          currentParams.set('viewType', 'kanban');
                           navigate(`/pipeline?${currentParams.toString()}`);
                         }}
                       >
