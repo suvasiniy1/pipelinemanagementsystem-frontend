@@ -1,4 +1,34 @@
-.header {background-color: var(--header-color, #3f3f3f); box-shadow:0px 1px 0px rgba(0,0,0,0.10);}
+.header {
+    background-color: var(--header-color, #3f3f3f);
+    box-shadow:0px 1px 0px rgba(0,0,0,0.10);
+    position: relative;
+}
+.header::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, var(--header-color), #4A90E2, #00E1D9, #00D27F);
+    z-index: 1;
+}
+.green-theme .header::after {
+    background: linear-gradient(to right, var(--header-color), #3FA34D, #7BC67E, #C2F9B0);
+}
+.purple-theme .header::after {
+    background: linear-gradient(to right, var(--header-color), #4527A0, #673AB7, #9575CD);
+}
+.orange-theme .header::after {
+    background: linear-gradient(to right, var(--header-color), #E65100, #F57C00, #FFCC80);
+}
+.teal-theme .header::after {
+    background: linear-gradient(to right, var(--header-color), #006978, #00ACC1, #4DD0E1);
+}
+.headerrow {
+    position: relative;
+    z-index: 2;
+}
 .headerrow{display: flex; align-items: center; justify-content: space-between;}
 
 .colheadname-row{display: flex; align-items: center;}
@@ -33,6 +63,7 @@
 
 
 .colheadprofilerow{display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding-right: 10px;}
+
 .headsearchrow{ justify-content:center;  position:relative; margin:0 !important; }
 
 .headsearchrow .headsearch{width: 100%;}
@@ -120,14 +151,14 @@ transition: width 900ms !important;
 .sidenavhead {background-color: #4F80FF; position: absolute; left: 0; top: 0; width: 100%; padding: 10px 20px 10px 10px; height: 58px; line-height: 38px; font-size: 30px; font-weight: 900; color: #ffffff; display: flex; align-items: center;}
 .sidenavhead img{max-width: 100%; width:auto; height: auto;}
 .sidenavhead .sidehidelogo {display: none; position: absolute; left: 9px; top: 9px; width: 37px; height: auto;}
-.ps-sidebar-root .ps-sidebar-container{background-color: #3dc2c0;}
-.ps-menu-root .ps-menuitem-root .ps-menu-button{border-bottom: 1px solid #1f2937; color: #1f2937;}
+.ps-sidebar-root .ps-sidebar-container{background-color: var(--primary-color)1A !important;}
+.ps-menu-root .ps-menuitem-root .ps-menu-button{background-color: var(--primary-color)1A !important; color: var(--text-color) !important; border-bottom: 1px solid #000000 !important;}
 .ps-menu-root .ps-menuitem-root .ps-menu-button:hover{background-color: #f3f3f3; color: #1f2937;}
 .ps-menu-button .ps-menu-icon{font-size: 20px;}
 .ps-menu-button .ps-menu-icon svg {color: #1f2937 !important;}
 .ps-menu-button:hover .ps-menu-icon svg{color: #1f2937 !important;}
-.ps-submenu-content.ps-open {background-color: inherit;}
-.ps-menu-root .ps-menuitem-root .ps-submenu-content .ps-menu-button{background-color: #3dc2c0; color: #1f2937;}
+.ps-submenu-content.ps-open {background-color: var(--primary-color)1A !important;}
+.ps-menu-root .ps-menuitem-root .ps-submenu-content .ps-menu-button{background-color: var(--primary-color)1A !important; color: var(--text-color) !important;}
 .ps-menu-root .ps-menuitem-root .ps-submenu-content .ps-menu-button:hover{background-color: #f3f3f3; color: #1f2937;}
 
 

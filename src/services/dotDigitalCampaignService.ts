@@ -11,6 +11,9 @@ export class DotDigitalCampaignService extends BaseService<DotdigitalCampagin>{
         return this.getItemsBySubURL('GetDotDigitalCampaigns')
     }
     getDotDigitalPrograms() {
+        if (window.config.DisableDotDigitalAPI) {
+            return Promise.resolve({ data: null });
+        }
         return this.getItemsBySubURL("GetDotDigitalPrograms");
       }
     

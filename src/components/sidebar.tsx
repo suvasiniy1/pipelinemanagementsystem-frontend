@@ -116,8 +116,8 @@ export const SideBar = ({ collapsed }: SideBarProps) => {
   }, [selectedNavItem, activeNavColor]);
 
   const sidebarTheme = {
-    backgroundColor: "white",
-    color: "black"
+    backgroundColor: currentTheme.sidebarColor,
+    color: currentTheme.textColor
   };
 
   const MenuItemComponent = ({ item, isActive }: { item: MenuItemConfig; isActive: boolean }) => (

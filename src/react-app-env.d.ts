@@ -5,6 +5,8 @@ declare global {
             ServicesBaseURL: string;
             DefaultStages:Array<string>;
             UseMockService:boolean;
+            DisableDropdownAPI:boolean;
+            DisableDotDigitalAPI:boolean;
             CampaignSections:Array<string>;
             ClientId:string;
             DateFormat:string;

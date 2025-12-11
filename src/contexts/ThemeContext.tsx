@@ -126,12 +126,12 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       .ps-sidebar-container,
       .ps-sidebar-root,
       .ps-menu-button {
-        background-color: ${theme.sidebarColor} !important;
+        background-color: ${theme.primaryColor}1A !important;
       }
       
       .ps-submenu-content,
       .ps-submenu-content .ps-menu-button {
-        background-color: ${theme.sidebarColor} !important;
+        background-color: ${theme.primaryColor}1A !important;
       }
       
       .sidenavhead {
@@ -906,12 +906,12 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       // Force update sidebar colors
       const sidebar = document.querySelector('.ps-sidebar-container');
       if (sidebar) {
-        (sidebar as HTMLElement).style.setProperty('background-color', theme.sidebarColor, 'important');
+        (sidebar as HTMLElement).style.setProperty('background-color', theme.primaryColor + '1A', 'important');
       }
       
       const sidebarRoot = document.querySelector('.ps-sidebar-root');
       if (sidebarRoot) {
-        (sidebarRoot as HTMLElement).style.setProperty('background-color', theme.sidebarColor, 'important');
+        (sidebarRoot as HTMLElement).style.setProperty('background-color', theme.primaryColor + '1A', 'important');
       }
       
       // Force update sidebar header
@@ -932,14 +932,14 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       // Force update sidebar submenu colors
       const submenuItems = document.querySelectorAll('.ps-submenu-content, .ps-submenu-content .ps-menu-button');
       submenuItems.forEach(item => {
-        (item as HTMLElement).style.setProperty('background-color', theme.sidebarColor, 'important');
+        (item as HTMLElement).style.setProperty('background-color', theme.primaryColor + '1A', 'important');
       });
       
       // Force update all sidebar menu buttons
       const menuButtons = document.querySelectorAll('.ps-menu-button');
       menuButtons.forEach(button => {
         if (!button.closest('.ps-active') && !button.classList.contains('ps-active')) {
-          (button as HTMLElement).style.setProperty('background-color', theme.sidebarColor, 'important');
+          (button as HTMLElement).style.setProperty('background-color', theme.primaryColor + '1A', 'important');
         }
       });
       
