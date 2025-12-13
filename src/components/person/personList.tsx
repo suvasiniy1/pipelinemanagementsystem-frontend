@@ -31,6 +31,7 @@ const PersonList = () => {
   const [rowData, setRowData] = useState<Array<Person>>([]);
   const [loadRowData, setLoadRowData] = useState<boolean>(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
   const [groupEmailDialogOpen, setGroupEmailDialogOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] =
     useState<EmailTemplate | null>(null);
@@ -435,6 +436,7 @@ const PersonList = () => {
   ];
 
   const loadData = () => {
+    setIsLoading(true);
     personSvc
       .getPersons()
       .then((res: Array<Person>) => {
@@ -451,9 +453,11 @@ const PersonList = () => {
           }
           return prevRowData; // No change, return the previous state
         });
+        setIsLoading(false);
       })
       .catch((err) => {
         console.error("Error loading data:", err);
+        setIsLoading(false);
       });
   };
   const rowTransform = (item: Person, index: number) => {
@@ -466,7 +470,7 @@ const PersonList = () => {
   };
   useEffect(() => {
     loadData();
-  }, []); // Only run on mount
+  }, [refreshKey]); // Run on mount and when refreshKey changes
 
   // Open the Group Email Dialog
   const openGroupEmailDialog = () => {
@@ -514,7 +518,7 @@ const PersonList = () => {
           onSelectionModelChange={(e:any)=>handleSelectionChange(e)}
           checkboxSelection={true}
           customRowData={true}
-          // isLoading={isLoading}
+          isLoading={isLoading}
         />
         {groupEmailDialogOpen && (
           <GroupEmailDialog

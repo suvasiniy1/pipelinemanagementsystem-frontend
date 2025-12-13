@@ -51,10 +51,12 @@ const GridPreferencesButton: React.FC<GridPreferencesButtonProps> = ({
 
   const handleReset = () => {
     try {
-      resetPreferences();
+      // Call parent reset handler first if provided
       if (onResetPreferences) {
         onResetPreferences();
       }
+      // Then reset preferences in the hook
+      resetPreferences();
     } catch (error) {
       console.error('Error resetting preferences:', error);
       setHasError(true);

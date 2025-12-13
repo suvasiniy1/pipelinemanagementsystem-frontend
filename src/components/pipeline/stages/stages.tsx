@@ -113,7 +113,11 @@ export const Stages = (props: params) => {
 
     const createNewStageObject = () => {
         let obj = new Stage();
+        obj.stageID = 0; // New stage
         obj.stageOrder = stages?.length + 1;
+        obj.stageName = ""; // Empty name for user to fill
+        obj.probability = 0; // Default probability
+        obj.pipelineID = selectedItem?.pipelineID || 0;
         return obj;
     }
 
@@ -174,15 +178,22 @@ export const Stages = (props: params) => {
         // setStages(data as any);
     };
 
-    const addNewStage = (index: number) => {
-
-        let stagesList = stages;
-        stagesList.splice(index, 0, createNewStageObject());
-        setStages([...stagesList]);
+    const addNewStage = (index?: number) => {
+        let stagesList = [...stages];
+        const newStage = createNewStageObject();
+        
+        if (index !== undefined) {
+            stagesList.splice(index, 0, newStage);
+        } else {
+            // Add at the end when no index is provided (from AddNewStage component)
+            stagesList.push(newStage);
+        }
+        
+        setStages(stagesList);
     }
 
     const prepareToSave = (pipeLineId: number) => {
-        let userName = userProfile?.user;
+        let userId = userProfile?.userId;
         if (!pipeLineId || isNaN(pipeLineId)) {
             console.error("Pipeline ID is missing or invalid");
             return; // Do not proceed if pipelineID is invalid
@@ -196,19 +207,44 @@ export const Stages = (props: params) => {
                 console.error(`Stage name is missing for stage at index ${index}`);
             }
             if (item.stageID > 0) {
-                item.createdBy = item.createdBy ?? userName;
-                item.modifiedBy = userName;
+                item.createdBy = item.createdBy ?? userId;
+                item.modifiedBy = userId;
             }
             else {
-                item.createdBy = userName;
+                item.createdBy = userId;
             }
         })
     }
 
-    const saveStages = () => {        
-        if (stages.find(s => !s.stageName)) {
-            toast.error("Stage name is required");
+    const saveStages = async () => {
+        // Validate that all stages have names
+        const invalidStages = stages.filter(s => !s.stageName || s.stageName.trim() === '');
+        if (invalidStages.length > 0) {
+            toast.error("All stages must have a name");
             return;
+        }
+        
+        // Validate that all stages have valid probabilities
+        const invalidProbabilities = stages.filter(s => s.probability === null || s.probability === undefined || s.probability < 0 || s.probability > 100);
+        if (invalidProbabilities.length > 0) {
+            toast.error("All stages must have a probability between 0 and 100");
+            return;
+        }
+
+        // Check for duplicate pipeline name (only for new pipelines)
+        if (selectedItem?.pipelineID === 0) {
+            try {
+                const existingPipelines = await pipeLineSvc.getPipeLines();
+                const duplicateName = existingPipelines.find((p:any) => 
+                    p.pipelineName?.toLowerCase().trim() === selectedItem?.pipelineName?.toLowerCase().trim()
+                );
+                if (duplicateName) {
+                    toast.error("A pipeline with this name already exists");
+                    return;
+                }
+            } catch (error) {
+                console.error("Error checking for duplicate pipeline names:", error);
+            }
         }
         
         // Always save pipeline details first (for both new and existing pipelines)
@@ -266,6 +302,20 @@ export const Stages = (props: params) => {
         }).catch(error => {
             setError(error);
             console.error("Error Saving Stages:", error);
+            
+            // Show specific error message from API response
+            let errorMessage = "Error saving stages";
+            if (error?.response?.data?.title) {
+                errorMessage = error.response.data.title;
+            } else if (error?.response?.data?.errors) {
+                const errors = error.response.data.errors;
+                const errorMessages = Object.values(errors).flat();
+                errorMessage = errorMessages.join(", ");
+            } else if (error?.message) {
+                errorMessage = error.message;
+            }
+            
+            toast.error(errorMessage);
         })
     }
 
@@ -331,12 +381,12 @@ export const Stages = (props: params) => {
   }
 };
 
-    const updateStageItem=(item:Stage, index:number)=>{
-        
-        let stagesList = [...stages];
-        stagesList[index] = item;
-        setStages(stagesList);
-
+    const updateStageItem = (item: Stage, index: number) => {
+        if (index >= 0 && index < stages.length) {
+            let stagesList = [...stages];
+            stagesList[index] = { ...item }; // Create a copy to ensure proper state update
+            setStages(stagesList);
+        }
     }
 
     return (
@@ -399,7 +449,7 @@ export const Stages = (props: params) => {
                                         )}
                                     </Droppable>
                                 </DragDropContext>
-                                <AddNewStage onAddClick={addNewStage} />
+                                <AddNewStage onAddClick={addNewStage} stages={stages} />
                             </div>
                         </div>
                     </div>

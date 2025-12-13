@@ -157,6 +157,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const setUserPreferences = (preferences: UserPreference[]) => {
+    console.log('Setting user preferences:', preferences);
     setUserPreferencesState(preferences);
   };
 

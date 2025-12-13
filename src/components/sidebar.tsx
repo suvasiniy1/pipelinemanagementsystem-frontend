@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useLocation } from "react-router-dom";
 import { HiTemplate } from "react-icons/hi";
 import { FaClinicMedical, FaNotesMedical, FaProjectDiagram, FaBuilding } from "react-icons/fa";
@@ -50,6 +51,8 @@ export const SideBar = ({ collapsed }: SideBarProps) => {
   const location = useLocation();
   const [selectedNavItem, setSelectedNavItem] = useState("");
   const [expandedSubMenu, setExpandedSubMenu] = useState<string | null>(null);
+  const [collapsedSubmenu, setCollapsedSubmenu] = useState<{key: string, items: MenuItemConfig[], top: number} | null>(null);
+  const submenuRefs = useRef<{[key: string]: HTMLElement | null}>({});
   const activeNavColor = currentTheme.primaryColor;
 
   const campaignSubMenu = ["Template"];
@@ -57,6 +60,7 @@ export const SideBar = ({ collapsed }: SideBarProps) => {
 
   const pathToNavMap: Record<string, string> = {
     '/stages': 'Stages',
+    '/pipelinetype': 'PipeLineType',
     '/pipeline': 'pipeline',
     '/activities': 'Activities',
     '/person': 'Person',
@@ -65,7 +69,6 @@ export const SideBar = ({ collapsed }: SideBarProps) => {
     '/clinic': 'Clinic',
     '/source': 'Source',
     '/treatment': 'Treatment',
-    '/pipelinetype': 'PipeLineType',
     '/tenant': 'Tenant',
     '/reporting': 'Reporting'
   };
@@ -114,6 +117,41 @@ export const SideBar = ({ collapsed }: SideBarProps) => {
       updateSubMenuIcon('.ps-submenu-root:has([title="Campaigns"]) .ps-menu-icon svg', campaignSubMenu.includes(selectedNavItem));
     }, 100);
   }, [selectedNavItem, activeNavColor]);
+
+  // Close collapsed submenu on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (collapsedSubmenu && !submenuRefs.current[collapsedSubmenu.key]?.contains(event.target as Node)) {
+        setCollapsedSubmenu(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [collapsedSubmenu]);
+
+  // Close collapsed submenu when sidebar expands and update icon colors
+  useEffect(() => {
+    if (!collapsed) {
+      setCollapsedSubmenu(null);
+    }
+    // Update submenu icon colors after collapse/expand
+    setTimeout(() => {
+      const updateSubMenuIcon = (selector: string, isActive: boolean) => {
+        const icon = document.querySelector(selector) as HTMLElement;
+        if (icon) {
+          if (isActive) {
+            icon.style.setProperty('color', activeNavColor, 'important');
+            icon.style.setProperty('fill', activeNavColor, 'important');
+          } else {
+            icon.style.setProperty('color', 'black', 'important');
+            icon.style.setProperty('fill', 'black', 'important');
+          }
+        }
+      };
+      updateSubMenuIcon('.ps-submenu-root:has([title="Admin"]) .ps-menu-icon svg', adminSubMenu.includes(selectedNavItem));
+      updateSubMenuIcon('.ps-submenu-root:has([title="Campaigns"]) .ps-menu-icon svg', campaignSubMenu.includes(selectedNavItem));
+    }, 200);
+  }, [collapsed, selectedNavItem, activeNavColor, adminSubMenu, campaignSubMenu]);
 
   const sidebarTheme = {
     backgroundColor: currentTheme.sidebarColor,
@@ -279,6 +317,40 @@ export const SideBar = ({ collapsed }: SideBarProps) => {
           const isHidden = subMenu.key === "Admin" ? userRole === 0 || !Util.isAuthorized(subMenu.permission) : !Util.isAuthorized(subMenu.permission);
           const shouldBeOpen = isSubMenuActive || expandedSubMenu === subMenu.key;
           
+          if (collapsed) {
+            return (
+              <MenuItem
+                key={subMenu.key}
+                icon={subMenu.icon}
+                hidden={isHidden}
+                title={subMenu.title}
+                onClick={(e) => {
+                  const rect = (e.target as HTMLElement).closest('.ps-menuitem-root')?.getBoundingClientRect();
+                  if (rect) {
+                    setCollapsedSubmenu({
+                      key: subMenu.key,
+                      items: subMenu.items,
+                      top: rect.top
+                    });
+                  }
+                }}
+                rootStyles={{
+                  ['.' + 'ps-menu-button']: {
+                    color: isSubMenuActive ? `${activeNavColor} !important` : 'black !important',
+                    backgroundColor: isSubMenuActive ? 'rgba(13, 104, 197, 0.1) !important' : 'transparent !important'
+                  },
+                  ['.' + 'ps-menu-icon']: {
+                    color: isSubMenuActive ? `${activeNavColor} !important` : 'black !important'
+                  },
+                  ['.' + 'ps-menu-icon svg']: {
+                    color: isSubMenuActive ? `${activeNavColor} !important` : 'black !important',
+                    fill: isSubMenuActive ? `${activeNavColor} !important` : 'black !important'
+                  }
+                }}
+              />
+            );
+          }
+          
           return (
             <SubMenu
               key={`${subMenu.key}-${selectedNavItem}`}
@@ -327,6 +399,66 @@ export const SideBar = ({ collapsed }: SideBarProps) => {
           <p hidden={selectedNavItem === "Tenant"}>Tenants</p>
         </MenuItem>
       </Menu>
+      
+      {/* Portal-based collapsed submenu flyout */}
+      {collapsed && collapsedSubmenu && createPortal(
+        <div
+          ref={el => submenuRefs.current[collapsedSubmenu.key] = el}
+          style={{
+            position: 'fixed',
+            left: '64px',
+            top: `${collapsedSubmenu.top}px`,
+            zIndex: 2000,
+            backgroundColor: '#ffffff',
+            border: '1px solid #e4cb9a',
+            borderRadius: '8px',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
+            minWidth: '200px',
+            padding: '8px 0'
+          }}
+        >
+          {collapsedSubmenu.items.map(item => {
+            console.log(`Flyout item: ${item.key}, selectedNavItem: ${selectedNavItem}, match: ${selectedNavItem === item.key}`);
+            return (
+            <Link
+              key={item.key}
+              to={item.path}
+              onClick={() => {
+                setSelectedNavItem(item.key);
+                setCollapsedSubmenu(null);
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                padding: '12px 16px',
+                textDecoration: 'none',
+                color: selectedNavItem === item.key ? activeNavColor : '#3f3f3f',
+                backgroundColor: selectedNavItem === item.key ? 'rgba(13, 104, 197, 0.1)' : 'transparent',
+                borderBottom: '1px solid #f0f0f0'
+              }}
+              onMouseEnter={(e) => {
+                if (selectedNavItem !== item.key) {
+                  e.currentTarget.style.backgroundColor = '#f3f3f3';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (selectedNavItem !== item.key) {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                } else {
+                  e.currentTarget.style.backgroundColor = 'rgba(13, 104, 197, 0.1)';
+                }
+              }}
+            >
+              <span style={{ marginRight: '12px', fontSize: '16px' }}>{item.icon}</span>
+              <span style={{ fontWeight: selectedNavItem === item.key ? 'bold' : 'normal' }}>
+                {item.title}
+              </span>
+            </Link>
+            );
+          })}
+        </div>,
+        document.body
+      )}
     </Sidebar>
   );
 };

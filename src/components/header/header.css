@@ -157,9 +157,35 @@ transition: width 900ms !important;
 .ps-menu-button .ps-menu-icon{font-size: 20px;}
 .ps-menu-button .ps-menu-icon svg {color: #1f2937 !important;}
 .ps-menu-button:hover .ps-menu-icon svg{color: #1f2937 !important;}
-.ps-submenu-content.ps-open {background-color: var(--primary-color)1A !important;}
+.ps-submenu-content.ps-open {background-color: var(--primary-color)1A !important; z-index: 1060 !important;}
 .ps-menu-root .ps-menuitem-root .ps-submenu-content .ps-menu-button{background-color: var(--primary-color)1A !important; color: var(--text-color) !important;}
 .ps-menu-root .ps-menuitem-root .ps-submenu-content .ps-menu-button:hover{background-color: #f3f3f3; color: #1f2937;}
+
+/* Ensure sidebar itself has proper z-index */
+.rs-sidenav.sidenav {
+  z-index: 1050 !important;
+}
+
+/* Hide inline submenu content when collapsed */
+.ps-sidebar-container.ps-collapsed .ps-submenu-content {
+  display: none !important;
+}
+
+/* Ensure sidebar container positioning */
+.ps-sidebar-container {
+  position: relative !important;
+}
+
+/* Prevent any transform or overflow issues */
+.ps-sidebar-container,
+.ps-sidebar-container * {
+  transform: none !important;
+}
+
+/* Ensure no overflow hidden on ancestors */
+body, html, #root {
+  overflow: visible !important;
+}
 
 
 .rs-sidenav-collapse-in .sidenavhead .sideopenlogo,

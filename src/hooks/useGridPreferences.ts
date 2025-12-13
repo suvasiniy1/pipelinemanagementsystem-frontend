@@ -20,6 +20,7 @@ export const useGridPreferences = (gridName: string) => {
   const [hasChanges, setHasChanges] = useState(false);
   const [hasExistingPreferences, setHasExistingPreferences] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [resetTrigger, setResetTrigger] = useState(0);
   const userPreferencesService = new UserPreferencesService(ErrorBoundary);
 
   // Load preferences from AuthContext
@@ -102,12 +103,21 @@ export const useGridPreferences = (gridName: string) => {
       setIsLoading(true);
       try {
         await userPreferencesService.deleteUserPreferences(existingPref.id);
+        
+        // Update the context to remove the deleted preference
         const updatedPreferences = userPreferences.filter(p => p.id !== existingPref.id);
         setUserPreferences(updatedPreferences);
+        
+        // Clear local state immediately
         setPreferences({});
         setOriginalPreferences({});
         setHasExistingPreferences(false);
+        
+        // Trigger reset for components to listen to
+        setResetTrigger(prev => prev + 1);
+        
         toast.success('Grid preferences reset to default');
+        
       } catch (error) {
         console.error('Failed to reset grid preferences:', error);
         toast.error('Failed to reset preferences');
@@ -115,9 +125,14 @@ export const useGridPreferences = (gridName: string) => {
         setIsLoading(false);
       }
     } else {
+      // No existing preferences to delete, just clear local state
       setPreferences({});
       setOriginalPreferences({});
       setHasExistingPreferences(false);
+      
+      // Trigger reset for components to listen to
+      setResetTrigger(prev => prev + 1);
+      
       toast.success('Grid preferences reset to default');
     }
   };
@@ -133,6 +148,7 @@ export const useGridPreferences = (gridName: string) => {
     updatePreferences,
     isLoading,
     hasChanges,
-    hasExistingPreferences
+    hasExistingPreferences,
+    resetTrigger
   };
 };

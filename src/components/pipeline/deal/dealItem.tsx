@@ -3,7 +3,8 @@ import { Deal } from "../../../models/deal";
 import Dropdown from 'react-bootstrap/Dropdown';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import MoveDeal from "./moveDeal";
 import { PipeLine } from "../../../models/pipeline";
 import { Utility } from "../../../models/utility";
@@ -28,6 +29,9 @@ export const DealItem = (props: params) => {
 
   const { deal, isDragging, isGroupedOver, provided, style, isClone, index, onDeleteClick, pipeLinesList, onDealModify } = props;
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const navigator = useNavigate();
   const [userProfile, setUserProfile] = useState(Util.UserProfile());
   const utility: Utility = JSON.parse(
@@ -44,6 +48,34 @@ export const DealItem = (props: params) => {
     }
     navigator(url);
   };
+
+  const handleDropdownToggle = (e: any) => {
+    e.stopPropagation();
+    if (!showDropdown) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + window.scrollY,
+        left: rect.left + window.scrollX - 120 // Adjust left position
+      });
+    }
+    setShowDropdown(!showDropdown);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+
+    if (showDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showDropdown]);
 
   return (
     <>
@@ -62,16 +94,18 @@ export const DealItem = (props: params) => {
             <a className='pdstage-boxlink'>
               <div className="pdstage-title">{deal?.treatmentName}
               </div>
-              <div>
-                <Dropdown className='dropdownbox-toolgripdot' style={{ cursor: 'pointer' }} drop="up">
-                  <Dropdown.Toggle className='toolgrip-dot' variant="success" id="dropdown-toolgripdot"><FontAwesomeIcon icon={faEllipsisVertical} /></Dropdown.Toggle>
-                  <Dropdown.Menu className='toolgrip-dropdown'>
-                    <Dropdown.Item onClick={(e: any) => onDeleteClick()}>Delete</Dropdown.Item>
-                    <Dropdown.Item disabled>Won</Dropdown.Item>
-                    <Dropdown.Item disabled>Lost</Dropdown.Item>
-                    <Dropdown.Item onClick={(e: any) => setDialogIsOpen(true)}>Move To</Dropdown.Item>
-                  </Dropdown.Menu>
-                </Dropdown>
+              <div className='dropdownbox-toolgripdot'>
+                <button 
+                  className='toolgrip-dot' 
+                  style={{ 
+                    background: 'none', 
+                    border: 'none', 
+                    cursor: 'pointer'
+                  }}
+                  onClick={handleDropdownToggle}
+                >
+                  <FontAwesomeIcon icon={faEllipsisVertical} />
+                </button>
               </div>
               <div className="pdstage-description">
                 <div className="pdstage-descitem"><a href="" onClick={(e: any) => handleLinkClick(e)}>{utility?.users.find(u => u.id == deal?.assigntoId)?.name || deal?.personName}</a></div>
@@ -102,6 +136,79 @@ export const DealItem = (props: params) => {
           </div>
         </div>
       </div>
+      {/* Portal-based dropdown menu */}
+      {showDropdown && createPortal(
+        <div
+          ref={dropdownRef}
+          style={{
+            position: 'fixed',
+            top: `${dropdownPosition.top}px`,
+            left: `${dropdownPosition.left}px`,
+            zIndex: 2000,
+            backgroundColor: '#ffffff',
+            border: '1px solid #e4cb9a',
+            borderRadius: '8px',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
+            minWidth: '150px',
+            padding: '8px 0'
+          }}
+        >
+          <div
+            onClick={() => {
+              onDeleteClick();
+              setShowDropdown(false);
+            }}
+            style={{
+              padding: '12px 16px',
+              cursor: 'pointer',
+              borderBottom: '1px solid #f0f0f0',
+              color: '#3f3f3f'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f3f3'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+          >
+            Delete
+          </div>
+          <div
+            style={{
+              padding: '12px 16px',
+              cursor: 'not-allowed',
+              borderBottom: '1px solid #f0f0f0',
+              color: '#999',
+              opacity: 0.5
+            }}
+          >
+            Won
+          </div>
+          <div
+            style={{
+              padding: '12px 16px',
+              cursor: 'not-allowed',
+              borderBottom: '1px solid #f0f0f0',
+              color: '#999',
+              opacity: 0.5
+            }}
+          >
+            Lost
+          </div>
+          <div
+            onClick={() => {
+              setDialogIsOpen(true);
+              setShowDropdown(false);
+            }}
+            style={{
+              padding: '12px 16px',
+              cursor: 'pointer',
+              color: '#3f3f3f'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f3f3'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+          >
+            Move To
+          </div>
+        </div>,
+        document.body
+      )}
       {
         dialogIsOpen && <MoveDeal dialogIsOpen={dialogIsOpen}
                                   pipeLinesList={pipeLinesList}

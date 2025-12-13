@@ -18,6 +18,7 @@ import { saveAs } from "file-saver";
 import type { DataGridProps } from '@mui/x-data-grid';
 import SimpleGridPreferencesButton from './SimpleGridPreferencesButton';
 import { useGridPreferences } from '../hooks/useGridPreferences';
+import { DeleteDialog } from './deleteDialog';
 
 // Static flag to prevent multiple simultaneous API calls
 let isLoadingTemplatesGlobal = false;
@@ -79,7 +80,7 @@ type params = {
 
 const ItemCollection: React.FC<params> = (props) => {
   console.log("ItemCollection - props: ", props);
-  const { savePreferences, resetPreferences, updatePreferences, preferences: gridPreferences, hasChanges, hasExistingPreferences } = useGridPreferences(`${props.itemName}-grid`);
+  const { savePreferences, resetPreferences, updatePreferences, preferences: gridPreferences, hasChanges, hasExistingPreferences, resetTrigger } = useGridPreferences(`${props.itemName}-grid`);
   const [excludeColumnsForExport, setExcludeColumnsForExport] = useState(
     (props.excludeColumnsForExport ?? []).concat([
       "renderValueinCustomFormat",
@@ -146,7 +147,7 @@ const ItemCollection: React.FC<params> = (props) => {
   const [selectedRows, setSelectedRows] = useState<GridRowSelectionModel>([]);
   const [rowData, setRowData] = useState(props.rowData ? props.rowData : null);
   const [isLoading, setIsloading] = useState(
-    props.isLoading ? props.isLoading : false
+    props.isLoading ? props.isLoading : (props.rowData === null || props.rowData === undefined)
   );
   const currentGridPreferencesRef = useRef<{
     columnOrder: string[];
@@ -240,6 +241,7 @@ const ItemCollection: React.FC<params> = (props) => {
   const [selectedTemplate, setSelectedTemplate] =
     useState<EmailTemplate | null>(null);
   const [moreActionsAnchor, setMoreActionsAnchor] = useState<null | HTMLElement>(null);
+  const [showResetDialog, setShowResetDialog] = useState(false);
   useEffect(() => {
     // Check if user is master admin - use direct flag first
     const checkMasterAdmin = () => {
@@ -309,14 +311,19 @@ const ItemCollection: React.FC<params> = (props) => {
   }, [itemName]);
 
   useEffect(() => {
-    let rowData = props.rowData ?? [];
-    rowData?.forEach((item: any) => {
-      item.updatedBy = Util.getUserNameById(
-        item?.modifiedBy ?? item?.createdBy
-      );
-      item.updatedDate = item.modifiedDate ?? item.createdDate;
-    });
-    setRowData([...rowData]);
+    if (props.rowData !== null && props.rowData !== undefined) {
+      let rowData = props.rowData ?? [];
+      rowData?.forEach((item: any) => {
+        item.updatedBy = Util.getUserNameById(
+          item?.modifiedBy ?? item?.createdBy
+        );
+        item.updatedDate = item.modifiedDate ?? item.createdDate;
+      });
+      setRowData([...rowData]);
+      setIsloading(false); // Data loaded, stop loading
+    } else {
+      setIsloading(true); // No data yet, show loading
+    }
   }, [props.rowData]);
 
   const populateColumnsForExport = (data: Array<any>) => {
@@ -367,6 +374,21 @@ const ItemCollection: React.FC<params> = (props) => {
       hiddenColumns: gridPreferences.hiddenColumns || []
     };
   }, [gridPreferences]);
+
+  // Handle reset trigger
+  useEffect(() => {
+    if (resetTrigger > 0) {
+      // Clear current grid preferences ref
+      currentGridPreferencesRef.current = {
+        columnOrder: [],
+        columnWidths: {},
+        sortModel: [],
+        filterModel: {},
+        hiddenColumns: []
+      };
+      console.log('Grid preferences reset triggered for:', props.itemName);
+    }
+  }, [resetTrigger, props.itemName]);
 
   const handleSelectionChange = (newSelection: GridRowSelectionModel) => {
     console.log("Selection Changed in ItemCollection: ", newSelection);
@@ -472,13 +494,21 @@ const ItemCollection: React.FC<params> = (props) => {
     canShowDropdownForFilter: canShowDropdownForFilter,
     customRowData: customRowData,
     hidePagination: props.hidePagination,
+    isLoading: isLoading,
     dataGridProps: {
       ...props.dataGridProps,
+      key: `grid-${props.itemName}-${resetTrigger}`, // Force re-mount on reset
       // Apply loaded preferences
       initialState: {
         ...props.dataGridProps?.initialState,
         columns: {
-          columnVisibilityModel: gridPreferences.hiddenColumns && gridPreferences.hiddenColumns.length > 0 
+          columnVisibilityModel: resetTrigger > 0 ? 
+            // If reset was triggered, use default visibility
+            updatedColumnMetaData.reduce((acc, col) => {
+              acc[col.columnName] = !col.hidden; // hidden: true => visible: false
+              return acc;
+            }, {} as any)
+            : gridPreferences.hiddenColumns && gridPreferences.hiddenColumns.length > 0 
             ? {
                 // Show all columns by default
                 ...updatedColumnMetaData.reduce((acc, col) => {
@@ -503,10 +533,10 @@ const ItemCollection: React.FC<params> = (props) => {
               },
         },
         sorting: {
-          sortModel: Array.isArray(gridPreferences.sortModel) ? gridPreferences.sortModel : [],
+          sortModel: resetTrigger > 0 ? [] : Array.isArray(gridPreferences.sortModel) ? gridPreferences.sortModel : [],
         },
       },
-      columnOrder: gridPreferences.columnOrder || undefined,
+      columnOrder: resetTrigger > 0 ? undefined : (gridPreferences.columnOrder || undefined),
       onSortModelChange: (sortModel: any) => {
         currentGridPreferencesRef.current.sortModel = sortModel;
         updatePreferences({...currentGridPreferencesRef.current});
@@ -637,6 +667,19 @@ if (exportFormat === "csv") {
         value: item.key,
       })) ?? []) as any
     );
+  };
+
+  const confirmReset = () => {
+    // Clear current grid preferences ref before reset
+    currentGridPreferencesRef.current = {
+      columnOrder: [],
+      columnWidths: {},
+      sortModel: [],
+      filterModel: {},
+      hiddenColumns: []
+    };
+    resetPreferences();
+    setShowResetDialog(false);
   };
 
   // Shared style for buttons
@@ -775,10 +818,10 @@ if (exportFormat === "csv") {
         </MenuItem>
         <MenuItem
           onClick={() => {
-            resetPreferences();
+            setShowResetDialog(true);
             setMoreActionsAnchor(null);
           }}
-          disabled={!hasExistingPreferences}
+          disabled={!hasExistingPreferences && !hasChanges}
           sx={{
             py: 1,
             px: 2,
@@ -793,7 +836,7 @@ if (exportFormat === "csv") {
             }
           }}
         >
-          <Refresh fontSize="small" color={!hasExistingPreferences ? 'disabled' : 'primary'} />
+          <Refresh fontSize="small" color={(!hasExistingPreferences && !hasChanges) ? 'disabled' : 'primary'} />
           <span style={{ fontSize: 14, fontWeight: 500 }}>Reset Settings</span>
         </MenuItem>
       </Menu>
@@ -960,6 +1003,16 @@ if (exportFormat === "csv") {
               </div>
             </div>
           </Drawer>
+          
+          <DeleteDialog
+            itemType="Grid Preferences"
+            itemName="preferences"
+            dialogIsOpen={showResetDialog}
+            closeDialog={() => setShowResetDialog(false)}
+            onConfirm={confirmReset}
+            isPromptOnly={false}
+            actionType="Reset"
+          />
         </>
       )}
     </ErrorBoundary>
