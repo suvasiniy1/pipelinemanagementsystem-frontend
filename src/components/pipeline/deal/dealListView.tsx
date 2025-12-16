@@ -811,7 +811,7 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
     setSelectedUserId(null);
     // clear the tick on owners
   setUsers(prev =>
-    prev.map(u => ({ ...u, isSelected: false }))
+    (prev || []).map(u => ({ ...u, isSelected: false }))
   );
     // Optionally, also close the filter dropdown
     setShowPipeLineFilters(false);
@@ -1123,7 +1123,7 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
                       </div>
                       <div className="tab-pane fade" id="owners" role="tabpanel">
                         <div className="pipeselectpadlr filterownersbox">
-                          {users?.filter((u) => u.isActive).map((item, index) => (
+                          {(users || []).filter((u) => u?.isActive).map((item, index) => (
                             <ul className="pipeselectlist filterownerslist" key={index}>
                               <li>
                                 <div className="filterownerli-row" onClick={() => onPersonSelection(item.name)}>

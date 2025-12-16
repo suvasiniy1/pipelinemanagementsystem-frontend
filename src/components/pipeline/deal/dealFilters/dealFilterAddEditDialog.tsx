@@ -572,9 +572,9 @@ const DealFilterAddEditDialog = (props: params) => {
   const dotDigitalCampaignList = (() => {
     try {
       const data = LocalStorageUtil.getItemObject(Constants.DOT_DIGITAL_CAMPAIGNSLIST) as any;
-      return data ? JSON.parse(data) : [];
+      return Array.isArray(data) ? data : [];
     } catch (error) {
-      console.error('Error parsing DOT_DIGITAL_CAMPAIGNSLIST:', error);
+      console.error('Error getting DOT_DIGITAL_CAMPAIGNSLIST:', error);
       return [];
     }
   })();
@@ -582,9 +582,9 @@ const DealFilterAddEditDialog = (props: params) => {
   const justCallCampaignList = (() => {
     try {
       const data = LocalStorageUtil.getItemObject(Constants.JUST_CALL_CAMPAIGNSLIST) as any;
-      return data ? JSON.parse(data) : [];
+      return Array.isArray(data) ? data : [];
     } catch (error) {
-      console.error('Error parsing JUST_CALL_CAMPAIGNSLIST:', error);
+      console.error('Error getting JUST_CALL_CAMPAIGNSLIST:', error);
       return [];
     }
   })();
@@ -819,7 +819,7 @@ const DealFilterAddEditDialog = (props: params) => {
 
   const getDotDigitalProgramsList = () => {
     return (
-      dotDigitalCampaignList.map((item: DotdigitalCampagin) => ({
+      dotDigitalCampaignList?.map((item: DotdigitalCampagin) => ({
         name: item.name,
         value: item.id,
       })) ?? []

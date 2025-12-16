@@ -4139,3 +4139,18 @@ input[type="checkbox"]:active {
 .col-sm-2.d-flex > div:last-child {
   margin-right: 0;
 }
+
+/* Prevent toolbar actions from wrapping when sidebar is expanded */
+.toolbarview-actionsrow {
+  flex-wrap: nowrap !important;
+  min-width: 0;
+}
+
+.toolbarview-actionsrow > div {
+  flex-shrink: 0;
+}
+
+.pipeselectbtngroup {
+  flex-shrink: 1;
+  min-width: 0;
+}
