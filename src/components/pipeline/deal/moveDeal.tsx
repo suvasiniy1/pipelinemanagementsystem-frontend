@@ -14,6 +14,8 @@ import { ElementType, IControl } from '../../../models/iControl';
 import { PipeLine } from '../../../models/pipeline';
 import { Stage } from '../../../models/stage';
 import Util from '../../../others/util';
+import Constants from '../../../others/constants';
+import LocalStorageUtil from '../../../others/LocalStorageUtil';
 import { DealService } from '../../../services/dealService';
 import { StageService } from '../../../services/stageService';
 
@@ -78,9 +80,21 @@ const MoveDeal = (props: params) => {
     }
 
     const onSubmit = () => {
+        let userId = userProfile?.userId;
+        
+        if (!userId) {
+            const storedProfile = JSON.parse(LocalStorageUtil.getItemObject(Constants.USER_PROFILE) as any);
+            userId = storedProfile?.userId;
+        }
+        
+        if (!userId) {
+            toast.error("Unable to move deal. Please contact support.");
+            return;
+        }
+        
         dealsSvc.putItemBySubURL({
             "newStageId": +selectedItem.newStageId,
-            "modifiedById": userProfile.userId,
+            "modifiedById": userId,
             "dealId": +dealId,
             "pipelineId": selectedItem?.pipelineId
         }, +dealId + "/stage").then(res => {
