@@ -1,33 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuthContext } from '../contexts/AuthContext';
 
 const NotAuthorized = () => {
   const navigate = useNavigate();
+  const { userProfile } = useAuthContext();
   const { state } = useLocation() as { state?: { status?: number } };
-  //const code = state?.status ?? 403; // optional: pass {state:{status:401}} when routing here
   const [code, setCode] = useState(state?.status ?? 403);
+  
   useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch('/api/me', { credentials: 'include' });
-        setCode(res.status === 401 ? 401 : 403);
-      } catch {
-        setCode(401);
-      }
-    })();
-  }, []);
-const handleGo = async () => {
-    try {
-      const res = await fetch('/api/me', { credentials: 'include' });
-      if (res.status === 401 || !res.ok) {
-        navigate('/login', { replace: true });
-        return;
-      }
-      const me = await res.json();
-      navigate(me?.role === 'Admin' ? '/admin' : '/pipeline', { replace: true });
-    } catch {
-      navigate('/login', { replace: true });
+    if (!userProfile) {
+      setCode(401);
     }
+  }, [userProfile]);
+
+  const handleGo = () => {
+    if (!userProfile) {
+      navigate('/login', { replace: true });
+      return;
+    }
+    navigate('/pipeline', { replace: true });
   };
   return (
     <div className="not-authorized">

@@ -3,10 +3,13 @@ import { UserProfile } from "../../models/userProfile";
 import "./ProfilePage.css";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { Form, Button } from "react-bootstrap";
+import { Form, Button, Spinner } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { useAuthContext } from "../../contexts/AuthContext"; 
+import { useAuthContext } from "../../contexts/AuthContext";
+import { UserService } from "../../services/UserService";
+import { ErrorBoundary } from "react-error-boundary";
+import ToggleSwitch from "../../elements/ToggleSwitch"; 
 
 
 
@@ -15,18 +18,35 @@ export const ProfilePage = () => {
   const { userProfile } = useAuthContext();
   const [currentTime, setCurrentTime] = useState<string>("");
   const [isTwoFactorEnabled, setIsTwoFactorEnabled] = useState<boolean>(false);
+  const [userDetails, setUserDetails] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
+  const userService = new UserService(ErrorBoundary);
 
   useEffect(() => {
-    if (userProfile) {
-      setIsTwoFactorEnabled(userProfile.twoFactorEnabled || false);
-    }
-  }, [userProfile]);
+    const fetchUserDetails = async () => {
+      if (userProfile?.userId) {
+        try {
+          setLoading(true);
+          const userData = await userService.getUserById(userProfile.userId);
+          setUserDetails(userData);
+          setIsTwoFactorEnabled(userData?.twoFactorEnabled || false);
+        } catch (error) {
+          console.error('Failed to fetch user details:', error);
+          toast.error('Failed to load user details');
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchUserDetails();
+  }, [userProfile?.userId]);
 
   useEffect(() => {
     const updateTime = () => {
       const options: Intl.DateTimeFormatOptions = {
-        timeZone: userProfile?.timeZone || "Europe/London",
+        timeZone: userDetails?.timeZone || "Europe/London",
         hour: "2-digit",
         minute: "2-digit",
         second: "2-digit",
@@ -40,13 +60,12 @@ export const ProfilePage = () => {
     };
 
     updateTime();
-    const interval = setInterval(updateTime, 1000); // Update time every second
+    const interval = setInterval(updateTime, 1000);
 
-    return () => clearInterval(interval); // Cleanup on unmount
-  }, [userProfile]);
+    return () => clearInterval(interval);
+  }, [userDetails]);
 
-  const handleMFAToggle = () => {
-    const newMFAStatus = !isTwoFactorEnabled;
+  const handleMFAToggle = (newMFAStatus: boolean) => {
     setIsTwoFactorEnabled(newMFAStatus);
     
     // Update the profile in localStorage
@@ -59,58 +78,53 @@ export const ProfilePage = () => {
 
 
 
-  if (!userProfile) {
+  if (loading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: '50vh' }}>
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
+      </div>
+    );
+  }
+
+  if (!userDetails) {
     return <p>User profile could not be loaded.</p>;
   }
 
   return (
     <div className="profile-page">
-      <div className="w-100" style={{ maxWidth: '1100px' }}>
+      <div className="profile-container">
         <Button 
           variant="outline-primary" 
-          className="mb-4 d-flex align-items-center gap-2" 
+          className="back-button d-flex align-items-center gap-2" 
           onClick={() => navigate("/pipeline")}
-          style={{ width: 'fit-content' }}
         >
           <FontAwesomeIcon icon={faArrowLeft} />
-          Back to Deals
+          <span>Back to Deals</span>
         </Button>
-      </div>
-      <h1 className="profile-title"></h1>
-      <div className="profile-container">
-       
         <div className="profile-header">
-          <div
-            className="profile-picture"
-            style={{ backgroundImage: userProfile.profilePicture ? `url(${userProfile.profilePicture})` : undefined }}
-          >
-            {!userProfile.profilePicture && (
-              <span className="profile-initials">
-                {`${userProfile.firstName?.charAt(0) || ""}${userProfile.lastName?.charAt(0) || ""}`}
-              </span>
-            )}
-          </div>
           <div className="profile-header-info">
-            <h2>{`${userProfile.firstName || "User"} ${userProfile.lastName || "Profile"}`}</h2>
-            <p className="email">{userProfile.email || "No email provided"}</p>
+            <h2>{`${userDetails.firstName || "User"} ${userDetails.lastName || "Profile"}`}</h2>
+            <p className="email">{userDetails.email || "No email provided"}</p>
           </div>
         </div>
         <div className="profile-details">
           <div className="profile-item">
             <strong>Full Name</strong>
-            <p>{`${userProfile.firstName || "Not provided"} ${userProfile.lastName || ""}`}</p>
+            <p>{`${userDetails.firstName || ""} ${userDetails.lastName || ""}`.trim() || "Not provided"}</p>
           </div>
           <div className="profile-item">
             <strong>Display Name</strong>
-            <p>{userProfile.user || "Not provided"}</p>
+            <p>{userDetails.userName || "Not provided"}</p>
           </div>
           <div className="profile-item">
             <strong>Email</strong>
-            <p>{userProfile.email || "Not provided"}</p>
+            <p>{userDetails.email || "Not provided"}</p>
           </div>
           <div className="profile-item">
             <strong>Phone Number</strong>
-            <p>{userProfile.phoneNumber || "Not provided"}</p>
+            <p>{userDetails.phoneNumber || "Not provided"}</p>
           </div>
           <div className="profile-item">
             <strong>Country/Region</strong>
@@ -120,12 +134,12 @@ export const ProfilePage = () => {
                 alt="UK Flag"
                 className="country-flag"
               />
-              {userProfile.country || "United Kingdom"}
+              {userDetails.country || "United Kingdom"}
             </p>
           </div>
           <div className="profile-item">
             <strong>Language</strong>
-            <p>{userProfile.language || "English"}</p>
+            <p>{userDetails.language || "English"}</p>
           </div>
           <div className="profile-item">
             <strong>Current Time</strong>
@@ -133,22 +147,13 @@ export const ProfilePage = () => {
           </div>
           <div className="profile-item">
             <strong>Two-Factor Authentication</strong>
-            <div className="d-flex align-items-center gap-3">
-              <Form.Check
-                type="switch"
-                id="mfa-switch"
-                checked={isTwoFactorEnabled}
-                onChange={handleMFAToggle}
-                label={isTwoFactorEnabled ? "Enabled" : "Disabled"}
-              />
-              <Button
-                variant={isTwoFactorEnabled ? "success" : "outline-secondary"}
-                size="sm"
-                onClick={handleMFAToggle}
-              >
-                {isTwoFactorEnabled ? "Disable MFA" : "Enable MFA"}
-              </Button>
-            </div>
+            <ToggleSwitch
+              checked={isTwoFactorEnabled}
+              onChange={handleMFAToggle}
+              label={isTwoFactorEnabled ? "Enabled" : "Disabled"}
+              id="mfa-toggle"
+              size="medium"
+            />
           </div>
         
         </div>

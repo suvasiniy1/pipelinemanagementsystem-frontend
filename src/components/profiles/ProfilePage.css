@@ -29,6 +29,27 @@ body {
   position: relative;
 }
 
+.back-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 8px 16px;
+  font-size: 14px;
+  z-index: 1;
+}
+
+.back-button:hover,
+.back-button:hover span,
+.back-button:hover svg,
+.back-button:focus,
+.back-button:focus span,
+.back-button:focus svg,
+.back-button:active,
+.back-button:active span,
+.back-button:active svg {
+  color: #ffffff !important;
+}
+
 .edit-button {
   position: absolute;
   top: 30px;

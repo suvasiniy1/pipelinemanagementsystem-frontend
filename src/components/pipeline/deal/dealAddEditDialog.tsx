@@ -355,7 +355,8 @@ export const DealAddEditDialog = (props: params) => {
             }
         }).catch((error) => {
             console.error("Error saving deal: ", error);
-            toast.error("An error occurred while saving the deal.");
+            const errorMessage = error?.response?.data?.message || error?.message || "An error occurred while saving the deal.";
+            toast.error(errorMessage);
         });
     };
     type ContactOption = {
@@ -371,6 +372,157 @@ export const DealAddEditDialog = (props: params) => {
         }; // Optional details for existing contacts
     };
     const getCustomElement = (item: IControl) => {
+        if (item.key === "Stage") {
+            // Custom rendering logic for Stage
+            return getJsxForStage();
+        }
+        if (item.key === "PersonDivider") {
+            return (
+                <div className="section-person-divider d-flex align-items-center mt-3 mb-3">
+                    <h6 className="section-person-label me-2">Person</h6>
+                    <hr className="flex-grow-1 section-divider" />
+                </div>
+            );
+        }
+
+        if (item.key === "Contact Person") {
+          return (
+            <AsyncSelect<ContactOption>
+              cacheOptions
+              loadOptions={fetchContacts} // Function to fetch contacts
+              defaultOptions // Show default options on focus
+              onChange={(newValue: any) => {
+                
+                let value = +newValue?.value > 0 ? +newValue?.value : null;
+                setSelectedItem({ ...selectedItem, "contactPersonID": value as any });
+                setValue("contactPersonID" as never, value as never);
+                if (!newValue) return;
+
+                if (newValue.isNew) {
+                  // Handle new contact creation
+                  setSelectedContact(null); // Clear selected contact
+                  setSelectedItem((prev: SelectedItem) => ({
+                    ...prev,
+                    contactPersonID: -1, // Temporary ID for new contact
+                    newContact: {
+                      personName: newValue.inputValue || "",
+                      email: "",
+                      phone: "",
+                    },
+                  }));
+
+                  // Clear phone and email for new contacts
+                  setValue("phone" as never, "" as never);
+                  setValue("email" as never, "" as never);
+                } else {
+                  // Handle selecting an existing contact
+                  setSelectedContact(newValue.details); // Save selected contact
+                  setSelectedItem((prev: SelectedItem) => ({
+                    ...prev,
+                    contactPersonID: newValue.value, // Save contact ID
+                    phone: newValue.details?.phone || "",
+                    email: newValue.details?.email || "",
+                  }));
+
+                  // Update form fields with existing contact details
+                  setValue(
+                    "phone" as never,
+                    (newValue.details?.phone || "") as never
+                  );
+                  setValue(
+                    "email" as never,
+                    (newValue.details?.email || "") as never
+                  );
+                }
+              }}
+              onInputChange={(
+                inputValue: any,
+                actionMeta: { action: string }
+              ) => {
+                if (actionMeta.action === "input-change") {
+                  // Update the typed input in the state
+                  setSelectedItem((prev: SelectedItem) => ({
+                    ...prev,
+                    newContact: {
+                      ...(prev.newContact || {}),
+                      personName: inputValue,
+                    },
+                  }));
+
+                  // Clear phone and email when typing a new contact name
+                  setValue("phone" as never, "" as never);
+                  setValue("email" as never, "" as never);
+
+                  // Clear selectedContact to avoid conflicts
+                  setSelectedContact(null);
+                }
+              }}
+              placeholder="Search or Add Contact"
+              value={
+                selectedContact // Use selectedContact if available
+                  ? {
+                      label: selectedContact.personName,
+                      value: selectedContact.contactPersonID,
+                    }
+                  : selectedItem.newContact?.personName // Use typed input for new contacts
+                  ? { label: selectedItem.newContact.personName, value: "new" }
+                  : null // Fallback for no selection
+              }
+              noOptionsMessage={() => "Type to search or add a new contact"}
+              styles={
+                {
+                  option: (
+                    provided: any,
+                    state: { data: { isNew: any }; isFocused: any }
+                  ) => {
+                    const isAddNewOption = state.data.isNew;
+                    return {
+                      ...provided,
+                      backgroundColor: state.isFocused
+                        ? isAddNewOption
+                          ? "#e0f3ff" // Light blue for "Add new" hover
+                          : "#f0f0f0" // Default hover color
+                        : "white",
+                      color: isAddNewOption ? "#007bff" : "black", // Blue text for "Add new"
+                      fontWeight: isAddNewOption ? "bold" : "normal", // Bold for "Add new"
+                    };
+                  },
+                } as any
+              }
+            />
+          );
+        }
+        return null;
+    };
+
+    const getValidationMessage = (item: IControl) => {
+        const { formState: { errors } } = methods;
+        if (item.key === "Contact Person" && (errors as any)?.contactPersonID) {
+            return (
+                <p className="text-danger" id={`validationMsgfor_${item.value}`}>
+                    {(errors as any)?.contactPersonID?.message}
+                </p>
+            );
+        }
+        return null;
+    };
+
+    const getCustomElementWithValidation = (item: IControl) => {
+        const customElement = getCustomElement(item);
+        const validationMessage = getValidationMessage(item);
+        
+        if (customElement) {
+            return (
+                <>
+                    {customElement}
+                    {validationMessage}
+                </>
+            );
+        }
+        return null;
+    };
+
+    const getCustomElementOld = (item: IControl) => {
         if (item.key === "Stage") {
             // Custom rendering logic for Stage
             return getJsxForStage();
@@ -568,7 +720,7 @@ export const DealAddEditDialog = (props: params) => {
                                                         selectedItem={selectedItem}
                                                         onChange={(value: any, item: any) => onChange(value, item)}
                                                         getListofItemsForDropdown={(e: any) => getDropdownvalues(e) as any}
-                                                        getCustomElement={(item: IControl) => getCustomElement(item)}
+                                                        getCustomElement={(item: IControl) => getCustomElementWithValidation(item)}
                                                         showDelete={false} 
                                                         forceHideTimeSelect={true} // Only for DealAddEditDialog
                                                     />

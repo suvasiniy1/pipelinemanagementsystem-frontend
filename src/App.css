@@ -383,11 +383,10 @@ body {
 }
 
 .maincontent {
-  width: calc(100% - 174px);
-}
-
-.ps-collapsed+.maincontent {
-  width: calc(100% - 80px);
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .pdstage-mainarea {
@@ -410,7 +409,8 @@ body {
   height: 100%;
   display: flex;
   flex-direction: column;
-  overflow: hidden auto;
+  flex: 1;
+  min-height: 0;
 }
 
 .maincontentinner .gdnJsS,
@@ -1037,18 +1037,18 @@ select.selectfield {
 
 /* Pipedrive Box Code */
 .pdstage-area {
-  overflow: hidden auto;
+  overflow: auto;
   height: calc(100% - 64px);
   display: grid;
 }
 
 .pdstagearea-inner {
   padding: 0 12px;
-  overflow: auto;
+  overflow: visible;
   position: relative;
   display: flex;
   flex-direction: column;
-  height: calc(100% - 60px);
+  height: 100%;
 }
 
 /* .pdstage-area::-webkit-scrollbar {width: 10px;}
@@ -1867,9 +1867,9 @@ select.selectfield {
 .editstage-deletebtn {
   display: flex;
   align-items: center;
-  background-color: #3dc2c0;
+  background-color: #4f80ff;
   border-radius: 4px;
-  border: 1px solid #3dc2c0;
+  border: 1px solid #4f80ff;
   cursor: pointer;
   display: inline-flex;
   font-size: 14px;
@@ -1879,7 +1879,7 @@ select.selectfield {
 }
 
 .editstage-deletebtn:hover {
-  background-color: #3dc2c0;
+  background-color: #3f70ef;
 }
 
 .editstage-deletebtn svg {
@@ -4014,4 +4014,128 @@ input[type="checkbox"]:active {
 }
 .pdstagearea-inner {
   overflow: visible !important;
+}
+
+/* Ensure toast messages appear above modal dialogs */
+.Toastify__toast-container {
+  z-index: 999999 !important;
+  position: fixed !important;
+}
+
+.Toastify__toast {
+  z-index: 999999 !important;
+}
+
+/* Override Bootstrap modal z-index */
+.modal {
+  z-index: 1050 !important;
+}
+
+.modal-backdrop {
+  z-index: 1040 !important;
+}
+
+/* Ensure react-toastify appears above everything */
+.Toastify__toast-container--top-right,
+.Toastify__toast-container--top-center,
+.Toastify__toast-container--top-left,
+.Toastify__toast-container--bottom-right,
+.Toastify__toast-container--bottom-center,
+.Toastify__toast-container--bottom-left {
+  z-index: 999999 !important;
+}
+
+/* Sticky Actions column for DataGrid - only when needed */
+@media (max-width: 1400px) {
+  .MuiDataGrid-root:has(.MuiDataGrid-columnHeaders .MuiDataGrid-columnHeader:nth-child(n+6)) .MuiDataGrid-columnHeader[data-field="actions"],
+  .MuiDataGrid-root:has(.MuiDataGrid-columnHeaders .MuiDataGrid-columnHeader:nth-child(n+6)) .MuiDataGrid-cell[data-field="actions"] {
+    position: sticky !important;
+    right: 0 !important;
+    background-color: inherit !important;
+    z-index: 10 !important;
+    border-left: 1px solid rgba(224, 224, 224, 1) !important;
+  }
+
+  /* Ensure even/odd row colors are maintained for sticky Actions column */
+  .MuiDataGrid-root:has(.MuiDataGrid-columnHeaders .MuiDataGrid-columnHeader:nth-child(n+6)) .MuiDataGrid-row.even .MuiDataGrid-cell[data-field="actions"] {
+    background-color: #f5f5f5 !important;
+  }
+
+  .MuiDataGrid-root:has(.MuiDataGrid-columnHeaders .MuiDataGrid-columnHeader:nth-child(n+6)) .MuiDataGrid-row.odd .MuiDataGrid-cell[data-field="actions"] {
+    background-color: white !important;
+  }
+}
+
+@media (max-width: 1200px) {
+  .MuiDataGrid-root:has(.MuiDataGrid-columnHeaders .MuiDataGrid-columnHeader:nth-child(n+4)) .MuiDataGrid-columnHeader[data-field="actions"],
+  .MuiDataGrid-root:has(.MuiDataGrid-columnHeaders .MuiDataGrid-columnHeader:nth-child(n+4)) .MuiDataGrid-cell[data-field="actions"] {
+    position: sticky !important;
+    right: 0 !important;
+    background-color: inherit !important;
+    z-index: 10 !important;
+    border-left: 1px solid rgba(224, 224, 224, 1) !important;
+  }
+
+  .MuiDataGrid-root:has(.MuiDataGrid-columnHeaders .MuiDataGrid-columnHeader:nth-child(n+4)) .MuiDataGrid-row.even .MuiDataGrid-cell[data-field="actions"] {
+    background-color: #f5f5f5 !important;
+  }
+
+  .MuiDataGrid-root:has(.MuiDataGrid-columnHeaders .MuiDataGrid-columnHeader:nth-child(n+4)) .MuiDataGrid-row.odd .MuiDataGrid-cell[data-field="actions"] {
+    background-color: white !important;
+  }
+}
+
+/* Force dropdowns in modal dialogs to open upward */
+.modal .rs-picker-menu,
+.modal .dropdown-menu,
+.modal .MuiAutocomplete-popper,
+.modal .MuiPopper-root {
+  transform: translateY(-100%) !important;
+  top: auto !important;
+  bottom: 100% !important;
+  z-index: 99999 !important;
+}
+
+/* Target React Select dropdowns */
+.modal .css-26l3qy-menu,
+.modal .css-1n7v3ny-option,
+.modal [class*="-menu"] {
+  transform: translateY(-100%) !important;
+  top: auto !important;
+  bottom: 100% !important;
+  z-index: 99999 !important;
+}
+
+/* Force all dropdown menus in modals upward */
+.modal-dialog .dropdown-menu,
+.modal-content .dropdown-menu {
+  transform: translateY(-100%) !important;
+  top: auto !important;
+  bottom: 100% !important;
+}
+
+/* Increase modal body height for custom field dialog */
+.modal-dialog .modal-body {
+  max-height: 70vh !important;
+  overflow-y: visible !important;
+}
+
+/* Force multi-select dropdown to show upward */
+.modal .rs-picker-menu,
+.modal .rs-picker-select-menu {
+  position: fixed !important;
+  transform: translateY(-100%) !important;
+  top: auto !important;
+  bottom: 100% !important;
+  z-index: 99999 !important;
+  max-height: 200px !important;
+}
+
+/* Custom field edit/delete button spacing */
+.col-sm-2.d-flex > div {
+  margin-right: 8px;
+}
+
+.col-sm-2.d-flex > div:last-child {
+  margin-right: 0;
 }

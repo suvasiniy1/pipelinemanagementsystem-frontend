@@ -1,0 +1,17 @@
+/* Strikethrough styling for past dates in date picker */
+.react-datepicker__day--disabled {
+  text-decoration: line-through !important;
+  color: #ccc !important;
+  position: relative;
+}
+
+.react-datepicker__day--disabled::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: #999;
+  transform: translateY(-50%);
+}

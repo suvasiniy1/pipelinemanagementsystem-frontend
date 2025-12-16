@@ -74,7 +74,7 @@ type UserFormValues = InferType<typeof validationSchema>;
     },
     {
       key: "Role",
-      value: "id",
+      value: "roleId",
       elementSize: 12,
       type: ElementType.dropdown,
       options: roles,
@@ -126,7 +126,7 @@ const numberRequired = (msg: string) =>
     userName: Yup.string().required("Required"),
     email: Yup.string().email("Invalid email").required("Required"),
     phoneNumber: Yup.string().required("Required"),
-    id: numberRequired("Role is required"),
+    roleId: numberRequired("Role is required"),
     isActive: Yup.boolean().notRequired(),
     tenantId: numberRequired("Tenant is required"),
   });
@@ -135,7 +135,7 @@ const numberRequired = (msg: string) =>
 const methods = useForm<UserFormValues>({
   resolver: yupResolver(validationSchema),
   defaultValues: {
-    id: '',                // empty select
+    roleId: '',                // empty select
     tenantId: '',          // empty select
     isActive: true,
   } as any,
@@ -150,7 +150,17 @@ const methods = useForm<UserFormValues>({
 const [usernameError, setUsernameError] = useState<string | undefined>();
   useEffect(() => {
     if (selectedItem?.userId > 0) {
-      setValue("id" as never, selectedItem.roleID as never);
+      console.log('Selected item:', selectedItem); // Debug log
+      // Set all form fields
+      setValue("firstName" as never, selectedItem.firstName as never);
+      setValue("lastName" as never, selectedItem.lastName as never);
+      setValue("userName" as never, selectedItem.userName as never);
+      setValue("email" as never, selectedItem.email as never);
+      setValue("phoneNumber" as never, selectedItem.phoneNumber as never);
+      
+      // Find role ID by matching roleName with roles array
+      const roleId = roles.find((role: any) => role.name === selectedItem.roleName)?.id;
+      setValue("roleId" as never, roleId as never);
       const tenantValue = selectedItem.tenantId || selectedItem.organizationID || selectedItem.organizationId;
       setValue("tenantId" as never, tenantValue as never);
       setValue("isActive" as never, selectedItem.isActive as never);
@@ -182,7 +192,7 @@ const [usernameError, setUsernameError] = useState<string | undefined>();
         setValue("userName" as never, generatedUsername as never);
       }
     }
-     if (field === "id" || field === "tenantId") {
+     if (field === "roleId" || field === "tenantId") {
     // keep '' as '' so Yup shows "Required"
     const normalized = value === '' ? '' : Number(value);
     methods.setValue(field as any, normalized as any, { shouldValidate: true });
@@ -192,7 +202,7 @@ const [usernameError, setUsernameError] = useState<string | undefined>();
   methods.setValue(field as any, value as any, { shouldValidate: true });
   };
   const getListofItemsForDropdown = (item: any) => {
-    if (item.value === "id") {
+    if (item.value === "roleId") {
       return roles.map((role: any) => ({
         value: role.id,
         name: role.name,
@@ -231,7 +241,7 @@ const [usernameError, setUsernameError] = useState<string | undefined>();
     obj.phoneNumber = item.phoneNumber;
     obj.isActive = selectedItem.isActive;
 
-    obj.roleId = item.id !== null ? Number(item.id) : 0;
+    obj.roleId = item.roleId !== null ? Number(item.roleId) : 0;
     const finalTenantId = isMasterAdmin ? (item.tenantId !== null ? Number(item.tenantId) : 0) : userTenantId;
     obj.organizationId = finalTenantId;
     obj.tenantId = finalTenantId;

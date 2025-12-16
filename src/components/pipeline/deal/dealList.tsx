@@ -82,18 +82,18 @@ const InnerQuoteList = (props: paramsForQuote) => {
     )
 }
 
-const scrollContainerHeight = 700;
+
 
 const DropZone = styled.divBox`
   /* stop the list collapsing when empty */
-  min-height: ${scrollContainerHeight}px;
+  min-height: 200px;
   /*
     not relying on the items for a margin-bottom
     as it will collapse when the list is empty
   */
   padding-bottom: ${grid}px;
   height: auto; 
-  overflow-y: auto; 
+  overflow-y: visible; 
 `;
 
 function InnerList(props: {

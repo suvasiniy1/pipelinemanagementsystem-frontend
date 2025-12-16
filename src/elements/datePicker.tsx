@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Picker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import "./datePicker.css";
 import { useFormContext } from "react-hook-form";
 
 type params = {
