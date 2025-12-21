@@ -290,7 +290,7 @@ export const DealHeader = (props: params) => {
                     </div>
                   </div>
                 </div>
-                <div className="updatestagebtn">{addorUpdateStage()}</div>
+                <div className="updatestagebtn" style={{ display: dialogIsOpen ? 'none' : 'block' }}>{addorUpdateStage()}</div>
 
                 {!isMasterAdmin && <div className="pipeselectbtngroup">
                   <div
@@ -414,12 +414,11 @@ export const DealHeader = (props: params) => {
                     </div>
                   </div>
                 </div>}
-                {!isMasterAdmin && <div className="pipefilterbtn" style={{ position: 'relative', zIndex: 2001 }}>
+                {!isMasterAdmin && <div className="pipefilterbtn" style={{ display: (dialogIsOpen || dealFilterDialogIsOpen) ? 'none' : 'block' }}>
                   <div className="filterbtn">
                     <a
                       className="btn"
                       href="javascript:void(0);"
-                      style={{ zIndex: 2002, pointerEvents: 'auto', position: 'relative' }}
                       onClick={(e: any) => {
                         setSelectedUserId(null);
                         setSelectedFilterObj(null);

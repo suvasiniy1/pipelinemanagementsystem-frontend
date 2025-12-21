@@ -55,7 +55,7 @@ const MoveDeal = (props: params) => {
             stagesSvc.getStages(selectedPipeLineId).then(items => {
                 let sortedStages = Util.sortList(items.stageDtos, "stageOrder");
                 setStages(sortedStages);
-                setSelectedItem({ ...selectedItem, "pipelineId": +selectedPipeLineId, "newStageId": selectedStageId ?? items.stageDtos[0]?.stageID });
+                setSelectedItem({ ...selectedItem, "pipelineId": +selectedPipeLineId, "newStageId": null as any});
                 setIsLoading(false);
             }).catch(err => {
             });
@@ -80,6 +80,13 @@ const MoveDeal = (props: params) => {
     }
 
     const onSubmit = () => {
+        
+        // Validate stage selection - check for null, undefined, 0, or empty
+        if (!selectedItem.newStageId || selectedItem.newStageId === 0) {
+            toast.error("Please select a stage before moving the deal.");
+            return;
+        }
+        
         let userId = userProfile?.userId;
         
         if (!userId) {

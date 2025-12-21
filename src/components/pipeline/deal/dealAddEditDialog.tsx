@@ -50,6 +50,7 @@ export const DealAddEditDialog = (props: params) => {
         },
     });
     const [isLoading, setIsLoading] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [selectedContact, setSelectedContact] = useState<any>(null);
     const dealsSvc = new DealService(ErrorBoundary);
     const stagesSvc = new StageService(ErrorBoundary);
@@ -280,6 +281,8 @@ export const DealAddEditDialog = (props: params) => {
     const { handleSubmit, resetField, setValue, setError } = methods;
     
     const onSubmit = (item: any) => {
+        if (isSubmitting) return; // Prevent duplicate submissions
+        setIsSubmitting(true);
         
         console.log("Form item submitted: ", item);
         console.log("Selected item state: ", selectedItem);
@@ -357,6 +360,8 @@ export const DealAddEditDialog = (props: params) => {
             console.error("Error saving deal: ", error);
             const errorMessage = error?.response?.data?.message || error?.message || "An error occurred while saving the deal.";
             toast.error(errorMessage);
+        }).finally(() => {
+            setIsSubmitting(false); // Re-enable submission
         });
     };
     type ContactOption = {
@@ -700,14 +705,14 @@ export const DealAddEditDialog = (props: params) => {
                           })}
                           
                         // customFooter={customFooter()}
-                        disabled={isLoading}
+                        disabled={isLoading || isSubmitting}
                         >
                         {
                             <>
                                 {isLoading && <div className="alignCenter"><Spinner /></div>}
                                 <div className='modelformfiledrow row'>
                                     <div>
-                                        <div className='modelformbox ps-2 pe-2'
+                                        <div className='modelformbox ps-2 pe-2' style={{maxHeight: '60vh', overflowY: 'auto'}}
                                              onKeyDown={(e: React.KeyboardEvent) => {
                                                if (e.key === 'Enter') {
                                                  e.preventDefault();

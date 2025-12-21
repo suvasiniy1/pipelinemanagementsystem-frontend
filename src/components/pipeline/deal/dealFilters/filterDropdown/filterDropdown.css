@@ -61,3 +61,44 @@
     background-color: #e0f7fa;
   }
   
+
+/* Fix for edit/delete button visibility on hover */
+.pipeselect-btns {
+  position: absolute;
+  right: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pipeselect-btns span {
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 3px;
+  transition: all 0.2s ease;
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #666;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.pipeselect-btns span:hover {
+  background-color: #fff !important;
+  color: #333 !important;
+  border-color: #ccc !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Ensure buttons are visible on list item hover */
+.pipeselectlist li:hover .pipeselect-btns span {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  color: #333 !important;
+  border-color: rgba(0, 0, 0, 0.2) !important;
+}
+
+.pipeselectlist li:hover .pipeselect-btns span:hover {
+  background-color: #fff !important;
+  color: #000 !important;
+  border-color: #999 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}

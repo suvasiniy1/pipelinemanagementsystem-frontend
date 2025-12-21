@@ -18,7 +18,7 @@ type params = {
   setSelectedIndex: any;
 };
 const DealActivityDetails = (props: params) => {
-  debugger
+  
   const { userProfile } = useAuthContext();
   const { index, selectedIndex, log, ...others } = props;
   const divRef = useRef();

@@ -87,16 +87,18 @@ const FilterDropdown = (props: params) => {
     }
   }, []);
 
-  const loadDealFilters = () => {
+  const loadDealFilters = (forceRefresh = false) => {
     // Check if already loading globally
     if (isLoadingFilters) return;
 
-    // Check if filters are already in localStorage
-    const cachedFilters = LocalStorageUtil.getItemObject(Constants.Deal_FILTERS);
-    if (cachedFilters && Array.isArray(JSON.parse(cachedFilters as string)) && JSON.parse(cachedFilters as string).length > 0) {
-      setFilters(JSON.parse(cachedFilters as string));
-      if (selectedFilterObj) onFilterSelection(selectedFilterObj);
-      return;
+    // Check if filters are already in localStorage and not forcing refresh
+    if (!forceRefresh) {
+      const cachedFilters = LocalStorageUtil.getItemObject(Constants.Deal_FILTERS);
+      if (cachedFilters && Array.isArray(JSON.parse(cachedFilters as string)) && JSON.parse(cachedFilters as string).length > 0) {
+        setFilters(JSON.parse(cachedFilters as string));
+        if (selectedFilterObj) onFilterSelection(selectedFilterObj);
+        return;
+      }
     }
 
     isLoadingFilters = true;
@@ -135,7 +137,7 @@ const FilterDropdown = (props: params) => {
         setSelectedFilter(new DealFilter());
         if (res) {
           toast.success("Deal filter deleted successfully");
-          loadDealFilters();
+          loadDealFilters(true);
         }
       })
       .catch((err) => {
@@ -241,7 +243,7 @@ const FilterDropdown = (props: params) => {
           setDialogIsOpen={setDialogIsOpen}
           onPreview={(e:any)=>setShowPipeLineFilters(false)}
           onSaveChanges={(e: any) => {
-            loadDealFilters();
+            loadDealFilters(true);
             setDialogIsOpen(false);
           }}
           selectedFilter={selectedFilter as any}
