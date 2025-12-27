@@ -41,106 +41,109 @@ const DealsDialog: React.FC<DealsDialogProps> = ({
   return (
     <AddEditDialog
       dialogIsOpen={show}
+      dialogSize="large"
       header="Linked Deals"
       closeDialog={onClose}
       showSaveButton={false}
     >
-      {loading ? (
-        // full-modal loader
-        <div
-          style={{
-            height: 420,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Spinner />
-        </div>
-      ) : (
-        <>
-          <div style={{ marginBottom: 20 }}>
-            <h5>Open deals ({dealsData.length})</h5>
-            <div>
-              {dealsData.map((deal) => (
-                <div
-                  key={deal.id}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    padding: 10,
-                    marginBottom: 10,
-                    border: "1px solid #ccc",
-                    borderRadius: 8,
-                  }}
-                >
-                  <div>
-                    <strong>{deal.treatmentName}</strong>
-                    <div style={{ fontSize: "0.85em", color: "#666" }}>
-                      Pipeline: <em>{deal.pipelineName || "N/A"}</em>
-                    </div>
-                  </div>
-                  <StagesProgressBar
-                    stages={deal.pipelineStages}
-                    currentStageId={deal.stageID}
-                  />
-                </div>
-              ))}
-            </div>
+      <div style={{ maxHeight: '70vh', overflow: 'auto' }}>
+        {loading ? (
+          // full-modal loader
+          <div
+            style={{
+              height: 420,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Spinner />
           </div>
+        ) : (
+          <>
+            <div style={{ marginBottom: 20 }}>
+              <h5>Open deals ({dealsData.length})</h5>
+              <div>
+                {dealsData.map((deal) => (
+                  <div
+                    key={deal.id}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      padding: 10,
+                      marginBottom: 10,
+                      border: "1px solid #ccc",
+                      borderRadius: 8,
+                    }}
+                  >
+                    <div>
+                      <strong>{deal.treatmentName}</strong>
+                      <div style={{ fontSize: "0.85em", color: "#666" }}>
+                        Pipeline: <em>{deal.pipelineName || "N/A"}</em>
+                      </div>
+                    </div>
+                    <StagesProgressBar
+                      stages={deal.pipelineStages}
+                      currentStageId={deal.stageID}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
 
-          <div style={{ height: 400, width: "100%" }}>
-            {dealsData.length > 0 ? (
-              <DataGrid
-                className="custom-data-grid"
-                rows={dealsData}
-                columns={columns}
-                getRowId={(row) => row.id}
-                pagination
-                paginationModel={paginationModel}
-                onPaginationModelChange={setPaginationModel}
-                pageSizeOptions={[5, 10, 25, 50]}
-                loading={loading} // built-in overlay
-                slotProps={{
-                  basePopper: {
-                    // types vary across MUI versions; cast if needed
-                    container: portalContainer as any,
-                    placement: "bottom-start" as any,
-                    modifiers: [
-                      { name: "offset", options: { offset: [0, 6] } } as any,
-                      {
-                        name: "flip",
-                        options: { fallbackPlacements: ["top-start"] },
-                      } as any,
-                      {
-                        name: "preventOverflow",
-                        options: { rootBoundary: "viewport", padding: 8 },
-                      } as any,
-                    ],
-                  } as any,
-                  pagination: {
-                    SelectProps: {
-                      MenuProps: {
-                        container: portalContainer as any,
-                        disablePortal: false,
-                        disableScrollLock: true,
-                        PaperProps: { sx: { maxHeight: 280, overflowY: "auto" } },
+            <div style={{ height: 350, width: "100%" }}>
+              {dealsData.length > 0 ? (
+                <DataGrid
+                  className="custom-data-grid"
+                  rows={dealsData}
+                  columns={columns}
+                  getRowId={(row) => row.id}
+                  pagination
+                  paginationModel={paginationModel}
+                  onPaginationModelChange={setPaginationModel}
+                  pageSizeOptions={[5, 10, 25, 50]}
+                  loading={loading} // built-in overlay
+                  slotProps={{
+                    basePopper: {
+                      // types vary across MUI versions; cast if needed
+                      container: portalContainer as any,
+                      placement: "bottom-start" as any,
+                      modifiers: [
+                        { name: "offset", options: { offset: [0, 6] } } as any,
+                        {
+                          name: "flip",
+                          options: { fallbackPlacements: ["top-start"] },
+                        } as any,
+                        {
+                          name: "preventOverflow",
+                          options: { rootBoundary: "viewport", padding: 8 },
+                        } as any,
+                      ],
+                    } as any,
+                    pagination: {
+                      SelectProps: {
+                        MenuProps: {
+                          container: portalContainer as any,
+                          disablePortal: false,
+                          disableScrollLock: true,
+                          PaperProps: { sx: { maxHeight: 280, overflowY: "auto" } },
+                        },
                       },
                     },
-                  },
-                }}
-                sx={{
-                  "& .MuiDataGrid-menu, & .MuiDataGrid-panel": { zIndex: 20000 },
-                }}
-              />
-            ) : (
-              <p style={{ textAlign: "center", marginTop: 20 }}>
-                No data available
-              </p>
-            )}
-          </div>
-        </>
-      )}
+                  }}
+                  sx={{
+                    "& .MuiDataGrid-menu, & .MuiDataGrid-panel": { zIndex: 20000 },
+                  }}
+                />
+              ) : (
+                <p style={{ textAlign: "center", marginTop: 20 }}>
+                  No data available
+                </p>
+              )}
+            </div>
+          </>
+        )}
+      </div>
     </AddEditDialog>
   );
 };

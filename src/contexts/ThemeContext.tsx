@@ -345,7 +345,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
         text-decoration: underline !important;
       }
       
-      /* Form controls focus states */
+      /* Form controls focus states - Remove theme colors */
       .form-control:focus,
       .form-select:focus,
       input:focus,
@@ -353,8 +353,8 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       select:focus,
       .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline,
       .MuiInput-underline:after {
-        border-color: ${theme.primaryColor} !important;
-        box-shadow: 0 0 0 0.2rem ${theme.primaryColor}33 !important;
+        border-color: rgba(0, 0, 0, 0.23) !important;
+        box-shadow: none !important;
       }
       
       /* Checkboxes and radio buttons */

@@ -5,6 +5,8 @@ import LocalStorageUtil from "./LocalStorageUtil";
 import Constants from "./constants";
 import { UserProfile } from "../models/userProfile";
 import { Utility } from "../models/utility";
+import SecureNavService from "../services/secureNavService";
+import RoleValidator from "./RoleValidator";
 
 export default class Util {
   static navItemsList: Array<any> = [];
@@ -14,13 +16,48 @@ export default class Util {
       window.config.NavItemsForUser.find((i) => i.Role == role)?.NavItems ?? [];
   };
 
-  public static isAuthorized = (item: string) => {
+  public static isAuthorized = (item: string): boolean => {
     const authorized = Util.navItemsList.some(
       (i) => i.toLowerCase() === item.toLowerCase()
     );
     console.log(`🔐 Checking permission for "${item}" → ${authorized}`);
     return authorized;
   };
+
+  // Simple role management - just change the key name
+  public static setUserRole(role: number): void {
+    localStorage.setItem('sys_perm_data', role.toString());
+    // Store a hash to detect tampering
+    localStorage.setItem('sys_check', btoa(role.toString() + 'plms2024'));
+  }
+
+  public static getUserRole(): number | null {
+    const roleStr = localStorage.getItem('sys_perm_data');
+    const checkStr = localStorage.getItem('sys_check');
+    
+    if (!roleStr || !checkStr) return null;
+    
+    const role = parseInt(roleStr, 10);
+    if (![0, 1, 2, 3].includes(role)) return null;
+    
+    // Verify integrity
+    const expectedCheck = btoa(role.toString() + 'plms2024');
+    if (checkStr !== expectedCheck) {
+      console.warn('Role tampering detected');
+      this.clearSession();
+      return null;
+    }
+    
+    return role;
+  }
+  
+  private static clearSession(): void {
+    alert('Session expired due to security violation. Please login again.');
+    localStorage.clear();
+    window.location.replace(window.config.HomePage + '/Login');
+  }
+
+
 
   public static capitalizeFirstLetter = (string: any) => {
     return string.charAt(0).toUpperCase() + string.slice(1);

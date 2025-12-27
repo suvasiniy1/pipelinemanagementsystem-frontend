@@ -8,16 +8,13 @@ import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import * as Yup from "yup";
-import GenerateElements from "../common/generateElements";
-import { ElementType, IControl } from "../models/iControl";
+import { TextField, IconButton, InputAdornment } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { UserProfile } from "../models/userProfile";
 import Constants from "../others/constants";
 import LocalStorageUtil from "../others/LocalStorageUtil";
 import Util, { IsMockService } from "../others/util";
-import BackgroundImage from "../resources/images/background.png";
 import Logo from "../resources/images/Clinic-Lead-White.png";
-import jpg from "../resources/images/Y1Logo.jpg";
-import svg from "../resources/images/Clinic-Lead-White.svg";
 import { LoginService } from "../services/loginService";
 import ForgotPassword from "./profiles/forgotPassword";
 import { useAuthContext } from "../contexts/AuthContext";
@@ -50,11 +47,10 @@ const Login = () => {
   const { setUserProfile, setUserRole, setIsLoggedIn } = useAuthContext();
   const [showForGotPasswordDiglog, setShowForGotPasswordDiglog] =
     useState(false);
-  const [isIncorrectCredentails, setIsIncorrectCredentails] = useState<any>();
   const [loading, setLoading] = useState(false);
-  const [twoFactorRequired, setTwoFactorRequired] = useState(false); // For 2FA check
-  const [verificationCode, setVerificationCode] = useState(""); // Holds 2FA code input by user
-  const [userId, setUserId] = useState<number | null>(null); // To hold the userId for the second step of 2FA
+  const [twoFactorRequired, setTwoFactorRequired] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [userId, setUserId] = useState<number | null>(null);
 
   const [selectedItem, setSelectedItem] = useState(
     new UserCredentails(
@@ -63,44 +59,17 @@ const Login = () => {
         : null
     )
   );
-  const [disablePassword, setDisablePassword] = useState<boolean>(true);
   const [disableLogin, setDisableLogin]=useState<boolean>(true);
   const [rememberMe, setRememberMe] = useState(false);
   const loginSvc = new LoginService(ErrorBoundary);
   const navigate = useNavigate();
   const [email, setEmail] = useState<string | null>(null);
-  const [loginError, setLoginError]=useState();
+  const [showPassword, setShowPassword] = useState(false);
 
-  const [controlsList, setControlsList] = useState<Array<IControl>>([
-    {
-      key: "Email",
-      value: "email",
-      isRequired: true,
-      tabIndex: 1,
-      isFocus: true,
-      placeHolder: "Enter your email ",
-      isControlInNewLine: true,
-      elementSize: 12,
-    },
-    {
-      key: "Password",
-      value: "passwordHash",
-      readOnly: true,
-      tabIndex: 2,
-      placeHolder: "",
-      isControlInNewLine: true,
-      elementSize: 12,
-      type: ElementType.password,
-      showEyeIcon: false,
-      autoComplete: "current-password",
-      // ⬇️ block any whitespace
-      regex1: /^\S+$/,
-      errMsg1: "Password cannot contain spaces",
-    },
-  ]);
-type LoginForm = { email: string; passwordHash: string; };
+  const [loginError, setLoginError]=useState();
   const validationsSchema = Yup.object().shape({
-    ...Util.buildValidations(controlsList),
+    email: Yup.string().email("Invalid email format").required("Email is required"),
+    passwordHash: Yup.string().required("Password is required").matches(/^\S+$/, "Password cannot contain spaces"),
   });
 
 
@@ -110,7 +79,7 @@ type LoginForm = { email: string; passwordHash: string; };
      ) as any;
    };
 
- const methods = useForm({
+ const methods = useForm<LoginForm>({
   resolver: yupResolver(validationsSchema),
   shouldFocusError: true,
 });
@@ -252,10 +221,8 @@ const showPwdError = (msg: string) => {
               setEmail(res.email);
             } else if ((res as any)?.status === 401 || (res as any)?.error === 'Invalid credentials') {
               setLoginError('Invalid email or password. Please try again.' as any);
-              setIsIncorrectCredentails(true);
             } else {
               setLoginError(res as any);
-              setIsIncorrectCredentails(true);
             }
           })
          .catch((err) => {
@@ -274,29 +241,23 @@ const showPwdError = (msg: string) => {
 
 
   const handlePassword = () => {
-    navigate("/forgot-password"); // Redirect to the Forgot Password page
+    navigate("/forgot-password");
   };
 
-  function delay(ms: any) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
   const onChange = (value: any, item: any) => {
-    
     let obj = { ...selectedItem };
-    if (item.value == "email") obj.email = value;
+    if (item.value == "email") {
+      obj.email = value;
+      methods.clearErrors("email" as any);
+    }
     if (item.value === "passwordHash") {
-    obj.passwordHash = value;
-    methods.clearErrors("passwordHash" as any); // <-- clears inline error
-  }
+      obj.passwordHash = value;
+      methods.clearErrors("passwordHash" as any);
+    }
 
     setSelectedItem(obj);
     setDisableLogin(Util.isNullOrUndefinedOrEmpty(obj.email) || Util.isNullOrUndefinedOrEmpty(obj.passwordHash));
-
-    let cntrlList = [...controlsList];
-    cntrlList[1].isRequired = obj.userName !== "developer";
-    cntrlList[1].disabled=Util.isNullOrUndefinedOrEmpty(obj.email);
-    setControlsList([...cntrlList]);
+    
     setValue("email" as never, obj.email as never);
     setValue("passwordHash" as never, obj.passwordHash as never);
   };
@@ -321,20 +282,56 @@ const showPwdError = (msg: string) => {
             Constants.TOKEN_EXPIRATION_TIME,
            convertTZ(res?.expires)
             );
+            
+            const isMasterAdmin = !res.tenant || res.tenant.length === 0;
+            const userRole = isMasterAdmin ? 0 : res.role;
+            
+            // Store master admin flag immediately
+            LocalStorageUtil.setItem('IS_MASTER_ADMIN', isMasterAdmin.toString());
+            
              const profile = {
                 user: res.user,
                 email: res.email,
                userId: res.userId,
-               role: res.role,
-               tenant: res.tenant, // Add tenant data
+               role: userRole,
+               tenant: res.tenant,
+               isMasterAdmin: isMasterAdmin
              };
              
              // Set in AuthContext only (session-based)
              setUserProfile(profile as any as UserProfile);
-             setUserRole(res.role);
+             setUserRole(userRole);
              setIsLoggedIn(true);
              
-            navigate("/pipeline"); // Navigate to the next screen after successful verification
+             Util.loadNavItemsForUser(userRole);
+             
+             if (isMasterAdmin) {
+               navigate("/Tenant");
+             } else {
+               // Check if subdomain redirect is enabled
+               const enableSubdomainRedirect = (window as any).config?.EnableSubdomainRedirect;
+               const tenantId = res.tenant?.[0]?.id;
+               const tenantSubdomain = (window as any).config?.TenantSubdomains?.[tenantId];
+               
+               if (enableSubdomainRedirect && tenantSubdomain) {
+                 // Encode login response as base64 to pass all data
+                 const loginData = {
+                   token: res.token,
+                   user: res.user,
+                   email: res.email,
+                   userId: res.userId,
+                   role: userRole,
+                   tenant: res.tenant,
+                   expires: res.expires,
+                   isMasterAdmin: isMasterAdmin
+                 };
+                 const encodedData = btoa(JSON.stringify(loginData));
+                 window.location.href = `https://${tenantSubdomain}?auth=${encodedData}`;
+               } else {
+                 // Local development or no subdomain configured
+                 navigate("/pipeline");
+               }
+             }
           } else {
             toast.error("Invalid verification code.");
           }
@@ -367,14 +364,14 @@ const showPwdError = (msg: string) => {
             <div className="signinwrapper-inner">
               {/* Overlay */}
               <div className="sign-in__backdrop"></div>
-              <div className="logheader bggradiant">
-                {<div className="logo"><img className="lohheaderlogo" src={Logo} /></div>}
-                
+              <div className="logheader">
+                <div className="logo"><img className="lohheaderlogo" src={Logo} /></div>
               </div>
               {/* Form */}
               
               <Form
                   className="loginformblock"
+                  noValidate
                 onKeyDown={(e) => {
   if (twoFactorRequired) return;           // don’t block 2FA screen
   if (e.key === "Enter") {
@@ -392,15 +389,11 @@ const showPwdError = (msg: string) => {
       : handleSubmit(onSubmitClick)                         // normal login
   }
                 >
-                <div className="shadow p-5 bg-white rounded loginformblock-row">
+                <div className="shadow-lg p-4 bg-white rounded-4 loginformblock-row">
                   {/* Header */}
                   <div className="logformhead">
-                    {/* <div className="logformheadimg">
-                      <img className="img-thumbnail" src={Logo} alt="logo" />
-                    </div> */}
                     <h1 className="h1">Sign In</h1>
                     <p>to access CRM</p>
-                    {/* <p>You must become a member to login and access the entire site.</p> */}
                   </div>
                   <div className="logformsubtext p-2 text-center">
                     {loading ? "Please wait" : twoFactorRequired
@@ -442,13 +435,100 @@ const showPwdError = (msg: string) => {
                     </>
                   ) : (
                     <>
-                      <GenerateElements
-                        controlsList={controlsList}
-                        selectedItem={selectedItem}
-                        disable={loading}
-                        onChange={(value: any, item: any) =>
-                          onChange(value, item)
-                        }
+                      <TextField
+                        fullWidth
+                        label="Email"
+                        placeholder="Enter your email"
+                        type="email"
+                        variant="outlined"
+                        margin="normal"
+                        value={selectedItem.email || ''}
+                        onChange={(e) => onChange(e.target.value, { value: 'email' })}
+                        disabled={loading}
+                        size="small"
+                        error={!!methods.formState.errors.email}
+                        helperText={methods.formState.errors.email?.message || ' '}
+                        InputLabelProps={{
+                          shrink: true
+                        }}
+                        sx={{ 
+                          mb: 1,
+                          '& .MuiFormHelperText-root': {
+                            minHeight: '16px',
+                            margin: '2px 14px 0',
+                            fontSize: '0.75rem'
+                          },
+                          '& .MuiOutlinedInput-root': {
+                            backgroundColor: 'transparent',
+                            '& fieldset': {
+                              borderColor: 'rgba(0, 0, 0, 0.23)',
+                            },
+                            '&:hover fieldset': {
+                              borderColor: 'rgba(0, 0, 0, 0.23)',
+                            },
+                            '&.Mui-focused': {
+                              backgroundColor: 'transparent',
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: 'rgba(0, 0, 0, 0.23)',
+                              borderWidth: '1px',
+                            },
+                          },
+                        }}
+                      />
+                      <TextField
+                        fullWidth
+                        label="Password"
+                        placeholder="Enter your password"
+                        type={showPassword ? 'text' : 'password'}
+                        variant="outlined"
+                        margin="normal"
+                        value={selectedItem.passwordHash || ''}
+                        onChange={(e) => onChange(e.target.value, { value: 'passwordHash' })}
+                        disabled={loading}
+                        size="small"
+                        error={!!methods.formState.errors.passwordHash}
+                        helperText={methods.formState.errors.passwordHash?.message || ' '}
+                        InputLabelProps={{
+                          shrink: true
+                        }}
+                        sx={{ 
+                          mb: 1,
+                          '& .MuiFormHelperText-root': {
+                            minHeight: '16px',
+                            margin: '2px 14px 0',
+                            fontSize: '0.75rem'
+                          },
+                          '& .MuiOutlinedInput-root': {
+                            backgroundColor: 'transparent',
+                            '& fieldset': {
+                              borderColor: 'rgba(0, 0, 0, 0.23)',
+                            },
+                            '&:hover fieldset': {
+                              borderColor: 'rgba(0, 0, 0, 0.23)',
+                            },
+                            '&.Mui-focused': {
+                              backgroundColor: 'transparent',
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: 'rgba(0, 0, 0, 0.23)',
+                              borderWidth: '1px',
+                            },
+                          },
+                        }}
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <IconButton
+                                onClick={() => setShowPassword(!showPassword)}
+                                edge="end"
+                                size="small"
+                              >
+                                {showPassword ? <VisibilityOff /> : <Visibility />}
+                              </IconButton>
+                            </InputAdornment>
+                          ),
+                        }}
                       />
                     {/*   <Form.Group className="mb-2" controlId="checkbox">
                         <Form.Check

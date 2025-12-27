@@ -1,7 +1,30 @@
-
+import SecureStorageUtil from './secureStorageUtil';
 
  export default class LocalStorageUtil
  {
+     // List of sensitive keys that should be encrypted
+     private static readonly SENSITIVE_KEYS = [
+         'ACCESS_TOKEN',
+         'IS_MASTER_ADMIN',
+         'USER_LOGGED_IN',
+         'USER_PERMISSIONS',
+         'SESSION_DATA'
+     ];
+
+     // Add integrity check for critical values
+     private static generateChecksum(value: string): string {
+         let hash = 0;
+         for (let i = 0; i < value.length; i++) {
+             const char = value.charCodeAt(i);
+             hash = ((hash << 5) - hash) + char;
+             hash = hash & hash; // Convert to 32-bit integer
+         }
+         return Math.abs(hash).toString(36);
+     }
+
+     private static isSensitiveKey(key: string): boolean {
+         return this.SENSITIVE_KEYS.some(sensitiveKey => key.includes(sensitiveKey));
+     }
      // Public Methods
      // -------------------------------------------------------------------------------------- //
      /**
@@ -35,8 +58,14 @@
       */
      public static setItem(key: string, value: string): void
      {
-        
-         localStorage.setItem(key, value);
+         if (this.isSensitiveKey(key)) {
+             // Add integrity check for sensitive data
+             const checksum = this.generateChecksum(value);
+             const dataWithChecksum = JSON.stringify({ data: value, checksum });
+             SecureStorageUtil.setSecureItem(key, dataWithChecksum);
+         } else {
+             localStorage.setItem(key, value);
+         }
      };
 
      /**
@@ -58,6 +87,29 @@
       */
      public static getItem(key: string): string | null
      {
+         if (this.isSensitiveKey(key)) {
+             const secureData = SecureStorageUtil.getSecureItem(key);
+             if (!secureData) return null;
+             
+             try {
+                 const parsed = JSON.parse(secureData);
+                 const expectedChecksum = this.generateChecksum(parsed.data);
+                 
+                 // Verify integrity
+                 if (parsed.checksum !== expectedChecksum) {
+                     console.warn('Data integrity check failed for key:', key);
+                     this.removeItem(key); // Remove tampered data
+                     return null;
+                 }
+                 
+                 return parsed.data;
+             } catch {
+                 // If parsing fails, data might be tampered
+                 this.removeItem(key);
+                 return null;
+             }
+         }
+         
          // Check if the value for the key exists in the storage.
          if (localStorage.getItem(key) === undefined || localStorage.getItem(key) === null)
          {
@@ -96,7 +148,11 @@
 
      public static removeItem(key: string): void
      {
-         localStorage.removeItem(key);    
+         if (this.isSensitiveKey(key)) {
+             SecureStorageUtil.removeSecureItem(key);
+         } else {
+             localStorage.removeItem(key);
+         }
      }
 
      public static removeAllTokensWithPrefix (keyPrefix: string) {

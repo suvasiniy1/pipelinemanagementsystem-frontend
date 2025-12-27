@@ -350,7 +350,8 @@ const DealListView = (props: Params) => {
         }
       })
       .catch((err) => {
-        setError(err);
+        // Don't show toast, just set error state for UI display
+        setError("No deals under selected combination" as any);
         setDealsList([]);
         setTotalCount(paginationModel.page * size); // conservative fallback
         if (paginationModel.page > 0) setPaginationModel((p) => ({ ...p, page: Math.max(0, p.page - 1) }));
@@ -1075,7 +1076,28 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
       )}
      
 
-      {hasInitialLoad ? (
+      {hasInitialLoad && dealsList.length === 0 && !isLoading && (selectedFilterObj || selectedUserId) ? (
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '400px',
+          textAlign: 'center',
+          color: '#666'
+        }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>📋</div>
+          <h3 style={{ marginBottom: '8px', color: '#333' }}>No deals found</h3>
+          <p style={{ marginBottom: '16px' }}>No deals match the selected filter combination.</p>
+          <button 
+            className="btn btn-primary"
+            onClick={handleResetFilter}
+            style={{ padding: '8px 16px' }}
+          >
+            Clear Filters
+          </button>
+        </div>
+      ) : hasInitialLoad ? (
         <ItemCollection
         key={`deals-${dealsList.length}`}
         itemName={"Deals"}
@@ -1235,9 +1257,9 @@ const loadAllDeals = async (): Promise<Array<Deal>> => {
         />
       ) : null}
       
- 
+      {/* Show error only for actual errors, not "no deals" scenarios */}
       <div className="pdstage-area">
-        {error && <UnAuthorized error={error as any} />}
+        {error && !error.toString().includes("No deals under selected combination") && <UnAuthorized error={error as any} />}
 
         <Drawer
           anchor="right"

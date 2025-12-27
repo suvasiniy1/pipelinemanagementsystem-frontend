@@ -66,23 +66,26 @@ background: linear-gradient(90deg, rgba(47, 253, 138, 1) 0%, rgba(79, 128, 255, 
 .sign-in__wrapper {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   width: 100vw;
   background-position: center center;
   background-repeat: no-repeat;
   background-size: cover;
   position: relative;
-  padding: 30px 0;
+  padding: 5px 15px;
   height: 100vh;
-  overflow: auto;
+  overflow: hidden;
   background-color: #efefef;
   background-image: url(resources/images/logo-bg.jpg);
   background-position: left top; background-repeat: no-repeat; background-size: cover;
 }
 
 .signinwrapper-layout {
-  padding-bottom: 30px;
+  padding-bottom: 10px;
+  width: 100%;
+  max-width: 465px;
+  margin: auto;
 }
 
 .signinwrapper-inner {
@@ -98,11 +101,35 @@ background: linear-gradient(90deg, rgba(47, 253, 138, 1) 0%, rgba(79, 128, 255, 
   inset: 0;
   background-color: rgba(0, 0, 0, 0.3);
 }
-.loginformblock-row{max-width: 465px; margin: 0 auto;}
+.loginformblock-row {
+  max-width: 465px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+  border: 1px solid rgba(0,0,0,0.1);
+}
 .sign-in__wrapper form {display: block; width: 100%; z-index: 1; animation: showSignInForm 1s; position: relative;}
-.loginformblock-row button[type=submit] {margin: 20px auto 10px; display: block; padding: 12px 20px; background-color: #cfa34a; border: 0; border-color: #cfa34a; text-transform: uppercase; font-weight: bold; font-size: 18px;}
-.loginformblock-row button[type=submit]:hover{background-color: #3f3f3f; border-color: #3f3f3f;}
-.loginformblock-row .btn-link {color: #3f3f3f; text-decoration: none; font-weight: bold; margin-top: 15px; display: block; padding: 0;}
+.loginformblock-row button[type=submit] {
+  margin: 20px auto 12px;
+  display: block;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #2FFD8A 0%, #4f80ff 100%);
+  border: 0;
+  border-radius: 8px;
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 16px;
+  color: white;
+  box-shadow: 0 4px 15px rgba(79, 128, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.loginformblock-row button[type=submit]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(79, 128, 255, 0.4);
+}
+.loginformblock-row .btn-link {color: #3f3f3f; text-decoration: none; font-weight: bold; margin-top: 8px; display: block; padding: 0;}
 .loginformblock-row .btn-link:hover{color: #498BFF !important;}
 
 input:-webkit-autofill,
@@ -206,15 +233,20 @@ input:-webkit-autofill:active {
 
 /* Login Screen */
 .logheader {
-  position: relative;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 1;
-  margin-bottom: 30px; background-color: #3dc2c0; border-radius: 10px; padding: 20px 25px;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0 0 20px 0;
+  box-shadow: none;
 }
-.logo {max-width: 400px; margin: 0 auto;}
 
+.logo {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  box-shadow: none;
+}
 
 .logheader img {
   width: auto;
@@ -227,9 +259,63 @@ input:-webkit-autofill:active {
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
-.logformhead p {margin-top: 20px; text-align: center; font-size: 18px;}
+.logo {
+  max-width: 450px;
+  margin: 0 auto;
+  overflow: visible;
+  position: relative;
+  background: linear-gradient(135deg, #2FFD8A 0%, #4f80ff 100%);
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 4px 15px rgba(79, 128, 255, 0.3);
+}
+
+.logo::after {
+  display: none;
+}
+
+
+.logheader img {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  background: linear-gradient(135deg, #2FFD8A 0%, #4f80ff 100%);
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 4px 15px rgba(79, 128, 255, 0.3);
+}
+
+.lohheaderlogo {
+  background: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+  display: block !important;
+}
+
+.logformhead {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+.logformhead h1 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 8px;
+}
+
+.logformhead p {
+  margin-top: 0;
+  text-align: center;
+  font-size: 16px;
+  color: #7f8c8d;
+}
 .logformheadimg {
   margin-right: 15px;
 }
@@ -243,14 +329,14 @@ input:-webkit-autofill:active {
 }
 
 .loginformblock .form-group {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .loginformblock .form-group .col-form-label {
   padding-bottom: 0; width: 100%; font-size: 1rem;
 }
 
-.loginformblock .form-control {padding: 12px 20px; border-radius: 5px;}
+.loginformblock .form-control {padding: 10px 18px; border-radius: 4px;}
 
 .loginformblock .form-control:focus,
 .loginformblock .form-control:active {
@@ -263,16 +349,20 @@ input:-webkit-autofill:active {
   position: relative;
   padding-bottom: 0;
   width: 100%;
+  max-width: 465px;
   z-index: 1;
+  margin-top: 20px;
 }
 
 .loginfooter-inner {
-  background-color: #fff;
-  border-radius: 5px;
-  padding: 15px 30px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 12px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  border: 1px solid rgba(0,0,0,0.1);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
 
 .loginfooter-row {
@@ -530,12 +620,16 @@ body {
 .pipefilterbtn {
   display: flex;
   align-items: center;
+  pointer-events: auto !important;
+  z-index: 10 !important;
 }
 
 .filterbtn .btn, .filterbtn .btn:focus {
   padding: 1px 6px;
   background-color: #1f2937;
   color: #fff; border: none;
+  pointer-events: auto !important;
+  cursor: pointer !important;
 }
 .filterbtn .btn:hover {background-color: #4f80ff;}
 
@@ -3229,6 +3323,43 @@ button.fields-editbtn {
   overflow: scroll;
 }
 
+/* Increase dialog size for DataGrid components to prevent double scrollbars */
+.modal-dialog:has(.MuiDataGrid-root) {
+  max-width: 90vw !important;
+  width: 90vw !important;
+}
+
+.modal-dialog:has(.MuiDataGrid-root) .modal-body {
+  max-height: 70vh !important;
+  overflow: hidden !important;
+  padding: 0 1rem !important;
+}
+
+.modal-dialog:has(.MuiDataGrid-root) .MuiDataGrid-root {
+  height: 65vh !important;
+  overflow: auto !important;
+}
+
+.modal-dialog:has(.MuiDataGrid-root) .modal-content {
+  overflow: hidden !important;
+}
+
+/* Specific fix for linked deals dialog only */
+.modal-dialog.linked-deals-modal {
+  max-width: 95vw !important;
+  width: 95vw !important;
+}
+
+.modal-dialog.linked-deals-modal .modal-body {
+  max-height: 75vh !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+.modal-dialog.linked-deals-modal .modal-content {
+  overflow: hidden !important;
+}
+
 @media (min-width: 576px) {
   .modal-dialog {
     max-width: 600px;
@@ -3257,19 +3388,31 @@ button.fields-editbtn {
   .modal-sm {
     max-width: 300px;
   }
+
+  .modal-dialog.linked-deals-modal {
+    max-width: 95vw !important;
+    width: 95vw !important;
+  }
 }
 
 @media (min-width: 992px) {
-
   .modal-lg,
   .modal-xl {
     max-width: 940px;
+  }
+
+  .modal-dialog.linked-deals-modal {
+    max-width: 95vw !important;
   }
 }
 
 @media (min-width: 1200px) {
   .modal-xl {
     max-width: 1140px;
+  }
+
+  .modal-dialog.linked-deals-modal {
+    max-width: 95vw !important;
   }
 }
 
@@ -3470,6 +3613,16 @@ select {
   padding: 8px 12px;
   /* Adjust the padding as needed */
   box-sizing: border-box;
+  background-color: #fff !important;
+}
+
+.headsearch input.form-control:hover,
+.headsearch input.form-control:focus,
+.headsearch input.form-control:active {
+  background-color: #fff !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 .view-deals-button {
@@ -4039,7 +4192,130 @@ input[type="checkbox"]:active {
   overflow: visible !important;
 }
 
-/* Ensure toast messages appear above modal dialogs */
+/* Global override - Remove all focus colors and borders */
+* {
+  outline: none !important;
+}
+
+/* Remove all input focus states globally */
+input,
+textarea,
+select,
+.form-control,
+.form-select {
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: rgba(0, 0, 0, 0.23) !important;
+}
+
+input:focus,
+input:focus-visible,
+input:active,
+input:hover,
+textarea:focus,
+textarea:focus-visible,
+textarea:active,
+textarea:hover,
+select:focus,
+select:focus-visible,
+select:active,
+select:hover,
+.form-control:focus,
+.form-control:focus-visible,
+.form-control:active,
+.form-control:hover,
+.form-select:focus,
+.form-select:focus-visible,
+.form-select:active,
+.form-select:hover {
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: rgba(0, 0, 0, 0.23) !important;
+  background-color: transparent !important;
+}
+
+/* MUI TextField overrides */
+.MuiOutlinedInput-root,
+.MuiOutlinedInput-root:hover,
+.MuiOutlinedInput-root.Mui-focused,
+.MuiOutlinedInput-root.Mui-focusVisible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline,
+.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline,
+.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline,
+.MuiOutlinedInput-root.Mui-focusVisible .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(0, 0, 0, 0.23) !important;
+  border-width: 1px !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.MuiInputLabel-root,
+.MuiInputLabel-root.Mui-focused,
+.MuiInputLabel-root.Mui-focusVisible {
+  color: rgba(0, 0, 0, 0.6) !important;
+}
+
+.form-control:focus,
+.form-select:focus,
+input:focus,
+textarea:focus,
+select:focus,
+.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline,
+.MuiInput-underline:after,
+.MuiOutlinedInput-root:focus-within .MuiOutlinedInput-notchedOutline,
+.MuiTextField-root .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(0, 0, 0, 0.23) !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(0, 0, 0, 0.23) !important;
+}
+
+.MuiInputLabel-root.Mui-focused {
+  color: rgba(0, 0, 0, 0.6) !important;
+}
+.loginformblock .MuiOutlinedInput-root {
+  border-radius: 8px;
+}
+
+.loginformblock .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(0, 0, 0, 0.23) !important;
+}
+
+.loginformblock .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(0, 0, 0, 0.23) !important;
+}
+
+.loginformblock .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(0, 0, 0, 0.23) !important;
+  border-width: 1px !important;
+}
+
+.loginformblock .MuiInputLabel-root {
+  color: rgba(0, 0, 0, 0.6) !important;
+}
+
+.loginformblock .MuiInputLabel-root.Mui-focused {
+  color: rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Override theme context styles specifically for login form */
+.sign-in__wrapper .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(0, 0, 0, 0.23) !important;
+  box-shadow: none !important;
+}
+
+.sign-in__wrapper .form-control:focus,
+.sign-in__wrapper .MuiOutlinedInput-root:focus-within {
+  border-color: rgba(0, 0, 0, 0.23) !important;
+  box-shadow: none !important;
+}
 .Toastify__toast-container {
   z-index: 999999 !important;
   position: fixed !important;

@@ -381,7 +381,6 @@ export const Deals = (props: params) => {
       })
       .catch((err) => {
         setCustomError("No deals under selected combination" as any);
-        // toast.warn("No deals under selected combination" );
         setTotalDeals([]);
         setStages([]);
         setOriginalStages([]);
@@ -441,6 +440,32 @@ export const Deals = (props: params) => {
             {viewType === "kanban" ? (
               <div className="pdstage-area">
                 <div className="pdstagearea-inner">
+                  {/* Show no deals message when filter is applied but no deals found */}
+                  {(selectedFilterObj || selectedUserId) && stages.length === 0 && !isLoading ? (
+                    <div style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      height: '400px',
+                      textAlign: 'center',
+                      color: '#666'
+                    }}>
+                      <div style={{ fontSize: '48px', marginBottom: '16px' }}>📋</div>
+                      <h3 style={{ marginBottom: '8px', color: '#333' }}>No deals found</h3>
+                      <p style={{ marginBottom: '16px' }}>No deals match the selected filter combination.</p>
+                      <button 
+                        className="btn btn-primary"
+                        onClick={() => {
+                          setSelectedFilterObj(null);
+                          setSelectedUserId(null);
+                        }}
+                        style={{ padding: '8px 16px' }}
+                      >
+                        Clear Filters
+                      </button>
+                    </div>
+                  ) : (
                   <div className="pdstage-row" hidden={pipeLines.length == 0}>
                     <DragDropContext
                       onDragEnd={onDragEnd}
@@ -491,6 +516,7 @@ export const Deals = (props: params) => {
                       </Droppable>
                     </DragDropContext>
                   </div>
+                  )}
                   <div className="loadingmore">
                     {hasMore && !isLoadingMore && pipeLines.length > 0 && (
                     <div

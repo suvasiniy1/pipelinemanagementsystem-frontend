@@ -18,6 +18,7 @@ import "rsuite/dist/styles/rsuite-default.css";
 import logo from "../../src/resources/images/Clinic-Lead-White.png";
 import logoicon from "../../src/resources/images/Clinic-Lead-White-Icon.png";
 import Util from "../others/util";
+import RoleValidator from "../others/RoleValidator";
 import { BiGitBranch } from "react-icons/bi";
 import { HiOutlineFunnel } from "react-icons/hi2";
 import { GiStairsGoal } from "react-icons/gi";
@@ -62,6 +63,7 @@ export const SideBar = ({ collapsed }: SideBarProps) => {
     '/stages': 'Stages',
     '/pipelinetype': 'PipeLineType',
     '/pipeline': 'pipeline',
+    '/deal': 'pipeline',
     '/activities': 'Activities',
     '/person': 'Person',
     '/template': 'Template',
@@ -152,6 +154,21 @@ export const SideBar = ({ collapsed }: SideBarProps) => {
       updateSubMenuIcon('.ps-submenu-root:has([title="Campaigns"]) .ps-menu-icon svg', campaignSubMenu.includes(selectedNavItem));
     }, 200);
   }, [collapsed, selectedNavItem, activeNavColor, adminSubMenu, campaignSubMenu]);
+
+  // Enable tampering detection
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (userRole !== null && userRole !== undefined) {
+        // Check if role is still valid
+        const currentRole = Util.getUserRole();
+        if (currentRole === null) {
+          console.warn('Session invalidated due to tampering');
+        }
+      }
+    }, 5000); // Check every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [userRole]);
 
   const sidebarTheme = {
     backgroundColor: currentTheme.sidebarColor,

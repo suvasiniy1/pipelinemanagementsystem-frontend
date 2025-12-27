@@ -417,17 +417,24 @@ export const DealHeader = (props: params) => {
                 {!isMasterAdmin && <div className="pipefilterbtn" style={{ display: (dialogIsOpen || dealFilterDialogIsOpen) ? 'none' : 'block' }}>
                   <div className="filterbtn">
                     <a
-                      className="btn"
+                      className={`btn ${!(selectedFilterObj || selectedUserId) ? 'disabled' : ''}`}
                       href="javascript:void(0);"
+                      style={{
+                        opacity: !(selectedFilterObj || selectedUserId) ? 0.5 : 1,
+                        cursor: !(selectedFilterObj || selectedUserId) ? 'not-allowed' : 'pointer',
+                        pointerEvents: !(selectedFilterObj || selectedUserId) ? 'none' : 'auto'
+                      }}
                       onClick={(e: any) => {
-                        setSelectedUserId(null);
-                        setSelectedFilterObj(null);
-                        if (props.pipeLinesList && props.pipeLinesList.length > 0) {
-                          props.setPipeLineId(props.pipeLinesList[0].pipelineID);
-                          props.setSelectedItem(props.pipeLinesList[0]);
-                        } else {
-                          props.setPipeLineId && props.setPipeLineId(null);
-                          props.setSelectedItem && props.setSelectedItem(null);
+                        if (selectedFilterObj || selectedUserId) {
+                          setSelectedUserId(null);
+                          setSelectedFilterObj(null);
+                          if (props.pipeLinesList && props.pipeLinesList.length > 0) {
+                            props.setPipeLineId(props.pipeLinesList[0].pipelineID);
+                            props.setSelectedItem(props.pipeLinesList[0]);
+                          } else {
+                            props.setPipeLineId && props.setPipeLineId(null);
+                            props.setSelectedItem && props.setSelectedItem(null);
+                          }
                         }
                       }}
                     >

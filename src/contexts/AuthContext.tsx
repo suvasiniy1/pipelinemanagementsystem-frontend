@@ -3,7 +3,6 @@ import LocalStorageUtil from '../others/LocalStorageUtil';
 import Constants from '../others/constants';
 import Util from '../others/util';
 import { UserProfile } from '../models/userProfile';
-import SecureStorage from '../others/secureStorage';
 import { UserPreferencesService } from '../services/userPreferencesService';
 import { ErrorBoundary } from 'react-error-boundary';
 
@@ -50,10 +49,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     // Load obfuscated role from localStorage on app start
     if (loggedIn) {
-      let roleNum: number | null = null;
-      const role = SecureStorage.getSecureItem(Constants.USER_Role);
-      if (role !== null && role !== undefined) {
-        roleNum = parseInt(role);
+      const roleNum = Util.getUserRole();
+      if (roleNum !== null) {
         setUserRoleState(roleNum);
         Util.loadNavItemsForUser(roleNum);
         console.log('Loaded role on init:', roleNum, 'Nav items:', Util.navItemsList);
@@ -109,7 +106,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUserRoleState(role);
     if (role !== null && role !== undefined) {
       // Store obfuscated role in localStorage
-      SecureStorage.setSecureItem(Constants.USER_Role, role.toString());
+      Util.setUserRole(role);
       Util.loadNavItemsForUser(role);
       console.log('Nav items loaded for role:', role, 'Items:', Util.navItemsList);
     }
@@ -126,8 +123,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       LocalStorageUtil.removeItem(Constants.TOKEN_EXPIRATION_TIME);
       LocalStorageUtil.removeItem(Constants.USER_PROFILE);
       LocalStorageUtil.removeItem('USER_TENANTS');
+      localStorage.removeItem('sys_perm_data');
       LocalStorageUtil.removeItem('IS_MASTER_ADMIN');
-      SecureStorage.removeSecureItem(Constants.USER_Role);
     }
   };
 

@@ -22,7 +22,11 @@ export const UnAuthorized = (props: params) => {
                 navigate("/login");
             }, 1500);
         } else {
-            toast.error(customMessage ?? (isRetrivingList? "Unable to retrieve the list" : "Unable to perform the action"), {delay:20});
+            // Don't show toast for "No deals" messages - these should be handled in UI
+            const message = customMessage ?? (isRetrivingList? "Unable to retrieve the list" : "Unable to perform the action");
+            if (!message.includes("No deals under selected combination")) {
+                toast.error(message, {delay:20});
+            }
         }
     },[error, customMessage])
 
