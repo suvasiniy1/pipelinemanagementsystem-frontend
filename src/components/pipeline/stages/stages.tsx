@@ -418,7 +418,7 @@ export const Stages = (props: params) => {
                     <div className="pdstage-area editstage-area">
                         <div className="container-fluid">
 
-                            <div className="editstage-row scrollable-stages-container">
+                            <div className="editstage-row scrollable-stages-container" style={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto', overflowX: 'hidden' }}>
                                 <DragDropContext onDragEnd={onDragEnd}>
                                     <Droppable
                                         droppableId="board"

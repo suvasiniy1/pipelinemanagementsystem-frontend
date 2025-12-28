@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import React from "react";
 import { createPortal } from "react-dom";
 import { useLocation } from "react-router-dom";
 import { HiTemplate } from "react-icons/hi";
@@ -64,6 +65,7 @@ export const SideBar = ({ collapsed }: SideBarProps) => {
     '/pipelinetype': 'PipeLineType',
     '/pipeline': 'pipeline',
     '/deal': 'pipeline',
+    '/dealdetails': 'pipeline',
     '/activities': 'Activities',
     '/person': 'Person',
     '/template': 'Template',
@@ -77,8 +79,23 @@ export const SideBar = ({ collapsed }: SideBarProps) => {
 
   useEffect(() => {
     const fullPath = location.pathname.toLowerCase();
+    console.log('Current path:', fullPath);
+    
     // Remove /PLMSUI prefix if present
     const path = fullPath.replace(/^\/plmsui/, '') || '/';
+    console.log('Cleaned path:', path);
+    
+    // Force clear Stages selection if not on stages page
+    if (selectedNavItem === 'Stages' && !path.startsWith('/stages')) {
+      setSelectedNavItem('');
+    }
+    
+    // Check for deal-related paths first
+    if (path.includes('deal') || path.startsWith('/deal')) {
+      console.log('Setting pipeline as selected');
+      setSelectedNavItem('pipeline');
+      return;
+    }
     
     // Sort routes by length (longest first) to match most specific routes first
     const sortedRoutes = Object.entries(pathToNavMap).sort(([a], [b]) => b.length - a.length);
@@ -93,12 +110,14 @@ export const SideBar = ({ collapsed }: SideBarProps) => {
       return false;
     })?.[1] || '';
     
+    console.log('Selected nav item:', navItem);
+    // Force update even if it's the same value to ensure proper state reset
     setSelectedNavItem(navItem);
     // Reset expanded submenu when navigating to non-submenu items
     if (navItem && !adminSubMenu.includes(navItem) && !campaignSubMenu.includes(navItem)) {
       setExpandedSubMenu(null);
     }
-  }, [location.pathname]);
+  }, [location.pathname, selectedNavItem]);
 
   useEffect(() => {
     const updateSubMenuIcon = (selector: string, isActive: boolean) => {
@@ -114,9 +133,19 @@ export const SideBar = ({ collapsed }: SideBarProps) => {
       }
     };
 
+    // Update main menu icons
+    const updateMainMenuIcon = (title: string, isActive: boolean) => {
+      const menuItem = document.querySelector(`[title="${title}"] .ps-menu-icon svg`);
+      if (menuItem) {
+        menuItem.setAttribute('color', isActive ? activeNavColor : 'black');
+        (menuItem as HTMLElement).style.color = isActive ? activeNavColor : 'black';
+      }
+    };
+
     setTimeout(() => {
       updateSubMenuIcon('.ps-submenu-root:has([title="Admin"]) .ps-menu-icon svg', adminSubMenu.includes(selectedNavItem));
       updateSubMenuIcon('.ps-submenu-root:has([title="Campaigns"]) .ps-menu-icon svg', campaignSubMenu.includes(selectedNavItem));
+      updateMainMenuIcon('Sales Stage', selectedNavItem === 'pipeline');
     }, 100);
   }, [selectedNavItem, activeNavColor]);
 
@@ -153,7 +182,7 @@ export const SideBar = ({ collapsed }: SideBarProps) => {
       updateSubMenuIcon('.ps-submenu-root:has([title="Admin"]) .ps-menu-icon svg', adminSubMenu.includes(selectedNavItem));
       updateSubMenuIcon('.ps-submenu-root:has([title="Campaigns"]) .ps-menu-icon svg', campaignSubMenu.includes(selectedNavItem));
     }, 200);
-  }, [collapsed, selectedNavItem, activeNavColor, adminSubMenu, campaignSubMenu]);
+  }, [collapsed, selectedNavItem, activeNavColor]);
 
   // Enable tampering detection
   useEffect(() => {
@@ -178,7 +207,7 @@ export const SideBar = ({ collapsed }: SideBarProps) => {
   const MenuItemComponent = ({ item, isActive }: { item: MenuItemConfig; isActive: boolean }) => (
     <MenuItem 
       hidden={!Util.isAuthorized(item.permission)} 
-      icon={item.icon} 
+      icon={item.icon}
       title={item.title} 
       component={<Link to={item.path} />}
       onClick={() => setSelectedNavItem(item.key)}
@@ -206,14 +235,14 @@ export const SideBar = ({ collapsed }: SideBarProps) => {
       key: "Stages",
       title: "Add Pipeline",
       path: "/Stages",
-      icon: <HiOutlineFunnel color={selectedNavItem === "Stages" ? activeNavColor : "black"} />,
+      icon: <HiOutlineFunnel key={selectedNavItem} color={selectedNavItem === "Stages" ? activeNavColor : "black"} />,
       permission: "Stages"
     },
     {
       key: "pipeline",
       title: "Sales Stage",
       path: "/pipeline",
-      icon: <GiStairsGoal color={selectedNavItem === "pipeline" ? activeNavColor : "black"} />,
+      icon: <GiStairsGoal key={selectedNavItem} style={{color: selectedNavItem === "pipeline" ? activeNavColor : "black"}} />,
       permission: "pipeline"
     },
     {
@@ -326,7 +355,34 @@ export const SideBar = ({ collapsed }: SideBarProps) => {
 
       <Menu style={{ paddingTop: "58px" }}>
         {getMainMenuItems().map(item => (
-          <MenuItemComponent key={item.key} item={item} isActive={selectedNavItem === item.key} />
+          <MenuItem 
+            key={item.key}
+            hidden={!Util.isAuthorized(item.permission)} 
+            icon={item.icon}
+            title={item.title} 
+            component={<Link to={item.path} />}
+            onClick={() => setSelectedNavItem(item.key)}
+            rootStyles={{
+              ['.' + 'ps-menu-button']: {
+                color: 'black !important',
+                backgroundColor: 'transparent !important',
+                textDecoration: 'none !important'
+              },
+              ['.' + 'ps-menu-label']: {
+                color: 'inherit !important'
+              },
+              ['.' + 'ps-menu-icon svg']: {
+                color: selectedNavItem === item.key ? `${activeNavColor} !important` : 'black !important',
+                fill: selectedNavItem === item.key ? `${activeNavColor} !important` : 'black !important'
+              }
+            }}
+          >
+            {selectedNavItem === item.key ? (
+              <b style={{ color: activeNavColor }}>{item.displayName || item.title}</b>
+            ) : (
+              <span style={{ color: 'black' }}>{item.displayName || item.title}</span>
+            )}
+          </MenuItem>
         ))}
 
         {getSubMenus().map(subMenu => {

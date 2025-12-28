@@ -19,12 +19,14 @@ import {
 } from "../email/emailService";
 import { TaskAddEdit } from "./taskAddEdit";
 import TaskDetails from "./taskDetails";
+import { useTheme } from '../../../../../contexts/ThemeContext';
 
 type params = {
   dealId: number;
 };
 const TasksList = (props: params) => {
   const { dealId, ...others } = props;
+  const { currentTheme } = useTheme();
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
   const [tasksList, setTasksList] = useState<Array<Tasks>>([]);
   const [error, setError] = useState<AxiosError>();
@@ -184,62 +186,69 @@ const TasksList = (props: params) => {
           <Spinner />
         </div>
       ) : (
-        <div className="createnote-row">
-            <>
-              <div className="activityfilter-row pb-3">
-                <div className="createnote-row">
-                  <button
-                    className="btn btn-y1app"
-                    type="button"
-                    onClick={(e: any) => {
-                      setSelectedTaskItem(null as any);
-                      setDialogIsOpen(true);
-                    }}
-                  >
-                    Create Task
-                  </button>
-                </div>
-              </div>
-              {/* <h3>April 2024</h3> */}
-              <div
-                className="activityfilter-accrow  mb-3"
-                hidden={tasksList.length == 0}
-              >
-                <Accordion className="activityfilter-acco">
-                  {tasksList.map((task, index) => (
-                    <div key={index}>
-                      <TaskDetails
-                        task={task}
-                        index={index}
-                        setDialogIsOpen={(e: any) => {
-                          setDialogIsOpen(e);
-                        }}
-                        setShowDeleteDialog={(e: any) => {
-                          setShowDeleteDialog(e);
-                        }}
-                        setSelectedTaskItem={(e: any) => {
-                          setSelectedTaskItem(e);
-                        }}
-                        setSelectedTaskId={(e: any) => {
-                          setSelectedTaskId(e);
-                        }}
-                        selectedIndex={selectedIndex}
-                        setSelectedIndex={(e: any) => {
-                          setSelectedIndex(e);
-                        }}
-                      />
-                    </div>
-                  ))}
-                </Accordion>
-              </div>
-              <div
-                style={{ textAlign: "center" }}
-                hidden={tasksList.length > 0}
-              >
-                No tasks are avilable to show
-              </div>
-            </>
-        </div>
+        <>
+          <div className='text-end'>
+            <button
+              className="btn btn-y1app btn-sm"
+              type="button"
+              onClick={(e: any) => {
+                setSelectedTaskItem(null as any);
+                setDialogIsOpen(true);
+              }}
+              style={{
+                backgroundColor: currentTheme.primaryColor,
+                borderColor: currentTheme.primaryColor,
+                color: '#ffffff',
+                padding: '4px 12px',
+                fontSize: '13px'
+              }}
+            >
+              + Create Task
+            </button>
+          </div>
+          
+          {tasksList.length > 0 ? (
+            <div className="activityfilter-accrow mb-3">
+              <Accordion className="activityfilter-acco">
+                {tasksList.map((task, index) => (
+                  <div key={index}>
+                    <TaskDetails
+                      task={task}
+                      index={index}
+                      setDialogIsOpen={(e: any) => {
+                        setDialogIsOpen(e);
+                      }}
+                      setShowDeleteDialog={(e: any) => {
+                        setShowDeleteDialog(e);
+                      }}
+                      setSelectedTaskItem={(e: any) => {
+                        setSelectedTaskItem(e);
+                      }}
+                      setSelectedTaskId={(e: any) => {
+                        setSelectedTaskId(e);
+                      }}
+                      selectedIndex={selectedIndex}
+                      setSelectedIndex={(e: any) => {
+                        setSelectedIndex(e);
+                      }}
+                    />
+                  </div>
+                ))}
+              </Accordion>
+            </div>
+          ) : (
+            <div className='text-center py-5' style={{ 
+              backgroundColor: '#f8f9fa', 
+              borderRadius: '8px', 
+              border: '2px dashed #dee2e6',
+              margin: '20px 0'
+            }}>
+              <div style={{ fontSize: '48px', color: '#dee2e6', marginBottom: '16px' }}>✓</div>
+              <h6 style={{ color: '#6c757d', marginBottom: '8px' }}>No tasks available</h6>
+              <p style={{ color: '#adb5bd', fontSize: '14px', margin: '0' }}>Create your first task to get started</p>
+            </div>
+          )}
+        </>
       )}
       {dialogIsOpen && (
         <TaskAddEdit

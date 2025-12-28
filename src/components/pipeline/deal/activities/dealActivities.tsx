@@ -348,65 +348,72 @@ extractedSubject = "Email Activity";
           <Tab eventKey="activity_sub" title="Activity">
   {defaultActiveKey === "activity_sub" && (
     <AuthProvider>
-      {dealTimeLines.map((item, index) => {
-        const isBasicLog =
-          item.eventTypeId === EntitType.Deal ||
-          item.eventTypeId === 7 || // Pipeline
-          item.eventTypeId === 9;   // Stage
+      {dealTimeLines.length > 0 ? (
+        dealTimeLines.map((item, index) => {
+          const isBasicLog =
+            item.eventTypeId === EntitType.Deal ||
+            item.eventTypeId === 7 || // Pipeline
+            item.eventTypeId === 9;   // Stage
 
-        return (
-          <div className={`appboxdata ${isBasicLog ? "basic-log" : ""}`} key={index}>
-            <div className="appboxdata-row">
-              <div className="lineroundicon PhoneInTalkOutlinedIcon">
-                {getEventIcon(item.eventTypeId)}
-              </div>
-
-              <div className={`appboxdata-rowdata ${isBasicLog ? "unified-log" : "highlight-box"}`}>
-                <div className="appboxdatarow-head">
-                  <div className="appboxdatarow-headrow">
-                    <h2>
-                      {item.eventTypeId === EntitType.Email ? "Email" : item.eventType}
-                      {(item as any).userName && (
-                        <span style={{ fontWeight: 'normal', fontSize: '14px', marginLeft: '8px' }}>
-                          by {(item as any).userName}
-                        </span>
-                      )}
-                    </h2>
-                  </div>
-                  <div className="appboxdata-meta appboxdata-headmeta">
-                    <div className="appboxdatameta-date">
-                      {moment(item.eventDate).format("MM-DD-YYYY hh:mm:ss a")}
-                    </div>
-                    <div className="appboxdatameta-service">
-                      &nbsp;&nbsp;({item.timeline?.replace(/^-/, '') || item.timeline})
-                    </div>
-                  </div>
+          return (
+            <div className={`appboxdata ${isBasicLog ? "basic-log" : ""}`} key={index}>
+              <div className="appboxdata-row">
+                <div className="lineroundicon PhoneInTalkOutlinedIcon">
+                  {getEventIcon(item.eventTypeId)}
                 </div>
 
-                <div className="appboxdatarow-foot">
-                  <div className="appboxdatafoot-call">
-                    <div className="appboxdatafoot-calltext">
-                      {item.eventTypeId === EntitType.Email ? (
-  <EmailItemRenderer item={item} />
-) : (
-  parse(item.activityDetail || "", options)
-)}
+                <div className={`appboxdata-rowdata ${isBasicLog ? "unified-log" : "highlight-box"}`}>
+                  <div className="appboxdatarow-head">
+                    <div className="appboxdatarow-headrow">
+                      <h2>
+                        {item.eventTypeId === EntitType.Email ? "Email" : item.eventType}
+                        {(item as any).userName && (
+                          <span style={{ fontWeight: 'normal', fontSize: '14px', marginLeft: '8px' }}>
+                            by {(item as any).userName}
+                          </span>
+                        )}
+                      </h2>
+                    </div>
+                    <div className="appboxdata-meta appboxdata-headmeta">
+                      <div className="appboxdatameta-date">
+                        {moment(item.eventDate).format("MM-DD-YYYY hh:mm:ss a")}
+                      </div>
+                      <div className="appboxdatameta-service">
+                        &nbsp;&nbsp;({item.timeline?.replace(/^-/, '') || item.timeline})
+                      </div>
                     </div>
                   </div>
-                  <div className="appboxdata-meta appboxdata-footmeta">
-                    <div
-                      className="appboxdatameta-leadname"
-                      hidden={!item.contactNumber}
-                    >
-                      <PersonOutlineIcon /> {item.contactNumber}
+
+                  <div className="appboxdatarow-foot">
+                    <div className="appboxdatafoot-call">
+                      <div className="appboxdatafoot-calltext">
+                        {item.eventTypeId === EntitType.Email ? (
+    <EmailItemRenderer item={item} />
+  ) : (
+    parse(item.activityDetail || "", options)
+  )}
+                      </div>
+                    </div>
+                    <div className="appboxdata-meta appboxdata-footmeta">
+                      <div
+                        className="appboxdatameta-leadname"
+                        hidden={!item.contactNumber}
+                      >
+                        <PersonOutlineIcon /> {item.contactNumber}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })
+      ) : (
+        <div className="no-activities-message" style={{ textAlign: 'center', padding: '40px 20px', color: '#666' }}>
+          <div style={{ fontSize: '18px', marginBottom: '10px' }}>No recent activities</div>
+          <div style={{ fontSize: '14px' }}>Activities will appear here as they are created</div>
+        </div>
+      )}
     </AuthProvider>
   )}
 </Tab>

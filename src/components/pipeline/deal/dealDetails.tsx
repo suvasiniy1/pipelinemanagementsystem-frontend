@@ -553,7 +553,7 @@ export const DealDetails = () => {
           <Spinner />
         </div>
       ) : (
-        <div className="pdstage-detailarea">
+        <div className="pdstage-detailarea" style={{ height: '100vh', overflow: 'hidden' }}>
           <div className="pdstage-detail">
             <div className="sidebardetail-col">
               <div className="sidebardetailtopbar">
@@ -782,7 +782,7 @@ export const DealDetails = () => {
                 </div>
               </div>
               {/* Scrollable Content Panel */}
-              <div className="app-detail-content">
+              <div className="app-detail-content" style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 200px)' }}>
                 <div className="app-dealblock">
                   <div className="app-dealblock-inner">
                     <div className="appdealblock-head">

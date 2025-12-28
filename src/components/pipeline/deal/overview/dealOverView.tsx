@@ -14,8 +14,6 @@ import moment from "moment";
 import { useEffect, useState } from "react";
 import Accordion from "react-bootstrap/Accordion";
 import Dropdown from "react-bootstrap/Dropdown";
-import Tab from "react-bootstrap/Tab";
-import Tabs from "react-bootstrap/Tabs";
 import { ErrorBoundary } from "react-error-boundary";
 import { UnAuthorized } from "../../../../common/unauthorized";
 import SelectDropdown from "../../../../elements/SelectDropdown";
@@ -53,7 +51,6 @@ const DealOverView = (props: params) => {
   const dealSvc = new DealService(ErrorBoundary); // Instantiate DealService
   const [notesList, setNotesList] = useState<Array<Notes>>([]);
   const [error, setError] = useState<AxiosError>();
-  const [selectedTab, setSelectedTab] = useState("activities");
   const [isDealLost, setIsDealLost]=useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   
@@ -395,24 +392,8 @@ const handleLostClick = () => {
                 </div>
               </div>
             </div>
-            <div className="timeline-blockinner">
-              <Tabs
-                defaultActiveKey="activities"
-                transition={false}
-                onSelect={(e: any) => setSelectedTab(e)}
-                id="noanim-tab-example"
-                className="mb-5 timelinetab-block"
-              >
-                <Tab
-                  eventKey="activities"
-                  title="Activities"
-                  className="timelinesubtab activitiestab"
-                >
-                  {selectedTab === "activities" && (
-                    <DealActivities dealItem={dealItem} dealId={dealId} refreshTrigger={refreshTrigger}/>
-                  )}
-                </Tab>
-              </Tabs>
+            <div className="timeline-blockinner" style={{ marginTop: '30px' }}>
+              <DealActivities dealItem={dealItem} dealId={dealId} refreshTrigger={refreshTrigger}/>
             </div>
           </div>
         </div>

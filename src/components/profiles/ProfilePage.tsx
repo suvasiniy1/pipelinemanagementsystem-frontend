@@ -89,7 +89,29 @@ export const ProfilePage = () => {
   }
 
   if (!userDetails) {
-    return <p>User profile could not be loaded.</p>;
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh', flexDirection: 'column' }}>
+        <div className="text-center p-4" style={{ 
+          backgroundColor: '#f8f9fa', 
+          borderRadius: '12px', 
+          border: '2px solid #dee2e6',
+          maxWidth: '400px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+        }}>
+          <div style={{ fontSize: '48px', color: '#dc3545', marginBottom: '16px' }}>⚠️</div>
+          <h5 style={{ color: '#495057', marginBottom: '12px' }}>Profile Not Available</h5>
+          <p style={{ color: '#6c757d', marginBottom: '20px' }}>User profile could not be loaded. Please try again later.</p>
+          <Button 
+            variant="primary" 
+            onClick={() => navigate("/pipeline")}
+            className="d-flex align-items-center gap-2 mx-auto"
+          >
+            <FontAwesomeIcon icon={faArrowLeft} />
+            Back to Deals
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (
